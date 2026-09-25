@@ -1,8 +1,10 @@
 .git
 .agents
 node_modules
+video-exec/
 *.log
 *.zip
+*.patch
 *.bat
 tests/
 scratch/
