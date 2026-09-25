@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>HyperFrames Audio — Mezclador DSP con data-fx-chain</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module" src="lib/hyperframes_audio_engine.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen p-8 font-sans">
+  <div class="max-w-4xl mx-auto space-y-8">
+    
+    <!-- Encabezado -->
+    <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl">
+      <div class="inline-block px-3 py-1 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 text-xs font-mono font-bold rounded-full uppercase mb-2">
+        ⚡ HyperFrames Native DSP Runtime
+      </div>
+      <h1 class="text-2xl font-bold text-white">Mezclador de Audio con Inyección de Atributos</h1>
+      <p class="text-sm text-slate-400 mt-1">
+        Voz directa, nítida y con presencia constante (sin fade in / out), procesada mediante Web Audio Graph.
+      </p>
+    </div>
+
+    <!-- Pistas de Audio con data-fx-chain y data-automation inyectados -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <!-- Pista 1: Locución / Voz Principal -->
+      <div class="p-6 rounded-2xl bg-slate-900/80 border border-cyan-500/30 space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-cyan-300">🎙️ Pista 1: Locución (Voz Directa)</span>
+          <span class="text-[10px] font-mono px-2 py-0.5 bg-cyan-950 text-cyan-300 rounded border border-cyan-500/40">Sin Fade • Ganancia 100%</span>
+        </div>
+
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Procesamiento: <strong>Highpass 80Hz</strong> + <strong>Presencia 3.2kHz (+3dB)</strong> + <strong>Compresor 3.5:1</strong> + <strong>Limitador (-1dB)</strong>.
+        </p>
+
+        <!-- Elemento Audio con Atributos HyperFrames -->
+        <audio 
+          id="voice-track"
+          controls
+          class="w-full mt-2"
+          src="assets/videos/audio_es.mp3"
+          data-fx-chain='[
+            {"type": "highpass", "frequency": 80, "q": 0.707},
+            {"type": "peaking", "frequency": 3200, "gain": 3.0, "q": 1.2},
+            {"type": "compressor", "threshold": -18, "ratio": 3.5, "attack": 0.015, "release": 0.150},
+            {"type": "gain", "gain": 1.0},
+            {"type": "limiter", "ceiling": -1.0}
+          ]'
+          data-automation='{
+            "gain": [
+              {"time": 0.0, "value": 1.0},
+              {"time": 60.0, "value": 1.0}
+            ]
+          }'>
+        </audio>
+
+        <!-- JSON Inspector -->
+        <div class="text-[10px] font-mono p-3 bg-slate-950 rounded-xl border border-slate-800 text-slate-400 overflow-x-auto">
+          <code>data-fx-chain: [highpass:80Hz, peaking:3.2kHz(+3dB), compressor:3.5:1, limiter:-1dB]</code>
+        </div>
+      </div>
+
+      <!-- Pista 2: Música de Fondo con Ducking Automático -->
+      <div class="p-6 rounded-2xl bg-slate-900/80 border border-indigo-500/30 space-y-4">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-indigo-300">🎵 Pista 2: Música de Fondo (BGM)</span>
+          <span class="text-[10px] font-mono px-2 py-0.5 bg-indigo-950 text-indigo-300 rounded border border-indigo-500/40">Auto-Ducking Activo</span>
+        </div>
+
+        <p class="text-xs text-slate-300 leading-relaxed">
+          La música atenúa su volumen automáticamente en las frecuencias vocales (2.5kHz) para no enmascarar la voz.
+        </p>
+
+        <!-- Elemento Audio con Atributos HyperFrames -->
+        <audio 
+          id="music-bed"
+          controls
+          class="w-full mt-2"
+          src="assets/videos/ambient_bed.mp3"
+          data-fx-chain='[
+            {"type": "gain", "gain": 0.25},
+            {"type": "peaking", "frequency": 2500, "gain": -4.0, "q": 1.0}
+          ]'
+          data-automation='{
+            "gain": [
+              {"time": 0.0, "value": 0.30},
+              {"time": 1.0, "value": 0.10},
+              {"time": 50.0, "value": 0.10},
+              {"time": 60.0, "value": 0.30}
+            ]
+          }'>
+        </audio>
+
+        <!-- JSON Inspector -->
+        <div class="text-[10px] font-mono p-3 bg-slate-950 rounded-xl border border-slate-800 text-slate-400 overflow-x-auto">
+          <code>data-automation: { gain: [0s: 0.30, 1s: 0.10, 50s: 0.10, 60s: 0.30] }</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video Master sincronizado -->
+    <div class="p-6 rounded-2xl bg-slate-900 border border-slate-800 space-y-4">
+      <h3 class="font-bold text-white text-base flex items-center gap-2">
+        <span>🎬 Video Master con Audio Nivelado</span>
+      </h3>
+      <div class="aspect-video w-full rounded-xl overflow-hidden bg-black border border-slate-800">
+        <video 
+          id="master-video"
+          controls
+          playsinline
+          class="w-full h-full object-cover"
+          src="assets/videos/boltech_corporate_5scenes_es.mp4"
+          data-fx-chain='[
+            {"type": "highpass", "frequency": 75, "q": 0.707},
+            {"type": "limiter", "ceiling": -1.0}
+          ]'>
+        </video>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
