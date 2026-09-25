@@ -22,12 +22,25 @@ console.log('1. Probando getAIProvidersStatus:');
 const status = getAIProvidersStatus();
 console.assert(status.success === true, 'Debe indicar success: true');
 console.assert(status.sdk === 'vercel-ai-sdk', 'Debe indicar sdk: vercel-ai-sdk');
+console.assert(typeof status.providers.qwen === 'object', 'Debe incluir configuración de Qwen');
+console.assert(status.providers.qwen.defaultModel === 'qwen-3.8', 'Default model de Qwen debe ser qwen-3.8');
 console.assert(typeof status.providers.google === 'object', 'Debe incluir configuración de Google');
 console.assert(typeof status.providers.openai === 'object', 'Debe incluir configuración de OpenAI');
-console.log('  ✅ Diagnóstico de Proveedores: PASADO');
+console.log('  ✅ Diagnóstico de Proveedores (Qwen, Google, OpenAI): PASADO');
 
-// 2. Resolución de Modelos (Google Gemini)
-console.log('\n2. Probando Resolución de Modelo Google Gemini:');
+// 2. Resolución de Modelos (Qwen 3.8 / DashScope / OpenRouter)
+console.log('\n2. Probando Resolución de Modelo Qwen 3.8:');
+const qwenModel = resolveLanguageModel({
+  provider: 'qwen',
+  modelName: 'qwen-3.8',
+  apiKey: 'test-qwen-key-for-init'
+});
+console.assert(qwenModel.modelId === 'qwen-3.8', 'Model ID debe coincidir con qwen-3.8');
+console.assert(qwenModel.provider.startsWith('openai'), 'Provider Qwen debe ser compatible con la interfaz OpenAI');
+console.log('  ✅ Resolución de Modelo Qwen 3.8: PASADO (Model ID:', qwenModel.modelId, ')');
+
+// 3. Resolución de Modelos (Google Gemini)
+console.log('\n3. Probando Resolución de Modelo Google Gemini:');
 const googleModel = resolveLanguageModel({
   provider: 'google',
   modelName: 'gemini-1.5-flash',
@@ -37,8 +50,8 @@ console.assert(googleModel.modelId === 'gemini-1.5-flash', 'Model ID debe coinci
 console.assert(googleModel.provider === 'google.generative-ai', 'Provider debe ser google.generative-ai');
 console.log('  ✅ Resolución de Modelo Google: PASADO (Model ID:', googleModel.modelId, ')');
 
-// 3. Resolución de Modelos (OpenAI)
-console.log('\n3. Probando Resolución de Modelo OpenAI:');
+// 4. Resolución de Modelos (OpenAI)
+console.log('\n4. Probando Resolución de Modelo OpenAI:');
 const openAiModel = resolveLanguageModel({
   provider: 'openai',
   modelName: 'gpt-4o-mini',

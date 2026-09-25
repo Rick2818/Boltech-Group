@@ -57,9 +57,10 @@ export default async function handler(req, res) {
       const {
         prompt,
         system,
-        provider = 'google',
+        provider = 'qwen',
         modelName,
         apiKey,
+        baseURL,
         stream = false,
         temperature = 0.7,
         maxTokens = 2048
@@ -84,6 +85,7 @@ export default async function handler(req, res) {
           provider,
           modelName,
           apiKey,
+          baseURL,
           temperature,
           maxTokens
         });
@@ -101,9 +103,14 @@ export default async function handler(req, res) {
         provider,
         modelName,
         apiKey,
+        baseURL,
         temperature,
         maxTokens
       });
+
+      const defaultModelForProvider = provider === 'qwen' || provider === 'dashscope' || provider === 'openrouter'
+        ? 'qwen-3.8'
+        : (provider === 'openai' ? 'gpt-4o-mini' : 'gemini-1.5-flash');
 
       return res.status(200).json({
         success: true,
@@ -111,7 +118,7 @@ export default async function handler(req, res) {
         finishReason: response.finishReason,
         usage: response.usage,
         provider,
-        model: modelName || (provider === 'openai' ? 'gpt-4o-mini' : 'gemini-1.5-flash')
+        model: modelName || defaultModelForProvider
       });
     }
 
