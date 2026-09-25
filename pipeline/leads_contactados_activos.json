@@ -23,7 +23,7 @@
     ],
     "severity": "MEDIA",
     "deliveryAudit": {
-      "dispatchedAt": "2026-09-25T19:09:27.464Z",
+      "dispatchedAt": "2026-09-25T23:08:14.713Z",
       "mode": "DRY_RUN_SIMULATION",
       "impact": 1,
       "recipient": "empresas@chilexpress.cl",
@@ -55,7 +55,7 @@
     ],
     "severity": "MEDIA",
     "deliveryAudit": {
-      "dispatchedAt": "2026-09-25T19:09:30.672Z",
+      "dispatchedAt": "2026-09-25T23:08:18.550Z",
       "mode": "DRY_RUN_SIMULATION",
       "impact": 1,
       "recipient": "informacion@mrw.es",
@@ -89,7 +89,7 @@
     ],
     "severity": "CRITICA",
     "deliveryAudit": {
-      "dispatchedAt": "2026-09-25T19:09:33.614Z",
+      "dispatchedAt": "2026-09-25T23:08:22.177Z",
       "mode": "DRY_RUN_SIMULATION",
       "impact": 1,
       "recipient": "info@logisfashion.com",
@@ -123,7 +123,7 @@
     ],
     "severity": "CRITICA",
     "deliveryAudit": {
-      "dispatchedAt": "2026-09-25T19:09:37.349Z",
+      "dispatchedAt": "2026-09-25T23:08:25.137Z",
       "mode": "DRY_RUN_SIMULATION",
       "impact": 1,
       "recipient": "pro@packlink.es",
@@ -156,7 +156,7 @@
     ],
     "severity": "CRITICA",
     "deliveryAudit": {
-      "dispatchedAt": "2026-09-25T19:09:40.671Z",
+      "dispatchedAt": "2026-09-25T23:08:27.942Z",
       "mode": "DRY_RUN_SIMULATION",
       "impact": 1,
       "recipient": "info@ontime.es",
@@ -189,7 +189,7 @@
     ],
     "severity": "CRITICA",
     "deliveryAudit": {
-      "dispatchedAt": "2026-09-25T19:09:44.432Z",
+      "dispatchedAt": "2026-09-25T23:08:31.345Z",
       "mode": "DRY_RUN_SIMULATION",
       "impact": 1,
       "recipient": "empresas@seur.net",
@@ -337,7 +337,7 @@
     "targetImpact": 2
   },
   {
-    "id": "audit_1790363364032_635",
+    "id": "audit_1790377691392_802",
     "company": "Estafeta Carga",
     "domain": "estafeta.com",
     "decisionMakerRole": "Oficial de Seguridad / Dirección de Operaciones",
@@ -362,7 +362,7 @@
     ],
     "severity": "CRITICA",
     "deliveryAudit": {
-      "dispatchedAt": "2026-09-25T19:09:47.090Z",
+      "dispatchedAt": "2026-09-25T23:08:35.214Z",
       "mode": "DRY_RUN_SIMULATION",
       "impact": 2,
       "recipient": "proyectos@estafeta.com",
@@ -373,7 +373,7 @@
     "targetImpact": 2
   },
   {
-    "id": "audit_1790363362710_990",
+    "id": "audit_1790377690292_988",
     "company": "Redpack Logística",
     "domain": "redpack.com.mx",
     "decisionMakerRole": "Oficial de Seguridad / Dirección de Operaciones",
@@ -398,7 +398,7 @@
     ],
     "severity": "CRITICA",
     "deliveryAudit": {
-      "dispatchedAt": "2026-09-25T19:09:50.301Z",
+      "dispatchedAt": "2026-09-25T23:08:38.501Z",
       "mode": "DRY_RUN_SIMULATION",
       "impact": 2,
       "recipient": "contacto@redpack.com.mx",
@@ -409,7 +409,7 @@
     "targetImpact": 2
   },
   {
-    "id": "audit_1790363361317_595",
+    "id": "audit_1790377688957_601",
     "company": "SGS Logistics Central America",
     "domain": "sgs.com",
     "decisionMakerRole": "Oficial de Seguridad / Dirección de Operaciones",
@@ -434,7 +434,7 @@
     ],
     "severity": "CRITICA",
     "deliveryAudit": {
-      "dispatchedAt": "2026-09-25T19:09:52.887Z",
+      "dispatchedAt": "2026-09-25T23:08:41.231Z",
       "mode": "DRY_RUN_SIMULATION",
       "impact": 2,
       "recipient": "enquiry@sgs.com",
@@ -445,7 +445,7 @@
     "currentImpact": 2
   },
   {
-    "id": "audit_1790363359915_475",
+    "id": "audit_1790377687476_366",
     "company": "Intertek Centroamérica",
     "domain": "intertek.com",
     "decisionMakerRole": "Oficial de Seguridad / Dirección de Operaciones",
@@ -470,7 +470,7 @@
     ],
     "severity": "CRITICA",
     "deliveryAudit": {
-      "dispatchedAt": "2026-09-25T19:09:55.841Z",
+      "dispatchedAt": "2026-09-25T23:08:45.063Z",
       "mode": "DRY_RUN_SIMULATION",
       "impact": 2,
       "recipient": "info.latam@intertek.com",
@@ -674,7 +674,7 @@
       "subject": "Elimina 80 horas de consultas repetitivas en WhatsApp de tu operación",
       "body": "Hola,\n\n¿Cuánto tiempo dedica el equipo de Coordinadora a responder consultas idénticas por WhatsApp, rastrear guías de clientes impacientes y actualizar novedades manuales?\n\nBoltech Group implementa un Concierge Autónomo en 60 segundos que responde en milisegundos 24/7 y erradica ese cuello de botella en piloto automático.\n\nPuedes probarlo y activar la licencia por $69 USD/mes aquí:\nhttps://unblock-shield.vercel.app/?domain=coordinadora.com\n\nO liquidar en satoshis vía Lightning sin comisiones a rick2818@strike.me.\n\nAtentamente,\nEquipo de Soluciones B2B — Boltech Group"
     },
-    "dispatchedAt": "2026-09-25T19:09:27.454Z",
+    "dispatchedAt": "2026-09-25T23:08:14.702Z",
     "nextFollowUpDate": "2026-09-27",
     "deliveryAudit": {
       "dispatchedAt": "2026-09-25T15:51:17.738Z",
@@ -709,7 +709,7 @@
       "subject": "Respuesta a cotizaciones B2B en 60 segundos sin nómina extra",
       "body": "Estimado Gerente de Operaciones en TCC,\n\nEn el sector logístico B2B, responder una solicitud de flete 4 horas tarde significa perder la cuenta frente a la competencia.\n\nBoltech Group sintetiza un agente calificador que atiende a tus prospectos corporativos, calcula tarifas estimadas y agenda el cierre al instante.\n\nActiva tu prueba operativa hoy por $69 USD/mes:\nhttps://unblock-shield.vercel.app/?domain=tcc.com.co\n\nLiquidación directa vía Lightning: rick2818@strike.me.\n\nAtentamente,\nBoltech Group"
     },
-    "dispatchedAt": "2026-09-25T19:09:27.454Z",
+    "dispatchedAt": "2026-09-25T23:08:14.702Z",
     "nextFollowUpDate": "2026-09-27",
     "deliveryAudit": {
       "dispatchedAt": "2026-09-25T15:51:20.687Z",
@@ -744,7 +744,7 @@
       "subject": "Reduce en un 70% la carga de reclamos y soporte en tu operación",
       "body": "Hola,\n\nAtender manualmente estados de envío y reclamos de mercancía genera sobrecostos de nómina y fatiga en tus agentes humanos.\n\nNuestros agentes soberanos para Google Antigravity asumen el triaje automático y resuelven el 70% de las consultas sin intervención humana.\n\nConoce la plataforma y comienza por $69 USD/mes:\nhttps://unblock-shield.vercel.app/?domain=enviacolvanes.com\n\nAtentamente,\nBoltech Group"
     },
-    "dispatchedAt": "2026-09-25T19:09:27.454Z",
+    "dispatchedAt": "2026-09-25T23:08:14.702Z",
     "nextFollowUpDate": "2026-09-27",
     "deliveryAudit": {
       "dispatchedAt": "2026-09-25T15:51:23.910Z",
@@ -775,7 +775,7 @@
       "subject": "Automatiza la trazabilidad y cobro de envíos express en 60 segundos",
       "body": "Hola,\n\nLos clientes corporativos de paquetería express exigen confirmaciones en tiempo real y facturación inmediata.\n\nBoltech Group genera un flujo desatendido que notifica y concilia pagos en segundos con protocolos bancarios seguros.\n\nAccede a la consola ejecutiva aquí por $89 USD/mes:\nhttps://unblock-shield.vercel.app/?domain=deprisa.com\n\nAtentamente,\nBoltech Group"
     },
-    "dispatchedAt": "2026-09-25T19:09:27.454Z",
+    "dispatchedAt": "2026-09-25T23:08:14.702Z",
     "nextFollowUpDate": "2026-09-27",
     "deliveryAudit": {
       "dispatchedAt": "2026-09-25T15:51:25.979Z",
@@ -813,7 +813,7 @@
       "subject": "Auditoría de integración operativa y seguridad perimetral en 60 segundos",
       "body": "Estimado VP de Tecnología en Servientrega,\n\nDesplegamos agentes soberanos con protocolo MCP que se conectan a tu infraestructura sin tocar código legacy ni exponer datos sensibles.\n\nRealiza un diagnóstico de cuellos de botella y seguridad perimetral por $19 USD aquí:\nhttps://rick2818.github.io/Agents/?plan=flash&ref=colombia_b2b\n\nO liquidación instantánea por Lightning a rick2818@strike.me.\n\nAtentamente,\nEquipo de Ingeniería — Boltech Group\n🎬 Video Demostración (70s):\nhttps://unblock-shield.vercel.app/?domain=servientrega.com\n"
     },
-    "dispatchedAt": "2026-09-25T19:09:27.454Z",
+    "dispatchedAt": "2026-09-25T23:08:14.702Z",
     "nextFollowUpDate": "2026-09-27",
     "deliveryAudit": {
       "dispatchedAt": "2026-09-25T15:51:28.373Z",

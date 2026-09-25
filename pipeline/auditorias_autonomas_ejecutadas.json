@@ -1,5 +1,157 @@
 [
   {
+    "auditId": "audit_1790377691392_802",
+    "timestamp": "2026-09-25T23:08:11.392Z",
+    "company": "Estafeta Carga",
+    "domain": "estafeta.com",
+    "scannedHost": "estafeta.com",
+    "country": "México",
+    "industry": "Cadena de Suministro",
+    "contactEmail": "proyectos@estafeta.com",
+    "brandName": "Boltech Group",
+    "language": "es",
+    "serverDetected": "Desconocido",
+    "httpStatusCode": 301,
+    "securityHeaders": {
+      "hasCsp": false,
+      "hasHsts": false,
+      "hasXFrame": false
+    },
+    "flawsCount": 3,
+    "flaws": [
+      "Falta Content-Security-Policy (Riesgo XSS)",
+      "Falta Strict-Transport-Security (Riesgo SSL Strip)",
+      "Falta X-Frame-Options (Riesgo Clickjacking)"
+    ],
+    "severity": "CRITICA",
+    "monetization": {
+      "offer": "$19 USD (auditoría técnica defensiva Flash + Parche de Blindaje) / $69 USD (Agente Autónomo 24/7)",
+      "checkoutStrike": "https://boltech-group.vercel.app/#soluciones",
+      "checkoutDirectApp": "https://unblock-shield.vercel.app/?domain=estafeta.com",
+      "destinationAddress": "rick2818@strike.me"
+    },
+    "generatedDispatchMessage": {
+      "to": "proyectos@estafeta.com",
+      "subject": "Informe de Seguridad Perimetral: 3 vulnerabilidades detectadas en estafeta.com",
+      "body": "Estimado equipo directivo y técnico en Estafeta Carga,\n\nLe saluda el equipo de Boltech Group (firma de ingeniería en automatización operativa y ciberseguridad defensiva sobre Google Antigravity y Cloud 24/7).\n\nDurante nuestra inspección perimetral no invasiva sobre estafeta.com, identificamos 3 anomalías críticas que impactan la seguridad y conversión de su portal:\n• Falta Content-Security-Policy (Riesgo XSS)\n• Falta Strict-Transport-Security (Riesgo SSL Strip)\n• Falta X-Frame-Options (Riesgo Clickjacking)\n\n🎬 Video Demostración (70s):\nhttps://unblock-shield.vercel.app/?domain=estafeta.com\n\n¿Por qué confiar en nosotros antes de abrir cualquier puerta? (Nuestros 5 Anclajes de Apertura):\n1. Cero Invasión Previa: No solicitamos contraseñas, claves API ni acceso a bases de datos. Todo el análisis corre desde el exterior.\n2. Micro-Riesgo: Puedes verificar el diagnóstico gratis en 15s en nuestra web o descargar el informe ejecutivo con los parches listos para producción por solo $19 USD (Plan Flash).\n3. Garantía Fiduciaria 100% (7 Días): Si en 7 días la solución no le ahorra al menos 10 horas de trabajo manual a su equipo, reembolsamos el 100% de su pago sin preguntas.\n4. Privacidad Bancaria SOC-2: Cero retención en disco; 100% procesado en memoria RAM volátil aislada.\n5. Matemática de Ahorro: Un operador o analista cuesta $600+ USD/mes; nuestro agente autónomo opera 24/7 por $2.30 USD al día ($69 USD/mes).\n\nAudite su portal en vivo o aplique los parches en 60 segundos:\n🔗 https://unblock-shield.vercel.app/?domain=estafeta.com\n\nO liquidación instantánea sin comisiones vía Bitcoin Lightning Network a: rick2818@strike.me\n\nAtentamente,\nEspecialista Senior de Ciberseguridad & Ventas Fiduciarias — Boltech Group"
+    },
+    "status": "AUDITADO_Y_LISTO_PARA_NOTIFICACION"
+  },
+  {
+    "auditId": "audit_1790377690292_988",
+    "timestamp": "2026-09-25T23:08:10.292Z",
+    "company": "Redpack Logística",
+    "domain": "redpack.com.mx",
+    "scannedHost": "redpack.com.mx",
+    "country": "México",
+    "industry": "Distribución B2B",
+    "contactEmail": "contacto@redpack.com.mx",
+    "brandName": "Boltech Group",
+    "language": "es",
+    "serverDetected": "nginx",
+    "httpStatusCode": 302,
+    "securityHeaders": {
+      "hasCsp": false,
+      "hasHsts": false,
+      "hasXFrame": true
+    },
+    "flawsCount": 3,
+    "flaws": [
+      "Falta Content-Security-Policy (Riesgo XSS)",
+      "Falta Strict-Transport-Security (Riesgo SSL Strip)",
+      "Certificado SSL Anómalo / Vencido: CERT_HAS_EXPIRED"
+    ],
+    "severity": "CRITICA",
+    "monetization": {
+      "offer": "$19 USD (auditoría técnica defensiva Flash + Parche de Blindaje) / $69 USD (Agente Autónomo 24/7)",
+      "checkoutStrike": "https://boltech-group.vercel.app/#soluciones",
+      "checkoutDirectApp": "https://unblock-shield.vercel.app/?domain=redpack.com.mx",
+      "destinationAddress": "rick2818@strike.me"
+    },
+    "generatedDispatchMessage": {
+      "to": "contacto@redpack.com.mx",
+      "subject": "Informe de Seguridad Perimetral: 3 vulnerabilidades detectadas en redpack.com.mx",
+      "body": "Estimado equipo directivo y técnico en Redpack Logística,\n\nLe saluda el equipo de Boltech Group (firma de ingeniería en automatización operativa y ciberseguridad defensiva sobre Google Antigravity y Cloud 24/7).\n\nDurante nuestra inspección perimetral no invasiva sobre redpack.com.mx, identificamos 3 anomalías críticas que impactan la seguridad y conversión de su portal:\n• Falta Content-Security-Policy (Riesgo XSS)\n• Falta Strict-Transport-Security (Riesgo SSL Strip)\n• Certificado SSL Anómalo / Vencido: CERT_HAS_EXPIRED\n\n🎬 Video Demostración (70s):\nhttps://unblock-shield.vercel.app/?domain=redpack.com.mx\n\n¿Por qué confiar en nosotros antes de abrir cualquier puerta? (Nuestros 5 Anclajes de Apertura):\n1. Cero Invasión Previa: No solicitamos contraseñas, claves API ni acceso a bases de datos. Todo el análisis corre desde el exterior.\n2. Micro-Riesgo: Puedes verificar el diagnóstico gratis en 15s en nuestra web o descargar el informe ejecutivo con los parches listos para producción por solo $19 USD (Plan Flash).\n3. Garantía Fiduciaria 100% (7 Días): Si en 7 días la solución no le ahorra al menos 10 horas de trabajo manual a su equipo, reembolsamos el 100% de su pago sin preguntas.\n4. Privacidad Bancaria SOC-2: Cero retención en disco; 100% procesado en memoria RAM volátil aislada.\n5. Matemática de Ahorro: Un operador o analista cuesta $600+ USD/mes; nuestro agente autónomo opera 24/7 por $2.30 USD al día ($69 USD/mes).\n\nAudite su portal en vivo o aplique los parches en 60 segundos:\n🔗 https://unblock-shield.vercel.app/?domain=redpack.com.mx\n\nO liquidación instantánea sin comisiones vía Bitcoin Lightning Network a: rick2818@strike.me\n\nAtentamente,\nEspecialista Senior de Ciberseguridad & Ventas Fiduciarias — Boltech Group"
+    },
+    "status": "AUDITADO_Y_LISTO_PARA_NOTIFICACION"
+  },
+  {
+    "auditId": "audit_1790377688957_601",
+    "timestamp": "2026-09-25T23:08:08.957Z",
+    "company": "SGS Logistics Central America",
+    "domain": "sgs.com",
+    "scannedHost": "sgs.com",
+    "country": "Global / CA",
+    "industry": "Inspección y Aduanas",
+    "contactEmail": "enquiry@sgs.com",
+    "brandName": "Unblock AI",
+    "language": "en",
+    "serverDetected": "BigIP",
+    "httpStatusCode": 301,
+    "securityHeaders": {
+      "hasCsp": false,
+      "hasHsts": false,
+      "hasXFrame": false
+    },
+    "flawsCount": 3,
+    "flaws": [
+      "Falta Content-Security-Policy (Riesgo XSS)",
+      "Falta Strict-Transport-Security (Riesgo SSL Strip)",
+      "Falta X-Frame-Options (Riesgo Clickjacking)"
+    ],
+    "severity": "CRITICA",
+    "monetization": {
+      "offer": "$19 USD (Forensic Flash Audit + Security Patch) / $69 USD/mo (Autonomous 24/7 Agent)",
+      "checkoutStrike": "https://boltech-group.vercel.app/#soluciones",
+      "checkoutDirectApp": "https://unblock-shield.vercel.app/?lang=en&domain=sgs.com",
+      "destinationAddress": "rick2818@strike.me"
+    },
+    "generatedDispatchMessage": {
+      "to": "enquiry@sgs.com",
+      "subject": "Perimeter Security Report: 3 critical flaws detected on sgs.com",
+      "body": "Dear Leadership & Engineering Team at SGS Logistics Central America,\n\nThis is the team at Unblock AI (autonomous operations engineering & defensive cybersecurity built on Google Antigravity & 24/7 Cloud Infrastructure).\n\nDuring our non-invasive external perimeter inspection of sgs.com, we identified 3 critical opportunities to harden security and eliminate checkout friction:\n• Falta Content-Security-Policy (Riesgo XSS)\n• Falta Strict-Transport-Security (Riesgo SSL Strip)\n• Falta X-Frame-Options (Riesgo Clickjacking)\n\n🎬 70s Executive Video Briefing:\nhttps://unblock-shield.vercel.app/?lang=en&domain=sgs.com\n\nWhy trust us before opening any door? (Our 5 Fiduciary Trust Anchors):\n1. Zero Invasive Access: We never ask for passwords, API keys, or internal database access. All evaluations run 100% externally.\n2. Micro-Risk Asymmetry: Run a free 15-second audit on our site or download the executive report and production-ready remediation patches for just $19 USD (Flash Plan).\n3. 7-Day Unconditional Fiduciary Guarantee: If the solution does not save your team at least 10 hours of manual operational work in the first 7 days, we refund 100% of your payment with zero friction.\n4. SOC-2 Grade Banking Privacy: Zero disk retention; 100% processed in volatile RAM and immediately purged.\n5. Objective ROI Math: A human operator costs $600+ USD/month; our autonomous agent runs 24/7 for $2.30 USD/day ($69 USD/month), paying for itself with a single recovered lead or resolved ticket.\n\nAudit your portal live or deploy patches in 60 seconds:\n🔗 https://unblock-shield.vercel.app/?lang=en&domain=sgs.com\n\nOr instant zero-fee settlement via Bitcoin Lightning Network to: rick2818@strike.me\n\nBest regards,\nSenior Cybersecurity & Solutions Team — Unblock AI"
+    },
+    "status": "AUDITADO_Y_LISTO_PARA_NOTIFICACION"
+  },
+  {
+    "auditId": "audit_1790377687476_366",
+    "timestamp": "2026-09-25T23:08:07.476Z",
+    "company": "Intertek Centroamérica",
+    "domain": "intertek.com",
+    "scannedHost": "intertek.com",
+    "country": "Global / Regional",
+    "industry": "Certificaciones & Auditoría",
+    "contactEmail": "info.latam@intertek.com",
+    "brandName": "Unblock AI",
+    "language": "en",
+    "serverDetected": "cloudflare",
+    "httpStatusCode": 301,
+    "securityHeaders": {
+      "hasCsp": false,
+      "hasHsts": false,
+      "hasXFrame": false
+    },
+    "flawsCount": 3,
+    "flaws": [
+      "Falta Content-Security-Policy (Riesgo XSS)",
+      "Falta Strict-Transport-Security (Riesgo SSL Strip)",
+      "Falta X-Frame-Options (Riesgo Clickjacking)"
+    ],
+    "severity": "CRITICA",
+    "monetization": {
+      "offer": "$19 USD (Forensic Flash Audit + Security Patch) / $69 USD/mo (Autonomous 24/7 Agent)",
+      "checkoutStrike": "https://boltech-group.vercel.app/#soluciones",
+      "checkoutDirectApp": "https://unblock-shield.vercel.app/?lang=en&domain=intertek.com",
+      "destinationAddress": "rick2818@strike.me"
+    },
+    "generatedDispatchMessage": {
+      "to": "info.latam@intertek.com",
+      "subject": "Perimeter Security Report: 3 critical flaws detected on intertek.com",
+      "body": "Dear Leadership & Engineering Team at Intertek Centroamérica,\n\nThis is the team at Unblock AI (autonomous operations engineering & defensive cybersecurity built on Google Antigravity & 24/7 Cloud Infrastructure).\n\nDuring our non-invasive external perimeter inspection of intertek.com, we identified 3 critical opportunities to harden security and eliminate checkout friction:\n• Falta Content-Security-Policy (Riesgo XSS)\n• Falta Strict-Transport-Security (Riesgo SSL Strip)\n• Falta X-Frame-Options (Riesgo Clickjacking)\n\n🎬 70s Executive Video Briefing:\nhttps://unblock-shield.vercel.app/?lang=en&domain=intertek.com\n\nWhy trust us before opening any door? (Our 5 Fiduciary Trust Anchors):\n1. Zero Invasive Access: We never ask for passwords, API keys, or internal database access. All evaluations run 100% externally.\n2. Micro-Risk Asymmetry: Run a free 15-second audit on our site or download the executive report and production-ready remediation patches for just $19 USD (Flash Plan).\n3. 7-Day Unconditional Fiduciary Guarantee: If the solution does not save your team at least 10 hours of manual operational work in the first 7 days, we refund 100% of your payment with zero friction.\n4. SOC-2 Grade Banking Privacy: Zero disk retention; 100% processed in volatile RAM and immediately purged.\n5. Objective ROI Math: A human operator costs $600+ USD/month; our autonomous agent runs 24/7 for $2.30 USD/day ($69 USD/month), paying for itself with a single recovered lead or resolved ticket.\n\nAudit your portal live or deploy patches in 60 seconds:\n🔗 https://unblock-shield.vercel.app/?lang=en&domain=intertek.com\n\nOr instant zero-fee settlement via Bitcoin Lightning Network to: rick2818@strike.me\n\nBest regards,\nSenior Cybersecurity & Solutions Team — Unblock AI"
+    },
+    "status": "AUDITADO_Y_LISTO_PARA_NOTIFICACION"
+  },
+  {
     "auditId": "audit_1790363364032_635",
     "timestamp": "2026-09-25T19:09:24.032Z",
     "company": "Estafeta Carga",
