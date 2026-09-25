@@ -119,16 +119,18 @@ async def generate_speech_clips(scenes, lang, voice, rate="+2%"):
         comm = edge_tts.Communicate(s['text'], voice, rate=rate)
         await comm.save(out_raw_mp3)
         
-        # 2. Masterización y Ecualización Broadcast (Highpass 80Hz, EQ presencia 3kHz +2dB, compand y normalización)
+        # 2. Masterización y Ecualización Broadcast Stereo 48kHz
+        # (Highpass 80Hz, EQ presencia 3.2kHz +2.5dB, compand con compresión dinámica profesional, salida estéreo 48kHz)
         eq_filter = (
-            "highpass=f=80,equalizer=f=3000:t=q:w=1.5:g=2.5,"
-            "compand=attacks=0.05:decays=0.2:points=-80/-80|-45/-35|-20/-10|0/-2:soft-knee=6,"
-            "volume=1.35"
+            "aformat=sample_fmts=fltp:sample_rates=48000:channel_layouts=stereo,"
+            "highpass=f=80,equalizer=f=3200:t=q:w=1.2:g=2.8,"
+            "compand=attacks=0.03:decays=0.15:points=-80/-80|-45/-30|-20/-8|0/-1.5:soft-knee=6,"
+            "volume=1.45"
         )
         subprocess.run([
             "ffmpeg", "-y", "-i", out_raw_mp3,
             "-af", eq_filter,
-            "-ar", "44100", "-ac", "1",
+            "-ar", "48000", "-ac", "2",
             out_master_wav
         ], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         
@@ -144,10 +146,10 @@ async def generate_speech_clips(scenes, lang, voice, rate="+2%"):
     return clip_files
 
 def mix_master_audio(scenes, clip_files, lang, out_audio_path):
-    print(f"🎛️ [MEZCLA MASTER]: Ensamblando pista de audio cinematográfica {lang.upper()} (75s)...")
-    bg_bed = os.path.join(WORK_DIR, "ambient_bed_master_75s.wav")
+    print(f"🎛️ [MEZCLA MASTER]: Ensamblando pista de audio estéreo cinematográfica {lang.upper()} (75s)...")
+    bg_bed = os.path.join(WORK_DIR, "ambient_bed_master_stereo_75s.wav")
     
-    # Cama musical cinematográfica cálida con acordes mayores, reverb y calidez analógica
+    # Cama musical cinematográfica cálida con acordes mayores, reverb estéreo y calidez
     if not os.path.exists(bg_bed):
         synth_cmd = [
             "ffmpeg", "-y",
@@ -156,15 +158,17 @@ def mix_master_audio(scenes, clip_files, lang, out_audio_path):
             "-f", "lavfi", "-i", "sine=frequency=329.63:duration=75",
             "-f", "lavfi", "-i", "sine=frequency=440:duration=75",
             "-filter_complex",
-            "[0:a]volume=0.22[a0];[1:a]volume=0.14[a1];[2:a]volume=0.10[a2];[3:a]volume=0.06[a3];"
-            "[a0][a1][a2][a3]amix=inputs=4,lowpass=f=750,aecho=0.8:0.88:60:0.4,volume=0.12,"
+            "[0:a]volume=0.20[a0];[1:a]volume=0.12[a1];[2:a]volume=0.09[a2];[3:a]volume=0.05[a3];"
+            "[a0][a1][a2][a3]amix=inputs=4,aformat=sample_rates=48000:channel_layouts=stereo,lowpass=f=750,aecho=0.8:0.88:60:0.4,volume=0.15,"
             "afade=t=in:ss=0:d=2.5,afade=t=out:st=71.5:d=3.5[out]",
-            "-map", "[out]", bg_bed
+            "-map", "[out]",
+            "-ar", "48000", "-ac", "2",
+            bg_bed
         ]
         subprocess.run(synth_cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     inputs = ["-i", bg_bed]
-    filter_parts = ["[0:a]volume=0.18[bg]"]
+    filter_parts = ["[0:a]volume=0.15[bg]"]
     mix_inputs = ["[bg]"]
 
     for idx, s in enumerate(scenes):
@@ -172,19 +176,21 @@ def mix_master_audio(scenes, clip_files, lang, out_audio_path):
         inputs.extend(["-i", clip["path"]])
         in_idx = idx + 1
         delay_ms = int(round(s["delay"] * 1000))
-        # Fade in sutil al inicio de cada frase y ganancia impecable
-        filter_parts.append(f"[{in_idx}:a]afade=t=in:ss=0:d=0.08,adelay={delay_ms}|{delay_ms},volume=1.9[v{s['id']}]")
+        # Fade in sutil al inicio de cada frase, delay estéreo y ganancia sólida
+        filter_parts.append(f"[{in_idx}:a]afade=t=in:ss=0:d=0.06,adelay={delay_ms}|{delay_ms},volume=2.0[v{s['id']}]")
         mix_inputs.append(f"[v{s['id']}]")
 
-    filter_complex = f"{';'.join(filter_parts)};{''.join(mix_inputs)}amix=inputs={len(scenes) + 1}:dropout_transition=0:normalize=0,alimiter=limit=0.95[out]"
+    filter_complex = f"{';'.join(filter_parts)};{''.join(mix_inputs)}amix=inputs={len(scenes) + 1}:dropout_transition=0:normalize=0,alimiter=limit=0.98[out]"
     mix_cmd = ["ffmpeg", "-y"] + inputs + [
         "-filter_complex", filter_complex,
         "-map", "[out]",
         "-t", "75",
+        "-ar", "48000",
+        "-ac", "2",
         out_audio_path
     ]
     subprocess.run(mix_cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    print(f"  ✓ Audio final {lang.upper()} masterizado y exportado.")
+    print(f"  ✓ Audio final {lang.upper()} masterizado en Estéreo 48kHz.")
 
 # =========================================================================
 # 3. RENDERIZADO VISUAL CINEMATOGRÁFICO 1080P (KEN BURNS SUAVE)
@@ -253,8 +259,8 @@ async def main():
     print("=" * 70 + "\n")
 
     # 1. Generación de Voces con Dicción Bilingüe y Calidez Ejecutiva
-    audio_es = os.path.join(WORK_DIR, "audio_es_master_75s.wav")
-    audio_en = os.path.join(WORK_DIR, "audio_en_master_75s.wav")
+    audio_es = os.path.join(WORK_DIR, "audio_es_master_stereo_75s.wav")
+    audio_en = os.path.join(WORK_DIR, "audio_en_master_stereo_75s.wav")
     
     # Voces seleccionadas:
     # - Español: es-US-AlonsoNeural (Voz neural bilingüe ejecutiva, perfecta pronunciación de Boltech Group, Cloud, Enterprise)
@@ -270,14 +276,17 @@ async def main():
 
     # 2. Render de Video Visual 1080p
     video_visual = os.path.join(WORK_DIR, "visual_6scenes_clean_75s.mp4")
-    render_full_visual_video(SCENES_ES, video_visual)
+    if not os.path.exists(video_visual):
+        render_full_visual_video(SCENES_ES, video_visual)
+    else:
+        print("🎬 [VIDEO]: Video visual 1080p existente reutilizado.")
 
-    # 3. Multiplexado de Archivos Finales para la Web App
+    # 3. Multiplexado de Archivos Finales para la Web App (Stereo AAC 48kHz +faststart)
     target_es = os.path.join(OUTPUT_DIR, "gerente_bottleneck_agente_es.mp4")
     target_en = os.path.join(OUTPUT_DIR, "gerente_bottleneck_agente_en.mp4")
     target_master = os.path.join(OUTPUT_DIR, "gerente_bottleneck_agente.mp4")
 
-    print("\n📦 [EXPORTACIÓN]: Muxing y codificación AAC para web en Español...")
+    print("\n📦 [EXPORTACIÓN]: Muxing y codificación AAC Stereo 48kHz +faststart para web en Español...")
     subprocess.run([
         "ffmpeg", "-y",
         "-i", video_visual,
@@ -285,14 +294,17 @@ async def main():
         "-c:v", "copy",
         "-c:a", "aac",
         "-b:a", "192k",
+        "-ar", "48000",
+        "-ac", "2",
+        "-movflags", "+faststart",
         "-shortest",
         target_es
     ], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-    subprocess.run(["ffmpeg", "-y", "-i", target_es, "-c", "copy", target_master], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    subprocess.run(["ffmpeg", "-y", "-i", target_es, "-c", "copy", "-movflags", "+faststart", target_master], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     print(f"  ✓ Exportado: {target_es}")
 
-    print("📦 [EXPORTACIÓN]: Muxing y codificación AAC para web en Inglés...")
+    print("📦 [EXPORTACIÓN]: Muxing y codificación AAC Stereo 48kHz +faststart para web en Inglés...")
     subprocess.run([
         "ffmpeg", "-y",
         "-i", video_visual,
@@ -300,13 +312,16 @@ async def main():
         "-c:v", "copy",
         "-c:a", "aac",
         "-b:a", "192k",
+        "-ar", "48000",
+        "-ac", "2",
+        "-movflags", "+faststart",
         "-shortest",
         target_en
     ], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     print(f"  ✓ Exportado: {target_en}")
 
     print("\n" + "=" * 70)
-    print(" ✅ VIDEO 2 EDITADO Y RENDERIZADO CON ÉXITO: 100% IMPECABLE")
+    print(" ✅ VIDEO 2 MASTERIZADO EN ESTÉREO 48KHZ CON ÉXITO: 100% IMPECABLE")
     print("=" * 70 + "\n")
 
 if __name__ == "__main__":
