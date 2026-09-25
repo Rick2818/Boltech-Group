@@ -49,6 +49,7 @@ Thumbs.db
 # Test artifacts
 test_export/
 scratch/
+data/test_settlements_ledger.json
 *.zip
 
 # Sensitive sovereign auth

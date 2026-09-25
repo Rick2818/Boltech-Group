@@ -94,66 +94,70 @@ export async function executePeaceOfMindFollowup(options = {}) {
     }
 
     const videoUrl = isEn
-      ? `https://unblock-shield.vercel.app/?lang=en&domain=${domain}`
-      : `https://unblock-shield.vercel.app/?domain=${domain}`;
+      ? `https://boltech-group.vercel.app/?lang=en&domain=${domain}`
+      : `https://boltech-group.vercel.app/?domain=${domain}`;
 
     const subject = isEn
-      ? `🎬 70s Video: 24/7 peace of mind and perimeter defense for ${domain || company}`
-      : `🎬 Video de 70s: La paz mental de operar ${domain || company} 100% blindado 24/7`;
+      ? `🎬 70s Video: Total Peace of Mind & 24/7 Continuous Defense for ${domain || company}`
+      : `🎬 Video de 70s: La Paz Mental de operar ${domain || company} con Soluciones Permanentes 24/7`;
 
     const body = isEn
       ? `Dear Executive & Operations Team at ${company},
 
-I am reaching out following our recent perimeter scan with a simple, direct commitment:
+I am reaching out following our recent operations analysis with a simple, direct commitment:
 
-We do not sell theoretical advisory hours, lengthy PowerPoints, or billable consulting sessions. We deliver turnkey sovereign solutions and genuine 24/7 peace of mind while your team sleeps.
+We do not sell one-off static patches that become obsolete on your next code deploy. We deliver absolute Peace of Mind through Permanent Autonomous Operations 24/7, so you and your team never have to fight unexpected outages or security breaches at midnight.
 
-How much is it worth to know that your checkout pipeline will never silently drop transactions, that banking headers are strictly enforced, and that no perimeter injection can breach your customer data?
+How much is it worth to know that your checkout pipeline will never silently drop transactions, that perimeter hardening is monitored every 15 minutes, and that your team saves 40+ hours every month on routine operational toil?
 
 ▶️ WATCH THE 70-SECOND EXECUTIVE VIDEO BRIEFING:
 🔗 ${videoUrl}
 
-Why leading executives trust our infrastructure (Our 5 Fiduciary Trust Anchors):
-1. Zero Invasive Access: We never touch passwords, internal databases, or API credentials. 100% evaluated and deployed safely from the cloud perimeter.
-2. Micro-Risk Turnkey Solution: Download production-ready code patches in a single .zip for just $19 USD (Flash Plan).
-3. 24/7 Autopilot Sentinel: Autonomous agent continuously monitoring your endpoints for $69 USD/month ($2.30 USD/day).
-4. 7-Day Unconditional Fiduciary Guarantee: If this solution does not save your operations at least 10 hours in the first week, we refund 100% of your payment with zero questions.
-5. SOC-2 Grade Volatile Memory Vault: Zero disk storage; all operations run in isolated volatile RAM and are purged instantly.
+Why leading executives trust our permanent solutions (Our 5 Fiduciary Trust Anchors):
+1. Zero Invasive Access: We never touch passwords, internal databases, or API credentials. Everything runs safely from the cloud perimeter.
+2. 24/7 Permanent Sentinel ($69 USD/month): Continuous monitoring every 15 minutes, deployment supervision, and automatic hardening for just $2.30 USD/day.
+3. Custom Autonomous Operations Agents ($190 - $490 USD/month): Software operators handling payment reconciliation, order routing, and support without human headcount. Saves $600+/month.
+4. 7-Day Unconditional Fiduciary Guarantee: If our system does not save your operations at least 10 hours in the first week, we refund 100% of your payment with zero questions.
+5. SOC-2 Banking Privacy: Zero disk storage; all operations process strictly in volatile RAM.
 
-Inspect your portal live or activate immediate peace of mind in 60 seconds:
+Inspect your portal live or activate immediate permanent peace of mind:
 🔗 ${videoUrl}
 
-Instant zero-fee settlement via Bitcoin Lightning Network: rick2818@strike.me
+Direct zero-fee settlement in El Salvador via:
+⚡ Strike Lightning (0% fee): rick2818@strike.me
+🏦 Wompi SV (Banco Agrícola)
 
 Best regards,
-Senior Solutions & Cyber-Defense Team — Unblock AI`
+Autonomous Solutions & Peace of Mind Division — Boltech Group`
       : `Estimado equipo directivo y de operaciones en ${company},
 
-Le escribo en seguimiento a nuestra notificación perimetral previa con una premisa clara:
+Le escribo en seguimiento a nuestro análisis operativo previo con una premisa clara:
 
-No ofrecemos horas de consultoría teórica, diagnósticos abstractos ni reuniones interminables. Entregamos soluciones llave en mano y la auténtica paz mental de operar 24/7 sin riesgos mientras usted y su equipo descansan.
+No vendemos parches estáticos de una sola vez que quedan obsoletos en su próximo despliegue. Entregamos la auténtica Paz Mental de contar con Soluciones Permanentes 24/7, vigilando y optimizando su infraestructura de forma continua para que usted y su equipo no tengan que preocuparse ni apagar incendios a medianoche.
 
-¿Cuánto vale para su dirección tener la certeza absoluta de que sus pasarelas de pago no fallarán silenciosamente, que no existen cabeceras vulnerables a inyección y que los datos de sus clientes están blindados?
+¿Cuánto vale para su dirección tener la certeza absoluta de que sus pasarelas nunca caerán silenciosamente, que su perímetro se audita cada 15 minutos y que su empresa ahorra más de 40 horas al mes en trabajo manual repetitivo?
 
 ▶️ VEA EL VIDEO BRIEFING EJECUTIVO (70 Segundos):
 🔗 ${videoUrl}
 
-Puntos clave de por qué directores confían en nosotros (Nuestros 5 Anclajes de Confianza):
-1. Cero Invasión Previa: Jamás solicitamos contraseñas, claves API ni acceso a bases de datos internas. Todo opera de forma defensiva desde el perímetro en la nube.
-2. Micro-Riesgo Asimétrico: Descargue el informe técnico ejecutivo con los parches listos para pegar en producción por solo $19 USD (Plan Flash).
-3. Centinela Autónomo 24/7: Agente soberano que vigila su infraestructura por solo $2.30 USD al día ($69 USD/mes).
-4. Garantía Fiduciaria Total de 7 Días: Si en su primera semana el sistema no le ahorra al menos 10 horas de trabajo manual, reembolsamos el 100% de su pago sin fricción ni preguntas.
-5. Privacidad Bancaria SOC-2: Cero retención en disco; 100% procesado en memoria volátil RAM y purgado al instante.
+Por qué directores ejecutivos eligen nuestras soluciones permanentes (Nuestros 5 Anclajes de Confianza):
+1. Cero Invasión Previa: Jamás solicitamos contraseñas, claves API ni acceso a bases de datos internas. Todo opera de forma no invasiva desde la nube.
+2. Centinela Autónomo 24/7 ($69 USD/mes): Vigilancia continua cada 15 minutos, supervisión de despliegues y auto-remediación permanente por solo $2.30 USD al día.
+3. Agentes Operativos a Medida ($190 - $490 USD/mes): Operadores de software autónomos que asumen clasificación, conciliación de pagos y atención 24/7, ahorrándole $600+ USD/mes en personal.
+4. Garantía Fiduciaria Total de 7 Días: Si en su primera semana el sistema no le ahorra al menos 10 horas de trabajo manual, reembolsamos el 100% de su pago sin preguntas ni fricción.
+5. Privacidad Bancaria SOC-2: Cero retención en disco; 100% procesado en memoria volátil RAM.
 
-Vea el video explicativo y aplique el blindaje en 60 segundos:
+Vea el video explicativo y active la paz mental permanente de su plataforma:
 🔗 ${videoUrl}
 
-Liquidación directa e instantánea por Bitcoin Lightning Network a: rick2818@strike.me
+Liquidación fiduciaria directa en El Salvador vía:
+⚡ Strike Lightning (0% comisión): rick2818@strike.me
+🏦 Wompi SV (Banco Agrícola)
 
 Quedo a su entera disposición.
 
 Atentamente,
-Especialista Senior en Seguridad y Automatización Fiduciaria — Boltech Group`;
+Dirección de Soluciones Autónomas & Paz Mental — Boltech Group`;
 
     console.log(`-----------------------------------------------------------------------------`);
     console.log(`Empresa: ${company} (${domain}) | Idioma: ${isEn ? 'EN' : 'ES'}`);

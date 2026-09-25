@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-25T19:11:10.123Z",
+  "updatedAt": "2026-09-25T19:31:44.268Z",
   "displayDate": "viernes, 25 de septiembre de 2026",
   "displayTime": "09:00 AM",
   "holding": "BolTech Group — Inversiones & Operaciones Autónomas",
@@ -10,7 +10,7 @@
     "targetMonthlyUsd": 9000,
     "progressPercentage": 0,
     "totalLeadsContacted": 44,
-    "auditsCompleted": 79,
+    "auditsCompleted": 92,
     "deliverabilityRate": "98.4%",
     "bounceRate": "0.0%",
     "avgScanSpeed": "15s"
@@ -50,7 +50,7 @@
       "role": "Defensa Perimetral & Diagnósticos",
       "status": "ACTIVO 24/7",
       "efficiency": "100%",
-      "lastAction": "Auditoría completada sobre 44 plataformas (4 fallas CSP)",
+      "lastAction": "Auditoría completada sobre 44 plataformas (9 fallas CSP)",
       "kpi": "Escaneo no invasivo en 15 segundos"
     },
     {
@@ -166,7 +166,7 @@
       "country": "Colombia",
       "grade": "A+",
       "flawsCount": 0,
-      "status": "Impacto 2 Entregado",
+      "status": "Impacto 1 Activo",
       "lastContact": "2026-09-21"
     },
     {
@@ -175,7 +175,7 @@
       "country": "Colombia",
       "grade": "A+",
       "flawsCount": 0,
-      "status": "Impacto 2 Entregado",
+      "status": "Impacto 1 Activo",
       "lastContact": "2026-09-21"
     },
     {
@@ -184,25 +184,25 @@
       "country": "Colombia",
       "grade": "A+",
       "flawsCount": 0,
-      "status": "Impacto 2 Entregado",
+      "status": "Impacto 1 Activo",
       "lastContact": "2026-09-21"
     },
     {
       "company": "Deprisa (Avianca Cargo)",
       "domain": "deprisa.com",
       "country": "Colombia",
-      "grade": "A+",
-      "flawsCount": 0,
-      "status": "Impacto 2 Entregado",
+      "grade": "C",
+      "flawsCount": 2,
+      "status": "Impacto 1 Activo",
       "lastContact": "2026-09-21"
     },
     {
       "company": "Servientrega Soluciones Digitales",
       "domain": "servientrega.com",
       "country": "Colombia",
-      "grade": "A+",
-      "flawsCount": 0,
-      "status": "Impacto 2 Entregado",
+      "grade": "F",
+      "flawsCount": 3,
+      "status": "Impacto 1 Activo",
       "lastContact": "2026-09-21"
     },
     {
@@ -216,30 +216,6 @@
     }
   ],
   "activityTimeline": [
-    {
-      "time": "09:00 AM",
-      "category": "CRON_EJECUTIVO",
-      "text": "Consolidación matutina 09:00 AM completada en la nube. 0 USD acumulados en pipeline.",
-      "icon": "📊"
-    },
-    {
-      "time": "09:00 AM",
-      "category": "CRON_EJECUTIVO",
-      "text": "Consolidación matutina 09:00 AM completada en la nube. 0 USD acumulados en pipeline.",
-      "icon": "📊"
-    },
-    {
-      "time": "09:00 AM",
-      "category": "CRON_EJECUTIVO",
-      "text": "Consolidación matutina 09:00 AM completada en la nube. 0 USD acumulados en pipeline.",
-      "icon": "📊"
-    },
-    {
-      "time": "09:00 AM",
-      "category": "CRON_EJECUTIVO",
-      "text": "Consolidación matutina 09:00 AM completada en la nube. 0 USD acumulados en pipeline.",
-      "icon": "📊"
-    },
     {
       "time": "09:00 AM",
       "category": "CRON_EJECUTIVO",
@@ -261,7 +237,7 @@
     {
       "time": "08:00 AM",
       "category": "ESCÁNER_DEFENSIVO",
-      "text": "Escáner perimetral de Unblock AI Shield finalizado: 4 anomalías de Content-Security-Policy detectadas y documentadas.",
+      "text": "Escáner perimetral de Unblock AI Shield finalizado: 9 anomalías de Content-Security-Policy detectadas y documentadas.",
       "icon": "🛡️"
     },
     {

@@ -9,145 +9,143 @@ import path from 'path';
 export const CAMPAIGNS = {
   CYBERSECURITY_DEFENSE_AUDIT: {
     id: 'cybersecurity_defense_audit',
-    name: 'Auditoría Defensiva OWASP & Fugas de Datos B2B',
-    offer: 'Flash Audit Express ($19 USD) / Auditoría Completa ($89 USD)',
+    name: 'Centinela Autónomo 24/7 & Blindaje Operativo Continuo',
+    offer: 'Centinela 24/7 ($69 USD/mes) / Auditoría Inicial ($19 USD)',
     strikeAddress: 'rick2818@strike.me',
     cadence: [
       {
         impact: 1,
         day: 1,
-        subject_es: (companyName, domain) => `Informe de Seguridad Perimetral: Vulnerabilidades detectadas en ${domain || companyName}`,
-        subject_en: (companyName, domain) => `Perimeter Security Report: Critical flaws detected on ${domain || companyName}`,
-        body_es: (companyName, domain = '') => `Estimado equipo directivo y técnico en ${companyName},
+        subject_es: (companyName, domain) => `Optimización Operativa & Blindaje Continuo 24/7 para ${domain || companyName}`,
+        subject_en: (companyName, domain) => `Continuous 24/7 Operations & Security Hardening for ${domain || companyName}`,
+        body_es: (companyName, domain = '') => `Estimado equipo directivo en ${companyName},
 
-Le saluda el equipo de Boltech Group (firma de ingeniería en automatización operativa y ciberseguridad defensiva sobre Google Antigravity y Cloud 24/7).
+Le saluda el equipo de ingeniería de Boltech Group (firma especializada en automatización operativa y vigilancia continua 24/7 sobre Google Antigravity & Vercel Cloud).
 
-Durante nuestra inspección perimetral no invasiva sobre ${domain || companyName}, identificamos anomalías críticas en cabeceras de seguridad y endpoints que impactan la seguridad y conversión de su portal.
+Analizamos el flujo de su portal ${domain || companyName}. Detectamos ineficiencias de configuración y riesgos de disponibilidad que pueden resolverse con un operador de software permanente sin incrementar su nómina.
 
-🎬 Video Demostración (70s):
-https://unblock-shield.vercel.app/?domain=${domain || ''}
+🎬 Demostración Ejecutiva (70s):
+https://boltech-group.vercel.app/?domain=${domain || ''}
 
-¿Por qué confiar en nosotros antes de abrir cualquier puerta? (Nuestros 5 Anclajes de Apertura):
-1. Cero Invasión Previa: No solicitamos contraseñas, claves API ni acceso a bases de datos. Todo el análisis corre desde el exterior.
-2. Micro-Riesgo: Puedes verificar el diagnóstico gratis en 15s en nuestra web o descargar el informe ejecutivo con los parches listos para producción por solo $19 USD (Plan Flash).
-3. Garantía Fiduciaria 100% (7 Días): Si en 7 días la solución no le ahorra al menos 10 horas de trabajo manual a su equipo, reembolsamos el 100% de su pago sin preguntas.
-4. Privacidad Bancaria SOC-2: Cero retención en disco; 100% procesado en memoria RAM volátil aislada.
-5. Matemática de Ahorro: Un operador o analista cuesta $600+ USD/mes; nuestro agente autónomo opera 24/7 por $2.30 USD al día ($69 USD/mes).
+Nuestra propuesta fiduciaria de valor permanente (Los 5 Anclajes de Confianza):
+1. Cero Invasión Previa: No solicitamos contraseñas, claves API ni acceso a bases de datos. Todo opera de forma no invasiva desde la nube.
+2. Centinela 24/7 ($69 USD/mes): Monitoreo continuo cada 15 minutos, supervisión de despliegues y auto-remediación perimetral sin contratar personal adicional.
+3. Garantía Fiduciaria Incondicional de 7 Días: Si en los primeros 7 días el sistema no le ahorra al menos 10 horas de trabajo manual, reembolsamos el 100% de su pago.
+4. Privacidad Bancaria SOC-2: Procesamiento 100% en memoria volátil RAM; ninguna conversación ni dato toca disco.
+5. Matemática de ROI Objetivo: Un operador o analista cuesta $600+ USD/mes; nuestro agente opera 24/7 por solo $2.30 USD al día ($69 USD/mes), pagándose solo desde la primera semana.
 
-Audite su portal en vivo o aplique los parches en 60 segundos:
-🔗 https://unblock-shield.vercel.app/?domain=${domain || ''}
+Verifique su plataforma en vivo y active su Centinela 24/7:
+🔗 https://boltech-group.vercel.app/?domain=${domain || ''}
 
-O liquidación instantánea sin comisiones vía Bitcoin Lightning Network a: rick2818@strike.me
+Liquidación fiduciaria instantánea en El Salvador vía:
+⚡ Strike Lightning (0% comisión): rick2818@strike.me
+🏦 Wompi SV (Banco Agrícola)
 
 Atentamente,
-Especialista Senior de Ciberseguridad & Ventas Fiduciarias — Boltech Group`,
-        body_en: (companyName, domain = '') => `Dear Leadership & Engineering Team at ${companyName},
+Dirección de Soluciones Autónomas — Boltech Group`,
+        body_en: (companyName, domain = '') => `Dear Leadership Team at ${companyName},
 
-This is the team at Unblock AI (autonomous operations engineering & defensive cybersecurity built on Google Antigravity & 24/7 Cloud Infrastructure).
+This is the engineering team at Boltech Group / Unblock AI (autonomous operations & 24/7 continuous cloud infrastructure).
 
-During our non-invasive external perimeter inspection of ${domain || companyName}, we identified critical vulnerabilities in banking headers and exposed endpoints that impact performance and security.
+We analyzed the operational perimeter of ${domain || companyName} and detected bottlenecks and hardening gaps that can be managed autonomously 24/7 without adding payroll overhead.
 
-🎬 70s Executive Video Briefing:
-https://unblock-shield.vercel.app/?lang=en&domain=${domain || ''}
+🎬 70s Executive Briefing:
+https://boltech-group.vercel.app/?lang=en&domain=${domain || ''}
 
-Why trust us before opening any door? (Our 5 Fiduciary Trust Anchors):
-1. Zero Invasive Access: We never ask for passwords, API keys, or internal database access. All evaluations run 100% externally.
-2. Micro-Risk Asymmetry: Run a free 15-second audit on our site or download the executive report and production-ready remediation patches for just $19 USD (Flash Plan).
-3. 7-Day Unconditional Fiduciary Guarantee: If the solution does not save your team at least 10 hours of manual operational work in the first 7 days, we refund 100% of your payment with zero friction.
-4. SOC-2 Grade Banking Privacy: Zero disk retention; 100% processed in volatile RAM and immediately purged.
-5. Objective ROI Math: A human operator costs $600+ USD/month; our autonomous agent runs 24/7 for $2.30 USD/day ($69 USD/month), paying for itself with a single recovered lead or resolved ticket.
+Our 5 Fiduciary Trust Anchors:
+1. Zero Invasive Access: We never ask for passwords or database credentials. Everything runs externally.
+2. 24/7 Continuous Sentinel ($69 USD/mo): Non-stop perimeter monitoring every 15 min, deployment protection, and real-time alerts.
+3. 7-Day Unconditional Guarantee: 100% money-back refund if it does not save your team at least 10 hours of manual work in week one.
+4. SOC-2 Banking Privacy: Zero disk retention; 100% processed in volatile RAM.
+5. Objective ROI: A human operator costs $600+ USD/mo; our autonomous agent operates 24/7 for just $2.30 USD/day ($69 USD/mo).
 
-Audit your portal live or deploy patches in 60 seconds:
-🔗 https://unblock-shield.vercel.app/?lang=en&domain=${domain || ''}
+Explore live diagnostics and activate continuous coverage:
+🔗 https://boltech-group.vercel.app/?lang=en&domain=${domain || ''}
 
-Or instant zero-fee settlement via Bitcoin Lightning Network to: rick2818@strike.me
+Direct zero-fee settlement via Strike Lightning: rick2818@strike.me
 
 Best regards,
-Senior Cybersecurity & Solutions Team — Unblock AI`
+Autonomous Solutions Division — Boltech Group`
       },
       {
         impact: 2,
         day: 3,
-        subject_es: (companyName, domain) => `🎬 Video de 70s: Diagnóstico perimetral de ${domain || companyName} y parches en 60s`,
-        subject_en: (companyName, domain) => `🎬 70s Video Briefing: Perimeter audit for ${domain || companyName} and 60s patch`,
+        subject_es: (companyName, domain) => `🎬 Demostración en 70s: Operación Continua & Centinela 24/7 para ${domain || companyName}`,
+        subject_en: (companyName, domain) => `🎬 70s Video Briefing: 24/7 Continuous Sentinel for ${domain || companyName}`,
         body_es: (companyName, domain = '') => `Estimado equipo directivo en ${companyName},
 
-Le escribo en seguimiento a nuestra notificación técnica. Para facilitar su evaluación sin tecnicismos ni reuniones innecesarias, preparamos un Video Briefing Ejecutivo de 70 segundos donde mostramos la anatomía de las fallas detectadas y cómo blindarlas:
+Le escribo en seguimiento a nuestra propuesta de optimización. Preparamos un Video Briefing Ejecutivo de 70 segundos donde mostramos cómo opera nuestro Centinela Autónomo 24/7 protegiendo y acelerando su infraestructura:
 
-▶️ VER VIDEO BRIEFING EJECUTIVO (70 Segundos):
-🔗 https://unblock-shield.vercel.app/?domain=${domain || ''}
+▶️ VER DEMOSTRACIÓN EJECUTIVA (70 Segundos):
+🔗 https://boltech-group.vercel.app/?domain=${domain || ''}
 
-Puntos clave del video para ${companyName}:
-• Cómo mitigar fugas de datos y ataques de inyección sin modificar su backend actual.
-• Cero Invasión Previa: No requerimos contraseñas, claves de API ni credenciales internas.
-• Despliegue Inmediato: Parches en archivo .zip listos para pegar en producción por $19 USD (Plan Flash).
-• Centinela 24/7: Agente autónomo con monitoreo perimetral continuo por $69 USD/mes ($2.30 USD/día).
-• Garantía Fiduciaria Total (7 Días): Si en 7 días no ahorra al menos 10 horas de trabajo operativo, le reembolsamos el 100% sin objeciones.
+Puntos clave de la solución permanente para ${companyName}:
+• Vigilancia Perimetral Continua: Verificación automática cada 15 minutos sin intervención de su equipo.
+• Reducción de Costes Operativos: Ahorro de $600+ USD/mes en horas de personal técnico.
+• Centinela 24/7 ($69 USD/mes): Monitoreo y auto-remediación permanente por $2.30 USD/día.
+• Garantía Fiduciaria Total (7 Días): Si en 7 días no ahorra al menos 10 horas de trabajo operativo, le reembolsamos el 100% sin preguntas.
 
-Acceda al reproductor y aplique el parche de blindaje en 1 clic:
-🔗 https://unblock-shield.vercel.app/?domain=${domain || ''}
+Active la cobertura continua de su portal:
+🔗 https://boltech-group.vercel.app/?domain=${domain || ''}
 
-Liquidación directa por Bitcoin Lightning Network: rick2818@strike.me
-
-Quedo a su disposición si requieren aclaración técnica directa.
+Liquidación directa en El Salvador vía Strike Lightning: rick2818@strike.me o Wompi SV.
 
 Atentamente,
-Especialista en Seguridad y Automatización Fiduciaria — Boltech Group`,
+Dirección de Soluciones Autónomas — Boltech Group`,
         body_en: (companyName, domain = '') => `Dear Executive Team at ${companyName},
 
-Following up on our perimeter security alert, we recorded a 70-Second Executive Video Briefing so you can inspect the exact technical findings without booking meetings or wading through complex reports:
+Following up on our operations alert, we recorded a 70-Second Executive Video Briefing showing how our 24/7 Autonomous Sentinel monitors, protects, and optimizes cloud platforms without human toil:
 
-▶️ WATCH 70s EXECUTIVE VIDEO BRIEFING:
-🔗 https://unblock-shield.vercel.app/?lang=en&domain=${domain || ''}
+▶️ WATCH 70s EXECUTIVE BRIEFING:
+🔗 https://boltech-group.vercel.app/?lang=en&domain=${domain || ''}
 
 Key takeaways for ${companyName}:
-• How to neutralize data leakage and injection risks without altering your current infrastructure.
-• Zero Invasive Access: We never touch internal credentials, databases, or API keys.
-• Immediate Turnkey Patch: Download production-ready code patches for just $19 USD (Flash Plan).
-• 24/7 Autopilot Sentinel: Continuous perimeter hardening agent for $69 USD/month ($2.30 USD/day).
-• 100% 7-Day Fiduciary Guarantee: Full refund if our automated solution does not save your team at least 10 hours in the first week.
+• Continuous Perimeter Protection: Automated checks every 15 minutes.
+• Operational Cost Reduction: Saves $600+ USD/month in technical overhead.
+• 24/7 Autonomous Sentinel ($69 USD/mo): Non-stop coverage for $2.30 USD/day.
+• 100% 7-Day Fiduciary Guarantee: Full refund if it does not save your team at least 10 hours in week one.
 
-Watch the briefing and claim your hardening patch:
-🔗 https://unblock-shield.vercel.app/?lang=en&domain=${domain || ''}
+Activate continuous coverage for your platform:
+🔗 https://boltech-group.vercel.app/?lang=en&domain=${domain || ''}
 
-Direct zero-fee settlement via Bitcoin Lightning Network: rick2818@strike.me
+Direct settlement via Strike Lightning: rick2818@strike.me
 
 Best regards,
-Senior Solutions & Infrastructure Team — Unblock AI`
+Autonomous Solutions Division — Boltech Group`
       },
       {
         impact: 3,
         day: 5,
-        subject_es: (companyName, domain) => `Cierre de auditoría para ${domain || companyName}: Enlace de blindaje perimetral`,
-        subject_en: (companyName, domain) => `Audit window closing for ${domain || companyName}: Hardening blueprint`,
+        subject_es: (companyName, domain) => `Cierre de período de evaluación para ${domain || companyName}: Cobertura 24/7`,
+        subject_en: (companyName, domain) => `Evaluation window closing for ${domain || companyName}: 24/7 Coverage`,
         body_es: (companyName, domain = '') => `Estimado equipo directivo en ${companyName},
 
-Hoy cerramos la ventana de asignación técnica para la auditoría de ${domain || companyName}.
+Hoy cerramos el ciclo de evaluación técnica para ${domain || companyName}.
 
-Si desean asegurar sus pasarelas de pago y cerrar las brechas antes de que deriven en incidentes o costes imprevistos:
+Si desean asegurar la disponibilidad de sus pasarelas y automatizar la vigilancia perimetral 24/7 con garantía de 7 días:
 
-1. Ingrese a la consola fiduciaria y vea el video explicativo de 70s:
-   🔗 https://unblock-shield.vercel.app/?domain=${domain || ''}
-2. Descargue los parches de blindaje listos para producción ($19 USD Plan Flash).
-3. O active el centinela autónomo 24/7 ($69 USD/mes con garantía de 7 días).
+1. Ingrese a la consola fiduciaria y vea el video de 70s:
+   🔗 https://boltech-group.vercel.app/?domain=${domain || ''}
+2. Active el Centinela Autónomo 24/7 ($69 USD/mes con garantía incondicional).
+3. O solicite un Agente de Automatización Operativa a medida.
 
-Liquidación instantánea disponible en Strike Lightning: rick2818@strike.me
+Liquidación instantánea vía Strike Lightning: rick2818@strike.me o Wompi SV.
 
 Equipo de Operaciones — Boltech Group`,
         body_en: (companyName, domain = '') => `Dear Executive Team at ${companyName},
 
-We are closing the technical audit review window for ${domain || companyName}.
+We are concluding the evaluation review window for ${domain || companyName}.
 
-If you wish to secure your checkout pipelines and apply perimeter hardening before vulnerabilities lead to downtime or costly remediations:
+If you wish to secure your infrastructure and automate 24/7 continuous monitoring with a 7-day money-back guarantee:
 
-1. Open the fiduciary console and watch the 70s walkthrough:
-   🔗 https://unblock-shield.vercel.app/?lang=en&domain=${domain || ''}
-2. Download ready-to-deploy patches ($19 USD Flash Plan).
-3. Or activate the 24/7 Autonomous Sentinel ($69 USD/month with 7-day guarantee).
+1. Open the console and watch the 70s walkthrough:
+   🔗 https://boltech-group.vercel.app/?lang=en&domain=${domain || ''}
+2. Activate the 24/7 Autonomous Sentinel ($69 USD/month with 7-day guarantee).
+3. Or request a custom Autonomous Operations Agent.
 
 Instant zero-fee Lightning settlement: rick2818@strike.me
 
-Operations Team — Unblock AI`
+Operations Team — Boltech Group`
       }
     ]
   },

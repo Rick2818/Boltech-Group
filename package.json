@@ -8,6 +8,7 @@
     "build": "echo 'ok'",
     "start": "npx serve .",
     "hunter": "node scripts/outbound/run_cron_hunter.mjs",
+    "cron:email-915am": "node scripts/cron/send_daily_dashboard_email_915am.mjs",
     "preflight": "node scripts/preflight_sanity_check.mjs",
     "test:scanner": "node --test tests/test_header_scanner.mjs",
     "test:hardening": "node --test tests/test_scanner_shield_hardening.mjs",

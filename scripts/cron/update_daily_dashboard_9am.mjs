@@ -119,26 +119,20 @@ export async function generateDailyDashboardFeed() {
   const monthlyRunRateUsd = 0;
   const targetMonthlyUsd = 9000;
 
-  // Desglose por Rieles de Cobro Soberanos
+  // Desglose por Rieles de Cobro Soberanos (Nativos El Salvador)
   const sovereignRails = {
     strikeLightning: {
       address: "rick2818@strike.me",
-      totalCollectedUsd: Math.round(totalRevenueUsd * 0.45),
-      percentage: 45,
+      totalCollectedUsd: 0,
+      percentage: 60,
       status: "ONLINE • 0% COMISIÓN",
-      description: "Liquidación instantánea vía Bitcoin Lightning en USD"
+      description: "Liquidación instantánea directa a USD vía Bitcoin Lightning"
     },
     wompiSv: {
-      totalCollectedUsd: Math.round(totalRevenueUsd * 0.35),
-      percentage: 35,
+      totalCollectedUsd: 0,
+      percentage: 40,
       status: "ONLINE • BANCO AGRÍCOLA",
-      description: "Adquirencia local y transferencias en El Salvador"
-    },
-    stripeBridge: {
-      totalCollectedUsd: Math.round(totalRevenueUsd * 0.20),
-      percentage: 20,
-      status: "ONLINE • CROSS-BORDER BRIDGE",
-      description: "Puente fiduciario para prospectos en EE.UU. y Europa"
+      description: "Adquirencia bancaria local y transferencias en El Salvador"
     }
   };
 

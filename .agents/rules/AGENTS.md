@@ -92,5 +92,11 @@
    - **Holding Institucional Único:** La única denominación fiduciaria y corporativa autorizada es estrictamente **Boltech Group** (`boltech-group.vercel.app`).
    - **Soluciones y Suite de Agentes:** La única marca autorizada para la suite de blindaje y agentes autónomos es **Unblock AI** / **Unblock AI Shield**.
    - **Prohibición Incondicional de Términos Previos:** Queda estrictamente prohibido y eliminado de forma perpetua cualquier uso, mención o residuo de la palabra previa 'boltech' en todos los logs de memoria, archivos de reglas, prompts, guiones audiovisuales, correos de prospección y documentación técnica.
+21. **Regla de Oro de Transparencia y Clasificación Estricta de Escaneos y Auditorías (Diferenciación Obligatoria Outbound vs. Inbound):**
+   - **Prohibición de Ambigüedad en Métricas:** Queda estrictamente prohibido reportar "escaneos" o "auditorías" como una cifra genérica o inflada sin aclarar con total precisión su origen.
+   - **Desglose Obligatorio de Tráfico:** Todo dashboard, reporte matutino por correo, interfaz y log fiduciario DEBE diferenciar explícitamente:
+     1. **Escaneos Outbound de Prospección:** Análisis perimetrales ejecutados automáticamente por nuestros scripts salientes sobre dominios de listas de prospectos.
+     2. **Escaneos Inbound Orgánicos:** Diagnósticos solicitados voluntariamente por clientes o visitantes reales en el portal web.
+   - **Veracidad Fiduciaria Absoluta:** Si no hay escaneos solicitados por clientes reales, se debe reportar con total honestidad **0 escaneos inbound / 0 clientes entrantes**, garantizando que nunca se confunda el rastreo automatizado de prospectos con interés o tracción real de clientes.
 
 
