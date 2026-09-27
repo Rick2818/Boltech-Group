@@ -46,6 +46,7 @@ import whatsappHandler from './whatsapp.js';
 import intelHandler from './intel.js';
 import leadHandler from './lead.js';
 import scanHandler from './scan.js';
+import partnersHandler from './partners.js';
 
 export default async function handler(req, res) {
   applyStrictBankingHeaders(res);
@@ -80,6 +81,11 @@ export default async function handler(req, res) {
     // Enrutamiento a Vercel AI SDK
     if (pathname === '/api/ai' || pathname.endsWith('/ai')) {
       return await aiHandler(req, res);
+    }
+
+    // Enrutamiento a Partner Network (referrals, co-selling y comisiones)
+    if (pathname.startsWith('/api/partners')) {
+      return await partnersHandler(req, res);
     }
 
     // Enrutamiento a CRM (HubSpot & Salesforce)
