@@ -47,6 +47,7 @@ import aiApiHandler from './api/ai.js';
 import crmApiHandler from './api/crm.js';
 import whatsappApiHandler from './api/whatsapp.js';
 import intelApiHandler from './api/intel.js';
+import partnersApiHandler from './api/partners.js';
 import { AutonomousSalesTriadEngine } from './lib/autonomous_triad_engine.js';
 
 const app = express();
@@ -132,6 +133,11 @@ app.all('/api/cron/master-dispatcher', safeHandler(async (req, res) => {
 // 2.2 VERCEL AI SDK (STREAMING & CHAT)
 app.all('/api/ai', safeHandler(async (req, res) => {
   await aiApiHandler(req, res);
+}));
+
+// 2.25 PARTNER NETWORK (REFERRALS, CO-SELLING Y COMISIONES)
+app.all(/^\/api\/partners(\/.*)?$/, safeHandler(async (req, res) => {
+  await partnersApiHandler(req, res);
 }));
 
 // 2.3 CRM INTEGRATION (HUBSPOT & SALESFORCE)
@@ -256,6 +262,12 @@ app.get('/executive-dashboard', (req, res) => {
 });
 app.get('/executive_dashboard.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'executive_dashboard.html'));
+});
+app.get('/partners', (req, res) => {
+  res.sendFile(path.join(__dirname, 'partner_dashboard.html'));
+});
+app.get('/partner-network', (req, res) => {
+  res.sendFile(path.join(__dirname, 'partner_dashboard.html'));
 });
 
 app.all(/^\/api(\/.*)?$/, safeHandler(async (req, res) => {
