@@ -63,6 +63,12 @@ const SUITES = [
     cmd: 'node',
     args: ['tests/test_all_sdks_audit.mjs'],
     category: 'SDKs & Runtime'
+  },
+  {
+    name: '9. Partner Network — Consentimiento, Referrals y Comisiones',
+    cmd: 'node',
+    args: ['--test', 'tests/test_partner_network.mjs'],
+    category: 'Partner Ecosystem & Revenue'
   }
 ];
 
