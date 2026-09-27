@@ -19,7 +19,8 @@
     "test:mcp": "node --test tests/test_boltech_payments_mcp.mjs",
     "test:sdks": "node tests/test_all_sdks_audit.mjs",
     "verify": "node scripts/run_automated_verification_suite.mjs",
-    "test": "node scripts/run_automated_verification_suite.mjs"
+    "test": "node scripts/run_automated_verification_suite.mjs",
+    "test:partners": "node --test tests/test_partner_network.mjs"
   },
   "keywords": [
     "cybersecurity",

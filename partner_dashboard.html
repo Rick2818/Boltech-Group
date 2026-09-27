@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boltech Group — Partner Network</title>
+  <meta name="description" content="Panel comercial de partners, referrals, co-selling y comisiones de Boltech Group." />
+  <style>
+    :root{--bg:#07111f;--panel:#0d1b2a;--panel2:#11263a;--line:#24445f;--text:#f5f7fb;--muted:#90a4b8;--accent:#28d7ff;--green:#31d0aa;--warn:#ffcf5a;--danger:#ff6b6b}
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(145deg,#06101d,#0a1726 50%,#07111f);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;min-height:100vh}
+    .shell{max-width:1280px;margin:auto;padding:28px 20px 60px}
+    header{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;margin-bottom:26px}
+    .brand{display:flex;gap:14px;align-items:center}.logo{width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,var(--accent),#5d76ff);display:grid;place-items:center;color:#04111c;font-weight:900;font-size:21px}
+    h1{font-size:28px;margin:0 0 5px}.sub{color:var(--muted);margin:0;font-size:14px}
+    .status{padding:9px 12px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:12px;background:rgba(255,255,255,.03)}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .card{background:rgba(13,27,42,.94);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 18px 50px rgba(0,0,0,.18)}
+    .kpi .label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.kpi .value{font-size:29px;font-weight:800;margin-top:7px}.kpi small{color:var(--muted)}
+    .wide{grid-column:span 2}.full{grid-column:1/-1}
+    h2{font-size:17px;margin:0 0 16px}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    input,select,textarea,button{font:inherit}
+    input,select,textarea{width:100%;background:#081522;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px 12px;outline:none}
+    textarea{min-height:92px;resize:vertical}
+    input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(40,215,255,.10)}
+    button{border:0;border-radius:10px;padding:11px 15px;font-weight:700;cursor:pointer}
+    .primary{background:var(--accent);color:#03202a}.secondary{background:#173149;color:var(--text);border:1px solid var(--line)}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .notice{padding:12px 14px;border-radius:10px;background:#0a2030;color:var(--muted);border:1px solid var(--line);font-size:13px;margin-bottom:14px}
+    .notice.good{border-color:rgba(49,208,170,.45);color:#baf8e8}.notice.bad{border-color:rgba(255,107,107,.45);color:#ffd0d0}
+    table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:11px 9px;border-bottom:1px solid rgba(36,68,95,.7);vertical-align:top}th{color:var(--muted);font-weight:600}
+    .pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#102a3e;border:1px solid var(--line);font-size:11px}
+    .privacy{border-left:3px solid var(--green);padding-left:12px;color:var(--muted);font-size:13px;line-height:1.5}
+    .money{color:#baf8e8}.muted{color:var(--muted)}
+    @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}.wide{grid-column:1/-1}}
+    @media(max-width:620px){header{flex-direction:column}.grid{grid-template-columns:1fr}.wide,.full{grid-column:auto}.row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <div class="brand"><div class="logo">B</div><div><h1>Partner Network</h1><p class="sub">Boltech Group · referrals, co-selling y comisiones</p></div></div>
+    <div id="systemStatus" class="status">Verificando sistema…</div>
+  </header>
+
+  <section class="grid" id="kpis">
+    <div class="card kpi"><div class="label">Partners</div><div class="value" id="kPartners">—</div><small id="kActive">— activos</small></div>
+    <div class="card kpi"><div class="label">Referrals abiertos</div><div class="value" id="kOpen">—</div><small id="kWon">— ganados</small></div>
+    <div class="card kpi"><div class="label">Pipeline</div><div class="value money" id="kPipeline">$—</div><small>oportunidades registradas</small></div>
+    <div class="card kpi"><div class="label">Ingreso neto referrals</div><div class="value money" id="kNet">$—</div><small id="kCommission">Comisiones: $—</small></div>
+
+    <div class="card wide">
+      <h2>Acceso administrativo</h2>
+      <div class="notice">El token solo se guarda durante esta sesión del navegador. Nunca se muestra ni se envía fuera de las solicitudes al API de Boltech.</div>
+      <label for="token">Partner API Token</label>
+      <input id="token" type="password" autocomplete="off" placeholder="Token privado de administración" />
+      <div class="actions"><button class="primary" id="connectBtn">Conectar panel</button><button class="secondary" id="clearBtn">Limpiar sesión</button></div>
+      <div id="adminMessage" class="muted" style="margin-top:12px"></div>
+    </div>
+
+    <div class="card wide">
+      <h2>Regla comercial y privacidad</h2>
+      <div class="privacy">Primero se registra la oportunidad. Los datos personales del cliente no se transfieren antes de su consentimiento. El cierre de precio, contrato y movimiento de dinero permanece bajo aprobación humana.</div>
+    </div>
+
+    <div class="card wide">
+      <h2>Registrar partner</h2>
+      <div class="row"><div><label>Nombre / empresa</label><input id="pName" placeholder="Nombre del partner" /></div><div><label>Email</label><input id="pEmail" type="email" placeholder="contacto@empresa.com" /></div></div>
+      <div class="row" style="margin-top:12px"><div><label>Tipo</label><select id="pType"><option>Referral Partner</option><option>Agency</option><option>Consultant</option><option>Builder</option><option>AI Platform</option><option>Technology Partner</option></select></div><div><label>Comisión</label><input id="pRate" type="number" min="0" max="1" step="0.01" value="0.20" /></div></div>
+      <div class="actions"><button class="primary" id="addPartnerBtn">Agregar partner</button></div>
+    </div>
+
+    <div class="card wide">
+      <h2>Registrar referral</h2>
+      <div class="row"><div><label>Partner</label><select id="rPartner"><option value="">Conectá el panel para cargar partners</option></select></div><div><label>Servicio</label><select id="rService"><option>Custom Agent</option><option>Prebuilt Agent</option><option>Sales Agent</option><option>Support Agent</option><option>WhatsApp Agent</option><option>Voice Agent</option><option>CRM Integration</option><option>Workflow Automation</option></select></div></div>
+      <div class="row" style="margin-top:12px"><div><label>Presupuesto USD</label><input id="rBudget" type="number" min="0" step="1" placeholder="0" /></div><div><label>Dirección</label><select id="rDirection"><option>INBOUND_TO_BOLTECH</option><option>OUTBOUND_FROM_BOLTECH</option></select></div></div>
+      <div style="margin-top:12px"><label>Necesidad del cliente (sin PII)</label><textarea id="rNeed" placeholder="Describe el problema, alcance y resultado esperado sin colocar datos personales antes del consentimiento."></textarea></div>
+      <label style="margin-top:10px;display:flex;gap:8px;align-items:center;color:var(--text)"><input id="rConsent" type="checkbox" style="width:auto" /> Cliente autorizó compartir sus datos</label>
+      <div class="actions"><button class="primary" id="addReferralBtn">Registrar oportunidad</button></div>
+    </div>
+
+    <div class="card full">
+      <h2>Referrals recientes</h2>
+      <div style="overflow:auto"><table><thead><tr><th>ID</th><th>Servicio</th><th>Estado</th><th>Presupuesto</th><th>Ingreso</th><th>Comisión</th></tr></thead><tbody id="referralRows"><tr><td colspan="6" class="muted">Conectá el panel administrativo para ver detalle.</td></tr></tbody></table></div>
+    </div>
+  </section>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(Number(n||0));
+const token=()=>sessionStorage.getItem('boltech_partner_token')||'';
+async function api(path, options={}){
+  const headers={'Content-Type':'application/json',...(options.headers||{})};
+  if(token()) headers.Authorization='Bearer '+token();
+  const r=await fetch('/api/partners/'+path,{...options,headers});
+  const data=await r.json().catch(()=>({}));
+  if(!r.ok) throw new Error(data.error||('HTTP '+r.status));
+  return data;
+}
+async function loadHealth(){
+  try{const d=await api('health');$('systemStatus').textContent=d.airtableConfigured?'Partner Network · almacenamiento listo':'Partner Network · falta almacenamiento';$('systemStatus').style.color=d.airtableConfigured?'#baf8e8':'#ffcf5a'}catch(e){$('systemStatus').textContent='Partner Network · error'}
+}
+async function loadMetrics(){
+  try{const d=await api('metrics');const m=d.metrics;$('kPartners').textContent=m.partners.total;$('kActive').textContent=m.partners.active+' activos';$('kOpen').textContent=m.referrals.open;$('kWon').textContent=m.referrals.won+' ganados';$('kPipeline').textContent=money(m.finance.pipelineUsd);$('kNet').textContent=money(m.finance.netReferralRevenueUsd);$('kCommission').textContent='Comisiones: '+money(m.finance.commissionsUsd)}catch(e){}
+}
+async function loadAdmin(){
+  if(!token()) return;
+  try{
+    const [p,r]=await Promise.all([api('partners'),api('referrals')]);
+    $('adminMessage').textContent='Panel conectado · '+p.partners.length+' partners';
+    $('adminMessage').style.color='#baf8e8';
+    $('rPartner').innerHTML='<option value="">Seleccionar partner</option>'+p.partners.map(x=>'<option value="'+x.id+'">'+escapeHtml(x.name)+'</option>').join('');
+    $('referralRows').innerHTML=r.referrals.length?r.referrals.slice().reverse().slice(0,30).map(x=>'<tr><td>'+escapeHtml(x.referralId)+'</td><td>'+escapeHtml(x.serviceType)+'</td><td><span class="pill">'+escapeHtml(x.status)+'</span></td><td>'+money(x.budgetUsd)+'</td><td>'+money(x.revenueUsd)+'</td><td>'+money(x.commissionUsd)+'</td></tr>').join(''):'<tr><td colspan="6" class="muted">Aún no hay referrals registrados.</td></tr>';
+  }catch(e){$('adminMessage').textContent=e.message;$('adminMessage').style.color='#ffd0d0'}
+}
+function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+$('connectBtn').onclick=async()=>{const v=$('token').value.trim();if(v)sessionStorage.setItem('boltech_partner_token',v);$('token').value='';await loadAdmin()};
+$('clearBtn').onclick=()=>{sessionStorage.removeItem('boltech_partner_token');$('adminMessage').textContent='Sesión administrativa limpiada.';$('referralRows').innerHTML='<tr><td colspan="6" class="muted">Conectá el panel administrativo para ver detalle.</td></tr>'};
+$('addPartnerBtn').onclick=async()=>{try{await api('partner',{method:'POST',body:JSON.stringify({name:$('pName').value,contactEmail:$('pEmail').value,partnerType:$('pType').value,commissionRate:Number($('pRate').value||.2),status:'PROSPECT'})});$('pName').value='';$('pEmail').value='';await loadAdmin();await loadMetrics()}catch(e){alert(e.message)}};
+$('addReferralBtn').onclick=async()=>{try{await api('referral',{method:'POST',body:JSON.stringify({partnerRecordId:$('rPartner').value,serviceType:$('rService').value,budgetUsd:$('rBudget').value,direction:$('rDirection').value,needSummary:$('rNeed').value,clientConsent:$('rConsent').checked,source:'Partner Portal'})});$('rNeed').value='';$('rBudget').value='';$('rConsent').checked=false;await loadAdmin();await loadMetrics()}catch(e){alert(e.message)}};
+loadHealth();loadMetrics();loadAdmin();
+</script>
+</body>
+</html>

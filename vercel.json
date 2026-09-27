@@ -3,44 +3,106 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/readme", "destination": "/LEER_README" },
-    { "source": "/boltech", "destination": "/boltech.html" },
-    { "source": "/cockpit", "destination": "/COCKPIT_EJECUTIVO_RICARDO" },
-    { "source": "/cabina", "destination": "/COCKPIT_EJECUTIVO_RICARDO" },
-    { "source": "/showcase", "destination": "/preview_videos.html" },
-    { "source": "/videos", "destination": "/preview_videos.html" },
-    { "source": "/audit", "destination": "/index.html" },
-    { "source": "/patch/(.*)", "destination": "/index.html" }
+    {
+      "source": "/readme",
+      "destination": "/LEER_README"
+    },
+    {
+      "source": "/boltech",
+      "destination": "/boltech.html"
+    },
+    {
+      "source": "/partners",
+      "destination": "/partner_dashboard.html"
+    },
+    {
+      "source": "/partner-network",
+      "destination": "/partner_dashboard.html"
+    },
+    {
+      "source": "/cockpit",
+      "destination": "/COCKPIT_EJECUTIVO_RICARDO"
+    },
+    {
+      "source": "/cabina",
+      "destination": "/COCKPIT_EJECUTIVO_RICARDO"
+    },
+    {
+      "source": "/showcase",
+      "destination": "/preview_videos.html"
+    },
+    {
+      "source": "/videos",
+      "destination": "/preview_videos.html"
+    },
+    {
+      "source": "/audit",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/patch/(.*)",
+      "destination": "/index.html"
+    }
   ],
   "headers": [
     {
       "source": "/assets/css/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
       ]
     },
     {
       "source": "/assets/videos/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" },
-        { "key": "Accept-Ranges", "value": "bytes" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        },
+        {
+          "key": "Accept-Ranges",
+          "value": "bytes"
+        }
       ]
     },
     {
       "source": "/assets/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
       ]
     },
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
-        { "key": "X-XSS-Protection", "value": "1; mode=block" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=(self), geolocation=()" },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(self), geolocation=()"
+        },
         {
           "key": "Content-Security-Policy",
           "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' data: blob: https:; connect-src 'self' https://*.vercel.app https://api.telegram.org https://*.supabase.co https://api.stripe.com https://api.resend.com; frame-ancestors 'self';"
@@ -50,9 +112,18 @@
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Access-Control-Allow-Credentials", "value": "true" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT" },
-        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, X-Strike-Signature, X-Event-Checksum, X-Telegram-Bot-Api-Secret-Token" }
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization, X-Strike-Signature, X-Event-Checksum, X-Telegram-Bot-Api-Secret-Token"
+        }
       ]
     }
   ]
