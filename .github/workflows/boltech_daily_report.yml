@@ -1,0 +1,23 @@
+name: Boltech 05:30 PM Executive Report
+
+on:
+  schedule:
+    - cron: '30 23 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Generate executive report
+        env:
+          BOLTECH_APP_URL: https://boltech-group.vercel.app
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+        run: node scripts/ops/partner_cron_runner.mjs report
