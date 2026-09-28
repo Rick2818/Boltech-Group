@@ -48,8 +48,6 @@ test('production payment code contains no synthetic paid/approved fallback', () 
     'lib/payment_providers.js',
     'lib/payment_reconciliation.js',
     'api/payments.js',
-    'api/wompi-webhook.js',
-    'api/strike-webhook.js',
     'mcp/boltech-payments-mcp.mjs',
     'index.html'
   ];
@@ -73,6 +71,10 @@ test('payment confirmation requires provider verification and persistent ledger'
   assert.match(providers, /wompi_hash|verifyWompiWebhookSignature/);
   assert.match(providers, /STRIKE_WEBHOOK_SECRET/);
   assert.match(providers, /\/quote/);
+  const api = read('api/payments.js');
+  assert.match(api, /action === 'wompi-webhook'/);
+  assert.match(api, /action === 'strike-webhook'/);
+  assert.match(api, /bodyParser:\s*false/);
 });
 
 test('front-end only shows provider-confirmed PAID state', () => {
