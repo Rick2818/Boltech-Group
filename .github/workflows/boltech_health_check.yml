@@ -1,0 +1,22 @@
+name: Boltech 06:30 AM Health Check
+
+on:
+  schedule:
+    - cron: '30 12 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  health:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Run health check
+        env:
+          BOLTECH_APP_URL: https://boltech-group.vercel.app
+        run: node scripts/ops/partner_cron_runner.mjs health
