@@ -47,7 +47,7 @@ La existencia de una cuenta de producto **no demuestra** que Boltech ya esté in
 
 Explee no se clasifica como partner de comisiones dentro de este plan. Es una **herramienta operativa**.
 
-La Dirección General informó que los créditos gratuitos terminaron y que Explee está solicitando aproximadamente **USD 5.00**. El posible pago se considera **gasto operativo pendiente de autorización/pago real**. Hasta que exista evidencia del cargo/pago, el sistema no debe registrarlo como gasto pagado.
+La Dirección General confirmó que los créditos gratuitos de la cuenta nueva de Explee ya se agotaron y que Explee solicita **USD 5.00** para continuar. Dirección General prevé realizar ese pago durante el 28 de septiembre de 2026. Hasta que exista evidencia real del cargo/pago, el sistema lo registra únicamente como **gasto operativo pendiente**, nunca como gasto pagado.
 
 ---
 
