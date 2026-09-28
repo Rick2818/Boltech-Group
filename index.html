@@ -946,7 +946,7 @@
       <div class="grid grid-cols-2 gap-2.5 mb-4 font-mono text-xs">
         <button id="tab-strike" onclick="switchGatewayTab('strike')" class="py-2.5 px-2 rounded-xl bg-amber-500/20 border-2 border-amber-500 text-amber-300 font-bold flex flex-col items-center gap-1 cursor-pointer transition-all">
           <span id="modal-tab-strike-title" class="flex items-center gap-1">⚡ Bitcoin Lightning</span>
-          <span id="modal-tab-strike-sub" class="text-[9px] opacity-80">Billetera Lightning (0% Comisión)</span>
+          <span id="modal-tab-strike-sub" class="text-[9px] opacity-80">Invoice BOLT11 verificada</span>
         </button>
         <button id="tab-wompi" onclick="switchGatewayTab('wompi')" class="py-2.5 px-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-400 font-bold flex flex-col items-center gap-1 cursor-pointer transition-all">
           <span id="modal-tab-wompi-title" class="flex items-center gap-1">💳 Tarjetas / Wompi SV</span>
@@ -954,78 +954,63 @@
         </button>
       </div>
 
-      <!-- Contenido de Pasarela 1: Strike Lightning (Bitcoin Global) -->
+      <!-- Contenido de Pasarela 1: Strike Lightning -->
       <div id="content-strike" class="space-y-3">
-        <div class="flex flex-col sm:flex-row items-center gap-3 p-3.5 rounded-xl bg-slate-950 border border-amber-500/30">
-          <div class="p-1.5 bg-slate-900 rounded-lg border border-amber-500/30 shrink-0">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=lightning:rick2818@strike.me&bgcolor=020617&color=f59e0b" alt="Lightning QR" class="w-24 h-24 rounded">
-          </div>
-          <div class="text-xs font-mono space-y-1.5 text-left flex-1">
-            <div class="flex items-center justify-between text-slate-300">
-              <span id="modal-strike-title">Dirección Lightning:</span>
-              <span id="strike-addr-badge" class="text-amber-400 font-bold">rick2818@strike.me</span>
-            </div>
-            <p id="modal-strike-desc" class="text-[11px] text-slate-400 leading-relaxed font-sans">
-              Escanea con tu app móvil (Strike, Cash App, Blink, Muun, Binance) o copia la dirección para transferir en USD/Satoshis con 0% comisión.
-            </p>
-            <div class="text-[10px] text-cyan-400/90 font-mono pt-1 border-t border-slate-800">
-              💡 <em>Nota: Es una dirección de app Lightning, no una página web.</em>
-            </div>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          <button id="btn-copy-lightning" onclick="copyLightningAddress()" class="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-amber-500/40 text-amber-300 font-mono text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow">
-            <span>📋</span> <span id="label-copy-lightning">Copiar rick2818@strike.me</span>
-          </button>
-          <button type="button" onclick="switchGatewayTab('wompi')" class="py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-mono text-xs font-black text-center shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
-            <span>💳</span> <span id="label-open-wallet">Pagar con Tarjeta (Wompi SV)</span>
-          </button>
-        </div>
-        <button onclick="confirmLightningPaymentSent()" class="w-full py-2 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[11px] font-mono transition-all cursor-pointer">
-          <span id="modal-btn-confirm-lightning">✓ Ya transferí: Notificar al Centinela para Aprovisionamiento Inmediato</span>
-        </button>
-      </div>
-
-      <!-- Contenido de Pasarela 2: Wompi SV / Tarjetas & Transferencias -->
-      <div id="content-wompi" class="hidden space-y-3 text-left">
-        <div class="p-3 rounded-xl bg-slate-950 border border-emerald-500/30 text-xs font-mono space-y-1">
-          <div class="flex items-center justify-between text-slate-300">
-            <span id="modal-wompi-rail-title">Riel Fiduciario de Tarjetas:</span>
-            <span id="modal-wompi-rail-name" class="text-emerald-400 font-bold">Wompi SV / Bancaria</span>
-          </div>
-          <p id="modal-wompi-rail-desc" class="text-[11px] text-slate-400 leading-relaxed font-sans">
-            Acepta tarjetas de crédito/débito Visa, Mastercard y transferencias locales directas. El Centinela concilia la referencia y emite tu licencia de inmediato.
+        <div class="p-3.5 rounded-xl bg-slate-950 border border-amber-500/30 text-xs">
+          <div class="font-mono text-amber-300 font-bold mb-1">⚡ Strike Lightning — invoice verificada</div>
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            Boltech genera una factura BOLT11 directamente con Strike. El sistema solo confirma el pago después de consultarlo nuevamente con Strike.
           </p>
         </div>
 
-        <form id="wompi-checkout-form" onsubmit="handleDirectWompiCheckout(event)" class="space-y-2.5">
+        <form id="strike-checkout-form" onsubmit="startStrikeCheckout(event)" class="space-y-2.5">
           <div>
-            <label id="modal-wompi-email-label" class="block text-[10px] font-mono text-slate-400 mb-0.5">CORREO PARA DESPACHO DE LICENCIA *</label>
-            <input type="email" id="wompi-email" required placeholder="tu-correo@empresa.com" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white font-mono focus:border-emerald-400 focus:outline-none">
+            <label class="block text-[10px] font-mono text-slate-400 mb-0.5">CORREO PARA LA ORDEN *</label>
+            <input type="email" id="strike-email" required placeholder="tu-correo@empresa.com" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white font-mono focus:border-amber-400 focus:outline-none">
           </div>
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label id="modal-wompi-method-label" class="block text-[10px] font-mono text-slate-400 mb-0.5">MÉTODO DE PAGO *</label>
-              <select id="wompi-method" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white font-mono focus:border-emerald-400 focus:outline-none">
-                <option id="modal-wompi-opt-card" value="tarjeta">Tarjeta Crédito / Débito</option>
-                <option id="modal-wompi-opt-trans" value="transferencia">Transferencia Bancaria / QR</option>
-                <option id="modal-wompi-opt-nequi" value="nequi">Nequi / PSE</option>
-              </select>
-            </div>
-            <div>
-              <label id="modal-wompi-ref-label" class="block text-[10px] font-mono text-slate-400 mb-0.5">TITULAR / REFERENCIA *</label>
-              <input type="text" id="wompi-ref" required placeholder="Nombre o Ref de Transferencia" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white font-mono focus:border-emerald-400 focus:outline-none">
-            </div>
-          </div>
-          <button type="submit" id="btn-wompi-submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-mono text-xs font-black shadow-lg shadow-emerald-500/25 transition-all cursor-pointer flex items-center justify-center gap-2">
-            <span>💳</span> <span id="label-wompi-submit">Confirmar y Activar Licencia</span>
+          <button type="submit" id="btn-strike-submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-mono text-xs font-black shadow-lg transition-all">
+            <span id="label-strike-submit">Generar Invoice Lightning Segura</span>
           </button>
         </form>
+
+        <div id="strike-invoice-panel" class="hidden p-3 rounded-xl bg-slate-950 border border-cyan-500/30 space-y-2">
+          <div class="text-[10px] font-mono text-cyan-300">BOLT11 generado por Strike:</div>
+          <textarea id="strike-bolt11" readonly rows="4" class="w-full px-2.5 py-2 rounded-lg bg-slate-900 border border-slate-700 text-[10px] text-slate-300 font-mono break-all"></textarea>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="copyStrikeInvoice()" class="py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 text-[11px] font-mono border border-amber-500/30">Copiar Invoice</button>
+            <button type="button" onclick="verifyActivePayment()" class="py-2 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 text-[11px] font-mono border border-cyan-500/30">Verificar con Strike</button>
+          </div>
+          <div id="strike-payment-status" class="text-[10px] text-slate-400 font-mono">Esperando pago. Ninguna activación ocurre hasta que Strike confirme PAID.</div>
+        </div>
+      </div>
+
+      <!-- Contenido de Pasarela 2: Wompi El Salvador -->
+      <div id="content-wompi" class="hidden space-y-3 text-left">
+        <div class="p-3.5 rounded-xl bg-slate-950 border border-emerald-500/30 text-xs">
+          <div class="font-mono text-emerald-300 font-bold mb-1">💳 Wompi El Salvador — checkout hospedado</div>
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            El pago se realiza en la pantalla oficial de Wompi. Boltech no recibe ni almacena número de tarjeta, CVV o fecha de vencimiento.
+          </p>
+        </div>
+
+        <form id="wompi-checkout-form" onsubmit="startWompiCheckout(event)" class="space-y-2.5">
+          <div>
+            <label id="modal-wompi-email-label" class="block text-[10px] font-mono text-slate-400 mb-0.5">CORREO PARA LA ORDEN *</label>
+            <input type="email" id="wompi-email" required placeholder="tu-correo@empresa.com" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white font-mono focus:border-emerald-400 focus:outline-none">
+          </div>
+          <button type="submit" id="btn-wompi-submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-mono text-xs font-black shadow-lg transition-all">
+            <span id="label-wompi-submit">Continuar al Checkout Seguro de Wompi</span>
+          </button>
+        </form>
+
+        <div class="text-[10px] font-mono text-slate-500">
+          El regreso desde Wompi no se toma como prueba de pago: Boltech valida el hash y consulta la transacción antes de marcarla como pagada.
+        </div>
       </div>
 
       <div class="mt-4 pt-2.5 border-t border-slate-800/80 text-center">
         <p id="modal-footer-contact" class="text-[10px] font-mono text-slate-500">
-          ¿Dudas sobre facturación corporativa? Contacto directo: <span class="text-slate-400">rick2818@strike.me</span>
+          ¿Dudas sobre facturación? <span class="text-slate-400">ricardo.boltechgroup@gmail.com</span>
         </p>
       </div>
 
@@ -2418,9 +2403,9 @@
       }
 
       if (isEn) {
-        setAgentMessage(`👋 <strong>I have reserved your license for ${resolvedName} ($${price} USD).</strong> Choose your preferred payment rail below. With Bitcoin Lightning (Strike), instant activation takes under 10 seconds.`);
+        setAgentMessage(`👋 <strong>Secure checkout for ${resolvedName} (${price} USD).</strong> Payment is activated only after the selected provider confirms it.`);
       } else {
-        setAgentMessage(`👋 <strong>He reservado tu licencia para ${resolvedName} ($${price} USD).</strong> Selecciona tu pasarela preferida. Si pagas con Lightning (Strike), la activación toma menos de 10 segundos.`);
+        setAgentMessage(`👋 <strong>Checkout seguro para ${resolvedName} (${price} USD).</strong> La activación ocurre únicamente después de que la pasarela confirme el pago.`);
       }
       switchGatewayTab('strike');
     }
@@ -2539,128 +2524,237 @@
       });
     }
 
-    function copyLightningAddress() {
-      const isEn = (currentLanguage === 'en');
-      navigator.clipboard.writeText('rick2818@strike.me').then(() => {
-        const lbl = document.getElementById('label-copy-lightning');
-        if (lbl) {
-          lbl.innerText = isEn ? 'Copied to Clipboard! ✓' : '¡Copiado al Portapapeles! ✓';
-          setTimeout(() => { lbl.innerText = isEn ? 'Copy rick2818@strike.me' : 'Copiar rick2818@strike.me'; }, 3000);
-        }
-        if (isEn) {
-          setAgentMessage('⚡ <strong>Lightning Address Copied!</strong> Paste <code>rick2818@strike.me</code> in your Strike, Cash App, or Muun wallet and send $' + (currentProduct ? currentProduct.price : 69) + ' USD.');
-        } else {
-          setAgentMessage('⚡ <strong>¡Dirección Lightning Copiada!</strong> Pega <code>rick2818@strike.me</code> en tu app de Strike, Cash App o Muun e ingresa $' + (currentProduct ? currentProduct.price : 69) + ' USD.');
-        }
-      }).catch(() => {
-        prompt(isEn ? 'Copy the fiduciary Lightning address:' : 'Copia la dirección Lightning fiduciaria:', 'rick2818@strike.me');
+    let activePaymentOrderId = '';
+    let activePaymentPollTimer = null;
+
+    function currentPaymentQuantity() {
+      if (currentProduct && currentProduct.id === 'flash') {
+        const issues = (lastScan && Array.isArray(lastScan.checks))
+          ? lastScan.checks.filter(c => c.status !== 'ok').length
+          : 1;
+        return Math.max(1, issues);
+      }
+      return 1;
+    }
+
+    async function createVerifiedPaymentOrder(provider, email) {
+      const resp = await fetch('/api/payments?action=create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider,
+          productId: currentProduct ? currentProduct.id : 'pro',
+          quantity: currentPaymentQuantity(),
+          customerEmail: email,
+          domain: currentScannedDomain || ''
+        })
       });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok || data.success !== true) {
+        throw new Error(data.error || 'La pasarela no está disponible.');
+      }
+      return data;
     }
 
-    async function confirmLightningPaymentSent() {
-      const isEn = (currentLanguage === 'en');
-      const email = prompt(isEn ? 'Please enter your business email to bind your fiduciary license:' : 'Por favor ingresa tu correo electrónico corporativo para vincular tu licencia fiduciaria:', '');
-      if (!email || !email.includes('@')) {
-        alert(isEn ? 'Please enter a valid email address.' : 'Por favor ingresa un correo válido.');
-        return;
-      }
-
-      if (isEn) {
-        setAgentMessage(`⏳ <strong>Sentinel verifying blockchain settlement...</strong> Checking received funds for ${email}...`);
-      } else {
-        setAgentMessage(`⏳ <strong>Centinela verificando liquidación en blockchain...</strong> Consultando fondos recibidos para ${email}...`);
-      }
-      
-      try {
-        const resp = await fetch('/api/verify-lightning', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            transactionId: `BOL-MANUAL-${Date.now()}`,
-            amountUSD: currentProduct ? currentProduct.price : 69,
-            customerEmail: email,
-            domain: currentScannedDomain || 'empresa.com',
-            planId: currentProduct ? currentProduct.id : 'pro'
-          })
-        });
-        const data = await resp.json();
-        if (data.ok) {
-          if (isEn) {
-            setAgentMessage(`✅ <strong>Order Successfully Settled!</strong> Your license token has been generated and dispatched to <code>${email}</code>. Check your inbox.`);
-            alert(`✅ Fiduciary Order Registered! Confirmation and 24/7 cloud cabina access sent to: ${email}`);
-          } else {
-            setAgentMessage(`✅ <strong>¡Orden Liquidada con Éxito!</strong> Se ha emitido tu token de licencia y despachado a <code>${email}</code>. Revisa tu bandeja de entrada.`);
-            alert(`✅ ¡Orden Fiduciaria Registrada! Se ha enviado la confirmación y acceso a tu cabina al correo: ${email}`);
-          }
-          closePaymentModal();
-        } else {
-          setAgentMessage(isEn ? `⚠️ Verification in progress. Settlement on the Lightning network takes a few moments.` : `⚠️ Verificación en curso. Los fondos tardan unos segundos en asentarse en la red Lightning.`);
-        }
-      } catch (err) {
-        setAgentMessage(isEn ? `✅ Notice registered for ${email}. An engineer will validate the hash immediately.` : `✅ Tu aviso fue registrado para ${email}. Un ingeniero del holding validará el hash de inmediato.`);
-      }
-    }
-
-    async function handleDirectWompiCheckout(event) {
+    async function startStrikeCheckout(event) {
       event.preventDefault();
       const isEn = (currentLanguage === 'en');
-      const emailInput = document.getElementById('wompi-email');
-      const methodInput = document.getElementById('wompi-method');
-      const refInput = document.getElementById('wompi-ref');
-      const submitBtn = document.getElementById('btn-wompi-submit');
-      const submitLabel = document.getElementById('label-wompi-submit');
+      const email = (document.getElementById('strike-email')?.value || '').trim();
+      const btn = document.getElementById('btn-strike-submit');
+      const label = document.getElementById('label-strike-submit');
 
-      const email = emailInput ? emailInput.value.trim() : '';
-      const method = methodInput ? methodInput.value : 'tarjeta';
-      const ref = refInput ? refInput.value.trim() : '';
-
-      if (!email || !ref) {
-        alert(isEn ? 'Please enter your business email and payment reference.' : 'Por favor ingresa tu correo y referencia de pago / titular.');
+      if (!email || !email.includes('@')) {
+        alert(isEn ? 'Enter a valid email.' : 'Ingresa un correo válido.');
         return;
       }
 
-      if (submitBtn) submitBtn.disabled = true;
-      if (submitLabel) submitLabel.innerText = isEn ? 'Reconciling transaction...' : 'Conciliando transacción...';
-
-      if (isEn) {
-        setAgentMessage(`💳 <strong>Sentinel reconciling payment:</strong> Validating reference (${ref}) for ${email}...`);
-      } else {
-        setAgentMessage(`💳 <strong>Centinela conciliando liquidación:</strong> Validando referencia (${ref}) para ${email}...`);
-      }
-
-      const txId = `BOL-WOMPI-${Date.now()}`;
+      if (btn) btn.disabled = true;
+      if (label) label.textContent = isEn ? 'Creating verified invoice...' : 'Generando invoice verificada...';
+      setAgentMessage(isEn
+        ? '⏳ Creating the invoice directly with Strike. No payment will be marked as paid by the browser.'
+        : '⏳ Generando la invoice directamente con Strike. El navegador no puede marcar el pago como realizado.');
 
       try {
-        const resp = await fetch('/api/verify-lightning', {
+        const data = await createVerifiedPaymentOrder('STRIKE', email);
+        const bolt11 = data.checkout?.bolt11 || '';
+        if (!bolt11 || !data.order?.orderId) throw new Error('Strike no devolvió una invoice verificable.');
+
+        activePaymentOrderId = data.order.orderId;
+        sessionStorage.setItem('boltech_pending_payment_order', activePaymentOrderId);
+
+        const panel = document.getElementById('strike-invoice-panel');
+        const field = document.getElementById('strike-bolt11');
+        const status = document.getElementById('strike-payment-status');
+        if (field) field.value = bolt11;
+        if (panel) panel.classList.remove('hidden');
+        if (status) status.textContent = isEn
+          ? 'Invoice created by Strike. Waiting for provider confirmation.'
+          : 'Invoice creada por Strike. Esperando confirmación del proveedor.';
+
+        setAgentMessage(isEn
+          ? '⚡ <strong>Strike invoice ready.</strong> Copy the BOLT11 into your Lightning wallet. Boltech will verify the provider before activation.'
+          : '⚡ <strong>Invoice de Strike lista.</strong> Copia el BOLT11 en tu billetera Lightning. Boltech verificará al proveedor antes de activar.');
+
+        startPaymentStatusPolling(activePaymentOrderId);
+      } catch (err) {
+        console.error('[Strike Checkout]', err);
+        setAgentMessage(isEn
+          ? '⚠️ Strike is not available right now. No payment or activation was recorded.'
+          : '⚠️ Strike no está disponible en este momento. No se registró ningún pago ni activación.');
+      } finally {
+        if (btn) btn.disabled = false;
+        if (label) label.textContent = isEn ? 'Generate Secure Lightning Invoice' : 'Generar Invoice Lightning Segura';
+      }
+    }
+
+    function copyStrikeInvoice() {
+      const bolt11 = document.getElementById('strike-bolt11')?.value || '';
+      if (!bolt11) return;
+      navigator.clipboard.writeText(bolt11).then(() => {
+        setAgentMessage(currentLanguage === 'en'
+          ? '✓ Strike BOLT11 invoice copied.'
+          : '✓ Invoice BOLT11 de Strike copiada.');
+      }).catch(() => prompt('BOLT11:', bolt11));
+    }
+
+    async function fetchPaymentStatus(orderId) {
+      const resp = await fetch('/api/payments?action=status&orderId=' + encodeURIComponent(orderId), {
+        cache: 'no-store'
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok || data.success !== true) throw new Error(data.error || 'No se pudo consultar la orden.');
+      return data.order;
+    }
+
+    async function verifyActivePayment() {
+      const orderId = activePaymentOrderId || sessionStorage.getItem('boltech_pending_payment_order') || '';
+      if (!orderId) {
+        setAgentMessage('⚠️ No hay una orden activa para verificar.');
+        return;
+      }
+      try {
+        const order = await fetchPaymentStatus(orderId);
+        const el = document.getElementById('strike-payment-status');
+        if (order.status === 'PAID') {
+          if (el) el.textContent = '✓ Pago confirmado por Strike.';
+          setAgentMessage(currentLanguage === 'en'
+            ? '✅ <strong>Payment confirmed by Strike.</strong> The order is now PAID.'
+            : '✅ <strong>Pago confirmado por Strike.</strong> La orden ya está PAID.');
+          stopPaymentStatusPolling();
+        } else {
+          if (el) el.textContent = 'Estado verificado con proveedor: ' + order.status;
+          setAgentMessage(currentLanguage === 'en'
+            ? '⏳ Strike has not confirmed PAID yet.'
+            : '⏳ Strike todavía no ha confirmado PAID.');
+        }
+      } catch (err) {
+        console.error('[Payment Status]', err);
+        setAgentMessage('⚠️ No se pudo verificar el pago. No se ha activado nada.');
+      }
+    }
+
+    function stopPaymentStatusPolling() {
+      if (activePaymentPollTimer) {
+        clearInterval(activePaymentPollTimer);
+        activePaymentPollTimer = null;
+      }
+    }
+
+    function startPaymentStatusPolling(orderId) {
+      stopPaymentStatusPolling();
+      let attempts = 0;
+      activePaymentPollTimer = setInterval(async () => {
+        attempts++;
+        try {
+          const order = await fetchPaymentStatus(orderId);
+          const el = document.getElementById('strike-payment-status');
+          if (el) el.textContent = 'Estado verificado: ' + order.status;
+          if (order.status === 'PAID' || ['CANCELED', 'FAILED', 'EXPIRED', 'REFUNDED'].includes(order.status)) {
+            stopPaymentStatusPolling();
+            if (order.status === 'PAID') {
+              setAgentMessage(currentLanguage === 'en'
+                ? '✅ Payment confirmed by Strike.'
+                : '✅ Pago confirmado por Strike.');
+            }
+          }
+        } catch (err) {
+          console.warn('[Payment Poll]', err);
+        }
+        if (attempts >= 24) stopPaymentStatusPolling();
+      }, 5000);
+    }
+
+    async function startWompiCheckout(event) {
+      event.preventDefault();
+      const isEn = (currentLanguage === 'en');
+      const email = (document.getElementById('wompi-email')?.value || '').trim();
+      const btn = document.getElementById('btn-wompi-submit');
+      const label = document.getElementById('label-wompi-submit');
+
+      if (!email || !email.includes('@')) {
+        alert(isEn ? 'Enter a valid email.' : 'Ingresa un correo válido.');
+        return;
+      }
+
+      if (btn) btn.disabled = true;
+      if (label) label.textContent = isEn ? 'Opening secure Wompi checkout...' : 'Abriendo checkout seguro de Wompi...';
+
+      try {
+        const data = await createVerifiedPaymentOrder('WOMPI_SV', email);
+        const checkoutUrl = data.checkout?.url || '';
+        if (!checkoutUrl || !data.order?.orderId) throw new Error('Wompi no devolvió un checkout verificable.');
+
+        sessionStorage.setItem('boltech_pending_payment_order', data.order.orderId);
+        setAgentMessage(isEn
+          ? '💳 Redirecting to the official Wompi El Salvador payment page.'
+          : '💳 Redirigiendo a la página oficial de pago de Wompi El Salvador.');
+        window.location.assign(checkoutUrl);
+      } catch (err) {
+        console.error('[Wompi Checkout]', err);
+        setAgentMessage(isEn
+          ? '⚠️ Wompi is not available right now. No payment or activation was recorded.'
+          : '⚠️ Wompi no está disponible en este momento. No se registró ningún pago ni activación.');
+        if (btn) btn.disabled = false;
+        if (label) label.textContent = isEn ? 'Continue to Secure Wompi Checkout' : 'Continuar al Checkout Seguro de Wompi';
+      }
+    }
+
+    async function handleWompiReturnFromUrl() {
+      const url = new URL(window.location.href);
+      const idTransaccion = url.searchParams.get('idTransaccion');
+      const identificador = url.searchParams.get('identificadorEnlaceComercio');
+      const idEnlace = url.searchParams.get('idEnlace');
+      const monto = url.searchParams.get('monto');
+      const hash = url.searchParams.get('hash');
+
+      if (!idTransaccion || !identificador || !idEnlace || !monto || !hash) return;
+
+      setAgentMessage('⏳ Verificando el regreso de Wompi contra firma y API del proveedor...');
+      try {
+        const resp = await fetch('/api/payments?action=wompi-return', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            transactionId: txId,
-            amountUSD: currentProduct.price,
-            customerEmail: email,
-            domain: currentScannedDomain || 'empresa.com',
-            planId: currentProduct.id,
-            channel: 'WOMPI_BANCOLOMBIA_PSE',
-            reference: ref
+            identificadorEnlaceComercio: identificador,
+            idTransaccion,
+            idEnlace,
+            monto,
+            hash
           })
         });
-
-        if (isEn) {
-          setAgentMessage(`✅ <strong>Activation Confirmed!</strong> Payment reconciled and your license has been dispatched to <code>${email}</code>.`);
-          alert(`✅ Fiduciary Order Confirmed!\n\nReference: ${ref}\nLicense token issued and dispatched to: ${email}`);
+        const data = await resp.json().catch(() => ({}));
+        if (resp.ok && data.success === true && data.accepted === true) {
+          sessionStorage.setItem('boltech_pending_payment_order', identificador);
+          setAgentMessage('✅ <strong>Pago confirmado por Wompi.</strong> La transacción fue validada contra el proveedor.');
         } else {
-          setAgentMessage(`✅ <strong>¡Activación Confirmada!</strong> Se conciliaron los fondos y se despachó tu licencia a <code>${email}</code>.`);
-          alert(`✅ ¡Orden Fiduciaria Confirmada!\n\nReferencia: ${ref}\nSe ha emitido tu token de licencia y despachado a: ${email}`);
+          setAgentMessage('⚠️ El regreso de Wompi no pudo validarse como pago confirmado. No se activó ningún servicio.');
         }
-        closePaymentModal();
       } catch (err) {
-        console.error('[Wompi Verification Error]', err);
-        setAgentMessage(isEn
-          ? `⚠️ We could not verify this payment yet. No activation has been recorded. Please keep your payment reference and contact support.`
-          : `⚠️ No pudimos verificar este pago todavía. No se ha registrado ninguna activación. Conserva tu referencia y contacta a soporte.`);
+        console.error('[Wompi Return]', err);
+        setAgentMessage('⚠️ No se pudo verificar Wompi. No se activó ningún servicio.');
       } finally {
-        if (submitBtn) submitBtn.disabled = false;
-        if (submitLabel) submitLabel.innerText = isEn ? 'Confirm & Activate License' : 'Confirmar y Activar Licencia';
+        ['idTransaccion','identificadorEnlaceComercio','idEnlace','monto','hash'].forEach(k => url.searchParams.delete(k));
+        history.replaceState({}, '', url.pathname + (url.searchParams.toString() ? '?' + url.searchParams.toString() : '') + url.hash);
       }
     }
 
@@ -2998,10 +3092,12 @@
       document.addEventListener('DOMContentLoaded', () => {
         initAutoScanFromUrl();
         initVideoExclusion();
+        handleWompiReturnFromUrl();
       });
     } else {
       initAutoScanFromUrl();
       initVideoExclusion();
+      handleWompiReturnFromUrl();
     }
   </script>
 </body>
