@@ -86,3 +86,17 @@ test('front-end only shows provider-confirmed PAID state', () => {
   assert.doesNotMatch(html, /Ya transferí: Notificar/);
   assert.doesNotMatch(html, /Confirmar y Activar Licencia/);
 });
+
+
+test('Vercel Hobby deployment stays within the 12 serverless function limit', () => {
+  const apiDir = path.join(ROOT, 'api');
+  function walk(dir) {
+    return fs.readdirSync(dir, { withFileTypes: true }).flatMap(entry => {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) return walk(full);
+      return entry.isFile() && entry.name.endsWith('.js') ? [full] : [];
+    });
+  }
+  const functions = walk(apiDir);
+  assert.ok(functions.length <= 12, `Vercel Hobby allows at most 12 functions; found ${functions.length}: ${functions.join(', ')}`);
+});
