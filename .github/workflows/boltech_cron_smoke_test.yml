@@ -1,0 +1,38 @@
+name: Boltech Cron Smoke Test
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/boltech_cron_smoke_test.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Health Check
+        env:
+          BOLTECH_APP_URL: https://boltech-group.vercel.app
+        run: node scripts/ops/partner_cron_runner.mjs health
+      - name: Daily Planner
+        env:
+          BOLTECH_APP_URL: https://boltech-group.vercel.app
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+        run: node scripts/ops/partner_cron_runner.mjs planner
+      - name: CRM Integrity Sync
+        env:
+          BOLTECH_APP_URL: https://boltech-group.vercel.app
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+        run: node scripts/ops/partner_cron_runner.mjs crm-sync
+      - name: Executive Report
+        env:
+          BOLTECH_APP_URL: https://boltech-group.vercel.app
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+        run: node scripts/ops/partner_cron_runner.mjs report
