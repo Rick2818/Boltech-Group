@@ -22,4 +22,4 @@ jobs:
         with:
           node-version: '22'
       - name: Validate partner, truth and payment safeguards
-        run: node --test tests/test_partner_network.mjs tests/test_operational_truth_guards.mjs tests/test_payment_security_v2.mjs
+        run: node --test tests/test_partner_network.mjs tests/test_operational_truth_guards.mjs tests/test_payment_security_v2.mjs tests/test_mcp_remote_auth.mjs
