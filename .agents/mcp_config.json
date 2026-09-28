@@ -3,13 +3,14 @@
     "mcp-agent-generator": {
       "command": "python",
       "args": [
-        "c:/Users/Ricardo/Desktop/Agents/main.py",
+        "-m",
+        "agents.main",
         "--server"
       ],
       "env": {
         "PYTHONIOENCODING": "utf-8"
       },
-      "description": "Servidor MCP generador de arquitecturas multi-agente fiduciarias con Gemini Flash 2.5."
+      "description": "Servidor MCP generador de arquitecturas multi-agente. Usa una ruta portable del proyecto en lugar de una ruta absoluta de Windows."
     },
     "microsaas-builder-mcp": {
       "command": "node",
@@ -19,7 +20,7 @@
       "env": {
         "NODE_ENV": "production"
       },
-      "description": "Servidor MCP de Fabricación & Scaffolding de MicroSaaS con cabeceras bancarias, RLS, middleware de seguridad y pasarelas fiduciarias (Wompi SV, Stripe, Strike Lightning).",
+      "description": "Servidor MCP de scaffolding de MicroSaaS.",
       "tools": [
         "scaffold_project_structure",
         "generate_supabase_schema",
@@ -34,9 +35,9 @@
         "@fal-ai/server-mcp"
       ],
       "env": {
-        "FAL_KEY": "tu_api_key_aqui"
+        "FAL_KEY": ""
       },
-      "description": "Servidor MCP para generación y renderizado de cinemáticas y video con IA generativa (Kling, Luma, Runway, Wan)."
+      "description": "Servidor MCP para generación y renderizado multimedia. La clave debe inyectarse por variable de entorno."
     },
     "ffmpeg-mcp": {
       "command": "npx",
@@ -44,7 +45,7 @@
         "-y",
         "@modelcontextprotocol/server-ffmpeg"
       ],
-      "description": "Servidor MCP para manipulación, ensamble, recorte, audio mixing y procesamiento multimedia con FFmpeg."
+      "description": "Servidor MCP para procesamiento multimedia con FFmpeg."
     }
   }
 }
