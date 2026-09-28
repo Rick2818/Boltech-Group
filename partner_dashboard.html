@@ -93,7 +93,7 @@ const token=()=>sessionStorage.getItem('boltech_partner_token')||'';
 async function api(path, options={}){
   const headers={'Content-Type':'application/json',...(options.headers||{})};
   if(token()) headers.Authorization='Bearer '+token();
-  const r=await fetch('/api/partners/'+path,{...options,headers});
+  const r=await fetch('/api/partners?action='+encodeURIComponent(path),{...options,headers});
   const data=await r.json().catch(()=>({}));
   if(!r.ok) throw new Error(data.error||('HTTP '+r.status));
   return data;
