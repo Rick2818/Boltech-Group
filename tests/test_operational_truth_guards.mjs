@@ -46,3 +46,23 @@ test('scheduled workflows cannot invoke legacy outbound dispatch scripts', () =>
     assert.doesNotMatch(body, /autonomous_hunter/i, `${file} must not schedule autonomous_hunter`);
   }
 });
+
+
+test('A2A referral exchange publishes a standard v1 agent card and protects referral intake', () => {
+  const card = JSON.parse(read('agent-card.json'));
+  assert.equal(card.name, 'Boltech Agent Referral Exchange');
+  assert.equal(card.supportedInterfaces?.[0]?.protocolVersion, '1.0');
+  assert.equal(card.supportedInterfaces?.[0]?.protocolBinding, 'JSONRPC');
+  assert.equal(card.supportedInterfaces?.[0]?.url, 'https://boltech-group.vercel.app/api/a2a');
+  assert.ok(card.skills?.some(s => s.id === 'register-referral-need'));
+
+  const vercel = read('vercel.json');
+  assert.match(vercel, /\.well-known\/agent-card\.json/);
+
+  const api = read('api/a2a.js');
+  assert.match(api, /A2A_API_TOKEN \|\| process\.env\.PARTNER_API_TOKEN/);
+  assert.match(api, /clientConsent/);
+  assert.match(api, /WAITING_CONSENT/);
+  assert.match(api, /scorePartnerMatch/);
+  assert.match(api, /source: 'A2A'/);
+});
