@@ -1,15 +1,14 @@
 {
   "mcpServers": {
     "mcp-agent-generator": {
-      "command": "python",
+      "command": "node",
       "args": [
-        "c:/Users/Ricardo/Desktop/Agents/main.py",
-        "--server"
+        "lib/boltech_mcp_server.js"
       ],
       "env": {
-        "PYTHONIOENCODING": "utf-8"
+        "NODE_ENV": "development"
       },
-      "description": "Servidor MCP generador de arquitecturas multi-agente fiduciarias con Gemini Flash 2.5."
+      "description": "Servidor MCP institucional local de Boltech Group por STDIO. Usa únicamente rutas relativas al repositorio."
     },
     "microsaas-builder-mcp": {
       "command": "node",
@@ -19,7 +18,7 @@
       "env": {
         "NODE_ENV": "production"
       },
-      "description": "Servidor MCP de Fabricación & Scaffolding de MicroSaaS con cabeceras bancarias, RLS, middleware de seguridad y pasarelas fiduciarias (Wompi SV, Stripe, Strike Lightning).",
+      "description": "Servidor MCP de scaffolding de MicroSaaS.",
       "tools": [
         "scaffold_project_structure",
         "generate_supabase_schema",
@@ -34,9 +33,9 @@
         "@fal-ai/server-mcp"
       ],
       "env": {
-        "FAL_KEY": "tu_api_key_aqui"
+        "FAL_KEY": ""
       },
-      "description": "Servidor MCP para generación y renderizado de cinemáticas y video con IA generativa (Kling, Luma, Runway, Wan)."
+      "description": "Servidor MCP para generación y renderizado multimedia. La clave debe inyectarse por variable de entorno."
     },
     "ffmpeg-mcp": {
       "command": "npx",
@@ -44,7 +43,7 @@
         "-y",
         "@modelcontextprotocol/server-ffmpeg"
       ],
-      "description": "Servidor MCP para manipulación, ensamble, recorte, audio mixing y procesamiento multimedia con FFmpeg."
+      "description": "Servidor MCP para procesamiento multimedia con FFmpeg."
     }
   }
 }

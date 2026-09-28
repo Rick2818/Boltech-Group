@@ -15,6 +15,7 @@ import {
   addToDncBlacklist
 } from '../lib/compliance_dnc.js';
 import { ExecutiveAssistantMCPHub } from '../lib/mcp_executive_assistant.js';
+import { handleBoltechMcpHttp } from '../mcp/server/http_handler.mjs';
 
 // Instancias reutilizadas entre invocaciones cálidas (evita recrear el cliente en cada request)
 const strike = new StrikeLightningGateway({ lightningAddress: 'rick2818@strike.me' });
@@ -67,6 +68,11 @@ export default async function handler(req, res) {
   try {
     const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
     const pathname = url.pathname;
+
+    // MCP remoto consolidado en api/index para respetar el límite de funciones de Vercel Hobby.
+    if (url.searchParams.get('mcp') === '1' || pathname === '/api/mcp' || pathname.endsWith('/mcp')) {
+      return await handleBoltechMcpHttp(req, res);
+    }
 
     // Enrutamiento a Captura y Despacho de Leads
     if (pathname === '/api/lead' || pathname.endsWith('/lead')) {

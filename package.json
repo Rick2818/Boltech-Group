@@ -16,11 +16,12 @@
     "test:i18n": "node --test tests/test_i18n_integrity.mjs",
     "test:billing": "node --test tests/test_billing_sentinel.mjs",
     "test:strike-urls": "node --test tests/test_no_broken_strike_urls.mjs",
-    "test:mcp": "node --test tests/test_boltech_payments_mcp.mjs",
+    "test:mcp": "node --test tests/test_boltech_payments_mcp.mjs tests/test_mcp_remote_auth.mjs tests/test_mcp_remote_handshake.mjs",
     "test:sdks": "node tests/test_all_sdks_audit.mjs",
     "verify": "node scripts/run_automated_verification_suite.mjs",
     "test": "node scripts/run_automated_verification_suite.mjs",
-    "test:partners": "node --test tests/test_partner_network.mjs"
+    "test:partners": "node --test tests/test_partner_network.mjs",
+    "mcp:stdio": "node lib/boltech_mcp_server.js"
   },
   "keywords": [
     "cybersecurity",

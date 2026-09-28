@@ -4,6 +4,10 @@
   "trailingSlash": false,
   "rewrites": [
     {
+      "source": "/api/mcp",
+      "destination": "/api/index?mcp=1"
+    },
+    {
       "source": "/.well-known/agent-card.json",
       "destination": "/agent-card.json"
     },
