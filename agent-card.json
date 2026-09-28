@@ -1,0 +1,74 @@
+{
+  "name": "Boltech Agent Referral Exchange",
+  "description": "Authenticated agent-to-agent exchange for registering B2B customer needs, preserving attribution, masking customer PII until consent, and matching qualified delivery partners by capability, market and language.",
+  "supportedInterfaces": [
+    {
+      "url": "https://boltech-group.vercel.app/api/a2a",
+      "protocolBinding": "JSONRPC",
+      "protocolVersion": "1.0"
+    }
+  ],
+  "provider": {
+    "organization": "Boltech Group",
+    "url": "https://boltech-group.vercel.app"
+  },
+  "version": "1.0.0",
+  "documentationUrl": "https://boltech-group.vercel.app/partners",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "extendedAgentCard": false
+  },
+  "securitySchemes": {
+    "boltechBearer": {
+      "httpAuthSecurityScheme": {
+        "scheme": "Bearer",
+        "bearerFormat": "Boltech partner access token",
+        "description": "Issued only to approved Boltech A2A partners."
+      }
+    }
+  },
+  "securityRequirements": [
+    {
+      "schemes": {
+        "boltechBearer": {
+          "list": []
+        }
+      }
+    }
+  ],
+  "defaultInputModes": [
+    "application/json",
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "register-referral-need",
+      "name": "Register a qualified referral need",
+      "description": "Registers an attributed B2B opportunity using a structured Need Card. Customer PII is withheld unless consent is explicitly provided.",
+      "tags": [
+        "referral",
+        "deal-registration",
+        "co-selling",
+        "privacy"
+      ],
+      "examples": [
+        "Find a Spanish-speaking WhatsApp automation partner in Central America for a customer with a $3,000 budget."
+      ]
+    },
+    {
+      "id": "match-delivery-partners",
+      "name": "Match delivery partners",
+      "description": "Matches active Boltech partners to a referral based on service capability, market and language without exposing customer identity before consent.",
+      "tags": [
+        "partner-matching",
+        "capabilities",
+        "market",
+        "language"
+      ]
+    }
+  ]
+}
