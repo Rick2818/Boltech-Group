@@ -1,16 +1,14 @@
 {
   "mcpServers": {
     "mcp-agent-generator": {
-      "command": "python",
+      "command": "node",
       "args": [
-        "-m",
-        "agents.main",
-        "--server"
+        "lib/boltech_mcp_server.js"
       ],
       "env": {
-        "PYTHONIOENCODING": "utf-8"
+        "NODE_ENV": "development"
       },
-      "description": "Servidor MCP generador de arquitecturas multi-agente. Usa una ruta portable del proyecto en lugar de una ruta absoluta de Windows."
+      "description": "Servidor MCP institucional local de Boltech Group por STDIO. Usa únicamente rutas relativas al repositorio."
     },
     "microsaas-builder-mcp": {
       "command": "node",
