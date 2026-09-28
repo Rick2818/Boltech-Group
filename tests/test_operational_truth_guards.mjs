@@ -28,6 +28,14 @@ test('official mail engine uses Boltech Gmail identity and does not fabricate pr
   assert.match(mail, /providerResponse/);
 });
 
+test('WON does not create commission before cash is collected', () => {
+  const api = read('api/partners.js');
+  assert.doesNotMatch(api, /buildWonUpdate/);
+  assert.match(api, /commissionPolicy:\s*'CASH_COLLECTED_ONLY'/);
+  assert.match(api, /action === 'commission-entry'/);
+  assert.match(api, /customerPaymentReference is required as real payment evidence/);
+});
+
 test('scheduled workflows cannot invoke legacy outbound dispatch scripts', () => {
   const workflowDir = path.join(ROOT, '.github', 'workflows');
   const files = fs.readdirSync(workflowDir).filter(f => /\.ya?ml$/i.test(f));
