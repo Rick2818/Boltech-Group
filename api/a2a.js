@@ -13,7 +13,7 @@ function clean(v, n = 5000) {
 }
 
 function authorized(req) {
-  const expected = clean(process.env.A2A_API_TOKEN, 2000);
+  const expected = clean(process.env.A2A_API_TOKEN || process.env.PARTNER_API_TOKEN, 2000);
   const auth = clean(req.headers?.authorization, 2200);
   const supplied = auth.toLowerCase().startsWith('bearer ') ? auth.slice(7).trim() : '';
   if (!expected || !supplied) return false;
