@@ -197,50 +197,24 @@ export default async function handler(req, res) {
       });
     }
 
-    if (req.method === 'POST' && (pathname === '/api/strike/invoice' || pathname.endsWith('/strike/invoice'))) {
-      const { planId, customerEmail } = req.body || {};
-      const invoice = await strike.createLightningPayment(planId, customerEmail);
-      return res.status(200).json({ success: true, invoice });
-    }
-
-    if (req.method === 'POST' && (pathname === '/api/wompi/checkout' || pathname.endsWith('/wompi/checkout'))) {
-      const { planId, customerEmail, redirectUrl } = req.body || {};
-      const checkout = await wompi.createPaymentLink(
-        planId,
-        customerEmail,
-        redirectUrl || `https://${req.headers.host}/dashboard.html?status=paid`
-      );
-      return res.status(200).json({ success: true, checkout });
-    }
-
-    // --- ENDPOINT FIDUCIARIO UNIFICADO: VERIFICACIÓN Y CONCILIACIÓN DE PAGOS (LIGHTNING / WOMPI / NEQUI) ---
-    if (req.method === 'POST' && (pathname === '/api/verify-lightning' || pathname === '/api/payment/confirm' || pathname.endsWith('/verify-lightning') || pathname.endsWith('/payment/confirm'))) {
-      const { transactionId, amountUSD, customerEmail, domain, planId, channel, reference } = req.body || {};
-      const txId = transactionId || `BOL-CONFIRM-${Date.now()}`;
-      
-      const payload = {
-        transactionId: txId,
-        amountUSD: amountUSD || 69,
-        customerEmail: customerEmail || 'pending@client.com',
-        domain: domain || 'empresa.com',
-        planId: planId || 'pro',
-        channel: channel || 'BITCOIN_LIGHTNING',
-        reference: reference || 'DIRECT_CONFIRMATION',
-        timestamp: new Date().toISOString()
-      };
-
-      const idempotencyResult = recordAndVerifyIdempotency(txId, payload);
-
-      return res.status(200).json({
-        ok: true,
-        success: true,
-        transactionId: txId,
-        status: 'SETTLED',
-        settledAt: payload.timestamp,
-        customerEmail: payload.customerEmail,
-        planId: payload.planId,
-        amountUSD: payload.amountUSD,
-        idempotency: idempotencyResult
+    // --- RUTAS DE PAGO HEREDADAS DESHABILITADAS ---
+    // Se retiraron porque permitían confirmaciones no verificadas o integraciones
+    // incompatibles con los proveedores actuales. Toda creación/consulta de pagos
+    // debe pasar por /api/payments y webhooks dedicados.
+    if (
+      pathname === '/api/strike/invoice' ||
+      pathname.endsWith('/strike/invoice') ||
+      pathname === '/api/wompi/checkout' ||
+      pathname.endsWith('/wompi/checkout') ||
+      pathname === '/api/verify-lightning' ||
+      pathname.endsWith('/verify-lightning') ||
+      pathname === '/api/payment/confirm' ||
+      pathname.endsWith('/payment/confirm')
+    ) {
+      return res.status(410).json({
+        success: false,
+        error: 'Legacy payment route retired. Use the verified payment API.',
+        code: 'LEGACY_PAYMENT_ROUTE_RETIRED'
       });
     }
 
@@ -293,118 +267,22 @@ export default async function handler(req, res) {
       });
     }
 
-    // --- Webhooks: fallan CERRADOS si el secreto no está configurado (antes caían a un ---
-    // --- string por defecto público en el repo, lo que permitía falsificar pagos).      ---
-    if (req.method === 'POST' && (pathname === '/api/webhooks/wompi' || pathname.endsWith('/webhooks/wompi'))) {
-      if (!process.env.WOMPI_WEBHOOK_SECRET) {
-        console.error('[CONFIG] WOMPI_WEBHOOK_SECRET no está definido — webhook rechazado por seguridad.');
-        return res.status(503).json({ error: 'Webhook receiver not configured' });
-      }
-
-      const checksumHeader = req.headers['x-event-checksum'];
-      const rawBody = req.rawBody || (typeof req.body === 'string' ? req.body : JSON.stringify(req.body));
-
-      if (!wompi.verifyWebhookSignature(rawBody, checksumHeader)) {
-        return res.status(401).json({ error: 'Invalid Wompi Signature' });
-      }
-
-      const eventId = req.body?.data?.transaction?.id || req.body?.idTransaccion;
-      if (!eventId) {
-        return res.status(400).json({ error: 'Missing transaction id' });
-      }
-
-      // Verificación distribuida de idempotencia (Upstash Redis REST + Memoria local)
-      // Protege contra invocaciones frías o múltiples contenedores concurrentes en Vercel.
-      const idempotency = await recordAndVerifyDistributedIdempotency(`wompi_${eventId}`);
-      if (idempotency.isDuplicate) {
-        return res.status(200).json({ status: 'ignored_duplicate', transactionId: eventId, source: idempotency.source || 'MEMORY' });
-      }
-
-      // Cierre de Ciclo Fiduciario 10/10: Despacho de Blindaje y Alerta Push a Telegram
-      const transaction = req.body?.data?.transaction || req.body;
-      const status = transaction?.status || 'APPROVED';
-      const customerEmail = transaction?.customer_email || req.body?.customerEmail;
-      const amountInCents = transaction?.amount_in_cents || 1900;
-      const amountUsd = (amountInCents / 100).toFixed(2);
-      const reference = transaction?.reference || eventId;
-
-      if (status === 'APPROVED') {
-        Promise.allSettled([
-          sendCustomerDeliveryEmail({
-            toEmail: customerEmail,
-            domain: reference,
-            planId: 'flash_audit_19',
-            invoiceId: eventId,
-            amountUsd
-          }),
-          sendExecutiveTelegramAlert({
-            gateway: 'Wompi Bancolombia / Card',
-            invoiceId: eventId,
-            amountUsd,
-            customerEmail: customerEmail || '(Tarjeta Wompi)',
-            domain: reference,
-            status: 'LIQUIDADA'
-          })
-        ]).catch(err => console.error('[WOMPI POST-PAYMENT ERROR]', err));
-      }
-
-      return res.status(200).json({ status: 'processed', transactionId: eventId, delivered: status === 'APPROVED' });
-    }
-
-    if (req.method === 'POST' && (pathname === '/api/webhooks/strike' || pathname.endsWith('/webhooks/strike'))) {
-      if (!process.env.STRIKE_WEBHOOK_SECRET) {
-        console.error('[CONFIG] STRIKE_WEBHOOK_SECRET no está definido — webhook rechazado por seguridad.');
-        return res.status(503).json({ error: 'Webhook receiver not configured' });
-      }
-
-      const strikeSig = req.headers['x-strike-signature'];
-      const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
-
-      if (!strike.verifyWebhookSignature(rawBody, strikeSig)) {
-        return res.status(401).json({ error: 'Invalid Strike Signature' });
-      }
-
-      const invoiceId = req.body?.data?.id;
-      if (!invoiceId) {
-        return res.status(400).json({ error: 'Missing invoice id' });
-      }
-
-      // Ver nota de idempotencia arriba — mismo riesgo en instancias serverless.
-      const idempotency = recordAndVerifyIdempotency(`strike_${invoiceId}`);
-      if (idempotency.isDuplicate) {
-        return res.status(200).json({ status: 'ignored_duplicate', invoiceId });
-      }
-
-      // Cierre de Ciclo Fiduciario 10/10: Despacho de Blindaje y Alerta Push a Telegram
-      const data = req.body?.data || {};
-      const state = data.state || req.body?.state || 'PAID';
-      const amountUsd = data.amount?.amount || '19.00';
-      const description = data.description || '';
-      const correlationId = data.correlationId || '';
-      const customerEmail = (correlationId.includes('@') ? correlationId : (description.includes('@') ? description : ''));
-      const domain = correlationId && !correlationId.includes('@') ? correlationId : 'cliente-strike.com';
-
-      if (state === 'PAID') {
-        Promise.allSettled([
-          sendCustomerDeliveryEmail({
-            toEmail: customerEmail,
-            domain,
-            planId: amountUsd === '69.00' ? 'pro_hunter_69' : 'flash_audit_19',
-            invoiceId,
-            amountUsd
-          }),
-          sendExecutiveTelegramAlert({
-            gateway: 'Strike Lightning Network',
-            invoiceId,
-            amountUsd,
-            customerEmail: customerEmail || '(Lightning Anónimo)',
-            domain,
-            status: 'LIQUIDADA (Satoshis en RAM)'
-          })
-        ]).catch(err => console.error('[STRIKE POST-PAYMENT ERROR]', err));
-      }
-
-      return res.status(200).json({ status: 'processed', invoiceId, delivered: state === 'PAID' });
+    // --- WEBHOOKS HEREDADOS DESHABILITADOS ---
+    // Los webhooks productivos viven en:
+    //   /api/wompi-webhook
+    //   /api/strike-webhook
+    // y validan firma + proveedor + monto + orden antes de PAID.
+    if (
+      pathname === '/api/webhooks/wompi' ||
+      pathname.endsWith('/webhooks/wompi') ||
+      pathname === '/api/webhooks/strike' ||
+      pathname.endsWith('/webhooks/strike')
+    ) {
+      return res.status(410).json({
+        success: false,
+        error: 'Legacy webhook route retired.',
+        code: 'LEGACY_WEBHOOK_ROUTE_RETIRED'
+      });
     }
 
     // --- ENDPOINTS FIDUCIARIOS DEL DASHBOARD EJECUTIVO (COCKPIT LOCAL & CLOUD) ---
