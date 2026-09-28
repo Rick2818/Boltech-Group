@@ -13,7 +13,7 @@ permissions:
 jobs:
   governance:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 7
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,5 +21,5 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Validate partner and truth safeguards
-        run: node --test tests/test_partner_network.mjs tests/test_operational_truth_guards.mjs
+      - name: Validate partner, truth and payment safeguards
+        run: node --test tests/test_partner_network.mjs tests/test_operational_truth_guards.mjs tests/test_payment_security_v2.mjs
