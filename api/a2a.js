@@ -1,6 +1,11 @@
 import crypto from 'node:crypto';
 import { normalizeReferralInput, generateActivityId, scorePartnerMatch } from '../lib/partner_network.js';
-import { listPartners, createReferral, logPartnerActivity } from '../lib/airtable_partner_store.js';
+import {
+  listPartners,
+  createReferral,
+  logPartnerActivity,
+  findA2APartnerByKeyHash
+} from '../lib/airtable_partner_store.js';
 
 function send(res, status, body) {
   res.setHeader('Cache-Control', 'no-store');
@@ -12,14 +17,19 @@ function clean(v, n = 5000) {
   return v == null ? '' : String(v).trim().slice(0, n);
 }
 
-function authorized(req) {
-  const expected = clean(process.env.A2A_API_TOKEN || process.env.PARTNER_API_TOKEN, 2000);
+function bearerToken(req) {
   const auth = clean(req.headers?.authorization, 2200);
-  const supplied = auth.toLowerCase().startsWith('bearer ') ? auth.slice(7).trim() : '';
-  if (!expected || !supplied) return false;
-  const a = Buffer.from(expected);
-  const b = Buffer.from(supplied);
-  return a.length === b.length && crypto.timingSafeEqual(a, b);
+  return auth.toLowerCase().startsWith('bearer ') ? auth.slice(7).trim() : '';
+}
+
+function sha256Hex(value) {
+  return crypto.createHash('sha256').update(String(value || ''), 'utf8').digest('hex');
+}
+
+async function authenticatedPartner(req) {
+  const supplied = bearerToken(req);
+  if (!supplied) return null;
+  return await findA2APartnerByKeyHash(sha256Hex(supplied));
 }
 
 function extractCard(body) {
@@ -38,7 +48,9 @@ export default async function handler(req, res) {
   if (body.jsonrpc !== '2.0' || !['SendMessage', 'message/send'].includes(body.method)) {
     return send(res, 400, { jsonrpc: '2.0', id, error: { code: -32600, message: 'Invalid A2A request' } });
   }
-  if (!authorized(req)) {
+
+  const source = await authenticatedPartner(req);
+  if (!source) {
     res.setHeader('WWW-Authenticate', 'Bearer realm="Boltech A2A"');
     return send(res, 401, { jsonrpc: '2.0', id, error: { code: -32001, message: 'A2A authentication required' } });
   }
@@ -49,10 +61,6 @@ export default async function handler(req, res) {
   }
 
   const partners = await listPartners();
-  const source = partners.find(p => p.id === clean(card.partnerRecordId, 120) && p.status === 'ACTIVE' && p.a2aEnabled);
-  if (!source) {
-    return send(res, 403, { jsonrpc: '2.0', id, error: { code: -32003, message: 'Active A2A partner required' } });
-  }
 
   const referral = normalizeReferralInput({
     partnerRecordId: source.id,

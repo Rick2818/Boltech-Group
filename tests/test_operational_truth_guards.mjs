@@ -60,7 +60,9 @@ test('A2A referral exchange publishes a standard v1 agent card and protects refe
   assert.match(vercel, /\.well-known\/agent-card\.json/);
 
   const api = read('api/a2a.js');
-  assert.match(api, /A2A_API_TOKEN \|\| process\.env\.PARTNER_API_TOKEN/);
+  assert.match(api, /findA2APartnerByKeyHash/);
+  assert.match(api, /createHash\('sha256'\)/);
+  assert.doesNotMatch(api, /card\.partnerRecordId/);
   assert.match(api, /clientConsent/);
   assert.match(api, /WAITING_CONSENT/);
   assert.match(api, /scorePartnerMatch/);
