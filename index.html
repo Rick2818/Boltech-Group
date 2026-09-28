@@ -2846,7 +2846,7 @@
       }
 
       try {
-        await fetch('/api/lead', {
+        const resp = await fetch('/api/lead', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -2856,16 +2856,23 @@
             timestamp: new Date().toISOString()
           })
         });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || data.success !== true) {
+          throw new Error(data.error || 'No se pudo confirmar el despacho.');
+        }
+        if (feedback) {
+          feedback.classList.remove('hidden');
+          feedback.textContent = `✓ Solicitud registrada. Estado de correo: ${data.deliveryStatus || 'ACCEPTED_BY_PROVIDER'}.`;
+        }
+        emailInput.value = '';
+        msgInput.value = '';
       } catch (err) {
-        console.warn('[Support Send Fallback]', err);
+        console.error('[Support Send Error]', err);
+        if (feedback) {
+          feedback.classList.remove('hidden');
+          feedback.textContent = '⚠️ No se confirmó el envío. Intenta nuevamente o contacta a ricardo.boltechgroup@gmail.com.';
+        }
       }
-
-      if (feedback) {
-        feedback.classList.remove('hidden');
-        feedback.textContent = `✓ Mensaje recibido para ${email}. Un ingeniero de soporte fiduciario te responderá en menos de 2 horas.`;
-      }
-      emailInput.value = '';
-      msgInput.value = '';
       if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.innerText = 'Mensaje Enviado ✓';
@@ -2900,7 +2907,7 @@
       }
 
       try {
-        await fetch('/api/lead', {
+        const resp = await fetch('/api/lead', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -2910,6 +2917,10 @@
             timestamp: new Date().toISOString()
           })
         });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok || data.success !== true) {
+          throw new Error(data.error || 'No se pudo confirmar el registro y despacho.');
+        }
 
         if (directCabinaBtn) {
           directCabinaBtn.href = `/cabina?email=${encodeURIComponent(email)}&company=${encodeURIComponent(company)}&pain=${encodeURIComponent(painPoint)}`;
@@ -2924,16 +2935,14 @@
           if (submitLabel) submitLabel.textContent = '✓ Requerimiento Registrado';
         }
       } catch (err) {
-        console.warn('[Pain Intake Submit Fallback]', err);
-        if (directCabinaBtn) {
-          directCabinaBtn.href = `/cabina?email=${encodeURIComponent(email)}&company=${encodeURIComponent(company)}&pain=${encodeURIComponent(painPoint)}`;
-        }
+        console.error('[Pain Intake Submit Error]', err);
         if (feedback) {
           feedback.classList.remove('hidden');
+          feedback.textContent = '⚠️ No se confirmó el envío. Tu solicitud no se mostrará como despachada hasta tener evidencia del proveedor.';
         }
         if (submitBtn) {
           submitBtn.disabled = false;
-          if (submitLabel) submitLabel.textContent = '✓ Procesado (Acceso Disponible)';
+          if (submitLabel) submitLabel.textContent = 'Reintentar solicitud';
         }
       }
     }
