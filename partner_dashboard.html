@@ -81,6 +81,11 @@
     </div>
 
     <div class="card full">
+      <h2>Activación de partners</h2>
+      <div style="overflow:auto"><table><thead><tr><th>Partner</th><th>Programa</th><th>Etapa</th><th>Cobro SV</th><th>Prioridad</th></tr></thead><tbody id="partnerRows"><tr><td colspan="5" class="muted">Conectá el panel administrativo para ver detalle.</td></tr></tbody></table></div>
+    </div>
+
+    <div class="card full">
       <h2>Referrals recientes</h2>
       <div style="overflow:auto"><table><thead><tr><th>ID</th><th>Servicio</th><th>Estado</th><th>Presupuesto</th><th>Ingreso</th><th>Comisión</th></tr></thead><tbody id="referralRows"><tr><td colspan="6" class="muted">Conectá el panel administrativo para ver detalle.</td></tr></tbody></table></div>
     </div>
@@ -111,12 +116,13 @@ async function loadAdmin(){
     $('adminMessage').textContent='Panel conectado · '+p.partners.length+' partners';
     $('adminMessage').style.color='#baf8e8';
     $('rPartner').innerHTML='<option value="">Seleccionar partner</option>'+p.partners.map(x=>'<option value="'+x.id+'">'+escapeHtml(x.name)+'</option>').join('');
+    $('partnerRows').innerHTML=p.partners.length?p.partners.slice().sort((a,b)=>(a.activationPriority||999)-(b.activationPriority||999)).map(x=>'<tr><td><strong>'+escapeHtml(x.name)+'</strong></td><td>'+escapeHtml(x.programType||'—')+'</td><td><span class="pill">'+escapeHtml(x.applicationStage||x.status||'—')+'</span></td><td>'+escapeHtml(x.payoutFeasibilitySv||'—')+'</td><td>'+escapeHtml(x.activationPriority||'—')+'</td></tr>').join(''):'<tr><td colspan="5" class="muted">Aún no hay partners registrados.</td></tr>';
     $('referralRows').innerHTML=r.referrals.length?r.referrals.slice().reverse().slice(0,30).map(x=>'<tr><td>'+escapeHtml(x.referralId)+'</td><td>'+escapeHtml(x.serviceType)+'</td><td><span class="pill">'+escapeHtml(x.status)+'</span></td><td>'+money(x.budgetUsd)+'</td><td>'+money(x.revenueUsd)+'</td><td>'+money(x.commissionUsd)+'</td></tr>').join(''):'<tr><td colspan="6" class="muted">Aún no hay referrals registrados.</td></tr>';
   }catch(e){$('adminMessage').textContent=e.message;$('adminMessage').style.color='#ffd0d0'}
 }
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
 $('connectBtn').onclick=async()=>{const v=$('token').value.trim();if(v)sessionStorage.setItem('boltech_partner_token',v);$('token').value='';await loadAdmin()};
-$('clearBtn').onclick=()=>{sessionStorage.removeItem('boltech_partner_token');$('adminMessage').textContent='Sesión administrativa limpiada.';$('referralRows').innerHTML='<tr><td colspan="6" class="muted">Conectá el panel administrativo para ver detalle.</td></tr>'};
+$('clearBtn').onclick=()=>{sessionStorage.removeItem('boltech_partner_token');$('adminMessage').textContent='Sesión administrativa limpiada.';$('partnerRows').innerHTML='<tr><td colspan="5" class="muted">Conectá el panel administrativo para ver detalle.</td></tr>';$('referralRows').innerHTML='<tr><td colspan="6" class="muted">Conectá el panel administrativo para ver detalle.</td></tr>'};
 $('addPartnerBtn').onclick=async()=>{try{await api('partner',{method:'POST',body:JSON.stringify({name:$('pName').value,contactEmail:$('pEmail').value,partnerType:$('pType').value,commissionRate:Number($('pRate').value||.2),status:'PROSPECT'})});$('pName').value='';$('pEmail').value='';await loadAdmin();await loadMetrics()}catch(e){alert(e.message)}};
 $('addReferralBtn').onclick=async()=>{try{await api('referral',{method:'POST',body:JSON.stringify({partnerRecordId:$('rPartner').value,serviceType:$('rService').value,budgetUsd:$('rBudget').value,direction:$('rDirection').value,needSummary:$('rNeed').value,clientConsent:$('rConsent').checked,source:'Partner Portal'})});$('rNeed').value='';$('rBudget').value='';$('rConsent').checked=false;await loadAdmin();await loadMetrics()}catch(e){alert(e.message)}};
 loadHealth();loadMetrics();loadAdmin();
