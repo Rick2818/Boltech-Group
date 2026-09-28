@@ -15,8 +15,16 @@ import {
 } from '../lib/payment_providers.js';
 import {
   reconcileStrikeOrder,
-  reconcileWompiRedirect
+  reconcileStrikeWebhook,
+  reconcileWompiRedirect,
+  reconcileWompiWebhook
 } from '../lib/payment_reconciliation.js';
+
+export const config = {
+  api: {
+    bodyParser: false
+  }
+};
 
 function json(res, status, payload) {
   res.setHeader('Cache-Control', 'no-store');
@@ -49,6 +57,36 @@ function actionOf(req) {
     return clean(url.searchParams.get('action'), 80);
   } catch {
     return '';
+  }
+}
+
+async function readRawBody(req, maxBytes = 1024 * 1024) {
+  const chunks = [];
+  let total = 0;
+  for await (const chunk of req) {
+    const buf = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    total += buf.length;
+    if (total > maxBytes) {
+      const err = new Error('Request body too large.');
+      err.statusCode = 413;
+      err.code = 'PAYLOAD_TOO_LARGE';
+      throw err;
+    }
+    chunks.push(buf);
+  }
+  return Buffer.concat(chunks).toString('utf8');
+}
+
+function parseJsonBody(rawBody) {
+  if (!rawBody) return {};
+  try {
+    const value = JSON.parse(rawBody);
+    return value && typeof value === 'object' ? value : {};
+  } catch {
+    const err = new Error('Invalid JSON body.');
+    err.statusCode = 400;
+    err.code = 'INVALID_JSON';
+    throw err;
   }
 }
 
@@ -91,13 +129,13 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(204).end();
 
   const ip = getIp(req);
-  const rate = checkRateLimit('payments:' + ip, 12, 60000);
+  const action = actionOf(req);
+  const isWebhook = action === 'wompi-webhook' || action === 'strike-webhook';
+  const rate = checkRateLimit((isWebhook ? 'payment-webhook:' : 'payments:') + ip, isWebhook ? 120 : 12, 60000);
   if (!rate.allowed) {
     res.setHeader('Retry-After', String(rate.remainingSeconds));
     return json(res, 429, { success: false, error: 'Too many payment requests.' });
   }
-
-  const action = actionOf(req);
 
   try {
     if (req.method === 'GET' && action === 'readiness') {
@@ -119,7 +157,6 @@ export default async function handler(req, res) {
       let order = await getOrderByOrderId(orderId);
       if (!order) return json(res, 404, { success: false, error: 'Order not found.' });
 
-      // Strike can be safely reconciled by querying the provider if a webhook was delayed.
       if (order.provider === 'STRIKE' && !['PAID', 'CANCELED', 'EXPIRED', 'REFUNDED'].includes(order.status)) {
         order = await reconcileStrikeOrder(order);
       }
@@ -127,8 +164,27 @@ export default async function handler(req, res) {
       return json(res, 200, { success: true, order: statusPayload(order) });
     }
 
-    if (req.method === 'POST' && action === 'create') {
-      const body = req.body && typeof req.body === 'object' ? req.body : {};
+    if (req.method !== 'POST') {
+      return json(res, 405, { success: false, error: 'Method not allowed.' });
+    }
+
+    const rawBody = await readRawBody(req);
+
+    if (action === 'wompi-webhook') {
+      const signature = clean(req.headers?.wompi_hash || req.headers?.Wompi_Hash || '', 200);
+      const result = await reconcileWompiWebhook({ rawBody, signature });
+      return json(res, 200, { success: true, ...result });
+    }
+
+    if (action === 'strike-webhook') {
+      const signature = clean(req.headers?.['x-webhook-signature'] || '', 200);
+      const result = await reconcileStrikeWebhook({ rawBody, signature });
+      return json(res, 200, { success: true, ...result });
+    }
+
+    const body = parseJsonBody(rawBody);
+
+    if (action === 'create') {
       const provider = clean(body.provider, 30).toUpperCase();
       if (!['WOMPI_SV', 'STRIKE'].includes(provider)) {
         return json(res, 400, { success: false, error: 'provider must be WOMPI_SV or STRIKE.' });
@@ -218,8 +274,7 @@ export default async function handler(req, res) {
       }
     }
 
-    if (req.method === 'POST' && action === 'wompi-return') {
-      const body = req.body && typeof req.body === 'object' ? req.body : {};
+    if (action === 'wompi-return') {
       const result = await reconcileWompiRedirect({
         identificadorEnlaceComercio: clean(body.identificadorEnlaceComercio, 500),
         idTransaccion: clean(body.idTransaccion, 100),
