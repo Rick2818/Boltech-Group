@@ -18,7 +18,8 @@ export async function handleBoltechMcpHttp(req, res) {
 
   const server = createBoltechRemoteMcpServer();
   const transport = new StreamableHTTPServerTransport({
-    sessionIdGenerator: undefined
+    sessionIdGenerator: undefined,
+    enableJsonResponse: true
   });
 
   try {
