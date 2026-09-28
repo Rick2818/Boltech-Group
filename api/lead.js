@@ -58,28 +58,28 @@ export default async function handler(req, res) {
 
     if (isCustomAgentRequest) {
       // INTAKE: AGENTE A LA MEDIDA PARA DESBLOQUEAR PROCESO LENTO
-      subject = `🤖 Tu Agente a la Medida está en camino — Solución para: ${cleanCompany}`;
+      subject = `🤖 Recibimos tu proceso — Evaluación de Agente a la Medida para ${cleanCompany}`;
 
       textContent = `Estimado Equipo de ${cleanCompany}:
 
-Hemos recibido la descripción del proceso lento o problema que frena a su empresa:
+Recibimos la descripción del proceso que desean mejorar:
 "${cleanPainPoint}"
 
-Nuestro equipo y motor de software ha iniciado el diseño de su Agente a la Medida, programado exclusivamente para eliminar este cuello de botella y operar en automático 24/7 sin errores humanos.
+Boltech Group lo registró para evaluación técnica. No afirmamos que exista un agente terminado hasta que el diseño haya sido construido y verificado.
 
-¿CÓMO ACTIVAR SU AGENTE EN LA CABINA EN LA NUBE?
-1. Ingrese a su Cabina Privada haciendo clic en el siguiente enlace:
+Puede abrir la Cabina Cloud para revisar el contexto registrado y continuar la evaluación:
 ${cabinaUrl}
 
-2. Su agente ya está precargado en la nube con las reglas para resolver su proceso lento.
-3. Podrá darle instrucciones por texto o voz, auditar sus respuestas y activarlo en sus canales (WhatsApp, correo o CRM).
-
-Junto a su agente, usted cuenta con acceso permanente a la cabina y soporte directo de BolTech Group.
+Siguiente paso:
+1. Revisamos el proceso y sus restricciones.
+2. Definimos qué parte puede automatizarse de forma segura.
+3. Preparamos una demostración verificable antes de hablar de despliegue en producción.
 
 Atentamente,
 Dirección de Ingeniería y Operaciones
-BolTech Group
-WhatsApp Oficial: +503 7574 3444`;
+Boltech Group
+Correo: ricardo.boltechgroup@gmail.com
+WhatsApp: +503 7574 3444`;
 
       htmlContent = `
 <!DOCTYPE html>
@@ -112,27 +112,27 @@ WhatsApp Oficial: +503 7574 3444`;
     </div>
 
     <p style="font-size: 13px; color: #cbd5e1; line-height: 1.5;">
-      Nuestro equipo ha comenzado la síntesis de su <strong>Agente de Software a la Medida</strong>. Este bot está siendo programado exclusivamente para eliminar este cuello de botella y operar en automático 24/7 sin errores ni demoras.
+      Boltech Group registró el proceso para <strong>evaluación técnica de un Agente a la Medida</strong>. No presentamos una automatización como terminada hasta que haya sido construida y verificada.
     </p>
 
     <!-- BOTÓN DE ENLACE DIRECTO A LA CABINA CLOUD -->
     <div style="text-align: center; margin: 25px 0;">
       <a href="${cabinaUrl}" target="_blank" class="btn">
-        🚀 Abrir mi Cabina Cloud y Activar Agente →
+        🚀 Abrir Cabina Cloud y Revisar Solicitud →
       </a>
-      <span style="display: block; font-size: 11px; color: #94a3b8; margin-top: 6px;">Su bot correrá en esta cabina privada sin necesidad de instalar nada en su máquina.</span>
+      <span style="display: block; font-size: 11px; color: #94a3b8; margin-top: 6px;">La cabina conserva el contexto de la solicitud para continuar la evaluación.</span>
     </div>
 
     <!-- PASOS DE ACTIVACIÓN -->
-    <h3 style="color: #ffffff; font-size: 13px; margin: 20px 0 10px 0; text-transform: uppercase; font-family: monospace;">¿Cómo activar su bot en 3 pasos?</h3>
+    <h3 style="color: #ffffff; font-size: 13px; margin: 20px 0 10px 0; text-transform: uppercase; font-family: monospace;">¿Qué sigue?</h3>
     <div class="step">
-      <strong style="color: #38bdf8;">1. Acceso Inmediato:</strong> Haga clic en el botón superior para ingresar a su Cabina en la Nube con su sesión precargada.
+      <strong style="color: #38bdf8;">1. Revisar contexto:</strong> Abra la Cabina Cloud para ver la solicitud registrada.
     </div>
     <div class="step">
-      <strong style="color: #818cf8;">2. Verificación y Órdenes:</strong> En la cabina encontrará a su agente listo; puede hablar con él por texto o voz y poner a prueba cómo responde a su proceso.
+      <strong style="color: #818cf8;">2. Verificación:</strong> Definimos entradas, salidas, reglas, integraciones y límites del proceso.
     </div>
     <div class="step">
-      <strong style="color: #34d399;">3. Despliegue 24/7:</strong> Conéctelo a su WhatsApp, correo o CRM para que comience a trabajar sin interrupciones.
+      <strong style="color: #34d399;">3. Demostración:</strong> Presentamos un flujo real y verificable antes de proponer despliegue en producción.
     </div>
 
     <div class="footer">
@@ -169,10 +169,10 @@ WhatsApp Oficial: +503 7574 3444`;
 Hemos recibido su consulta en el Centro de Soporte de Unblock AI Shield:
 "${cleanMessage}"
 
-Un ingeniero de soporte técnico y ciberseguridad defensiva revisará su requerimiento y le responderá en menos de 2 horas.
+El equipo de Boltech Group revisará su requerimiento y responderá por el canal disponible.
 
 Si su requerimiento es de carácter urgente, puede comunicarse de inmediato a:
-Correo Oficial: ricardo.boltechai@gmail.com
+Correo Oficial: ricardo.boltechgroup@gmail.com
 Portal de Monitoreo: https://boltech-group.vercel.app
 
 Atentamente,
@@ -198,7 +198,7 @@ BolTech Group`;
     <blockquote style="background: #1e293b; padding: 12px 16px; border-left: 3px solid #38bdf8; color: #cbd5e1; font-style: italic;">
       "${escapeForHtml(cleanMessage)}"
     </blockquote>
-    <p>Un ingeniero de soporte defensivo evaluará su infraestructura y le responderá en menos de 2 horas hábiles.</p>
+    <p>El equipo de Boltech Group revisará su requerimiento y responderá por el canal disponible.</p>
     <a href="https://boltech-group.vercel.app" class="btn">Ir a BolTech Group →</a>
   </div>
 </body>
@@ -214,7 +214,16 @@ BolTech Group`;
       html: htmlContent
     });
 
-    console.log(`[LIVE EMAIL DISPATCH] Success: ${dispatchResult.success} | Transport: ${dispatchResult.transport} | ID: ${dispatchResult.messageId}`);
+    console.log(`[LIVE EMAIL DISPATCH] Success: ${dispatchResult.success} | Transport: ${dispatchResult.transport} | Provider status: ${dispatchResult.deliveryStatus || 'UNKNOWN'}`);
+
+    if (!dispatchResult.success || dispatchResult.acceptedByProvider !== true) {
+      return res.status(503).json({
+        success: false,
+        error: 'El correo no fue aceptado por el proveedor. No se reporta como enviado.',
+        deliveryStatus: dispatchResult.deliveryStatus || 'FAILED',
+        transport: dispatchResult.transport || null
+      });
+    }
 
     // NOTIFICACIÓN A TELEGRAM (SI ESTÁ CONFIGURADO)
     if (process.env.TELEGRAM_BOT_TOKEN && (process.env.TELEGRAM_AUTHORIZED_USER_ID || process.env.TELEGRAM_CHAT_ID)) {
@@ -243,7 +252,7 @@ BolTech Group`;
         companyName: cleanCompany,
         painPoint: cleanPainPoint || cleanMessage,
         service: isCustomAgentRequest ? 'Custom Agents (Proceso Lento)' : 'Unblock AI Shield',
-        amount: isCustomAgentRequest ? 69 : 19
+        amount: 0
       });
     } catch (syncErr) {
       console.warn('[CRM / EXPLEE SYNC NON-BLOCKING]', syncErr.message);
@@ -252,13 +261,15 @@ BolTech Group`;
     return res.status(200).json({
       success: true,
       message: isCustomAgentRequest
-        ? 'Requerimiento de agente recibido y despachado por correo con acceso a cabina cloud.'
-        : 'Diagnóstico técnico y parches de remediación enviados exitosamente a tu correo corporativo.',
+        ? 'Requerimiento registrado; Gmail SMTP aceptó el correo de confirmación.'
+        : 'El proveedor de correo aceptó el diagnóstico para despacho.',
       domain: cleanDomain,
       cabinaUrl: isCustomAgentRequest ? cabinaUrl : undefined,
       crmSync: crmSync ? { synced: true, hubspot: crmSync.hubspot?.status, explee: crmSync.explee?.status } : undefined,
       transport: dispatchResult.transport,
-      messageId: dispatchResult.messageId
+      deliveryStatus: dispatchResult.deliveryStatus,
+      providerResponse: dispatchResult.providerResponse || null,
+      messageId: dispatchResult.messageId || null
     });
   } catch (err) {
     console.error('[LEAD HANDLER CRITICAL ERROR]', err);
