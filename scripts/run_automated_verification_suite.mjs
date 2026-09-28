@@ -69,6 +69,12 @@ const SUITES = [
     cmd: 'node',
     args: ['--test', 'tests/test_partner_network.mjs'],
     category: 'Partner Ecosystem & Revenue'
+  },
+  {
+    name: '10. Veracidad Operacional — Cero Simulación y Evidencia Real',
+    cmd: 'node',
+    args: ['--test', 'tests/test_operational_truth_guards.mjs'],
+    category: 'Gobernanza & Evidencia'
   }
 ];
 
