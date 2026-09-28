@@ -30,8 +30,12 @@ wheels/
 # Environment and secrets
 .env
 .env.local
+.env.production
+.env.development
+.env.test
 .env.*.local
 .env*
+!.env.example
 
 # IDE and OS
 .vscode/
@@ -57,4 +61,3 @@ lib/sovereign_auth.json
 
 # Video build cache
 video-exec/
-
