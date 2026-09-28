@@ -1,0 +1,23 @@
+name: Boltech 05:00 PM CRM Integrity Sync
+
+on:
+  schedule:
+    - cron: '0 23 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  crm-sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Reconcile CRM integrity
+        env:
+          BOLTECH_APP_URL: https://boltech-group.vercel.app
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+        run: node scripts/ops/partner_cron_runner.mjs crm-sync
