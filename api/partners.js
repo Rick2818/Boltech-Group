@@ -8,7 +8,6 @@ import {
   clampCommissionRate,
   normalizeReferralInput,
   assertValidTransition,
-  buildWonUpdate,
   scorePartnerMatch,
   generateActivityId
 } from '../lib/partner_network.js';
@@ -17,8 +16,10 @@ import {
   getPartnerStoreReadiness,
   listPartners,
   listReferrals,
+  listCommissionLedger,
   createPartner,
   createReferral,
+  createCommissionEntry,
   updateReferral,
   logPartnerActivity,
   getPartnerMetrics
@@ -186,6 +187,11 @@ export default async function partnersHandler(req, res) {
       return json(res, 200, { success: true, referrals: await listReferrals() });
     }
 
+    if (req.method === 'GET' && action === 'commissions') {
+      if (!requireWriteAuth(req, res)) return;
+      return json(res, 200, { success: true, commissions: await listCommissionLedger() });
+    }
+
     if (req.method === 'GET' && action === 'match') {
       if (!requireWriteAuth(req, res)) return;
       const url = new URL(req.url, 'https://' + (req.headers?.host || 'localhost'));
@@ -318,10 +324,10 @@ export default async function partnersHandler(req, res) {
         return json(res, 409, { success: false, error: 'Customer consent is required before closing WON.', code: 'CONSENT_REQUIRED' });
       }
 
-      const wonUpdate = buildWonUpdate({
-        revenueUsd,
-        commissionRate: body.commissionRate ?? current.commissionRate ?? 0.20
-      });
+      // WON means the commercial deal is closed. It does NOT mean cash was collected.
+      // Commission is intentionally NOT generated here. It is created only when an
+      // actual customer payment is recorded through the commission-entry route.
+      const wonUpdate = { status: 'WON', revenueUsd };
       await updateReferral(recordId, wonUpdate);
       await logPartnerActivity({
         activityId: generateActivityId(),
@@ -329,10 +335,77 @@ export default async function partnersHandler(req, res) {
         referralRecordId: recordId,
         channel: 'Manual',
         activityType: 'CLOSED_WON',
-        summary: 'Referral closed WON. Revenue USD ' + wonUpdate.revenueUsd + '; commission USD ' + wonUpdate.commissionUsd + '.',
+        summary: 'Referral closed WON. Contract revenue USD ' + revenueUsd + '. Commission deferred until cash collection is recorded.',
         outcome: 'COMPLETED'
       });
-      return json(res, 200, { success: true, referral: { id: recordId, ...wonUpdate } });
+      return json(res, 200, {
+        success: true,
+        referral: { id: recordId, ...wonUpdate },
+        commissionCreated: false,
+        commissionPolicy: 'CASH_COLLECTED_ONLY'
+      });
+    }
+
+    if (req.method === 'POST' && action === 'commission-entry') {
+      if (!requireWriteAuth(req, res)) return;
+      const body = req.body || {};
+      const referralRecordId = cleanText(body.referralRecordId, 120);
+      const customerPaymentReference = cleanText(body.customerPaymentReference, 250);
+      const cashCollectedUsd = Number(body.cashCollectedUsd);
+
+      if (!referralRecordId) return json(res, 400, { success: false, error: 'referralRecordId is required.' });
+      if (!customerPaymentReference) return json(res, 400, { success: false, error: 'customerPaymentReference is required as real payment evidence.' });
+      if (!Number.isFinite(cashCollectedUsd) || cashCollectedUsd <= 0) {
+        return json(res, 400, { success: false, error: 'cashCollectedUsd must be greater than zero.' });
+      }
+
+      const referral = await findReferral(referralRecordId);
+      if (referral.status !== 'WON') {
+        return json(res, 409, { success: false, error: 'Commission entries require a WON referral.', code: 'REFERRAL_NOT_WON' });
+      }
+
+      const commissionRate = clampCommissionRate(body.commissionRate ?? referral.commissionRate ?? 0.20, 0.20);
+      const partnerRecordId = referral.partnerRecordIds?.[0] || '';
+      if (!partnerRecordId) {
+        return json(res, 409, { success: false, error: 'Referral has no partner attribution.', code: 'PARTNER_ATTRIBUTION_REQUIRED' });
+      }
+
+      const commissionEntryId = 'COM-' + new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14) + '-' + crypto.randomBytes(3).toString('hex').toUpperCase();
+      const record = await createCommissionEntry({
+        commissionEntryId,
+        referralRecordId,
+        partnerRecordId,
+        customerPaymentReference,
+        cashCollectedUsd,
+        commissionRate,
+        status: 'PENDING_APPROVAL',
+        collectedAt: cleanText(body.collectedAt, 120) || new Date().toISOString(),
+        notes: cleanText(body.notes, 10000)
+      });
+
+      await logPartnerActivity({
+        activityId: generateActivityId(),
+        partnerRecordId,
+        referralRecordId,
+        channel: 'Manual',
+        activityType: 'FOLLOW_UP',
+        summary: 'Cash collection recorded for commission review: USD ' + cashCollectedUsd + '. Entry ' + commissionEntryId + '.',
+        outcome: 'PENDING'
+      });
+
+      return json(res, 201, {
+        success: true,
+        commission: {
+          id: record.id,
+          commissionEntryId,
+          referralRecordId,
+          partnerRecordId,
+          cashCollectedUsd,
+          commissionRate,
+          commissionEarnedUsd: Math.round(cashCollectedUsd * commissionRate * 100) / 100,
+          status: 'PENDING_APPROVAL'
+        }
+      });
     }
 
     return json(res, 404, { success: false, error: 'Partner Network route not found.' });
