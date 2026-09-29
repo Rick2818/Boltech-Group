@@ -45,6 +45,13 @@ globalThis.fetch = async (url, options = {}) => {
         })
       };
     }
+    if (urlStr.includes('/setWebhook')) {
+      return {
+        status: 200,
+        ok: true,
+        json: async () => ({ ok: true, result: true, description: 'Webhook was set' })
+      };
+    }
     if (urlStr.includes('/getWebhookInfo')) {
       return {
         status: 200,
@@ -140,6 +147,14 @@ async function runTestSuite() {
   console.assert(res1.getResponseData()?.status === 'ONLINE', 'Estado debe ser ONLINE');
   console.log('  ✅ GET Health Check: PASADO (200 ONLINE)');
 
+  // Test 1b: GET Deep Health Check contra Telegram
+  console.log('\n1b. Probando GET /api/telegram?deep=1...');
+  const res1b = createMockResponse();
+  await handler({ method: 'GET', headers: {}, query: { deep: '1' } }, res1b);
+  console.assert(res1b.statusCode === 200, `GET deep debe ser 200, fue ${res1b.statusCode}`);
+  console.assert(res1b.getResponseData()?.webhookConfigured === true, 'Webhook debe figurar configurado');
+  console.log('  ✅ Deep Health Check: PASADO');
+
   // Test 2: POST sin secreto en headers debe responder 401
   console.log('\n2. Probando POST /api/telegram sin secreto en headers (debe ser 401)...');
   const res2 = createMockResponse();
@@ -164,6 +179,19 @@ async function runTestSuite() {
   console.assert(res3.statusCode === 500, `Debe ser 500 Server Misconfiguration, fue ${res3.statusCode}`);
   process.env.TELEGRAM_WEBHOOK_SECRET = savedSecret;
   console.log('  ✅ Validación de secreto obligatorio en servidor: PASADO (500 si falta)');
+
+  // Test 3b: registro autenticado del webhook
+  console.log('\n3b. Probando registro autenticado del webhook...');
+  const res3b = createMockResponse();
+  await handler({
+    method: 'POST',
+    headers: { 'x-telegram-bot-api-secret-token': MOCK_SECRET },
+    query: { action: 'register-webhook' },
+    body: {}
+  }, res3b);
+  console.assert(res3b.statusCode === 200, `Registro webhook debe ser 200, fue ${res3b.statusCode}`);
+  console.assert(res3b.getResponseData()?.status === 'REGISTERED', 'Webhook debe quedar REGISTERED');
+  console.log('  ✅ Registro autenticado de webhook: PASADO');
 
   // Test 4: POST con payload válido (/btc) debe responder 200 con delivered: true
   console.log('\n4. Probando POST /api/telegram con comando /btc...');
