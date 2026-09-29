@@ -151,3 +151,13 @@ Si hay encaje: un canal y un tipo de solicitud. El asistente organiza informaci�
 Registrar por candidato: fuente, contacto, estado de validación, mensaje aprobado, envío real, entrega/rebote, respuesta, responsable identificado, necesidad confirmada y próximo paso.
 
 Esta tanda de cinco mide señales cualitativas; no demuestra superioridad de un país. Antes de ampliar, revisar respuestas y objeciones. Mantener sector y oferta comparables entre tandas; cambiar una variable cada vez. La expansión internacional necesita mensajes en el idioma comercial apropiado y contactos verificados de cada mercado.
+
+## Registros creados en Airtable
+
+Boltech CRM / Leads. Creación confirmada el 29/09/2026 a las 17:47, El Salvador. Cohorte RSI-01 US, etapa Researching. Cada registro contiene contacto público, evidencia, validaciones pendientes, siguiente acción y borrador en inglés. Ninguna campaña enviada.
+
+- US-01: GST Manufacturing — recDwVRshbW3RQkcR
+- US-02: Kerf Metals — recAH43mihAfbl8ts
+- US-03: Marstrand Industries — rec1SpCPYLPFbhK8L
+- US-04: Fabtech US — recOzIoWX0LXf9vuM
+- US-05: A&P Fabricating Solutions — recb8jhQd4yw34LgR
