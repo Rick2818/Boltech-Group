@@ -250,6 +250,10 @@ Production changes should follow the repository governance workflow:
 branch -> tests/CI -> pull request -> merge -> Vercel production deployment -> live verification
 ```
 
+### Measured improvement cycle
+
+For each proposed improvement, record the initial problem and metric in the pull request template, make one focused change, and run `npm run improve:check`. The governance workflow executes the same checks on every PR and saves a JSON report and individual test logs as a GitHub Actions artifact for 30 days. Compare the observed result with the acceptance criterion, then keep, revise, or discard the change. These checks cover partner logic, operational truth, payments, and MCP authentication; they do not prove production health, deliverability, or revenue. External results need provider evidence and a separate production check. No workflow automatically edits code, merges PRs, or deploys based on a score.
+
 Never commit API keys, Bot Tokens, webhook secrets or payment credentials to the repository.
 
 ---

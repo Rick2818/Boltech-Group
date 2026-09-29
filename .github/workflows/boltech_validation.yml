@@ -23,5 +23,13 @@ jobs:
           node-version: '22'
       - name: Install dependencies
         run: npm ci
-      - name: Validate partner, truth, payment and MCP safeguards
-        run: node --test tests/test_partner_network.mjs tests/test_operational_truth_guards.mjs tests/test_payment_security_v2.mjs tests/test_mcp_remote_auth.mjs tests/test_mcp_remote_handshake.mjs
+      - name: Measure partner, truth, payment and MCP safeguards
+        run: node scripts/quality/improvement_cycle.mjs
+      - name: Preserve improvement evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: improvement-cycle-${{ github.run_id }}
+          path: artifacts/improvement-cycle/
+          if-no-files-found: warn
+          retention-days: 30
