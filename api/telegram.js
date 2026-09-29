@@ -48,6 +48,39 @@ export default async function handler(req, res) {
 
   // Comprobación de salud GET
   if (req.method === 'GET') {
+    if (req.query?.deep === '1') {
+      const botToken = (process.env.TELEGRAM_BOT_TOKEN || '').trim();
+      if (!botToken) {
+        return res.status(503).json({
+          status: 'DEGRADED',
+          telegramConfigured: false,
+          reason: 'TELEGRAM_BOT_TOKEN_MISSING'
+        });
+      }
+
+      try {
+        const tgRes = await fetch(`https://api.telegram.org/bot${botToken}/getWebhookInfo`);
+        const tgData = await tgRes.json();
+        const info = tgData?.result || {};
+        const expectedUrl = 'https://boltech-group.vercel.app/api/telegram';
+        return res.status(tgData?.ok ? 200 : 502).json({
+          status: tgData?.ok && info.url === expectedUrl && !info.last_error_message ? 'ONLINE' : 'DEGRADED',
+          telegramConfigured: Boolean(tgData?.ok),
+          webhookConfigured: info.url === expectedUrl,
+          pendingUpdates: info.pending_update_count ?? null,
+          lastError: info.last_error_message || null,
+          agent: '@ricardo_asistente_2026_bot',
+          timestamp: new Date().toISOString()
+        });
+      } catch (err) {
+        return res.status(502).json({
+          status: 'DEGRADED',
+          telegramConfigured: false,
+          reason: 'TELEGRAM_HEALTH_CHECK_FAILED'
+        });
+      }
+    }
+
     return res.status(200).json({
       status: 'ONLINE',
       mode: 'CLOUD_NATIVE_SERVERLESS_24_7',
@@ -69,7 +102,7 @@ export default async function handler(req, res) {
   }
 
   // PILAR 4: Verificación Criptográfica Obligatoria del Token Secreto de Webhook
-  const expectedSecret = (process.env.TELEGRAM_WEBHOOK_SECRET || 'destraba_tele_sec_2026_prod').trim();
+  const expectedSecret = (process.env.TELEGRAM_WEBHOOK_SECRET || '').trim();
   if (!expectedSecret) {
     console.error('[CRITICAL SECURITY CONFIG]: TELEGRAM_WEBHOOK_SECRET no está configurado en el servidor.');
     return res.status(500).json({ error: 'Server misconfiguration: TELEGRAM_WEBHOOK_SECRET is required' });
@@ -79,6 +112,41 @@ export default async function handler(req, res) {
   if (!incomingSecret || !timingSafeCompare(incomingSecret, expectedSecret)) {
     console.warn('[SEGURIDAD CLOUD] Intento de webhook con token secreto inválido o ausente.');
     return res.status(401).json({ error: 'Unauthorized Webhook Source' });
+  }
+
+  // Operación administrativa autenticada: registrar/reparar el webhook sin exponer el Bot Token.
+  if (req.query?.action === 'register-webhook') {
+    const botToken = (process.env.TELEGRAM_BOT_TOKEN || '').trim();
+    if (!botToken) {
+      return res.status(503).json({ error: 'TELEGRAM_BOT_TOKEN_MISSING' });
+    }
+
+    try {
+      const telegramRes = await fetch(`https://api.telegram.org/bot${botToken}/setWebhook`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: 'https://boltech-group.vercel.app/api/telegram',
+          max_connections: 40,
+          allowed_updates: ['message', 'callback_query'],
+          drop_pending_updates: false,
+          secret_token: expectedSecret
+        })
+      });
+      const telegramData = await telegramRes.json();
+      if (!telegramData?.ok) {
+        console.error('[TELEGRAM WEBHOOK REGISTER ERROR]:', telegramData?.description || 'Unknown Telegram error');
+        return res.status(502).json({ ok: false, error: 'TELEGRAM_WEBHOOK_REGISTER_FAILED' });
+      }
+      return res.status(200).json({
+        ok: true,
+        webhook: 'https://boltech-group.vercel.app/api/telegram',
+        status: 'REGISTERED'
+      });
+    } catch (err) {
+      console.error('[TELEGRAM WEBHOOK REGISTER ERROR]:', err.message);
+      return res.status(502).json({ ok: false, error: 'TELEGRAM_WEBHOOK_REGISTER_FAILED' });
+    }
   }
 
   try {
