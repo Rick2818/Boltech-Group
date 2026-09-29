@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { evaluateCommercialProgress } from '../scripts/commercial/zero_to_first_sale.mjs';
+import { evaluateCommercialProgress, buildMitAgenda } from '../scripts/commercial/zero_to_first_sale.mjs';
 import { getVerifiedSalesMetrics } from '../lib/payment_store.js';
 import { getCommercialCohortMetrics } from '../lib/commercial_cohort_store.js';
 import partnersHandler from '../api/partners.js';
@@ -30,6 +30,27 @@ test('researched companies trigger buyer and problem validation, not a sales cla
   assert.match(result.focus, /Validar el decisor/);
   assert.equal(result.cashCollectedUsd, 0);
   assert.equal(result.replies, null);
+});
+
+test('09:00 MIT agenda uses RSI-01 and preserves approval before contact', () => {
+  const progress = evaluateCommercialProgress({
+    verifiedSales: { cashCollectedUsd: 0, paidOrders: 0 },
+    cohort: { cohort: 'RSI-01', stageCounts: { Researching: 5 } },
+  });
+  const agenda = buildMitAgenda(progress);
+  assert.deepEqual(agenda.map(item => item.at), ['09:00', '09:15', '10:00', '11:00', '15:00', '17:30']);
+  assert.match(agenda[1].action, /5 empresas RSI-01/);
+  assert.match(agenda[2].action, /autoriza/);
+  assert.match(agenda[3].action, /solo para cuentas aprobadas/);
+});
+
+test('genuine hot leads take priority over researched companies', () => {
+  const agenda = buildMitAgenda(evaluateCommercialProgress({
+    verifiedSales: { cashCollectedUsd: 0, paidOrders: 0 },
+    hotLeads: 2,
+    cohort: { cohort: 'RSI-01', stageCounts: { Researching: 5 } },
+  }));
+  assert.match(agenda[1].action, /2 hot leads/);
 });
 
 test('verified first payment changes focus to repeatable sale', () => {
