@@ -1,6 +1,12 @@
 name: MIT Commercial Control Tower 09:00 SV
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/mit_commercial_9am.yml'
+      - 'scripts/commercial/mit_daily_control_tower.mjs'
+      - 'scripts/commercial/zero_to_first_sale.mjs'
   schedule:
     # El Salvador is UTC-6 year-round. 15:00 UTC = 09:00 America/El_Salvador.
     - cron: '0 15 * * *'
