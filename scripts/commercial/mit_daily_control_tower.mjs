@@ -29,9 +29,14 @@ async function jsonFetch(url, options = {}) {
 
 async function checkBoltech() {
   try {
-    const health = await jsonFetch(`${BOLTECH_URL}/api/telegram?deep=1`);
-    report.boltech.online = health.status === 200;
-    report.boltech.telegramDeepHealth = health.data || { status: health.status };
+    const site = await jsonFetch(`${BOLTECH_URL}/api/telegram`);
+    report.boltech.online = site.status === 200 && site.data?.status === 'ONLINE';
+  } catch (err) {
+    report.boltech.note = err.message;
+  }
+  try {
+    const telegram = await jsonFetch(`${BOLTECH_URL}/api/telegram?deep=1`);
+    report.boltech.telegramDeepHealth = telegram.data || { status: telegram.status };
   } catch (err) {
     report.boltech.telegramDeepHealth = { error: err.message };
   }
