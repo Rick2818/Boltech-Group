@@ -5,6 +5,7 @@ import {
   createOrder,
   getOrderByOrderId,
   getPaymentStoreReadiness,
+  getFulfillmentReadiness,
   updateOrder
 } from '../lib/payment_store.js';
 import {
@@ -143,6 +144,7 @@ export default async function handler(req, res) {
         success: true,
         environment: getPaymentEnvironment(),
         store: getPaymentStoreReadiness(),
+        fulfillment: getFulfillmentReadiness(),
         wompi: getWompiReadiness(),
         strike: getStrikeReadiness(),
         policy: 'PROVIDER_VERIFICATION_REQUIRED'
