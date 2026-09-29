@@ -1,96 +1,266 @@
-# 🏛️ BolTech Group
+# Boltech Group
 
-> **Technology Holding & Venture Studio of Autonomous Cloud Infrastructure**  
-> Fundador & Managing Director: **Ricardo Bolaños**  
-> Portal Oficial: [https://boltech-group.vercel.app](https://boltech-group.vercel.app)
+**Autonomous Agents for Business**  
+**Automate. Respond. Scale.**
 
----
+Production: https://boltech-group.vercel.app
 
-## 💎 Axioma Maestro Fundacional
-
-> **«SIN CLIENTES NO HAY INGRESOS, Y SIN INGRESOS NO HAY TRABAJO.»**  
-> Todo sistema, arquitectura de software, flujo automatizado y división operativa existe con un único propósito fiduciario irrenunciable: **adquirir, deleitar, cerrar y retener clientes de pago reales para generar flujo de caja recurrente en USD con cero fricción**.
+Boltech Group builds autonomous and custom AI agents for business bottlenecks such as quotations, customer questions, support, lead qualification, repetitive follow-up and workflow automation.
 
 ---
 
-## 🚀 Divisiones Operativas de BolTech Group
+## Current production status — 2026-09-28
 
-### 1. 🛡️ Unblock AI Shield
-- **Enfoque:** Ciberdefensa perimetral no invasiva, endurecimiento de cabeceras en la nube (CSP, HSTS, X-Frame) y síntesis de agentes autónomos para erradicar fricción operativa 24/7.
-- **Acceso:** [https://unblock-shield.vercel.app](https://unblock-shield.vercel.app)
-
-### 2. ⚖️ AuditFlow AI
-- **Enfoque:** Auditoría clínica y redline automatizado de contratos comerciales B2B en menos de 10 segundos en memoria RAM volátil (GDPR Art. 28, cero retención en disco), blindando entre \$3,500 y \$18,500 USD por contrato en pasivos ocultos antes de la firma.
-- **Acceso:** [https://audiflowai.com](https://audiflowai.com)
-
-### 3. ⚡ Boltech Group / Custom Autonomous Agents & Arena AI Engine
-- **Enfoque:** Plataforma fiduciaria B2B para transformar dolores operativos no resueltos en Custom Agents autónomos listos para producción en Google Antigravity, impulsados nativamente por Google Gemini, clientes OpenRouter / Arena AI multi-modelo con reintentos exponenciales ante Rate Limits (429), y desplegados 24/7 en Vercel Serverless.
-- **Acceso:** [https://boltech-group.vercel.app](https://boltech-group.vercel.app)
-
----
-
-## 💎 Plan Comercial y Matriz de Precios Fiduciaria Oficial
-
-| Nivel de Solución | Tarifa Oficial | Modalidad | Entregables y Cobertura |
-| :--- | :--- | :--- | :--- |
-| **Plan Flash** *(Parche Ciberseguridad)* | **\$19.00 USD** / falla | Pago Único | • **1 vulnerabilidad = \$19.00 USD**<br>• **2 vulnerabilidades = \$38.00 USD** (\$19×2)<br>• **3 vulnerabilidades = \$57.00 USD** (\$19×3)<br>• **5 vulnerabilidades = \$95.00 USD** (\$19×5)<br>• Parches listos para Nginx / Cloudflare / Apache / Vercel<br>• Auditoría perimetral profunda (15s) y re-escaneo automático<br>• Cero acceso a claves o contraseñas |
-| **Plan Pro** *(Centinela Autónomo 24/7)* | **\$69.00 USD** / mes *(ó \$2.30/día)* | Suscripción | • **Recomendado desde 4 vulnerabilidades** (ahorro inmediato vs. \$76+ USD)<br>• Parches y remediaciones ilimitadas<br>• Monitoreo 24/7 con comprobación cada 60s<br>• Concierge comercial para WhatsApp y web<br>• **Garantía Fiduciaria Incondicional de 7 Días (100% Reembolso)**<br>• Privacidad SOC-2 (100% memoria RAM) |
-| **Flota Enterprise** *(Multi-Agente Soberana)* | **\$490.00 USD** / mes | Multi-Jurisdicción | • Enjambre de 5 agentes fiduciarios coordinados<br>• Integración CRM (HubSpot & Salesforce) y WhatsApp Business (Twilio)<br>• Pasarelas multidivisa y canal dedicado con SLA de 15 minutos |
+| Area | Status | Notes |
+|---|---|---|
+| Main Vercel application | Production | `boltech-group.vercel.app` |
+| MCP gateway | Production | Authenticated read-only MCP endpoint at `/api/mcp` |
+| A2A referral exchange | Production core | Agent Card + authenticated referral intake + PII masking |
+| A2A partner identity binding | Production | Bearer credentials are SHA-256 bound to the Airtable partner record |
+| A2A QA end-to-end test | Passed | Referral and Partner Activity were created successfully in Airtable |
+| Provider candidate matching | In rollout | Validated providers remain PROSPECT until real approval/access is received |
+| Telegram cloud agent | Secure relink deployed | Token/secret are environment-managed; final webhook registration/health test remains |
+| Airtable partner CRM | Active | Partners, Referrals, Partner Activities, Commission Ledger, Payment Orders and Payment Events |
+| Payment hardening | Active | Provider-confirmed payment state, server-side amount derivation and HMAC safeguards |
 
 ---
 
-## 💳 Rieles de Cobro Soberanos y Liquidación Fiduciaria
+## Architecture
 
-1. **⚡ Riel 1: Bitcoin Lightning Network (0% Comisión):**
-   - **Dirección Soberana:** `rick2818@strike.me`
-   - **Ventaja:** Liquidación instantánea en USD/Satoshis con cero comisión bancaria y aprovisionamiento automático en <10 segundos.
-   - **Apps Soportadas:** Strike, Cash App, Blink, Muun, Binance y cualquier billetera Lightning.
-2. **💳 Riel 2: Tarjetas Bancarias / Wompi SV:**
-   - **Métodos:** Tarjetas de crédito/débito Visa y Mastercard, transferencias locales 365, Nequi y PSE.
-   - **Seguridad:** Idempotencia en RAM (`recordAndVerifyIdempotency`) con bloqueo estricto contra doble cargo.
-3. **🛠️ Servidor MCP `boltech-payments`:**
-   - Herramientas nativas para Antigravity: `strike_create_invoice`, `strike_get_invoice`, `wompi_create_payment_link`, `wompi_get_transaction` y `payments_status`.
-   - **Sandbox Failsafe Simulator:** Modo de simulación integrado para pruebas y validaciones sin depender de llaves en vivo.
+```text
+Customer / Partner / Operator
+          |
+          +--> Boltech Web App
+          |
+          +--> MCP Gateway
+          |
+          +--> A2A Referral Exchange
+          |       |
+          |       +--> Airtable Partner Network
+          |
+          +--> Telegram Cloud Agent
+                  |
+                  +--> Vercel Serverless
+```
+
+The production design is cloud-first. Core serverless endpoints do not require Ricardo's laptop to remain powered on.
 
 ---
 
-## 🧪 Batería de Pruebas Fiduciarias Automatizadas (200 Iteraciones)
+## MCP
 
-El repositorio cuenta con una suite integral de estrés y validación de compras (`tests/test_boltech_200_purchases.mjs`):
-- **80 Compras Simuladas de Planes:** Validación estricta con el catálogo oficial (\$19, \$69, \$490 USD).
-- **60 Liquidaciones Lightning (Strike):** Verificación de facturas instantáneas hacia `rick2818@strike.me`.
-- **60 Pagos con Tarjeta (Wompi):** Cálculo y comprobación de firmas de integridad criptográfica SHA-256.
+Boltech exposes a remote MCP gateway through the existing Vercel API router:
 
-```bash
-# Ejecución directa de la suite de 200 compras
-node tests/test_boltech_200_purchases.mjs
+```text
+POST /api/mcp
+Authorization: Bearer <BOLTECH_MCP_API_KEY>
+```
 
-# Ejecución de la suite completa de pruebas unitarias y de escaneo
-npm test
+Current read-only tools:
+
+- `boltech_status`
+- `get_bitcoin_market_data`
+- `research_b2b_lead`
+
+Authentication behavior:
+
+- Missing server configuration: `503 MCP_AUTH_NOT_CONFIGURED`
+- Missing or invalid bearer credential: `401 MCP_UNAUTHORIZED`
+- Credentials are stored as environment secrets and are not committed to Git.
+
+---
+
+## A2A Referral Exchange
+
+Agent Card:
+
+```text
+/.well-known/agent-card.json
+```
+
+A2A endpoint:
+
+```text
+POST /api/a2a
+```
+
+Implemented controls:
+
+- JSON-RPC A2A message intake.
+- Partner-specific Bearer authentication.
+- SHA-256 lookup against the partner's `A2A Key Hash` in Airtable.
+- Authenticated partner identity is resolved server-side.
+- Incoming requests cannot impersonate another partner using a supplied record ID.
+- Customer PII is masked when `clientConsent = false`.
+- Referrals are written to Airtable.
+- A corresponding `REFERRAL_RECEIVED` activity is written to Partner Activities.
+- Matching considers capabilities, market and language.
+- Unapproved providers can be surfaced as candidates without being granted A2A peer access.
+
+Controlled QA validation created a real referral in Airtable with `WAITING_CONSENT` and masked PII.
+
+### Partner onboarding states
+
+Boltech currently tracks Apollo, Hunter, Lusha, Reply.io, Instantly, Atom and lemlist as provider/partner candidates.
+
+They must remain `PROSPECT` and `A2A Enabled = false` until there is real evidence of approval/enrollment and, where required, technical credentials.
+
+The intended lifecycle is:
+
+```text
+PROSPECT
+   -> application/enrollment
+   -> provider approval
+   -> technical credentials/API access
+   -> configuration
+   -> A2A validation
+   -> ACTIVE
 ```
 
 ---
 
-## 🛡️ Estándares de Grado Bancario & Seguridad
+## Telegram Cloud Agent
 
-- **Cero Invasión:** Sin acceso a bases de datos ni contraseñas maestras. Todo análisis opera de forma perimetral desde la nube.
-- **Privacidad SOC-2:** Procesamiento 100% en memoria volátil RAM; sin retención en disco ni entrenamiento de modelos con datos de clientes.
-- **Coherencia A+:** Cabeceras CSP estrictas, `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff` y HSTS precargado 2 años.
-- **Infraestructura:** Google Antigravity 2.0 Cloud & Vercel Edge Network.
+The Telegram agent runs through Vercel at:
+
+```text
+/api/telegram
+```
+
+Health endpoint:
+
+```text
+GET /api/telegram
+```
+
+Deep health mode:
+
+```text
+GET /api/telegram?deep=1
+```
+
+Security controls include:
+
+- `TELEGRAM_BOT_TOKEN` stored in environment variables.
+- `TELEGRAM_WEBHOOK_SECRET` required for webhook POSTs.
+- Timing-safe secret verification.
+- No hard-coded production webhook secret fallback.
+- Deduplication of repeated Telegram updates.
+- Authorized-user filtering.
+- Cloud operation independent of the local laptop.
+
+A secure webhook registration path is available after deployment and uses the server-side Bot Token without exposing it in client-side code.
 
 ---
 
-## 👥 Equipo Multi-Agente Fiduciario Activo
+## Commercial control tower — 09:00 El Salvador
 
-1. **`marketing-director` (Directora de Mercadeo)**: Posicionamiento fiduciario, distribución desatendida y siembra de autoridad.
-2. **`sales-closer-specialist` (Especialista en Ventas & Cierre)**: Cadencias de prospección hiperpersonalizada (3 impactos) y enlaces de cobro.
-3. **`cfo-financial-strategist` (Director Financiero & Precios)**: Custodia del presupuesto, unit economics (LTV/CAC > 4.5x) y pricing por tramos (\$19 / \$69 / \$490).
-4. **`international-trade-specialist` (Comercio Internacional & Cross-Border)**: Expansión multijurisdicción, conciliación multidivisa y liquidación fiduciaria soberana (`rick2818@strike.me` y Wompi SV).
-5. **`consumer-psychology-diagnostician` (Psicólogo de Ventas & Persuasión Cognitiva)**: Auditoría de sesgos y desactivación preventiva de objeciones con los 5 Anclajes de Apertura.
+GitHub Actions includes a daily MIT commercial control workflow:
+
+```text
+.github/workflows/mit_commercial_9am.yml
+```
+
+Schedule:
+
+```text
+09:00 America/El_Salvador
+15:00 UTC
+```
+
+It runs a read-only commercial control script:
+
+```text
+scripts/commercial/mit_daily_control_tower.mjs
+```
+
+The daily control tower checks:
+
+1. Boltech/Telegram production health.
+2. Explee availability and visible hot-lead count when the GitHub secret is configured.
+3. Apollo saved-contact availability when the GitHub secret is configured.
+4. Telegram delivery of the daily MIT summary when Telegram secrets are configured.
+
+It does **not** automatically spend Apollo credits or send prospect emails. Commercial outreach remains governed by validated targeting and real provider access.
+
+### Daily MIT priorities
+
+- **MIT 1:** Review and answer hot leads.
+- **MIT 2:** Select 20–30 high-fit Apollo prospects instead of consuming credits indiscriminately.
+- **MIT 3:** Record outcomes, measure replies and improve campaign messaging.
+
+Responsibilities:
+
+- **Ricardo:** payments, commercial decisions, meetings and approvals.
+- **Boltech:** monitoring, qualification, routing and operational automation.
+- **Explee:** outbound campaign execution after account reactivation.
+- **Apollo:** prospect sourcing and enrichment.
+- **Airtable:** system of record for the partner/referral network.
 
 ---
 
-## 🌐 Verificación y Telemetría
+## Payment security
 
-- **Portal Web Oficial:** [https://boltech-group.vercel.app](https://boltech-group.vercel.app)
-- **Suite de Pruebas Automatizadas:** `npm test` (32/32 tests en verde)
+Production payment logic follows these controls:
+
+- Amounts are derived from the server-side catalog rather than trusted from the browser.
+- Payment confirmation requires provider verification.
+- HMAC validation is used where applicable.
+- Legacy public payment-confirmation routes are retired.
+- Production code does not use synthetic `PAID` or `APPROVED` fallbacks.
+- Commission entries follow the cash-collected policy and require real payment evidence.
+
+Secrets and payment credentials must only be stored in provider secret stores such as Vercel or GitHub Actions Secrets.
+
+---
+
+## Airtable data model
+
+Current operational tables include:
+
+- Leads
+- Partners
+- Referrals
+- Partner Activities
+- Commission Ledger
+- Payment Orders
+- Payment Events
+
+The Partner table stores operational state, capabilities, markets, languages, referral mode, A2A enablement and the A2A key hash.
+
+---
+
+## Development and validation
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run the repository test suite:
+
+```bash
+npm test
+```
+
+Production changes should follow the repository governance workflow:
+
+```text
+branch -> tests/CI -> pull request -> merge -> Vercel production deployment -> live verification
+```
+
+Never commit API keys, Bot Tokens, webhook secrets or payment credentials to the repository.
+
+---
+
+## Operational principle
+
+Boltech distinguishes clearly between:
+
+- **configured** systems,
+- **tested** systems,
+- **production-active** systems, and
+- **external relationships still awaiting approval**.
+
+A provider is not marked ACTIVE merely because it offers a public affiliate or partner program. Production status requires real evidence and, for technical integrations, verified credentials and an end-to-end test.
