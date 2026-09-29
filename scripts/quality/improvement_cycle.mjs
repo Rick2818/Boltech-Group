@@ -7,7 +7,7 @@ const output = resolve(root, 'artifacts/improvement-cycle');
 const groups = [
   { name: 'Partner Network', files: ['tests/test_partner_network.mjs'] },
   { name: 'Operational truth', files: ['tests/test_operational_truth_guards.mjs'] },
-  { name: 'Payment security', files: ['tests/test_payment_security_v2.mjs'] },
+  { name: 'Payment security', files: ['tests/test_payment_security_v2.mjs', 'tests/test_payment_rsi_hardening.mjs', 'tests/test_billing_sentinel.mjs'] },
   { name: 'MCP authentication', files: ['tests/test_mcp_remote_auth.mjs', 'tests/test_mcp_remote_handshake.mjs'] },
 ];
 
