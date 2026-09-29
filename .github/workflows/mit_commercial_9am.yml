@@ -1,0 +1,32 @@
+name: MIT Commercial Control Tower 09:00 SV
+
+on:
+  schedule:
+    # El Salvador is UTC-6 year-round. 15:00 UTC = 09:00 America/El_Salvador.
+    - cron: '0 15 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  commercial-control:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run MIT commercial control tower
+        env:
+          APOLLO_API_KEY: ${{ secrets.APOLLO_API_KEY }}
+          EXPLEE_API_KEY: ${{ secrets.EXPLEE_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_AUTHORIZED_USER_ID: ${{ secrets.TELEGRAM_AUTHORIZED_USER_ID }}
+          BOLTECH_URL: https://boltech-group.vercel.app
+        run: node scripts/commercial/mit_daily_control_tower.mjs
