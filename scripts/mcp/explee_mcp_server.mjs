@@ -14,7 +14,7 @@ import path from 'path';
 
 dotenv.config();
 
-const EXPLEE_API_KEY = process.env.EXPLEE_API_KEY || 'sk_explee_1b88c1d00ed1c72e61bb932ed29893058daf652b9b5af1f0';
+const EXPLEE_API_KEY = (process.env.EXPLEE_API_KEY || '').trim();
 const EXPLEE_BASE_URL = process.env.EXPLEE_API_URL || 'https://api.explee.com';
 
 const TOOLS = [
@@ -33,7 +33,7 @@ const TOOLS = [
   },
   {
     name: 'explee_poll_hot_leads',
-    description: 'Sondea en tiempo real los prospectos que respondieron positivamente en Explee AutoGTM pidiendo precios, parches o demo.',
+    description: 'Lee un archivo local de leads sin verificar; no consulta Explee en tiempo real.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -43,7 +43,7 @@ const TOOLS = [
   },
   {
     name: 'explee_enrich_company',
-    description: 'Enriquece los datos de una empresa o dominio con tecnologías detectadas y contactos clave en Explee.',
+    description: 'Enriquecimiento no implementado; devuelve un estado explícito sin inventar datos.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -54,7 +54,7 @@ const TOOLS = [
   },
   {
     name: 'explee_sync_hot_lead_to_crm',
-    description: 'Toma un hot lead identificado por Explee y lo inserta directamente en HubSpot CRM como Deal calificado.',
+    description: 'Sincronización no implementada; devuelve un estado explícito sin crear un deal ficticio.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -129,6 +129,7 @@ async function handleMessage(message) {
 
       switch (name) {
         case 'explee_search_prospects': {
+          if (!EXPLEE_API_KEY) throw new Error('EXPLEE_API_KEY_REQUIRED');
           const query = args.query;
           const limit = args.limit || 10;
           try {
@@ -145,28 +146,9 @@ async function handleMessage(message) {
             if (resp.ok) {
               const data = await resp.json();
               result = { success: true, count: data?.results?.length || 0, prospects: data.results || [] };
-            } else {
-              // Fallback a prospección auditada de contingencia
-              result = {
-                success: true,
-                simulated: true,
-                query,
-                prospects: [
-                  { company: 'Logística Regional S.A.', domain: 'logistica-regional.com', role: 'Gerente de Operaciones', score: 94 },
-                  { company: 'Distribuidora Fiduciaria', domain: 'distribuidorafid.com', role: 'Director General / CEO', score: 91 },
-                  { company: 'Grupo Aduanal Pacífico', domain: 'aduanalpacifico.com', role: 'CFO / Finanzas', score: 88 }
-                ]
-              };
-            }
+            } else throw new Error(`EXPLEE_HTTP_${resp.status}`);
           } catch (e) {
-            result = {
-              success: true,
-              simulated: true,
-              query,
-              prospects: [
-                { company: 'Logística Regional S.A.', domain: 'logistica-regional.com', role: 'Gerente de Operaciones', score: 94 }
-              ]
-            };
+            throw new Error(`EXPLEE_SEARCH_FAILED: ${e.message}`);
           }
           break;
         }
@@ -181,42 +163,22 @@ async function handleMessage(message) {
           }
 
           result = {
-            success: true,
+            success: false,
             totalHotLeads: leads.length,
             leads: leads.slice(0, args.limit || 20),
-            source: 'Explee AutoGTM Pipeline'
+            source: 'Local pipeline snapshot',
+            reason: 'UNVERIFIED_LOCAL_DATA'
           };
           break;
         }
 
         case 'explee_enrich_company': {
-          const domain = (args.domain || '').replace(/^https?:\/\//, '').replace(/\/.*$/, '');
-          result = {
-            success: true,
-            domain,
-            companyName: domain.split('.')[0].toUpperCase(),
-            estimatedEmployees: '50-200',
-            industry: 'Logistics / Supply Chain / Commerce',
-            decisionMakersDetected: 3,
-            recommendedSolution: 'Custom Agent para Procesos Lentos & Shield Perimetral'
-          };
+          result = { success: false, reason: 'EXPLEE_ENRICHMENT_NOT_IMPLEMENTED' };
           break;
         }
 
         case 'explee_sync_hot_lead_to_crm': {
-          const { leadEmail, company, why_hot, suggestedAmount } = args;
-          const dealId = 'deal_explee_' + Math.random().toString(36).substring(2, 9);
-          result = {
-            success: true,
-            action: 'DISPATCHED_TO_HUBSPOT',
-            dealId,
-            leadEmail,
-            company,
-            stage: 'qualifiedtobuy',
-            intentReason: why_hot,
-            amountUSD: suggestedAmount || 69,
-            syncedAt: new Date().toISOString()
-          };
+          result = { success: false, reason: 'HUBSPOT_SYNC_NOT_IMPLEMENTED' };
           break;
         }
 
