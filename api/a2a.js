@@ -77,13 +77,35 @@ export default async function handler(req, res) {
     notes: clean(card.notes, 5000)
   });
 
+  const requestShape = {
+    serviceType: referral.serviceType,
+    market: clean(card.market, 120),
+    language: clean(card.language, 120)
+  };
+
   const matches = partners
     .filter(p => p.id !== source.id)
-    .map(p => ({ id: p.id, name: p.name, score: scorePartnerMatch(p, {
-      serviceType: referral.serviceType,
-      market: clean(card.market, 120),
-      language: clean(card.language, 120)
-    }) }))
+    .map(p => ({
+      id: p.id,
+      name: p.name,
+      score: scorePartnerMatch(p, requestShape),
+      relationshipStatus: p.status,
+      a2aEnabled: Boolean(p.a2aEnabled)
+    }))
+    .filter(x => x.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5);
+
+  const providerCandidates = partners
+    .filter(p => p.id !== source.id && p.status === 'PROSPECT')
+    .map(p => ({
+      id: p.id,
+      name: p.name,
+      score: scorePartnerMatch({ ...p, status: 'ACTIVE' }, requestShape),
+      relationshipStatus: 'PROSPECT',
+      a2aEnabled: false,
+      requiresEnrollment: true
+    }))
     .filter(x => x.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, 5);
@@ -123,7 +145,8 @@ export default async function handler(req, res) {
             referralId: referral.referralId,
             status: referral.status,
             piiShared: referral.clientConsent,
-            matchedPartners: matches
+            matchedPartners: matches,
+            providerCandidates
           }
         }]
       }]
