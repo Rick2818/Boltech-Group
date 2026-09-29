@@ -179,6 +179,11 @@ The daily control tower checks:
 1. Boltech/Telegram production health.
 2. Explee availability and visible hot-lead count when the GitHub secret is configured.
 3. Apollo saved-contact availability when the GitHub secret is configured.
+4. Authenticated production checkout totals from provider-confirmed paid orders, when `PARTNER_API_TOKEN` is configured in GitHub Secrets.
+
+The 09:00 report selects one commercial priority for reaching the first verified payment, records a measurement hypothesis, and retains an aggregate diagnosis as a 30-day Actions artifact. It stays within GitHub Actions and does not transmit commercial figures by Telegram. Missing API responses display **N/D**, never zero. Hot leads and saved contacts are inventory; they are not replies, meetings, proposals or collected revenue. The current systems do not provide verified counts for those middle funnel stages, so the report shows N/D until a genuine source is connected. Test referrals and sample lead records must not be treated as commercial pipeline.
+
+The initial five-day commercial experiment, owners, evidence and daily decision rules are in [`docs/commercial/primer_cobro.md`](docs/commercial/primer_cobro.md).
 4. Telegram delivery of the daily MIT summary when Telegram secrets are configured.
 
 It does **not** automatically spend Apollo credits or send prospect emails. Commercial outreach remains governed by validated targeting and real provider access.

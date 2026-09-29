@@ -25,6 +25,8 @@ jobs:
         run: npm ci
       - name: Measure partner, truth, payment and MCP safeguards
         run: node scripts/quality/improvement_cycle.mjs
+      - name: Validate commercial decision logic
+        run: npm run test:commercial
       - name: Preserve improvement evidence
         if: always()
         uses: actions/upload-artifact@v4
