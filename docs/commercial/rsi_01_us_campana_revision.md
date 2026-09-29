@@ -25,11 +25,17 @@ Canales públicos comprobados el 29/09/2026. Un correo publicado no confirma su 
 | US-04 | Fabtech US; Goodhue, Minnesota | Formulario pide material, acabado y uso anual estimado. https://fabtechus.com/get-a-quote/ | sales@fabtechus.com; +1 651-923-4630 | Responsable comercial, estimaciones u operaciones pendiente. |
 | US-05 | A&P Fabricating Solutions; Appleton, Wisconsin | Formulario pide pieza/conjunto, material, cantidad, plazo y archivos. https://apfabsolutions.com/quote/ | Adam Jeffrey Kilgas, Inside Sales: adamjk@apfabsolutions.com; +1 920-716-6433 | Confirmar vigencia, coincidencia de empresa y autoridad sobre el proceso. No asumir que autoriza presupuesto. |
 
+### Contactos públicos adicionales
+
+Fabtech US publica a Kenny Ryan como Owner y a Rhonda Richardson como Sales Assistant en https://fabtechus.com/our_team/ (revisión 29/09/2026). Son candidatos para localizar en Apollo; no se han obtenido correos personales ni confirmado quién autoriza un piloto. El correo general sigue como alternativa.
+
+Para GST, Kerf y Marstrand se conserva el canal general: no se obtuvo un responsable individual con evidencia oficial suficiente en esta revisión. No se derivan correos a partir de nombres.
+
 A&P publica también adamk@apfabsolutions.com para proyectos. Se selecciona adamjk@apfabsolutions.com porque aparece junto al nombre de Inside Sales; verificar antes de enviar y no duplicar destinatarios.
 
-## Comprobación de Apollo — pendiente de inicio de sesión
+## Comprobación de Apollo — integración instalada; consulta pendiente
 
-No se ha podido comprobar el saldo de la cuenta. No se ha consumido ningún crédito a través de esta sesión.
+Apollo.io figura instalado y fue seleccionado en el chat, pero sus herramientas no están expuestas a esta sesión. Saldo y enriquecimiento pendientes; se ha autorizado el navegador compartido como alternativa. No se ha consumido ningún crédito a través de esta sesión.
 
 Una vez autenticado:
 1. Registrar saldo observado, tipo de crédito, fecha y periodo de renovación que muestre la cuenta.
