@@ -25,6 +25,7 @@ import {
   getPartnerMetrics
 } from '../lib/airtable_partner_store.js';
 import { getVerifiedSalesMetrics } from '../lib/payment_store.js';
+import { getCommercialCohortMetrics } from '../lib/commercial_cohort_store.js';
 
 function json(res, status, payload) {
   return res.status(status).json(payload);
@@ -180,12 +181,15 @@ export default async function partnersHandler(req, res) {
 
     if (req.method === 'GET' && action === 'commercial-metrics') {
       if (!requireWriteAuth(req, res)) return;
-      const [metrics, verifiedSales] = await Promise.all([getPartnerMetrics(), getVerifiedSalesMetrics()]);
+      const [metrics, verifiedSales, cohort] = await Promise.all([
+        getPartnerMetrics(), getVerifiedSalesMetrics(), getCommercialCohortMetrics()
+      ]);
       return json(res, 200, {
         success: true,
         metrics: {
           ...publicMetricsShape(metrics),
           verifiedSales,
+          cohort,
           definition: 'Verified production payment orders only; WON revenue and pipeline are not cash collected.'
         }
       });
