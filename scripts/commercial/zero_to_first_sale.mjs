@@ -1,4 +1,4 @@
-export function evaluateCommercialProgress({ verifiedSales = null, hotLeads = null, savedContacts = null, referrals = null } = {}) {
+export function evaluateCommercialProgress({ verifiedSales = null, hotLeads = null, savedContacts = null, referrals = null, cohort = null } = {}) {
   const collected = verifiedSales && Number.isFinite(verifiedSales.cashCollectedUsd)
     ? verifiedSales.cashCollectedUsd : null;
   const paidOrders = verifiedSales && Number.isInteger(verifiedSales.paidOrders)
@@ -17,6 +17,9 @@ export function evaluateCommercialProgress({ verifiedSales = null, hotLeads = nu
   } else if (typeof hotLeads === 'number' && hotLeads > 0) {
     focus = 'Calificar los hot leads reales de Explee y preparar respuesta individual para los que encajen con el ICP.';
     hypothesis = 'Responder primero a interés observado acortará el camino a una reunión y propuesta.';
+  } else if (cohort?.stageCounts?.Researching > 0) {
+    focus = `Validar el decisor y confirmar la necesidad en las ${cohort.stageCounts.Researching} empresas investigadas de ${cohort.cohort}; no asumir que el formulario de cotización prueba demora.`;
+    hypothesis = 'Confirmar decisor y necesidad permitirá pasar de empresas reales a prospectos calificados.';
   } else if (typeof savedContacts === 'number' && savedContacts > 0) {
     focus = 'Validar hasta cinco contactos de Apollo contra el ICP y preparar una oferta específica para su cuello de botella.';
     hypothesis = 'Una propuesta concreta a contactos verificados generará la primera conversación comercial.';
@@ -32,6 +35,7 @@ export function evaluateCommercialProgress({ verifiedSales = null, hotLeads = nu
     hotLeadsVisible: hotLeads,
     savedContactsVisible: savedContacts,
     referralsPendingConsent: consentPending,
+    cohort: cohort || null,
     replies: null,
     meetings: null,
     proposals: null,
