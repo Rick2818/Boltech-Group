@@ -9,7 +9,7 @@ Boltech Group builds autonomous and custom AI agents for business bottlenecks su
 
 ---
 
-## Current production status — 2026-09-28
+## Current production status — 2026-09-29
 
 | Area | Status | Notes |
 |---|---|---|
@@ -19,7 +19,7 @@ Boltech Group builds autonomous and custom AI agents for business bottlenecks su
 | A2A partner identity binding | Production | Bearer credentials are SHA-256 bound to the Airtable partner record |
 | A2A QA end-to-end test | Passed | Referral and Partner Activity were created successfully in Airtable |
 | Provider candidate matching | In rollout | Validated providers remain PROSPECT until real approval/access is received |
-| Telegram cloud agent | Secure relink deployed | Token/secret are environment-managed; final webhook registration/health test remains |
+| Telegram cloud agent | ONLINE; basic messaging verified | Webhook registered; deep health passed; Ricardo verified replies to `/start` and `Hola` |
 | Airtable partner CRM | Active | Partners, Referrals, Partner Activities, Commission Ledger, Payment Orders and Payment Events |
 | Payment hardening | Active | Provider-confirmed payment state, server-side amount derivation and HMAC safeguards |
 
@@ -150,6 +150,24 @@ Security controls include:
 - Cloud operation independent of the local laptop.
 
 A secure webhook registration path is available after deployment and uses the server-side Bot Token without exposing it in client-side code.
+
+### Production verification — 2026-09-29
+
+- Production variables: `TELEGRAM_BOT_TOKEN` and `TELEGRAM_WEBHOOK_SECRET`, stored as Vercel secrets. Their values are never included in GitHub.
+- Registered webhook: `https://boltech-group.vercel.app/api/telegram`.
+- Registration returned `ok: true` and `status: REGISTERED`.
+- Deep health checked at `2026-09-29T23:13:06.777Z` (17:13 El Salvador): HTTP 200, `ONLINE`, `telegramConfigured: true`, `webhookConfigured: true`, `pendingUpdates: 0`, `lastError: null`.
+- Ricardo's Telegram screenshot confirmed responses to `/start` and `Hola` at 17:11 El Salvador. This verifies basic incoming and outgoing messaging.
+- Voice, agenda and other advertised commands still require their own functional tests. A greeting acknowledgement does not prove that an instruction was persisted or executed.
+
+### Configuration ownership and future changes
+
+GitHub versions application code, variable names and these operating instructions. Vercel stores production secret values; Telegram stores the webhook registration. A Git push does not copy Vercel secrets or register a Telegram webhook.
+
+After changing a Vercel secret, save it for Production and redeploy. After changing the webhook secret, register the webhook using the same secret and verify deep health again. Registration uses `POST /api/telegram?action=register-webhook` with the `X-Telegram-Bot-Api-Secret-Token` header. The server uses its Bot Token internally.
+
+Do not upload screenshots containing credentials, real `.env` files or PowerShell transcripts containing secret values to GitHub.
+
 
 ---
 
