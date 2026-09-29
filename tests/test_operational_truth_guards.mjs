@@ -67,7 +67,7 @@ test('A2A referral exchange publishes a standard v1 agent card and protects refe
   assert.match(api, /WAITING_CONSENT/);
   assert.match(api, /scorePartnerMatch/);
   assert.match(api, /providerCandidates/);
-  assert.match(api, /requiresEnrollment:\\s*true/);
-  assert.match(api, /relationshipStatus:\\s*'PROSPECT'/);
+  assert.match(api, /requiresEnrollment:\s*true/);
+  assert.match(api, /relationshipStatus:\s*'PROSPECT'/);
   assert.match(api, /source: 'A2A'/);
 });
