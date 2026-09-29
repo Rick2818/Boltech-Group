@@ -45,3 +45,20 @@ export function evaluateCommercialProgress({ verifiedSales = null, hotLeads = nu
     acceptance: 'Registrar al menos una conversación real y su siguiente paso; la meta final es un cobro confirmado por el proveedor.',
   };
 }
+
+export function buildMitAgenda(progress) {
+  const researching = progress.cohort?.stageCounts?.Researching;
+  const morningFocus = progress.hotLeadsVisible > 0
+    ? `Revisar ${progress.hotLeadsVisible} hot leads de Explee y sus conversaciones reales antes de ampliar prospectos.`
+    : researching > 0
+      ? `Validar decisor y necesidad de las ${researching} empresas RSI-01 en Airtable; Apollo solo para completar datos verificables.`
+      : 'Revisar RSI-01 y localizar empresas verificables; no contar registros de QA ni contactos sin fuente.';
+  return [
+    { at: '09:00', owner: 'Boltech', action: 'Leer salud, hot leads, etapas RSI-01 y cobros; señalar N/D y errores de integración.', evidence: 'Reporte de GitHub Actions' },
+    { at: '09:15', owner: 'Boltech', action: morningFocus, evidence: 'Fuente, decisor y problema confirmado por empresa' },
+    { at: '10:00', owner: 'Ricardo', action: 'Revisar oferta piloto y los cinco mensajes preparados; decidir cuáles cuentas y canales se autorizan.', evidence: 'Decisión sobre cada cuenta' },
+    { at: '11:00', owner: 'Ricardo + Boltech', action: 'Preparar el contacto individual solo para cuentas aprobadas; registrar envíos genuinos y no activar campañas pagadas.', evidence: 'ID o aceptación real del proveedor si se envía' },
+    { at: '15:00', owner: 'Boltech', action: 'Clasificar respuestas verificadas, proponer reunión y actualizar etapa con evidencia.', evidence: 'Respuesta y siguiente paso fechado' },
+    { at: '17:30', owner: 'Boltech + Ricardo', action: 'Comparar etapas y cobros; escoger una variable para la siguiente iteración.', evidence: 'Antes, después, decisión y referencia de pago si existe' },
+  ];
+}

@@ -183,17 +183,15 @@ The daily control tower checks:
 
 The 09:00 report selects one commercial priority for reaching the first verified payment, records a measurement hypothesis, and retains an aggregate diagnosis as a 30-day Actions artifact. It stays within GitHub Actions and does not transmit commercial figures by Telegram. Missing API responses display **N/D**, never zero. Hot leads and saved contacts are inventory; they are not replies, meetings, proposals or collected revenue. The current systems do not provide verified counts for those middle funnel stages, so the report shows N/D until a genuine source is connected. Test referrals and sample lead records must not be treated as commercial pipeline.
 
-The initial five-day commercial experiment, owners, evidence and daily decision rules are in [`docs/commercial/primer_cobro.md`](docs/commercial/primer_cobro.md).
+The integrated 09:00 MIT + RSI-01 agenda, initial five-day experiment, owners, evidence and daily decision rules are in [`docs/commercial/primer_cobro.md`](docs/commercial/primer_cobro.md).
 The first researched cohort and individual draft messages are in [`docs/commercial/rsi_01_prospectos.md`](docs/commercial/rsi_01_prospectos.md). The authenticated daily metrics now include aggregate CRM stages for `RSI-01`; these stages are operator-entered and remain separate from provider-confirmed cash.
-4. Telegram delivery of the daily MIT summary when Telegram secrets are configured.
-
 It does **not** automatically spend Apollo credits or send prospect emails. Commercial outreach remains governed by validated targeting and real provider access.
 
 ### Daily MIT priorities
 
-- **MIT 1:** Review and answer hot leads.
-- **MIT 2:** Select 20–30 high-fit Apollo prospects instead of consuming credits indiscriminately.
-- **MIT 3:** Record outcomes, measure replies and improve campaign messaging.
+- **MIT 1:** Review genuine hot leads; otherwise validate buyer and problem for the five `RSI-01` researched companies.
+- **MIT 2:** Review the five drafted messages and pilot scope with Ricardo before any contact.
+- **MIT 3:** Record real replies, meetings, proposals and provider-confirmed payments; change one variable per iteration.
 
 Responsibilities:
 

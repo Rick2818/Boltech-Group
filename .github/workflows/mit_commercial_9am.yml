@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Run MIT commercial control tower
+      - name: Run MIT plus RSI-01 commercial control tower
         env:
           APOLLO_API_KEY: ${{ secrets.APOLLO_API_KEY }}
           EXPLEE_API_KEY: ${{ secrets.EXPLEE_API_KEY }}
