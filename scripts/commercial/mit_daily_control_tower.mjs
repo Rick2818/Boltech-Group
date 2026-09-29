@@ -1,5 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises';
-import { evaluateCommercialProgress } from './zero_to_first_sale.mjs';
+import { evaluateCommercialProgress, buildMitAgenda } from './zero_to_first_sale.mjs';
 
 const APOLLO_API_KEY = (process.env.APOLLO_API_KEY || '').trim();
 const EXPLEE_API_KEY = (process.env.EXPLEE_API_KEY || '').trim();
@@ -102,6 +102,7 @@ async function checkCommercial() {
 function buildMessage() {
   const tg = report.boltech.telegramDeepHealth || {};
   const progress = report.commercial.progress;
+  const agenda = report.commercial.agenda;
   return [
     '📊 BOLTECH — DEL $0 AL PRIMER COBRO',
     '',
@@ -115,9 +116,9 @@ function buildMessage() {
     `🏢 Empresas en investigación RSI-01: ${progress.cohort?.stageCounts?.Researching ?? 'N/D'}`,
     `🗣️ Respuestas / reuniones / propuestas: N/D (sin fuente integrada)`,
     '',
-    `MIT 1 — ${progress.focus}`,
-    'MIT 2 — Registrar conversación real, siguiente paso y fuente de evidencia.',
-    'MIT 3 — Revisar mañana si avanzó la etapa; ajustar una variable del mensaje u oferta.',
+    `Bloqueo principal — ${progress.focus}`,
+    'PLAN MIT + RSI-01 · Hora de El Salvador',
+    ...agenda.map(item => `${item.at} | ${item.owner}: ${item.action} Evidencia: ${item.evidence}.`),
     '',
     'Ricardo: decisiones, reuniones y precios. Boltech: medición, clasificación y preparación. Explee/Apollo: fuentes solo si están configuradas.',
     'Inventario y presupuestos no equivalen a dinero cobrado.'
@@ -132,6 +133,7 @@ report.commercial.progress = evaluateCommercialProgress({
   hotLeads: report.explee.hotLeads,
   savedContacts: report.apollo.savedContacts
 });
+report.commercial.agenda = buildMitAgenda(report.commercial.progress);
 const message = buildMessage();
 console.log(message);
 console.log('\nJSON REPORT\n' + JSON.stringify(report, null, 2));
