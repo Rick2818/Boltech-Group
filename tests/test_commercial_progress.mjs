@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { evaluateCommercialProgress } from '../scripts/commercial/zero_to_first_sale.mjs';
 import { getVerifiedSalesMetrics } from '../lib/payment_store.js';
+import { getCommercialCohortMetrics } from '../lib/commercial_cohort_store.js';
 import partnersHandler from '../api/partners.js';
 
 test('missing payment evidence stays unknown even when contacts exist', () => {
@@ -19,6 +20,16 @@ test('zero collected prioritizes actual interest over contact inventory', () => 
   });
   assert.equal(result.cashCollectedUsd, 0);
   assert.match(result.focus, /hot leads reales/);
+});
+
+test('researched companies trigger buyer and problem validation, not a sales claim', () => {
+  const result = evaluateCommercialProgress({
+    verifiedSales: { cashCollectedUsd: 0, paidOrders: 0 },
+    cohort: { cohort: 'RSI-01', stageCounts: { Researching: 5 } },
+  });
+  assert.match(result.focus, /Validar el decisor/);
+  assert.equal(result.cashCollectedUsd, 0);
+  assert.equal(result.replies, null);
 });
 
 test('verified first payment changes focus to repeatable sale', () => {
@@ -78,5 +89,29 @@ test('commercial payment totals require operator authentication', async () => {
     else process.env.AIRTABLE_TOKEN = previousAirtable;
     if (previousPartner === undefined) delete process.env.PARTNER_API_TOKEN;
     else process.env.PARTNER_API_TOKEN = previousPartner;
+  }
+});
+
+test('cohort aggregation exposes only stages and verified problem count', async () => {
+  const originalFetch = globalThis.fetch;
+  const previousToken = process.env.AIRTABLE_TOKEN;
+  process.env.AIRTABLE_TOKEN = 'unit-test-token';
+  globalThis.fetch = async url => {
+    assert.match(String(url), /Experiment\+Cohort/);
+    return { ok: true, json: async () => ({ records: [
+      { fields: { 'Commercial Stage': 'Researching', 'Problem Confirmed': false, 'Contact Email': 'private@example.com' } },
+      { fields: { 'Commercial Stage': 'Meeting held', 'Problem Confirmed': true } },
+    ] }) };
+  };
+  try {
+    const metrics = await getCommercialCohortMetrics('RSI-01');
+    assert.equal(metrics.total, 2);
+    assert.equal(metrics.stageCounts.Researching, 1);
+    assert.equal(metrics.problemConfirmed, 1);
+    assert.doesNotMatch(JSON.stringify(metrics), /private@example.com/);
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (previousToken === undefined) delete process.env.AIRTABLE_TOKEN;
+    else process.env.AIRTABLE_TOKEN = previousToken;
   }
 });

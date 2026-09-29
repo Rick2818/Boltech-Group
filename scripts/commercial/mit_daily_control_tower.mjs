@@ -112,6 +112,7 @@ function buildMessage() {
     `🎯 Apollo contactos guardados visibles: ${report.apollo.savedContacts ?? 'N/D'}`,
     `💵 Cobros verificados en checkout de producción: ${progress.cashCollectedUsd === null ? 'N/D' : '$' + progress.cashCollectedUsd.toFixed(2)}`,
     `📄 Órdenes pagadas verificadas: ${progress.paidOrders ?? 'N/D'}`,
+    `🏢 Empresas en investigación RSI-01: ${progress.cohort?.stageCounts?.Researching ?? 'N/D'}`,
     `🗣️ Respuestas / reuniones / propuestas: N/D (sin fuente integrada)`,
     '',
     `MIT 1 — ${progress.focus}`,
@@ -127,6 +128,7 @@ await Promise.all([checkBoltech(), checkExplee(), checkApollo(), checkCommercial
 report.commercial.progress = evaluateCommercialProgress({
   verifiedSales: report.commercial.metrics?.verifiedSales,
   referrals: report.commercial.metrics?.referrals,
+  cohort: report.commercial.metrics?.cohort,
   hotLeads: report.explee.hotLeads,
   savedContacts: report.apollo.savedContacts
 });
