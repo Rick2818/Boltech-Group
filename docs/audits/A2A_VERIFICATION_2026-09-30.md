@@ -29,7 +29,7 @@ Un agente de un partner aprobado descubre el Agent Card, envía una Need Card au
 | Gobernanza operacional | 5 pruebas aprobadas |
 | Pagos / MCP / lógica comercial | 11 / 3 / 9 pruebas aprobadas; total con A2A y partners: 49 |
 | Partner comercial externo | No habilitado: 7 PROSPECT en Airtable; único ACTIVE/A2A Enabled es `Boltech A2A QA Partner` |
-| Configuración Redis de producción | No comprobada mediante los conectores disponibles |
+| Configuración Redis del proyecto | Panel Vercel verificado 29/09/2026 ~18:54 El Salvador: búsqueda UPSTASH en All Environments sin resultados; ninguna variable compartida enlazada; Storage sin bases conectadas |
 | Intercambio autenticado de esta versión desplegada | Pendiente; las pruebas locales no son evidencia de ejecución real |
 
 La suite ampliada requirió permitir un servidor local para el handshake MCP; fuera de esa restricción pasó completa.
@@ -49,3 +49,9 @@ La reserva permanente favorece no duplicación frente a recuperación automátic
 Referencia primaria del envelope A2A v1: https://a2a-protocol.org/latest/specification/#943-core-methods
 
 No se certifica compatibilidad completa con todos los métodos A2A ni funcionamiento comercial al 100%. Esta implementación cubre registro síncrono de Need Cards y consulta de las tareas que creó; streaming, notificaciones push y negociación multi-turn no están implementados.
+
+## Revisión directa Redis en Vercel
+
+Sesión autenticada en el proyecto `boltech-group`. Environment Variables / Project con `All Environments` y búsqueda `UPSTASH`: `No Results Found`. Environment Variables / Shared sin filtro: `No shared variables linked`. Storage del proyecto sin filtros: ninguna base conectada. Connect Database no mostró una base existente disponible. No se crearon recursos, no se conectaron bases y no se revelaron ni cambiaron credenciales.
+
+Conclusión: faltan `UPSTASH_REDIS_REST_URL` y `UPSTASH_REDIS_REST_TOKEN` en los entornos consultados. No se puede ejecutar ni certificar el almacenamiento durable A2A de esta revisión. Antes de promocionar el PR, configurar Redis con un plan y acceso aprobados, asignar las variables a Production y Preview, desplegar de nuevo y probar conexión y replay. La creación o instalación de una integración requiere comprobar sus condiciones y coste antes de confirmar; esta auditoría no autoriza por sí misma compras ni nuevas credenciales.
