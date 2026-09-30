@@ -22,6 +22,7 @@
     "improve:check": "node scripts/quality/improvement_cycle.mjs",
     "test:commercial": "node --test tests/test_commercial_progress.mjs",
     "test": "node scripts/run_automated_verification_suite.mjs",
+    "test:a2a": "node --test tests/test_a2a_intake.mjs",
     "test:partners": "node --test tests/test_partner_network.mjs",
     "mcp:stdio": "node lib/boltech_mcp_server.js"
   },

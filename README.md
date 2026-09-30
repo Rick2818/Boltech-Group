@@ -17,7 +17,7 @@ Boltech Group builds autonomous and custom AI agents for business bottlenecks su
 | MCP gateway | Production | Authenticated read-only MCP endpoint at `/api/mcp` |
 | A2A referral exchange | Production core | Agent Card + authenticated referral intake + PII masking |
 | A2A partner identity binding | Production | Bearer credentials are SHA-256 bound to the Airtable partner record |
-| A2A QA end-to-end test | Passed | Referral and Partner Activity were created successfully in Airtable |
+| A2A QA evidence | Historical baseline | Prior Airtable registration does not certify the current release; see `docs/audits/A2A_VERIFICATION_2026-09-30.md` |
 | Provider candidate matching | In rollout | Validated providers remain PROSPECT until real approval/access is received |
 | Telegram cloud agent | ONLINE; basic messaging verified | Webhook registered; deep health passed; Ricardo verified replies to `/start` and `Hola` |
 | Airtable partner CRM | Active | Partners, Referrals, Partner Activities, Commission Ledger, Payment Orders and Payment Events |
@@ -86,12 +86,14 @@ POST /api/a2a
 
 Implemented controls:
 
-- JSON-RPC A2A message intake.
+- JSON-RPC `SendMessage` intake with v1 `result.task`, plus legacy `message/send`.
+- Partner-scoped `GetTask` retrieval.
+- Persistent Upstash Redis replay protection keyed by authenticated partner and message ID.
 - Partner-specific Bearer authentication.
 - SHA-256 lookup against the partner's `A2A Key Hash` in Airtable.
 - Authenticated partner identity is resolved server-side.
 - Incoming requests cannot impersonate another partner using a supplied record ID.
-- Customer PII is masked when `clientConsent = false`.
+- Structured customer identity fields are masked unless `clientConsent` is the JSON boolean `true`. Partners must keep free-text summaries and notes free of unauthorized PII.
 - Referrals are written to Airtable.
 - A corresponding `REFERRAL_RECEIVED` activity is written to Partner Activities.
 - Matching considers capabilities, market and language.
