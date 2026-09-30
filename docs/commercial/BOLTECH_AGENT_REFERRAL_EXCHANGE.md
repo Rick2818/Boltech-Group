@@ -37,7 +37,6 @@ El mensaje A2A debe incluir una parte de datos JSON:
 
 {
   "type": "boltech.referral.need.v1",
-  "partnerRecordId": "rec...",
   "serviceType": "WhatsApp Agent",
   "needSummary": "Empresa recibe 250 consultas diarias y el equipo tarda horas en responder.",
   "market": "El Salvador",
@@ -71,9 +70,9 @@ La comisión nace únicamente cuando existe un pago real registrado en Commissio
 
 - Agent Card público: no contiene secretos.
 - POST A2A: autenticado.
-- Producción usa A2A_API_TOKEN cuando esté configurado; durante bootstrap interno puede usar el PARTNER_API_TOKEN existente.
-- El token maestro nunca debe entregarse a un partner externo.
-- Antes de habilitar agentes externos se debe activar una credencial independiente para A2A.
+- Cada partner aprobado tiene una credencial independiente; su SHA-256 se compara con `A2A Key Hash` y exige `ACTIVE` y `A2A Enabled`.
+- No hay fallback a tokens maestros.
+- Upstash Redis REST conserva la reserva atómica y el resultado de cada mensaje; sin ese almacenamiento, el intake falla cerrado.
 - Airtable sigue siendo sistema de registro.
 
 ## Diferenciador Boltech
@@ -128,3 +127,15 @@ Fase 3:
 - Conversion rate por partner
 
 Nunca se contabilizan simulaciones como resultados comerciales.
+
+## Contrato de registro y reintentos — 2026-09-30
+
+`SendMessage` requiere `params.message.messageId` (string no vacío, máximo 120), `role: "ROLE_USER"` y `parts` array con una Need Card. `clientConsent` debe ser un boolean JSON; cadenas como `"false"` se rechazan. La identidad originadora siempre proviene del Bearer, nunca de la tarjeta.
+
+La respuesta v1 contiene `result.task`. El cliente conserva el mismo `messageId`, la tarjeta y el `contextId` al reintentar. Un duplicado completado devuelve el resultado original sin nuevas escrituras; contenido distinto con el mismo ID devuelve conflicto. `GetTask` con `params.id` recupera el resultado solo para el partner autenticado.
+
+Requiere `AIRTABLE_TOKEN` (o `AIRTABLE_PAT`), `UPSTASH_REDIS_REST_URL` y `UPSTASH_REDIS_REST_TOKEN` como secretos de runtime. No guardar valores en Git. La reserva Redis no expira deliberadamente: una operación interrumpida no puede volver a escribir un referral. Un estado incompleto exige revisar el `A2A Task ID` en Referrals y Partner Activities antes de reconciliarlo; nunca borrar reservas ni crear un ID nuevo para forzar un retry. Redis debe conservarse y no sufrir eviction; perder el ledger elimina esa protección.
+
+El registro no entrega clientes a otros agentes ni confirma una venta. El matching exige capacidad compatible; candidatos PROSPECT siguen requiriendo aprobación. Los resúmenes y notas libres deben excluir PII no autorizada.
+
+Prueba local: `npm run test:a2a`. Son contratos aislados con fixtures de prueba, sin escrituras en producción y sin contabilizar actividad comercial. La prueba real entre un partner aprobado y el despliegue vigente sigue siendo una verificación separada.
