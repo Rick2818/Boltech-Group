@@ -67,3 +67,7 @@ La suite local vigente volvió a pasar: 49/49. El commit `633ab2ee5620820d7bfe3d
 Bloqueos para verificación integrada: `AIRTABLE_TOKEN` sigue limitado a Production; Preview no tiene acceso Airtable configurado. No está disponible la credencial original del partner interno `Boltech A2A QA Partner`. No se amplió acceso al CRM ni se rotó esa credencial. Se requiere resolver ambos accesos antes de certificar SendMessage → Referral/Activity → GetTask → replay y antes de integrar el PR #16. PONG confirma conectividad del proveedor, no el flujo de la aplicación.
 
 El plan gratuito permite una sola base. Production y Preview comparten Redis: las verificaciones deben usar messageIds únicos por entorno; compartir credenciales no constituye aislamiento de acceso entre entornos. No se deben borrar reservas ni reutilizar IDs para resolver errores parciales.
+
+## Preparación de prueba — 2026-09-30
+
+Se completó la preparación autorizada para una verificación técnica controlada de esta revisión. El flujo integrado permanece pendiente. Este cambio documental genera un nuevo Preview que incorpora la configuración actual. Los secretos y detalles internos de acceso se excluyen de esta actualización pública.
