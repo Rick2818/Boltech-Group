@@ -71,3 +71,15 @@ El plan gratuito permite una sola base. Production y Preview comparten Redis: la
 ## Preparación de prueba — 2026-09-30
 
 Se completó la preparación autorizada para una verificación técnica controlada de esta revisión. El flujo integrado permanece pendiente. Este cambio documental genera un nuevo Preview que incorpora la configuración actual. Los secretos y detalles internos de acceso se excluyen de esta actualización pública.
+
+## Ejecución final — 2026-09-30
+
+- Upstash Redis se creó en la región `iad1` con plan Free (500000 comandos/mes), eviction desactivado. El REPL confirmó `PING → PONG`.
+- Los secretos de runtime requeridos están configurados en Production y Preview. Airtable también quedó accesible en Production y Preview; ningún valor secreto se añadió a Git.
+- PR #16 se integró en `main` mediante merge commit `64aae4a4f6827deedf94fb45f0d8e666228df527`. El despliegue de producción de ese commit está READY.
+- Regresiones locales: 49/49 aprobadas. CI Governance Validation pasó para la revisión probada.
+- Preview y Production superaron: falta de Bearer → 401; autenticación y `SendMessage` → 200; tarea en estado completado; `GetTask` → 200 con el mismo resultado; replay idéntico → 200 sin duplicar; mismo `messageId` con contenido modificado → 409.
+- Airtable confirmó exactamente un Referral y una Partner Activity asociados a cada una de las dos comprobaciones técnicas. Se registraron como QA interno, sin datos de clientes y sin contabilizarlos como tracción o ventas.
+- El enlace temporal del Preview fue revocado después de probar. El partner interno temporal de QA quedó `PAUSED`, A2A deshabilitado y hash de credencial eliminado.
+
+La verificación demuestra este flujo en los dos entornos con una identidad temporal interna. No certifica integración comercial externa ni todos los métodos del protocolo A2A. Streaming, notificaciones push y negociación multi-turn quedan fuera del alcance.
