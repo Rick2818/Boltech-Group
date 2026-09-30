@@ -55,3 +55,15 @@ No se certifica compatibilidad completa con todos los métodos A2A ni funcionami
 Sesión autenticada en el proyecto `boltech-group`. Environment Variables / Project con `All Environments` y búsqueda `UPSTASH`: `No Results Found`. Environment Variables / Shared sin filtro: `No shared variables linked`. Storage del proyecto sin filtros: ninguna base conectada. Connect Database no mostró una base existente disponible. No se crearon recursos, no se conectaron bases y no se revelaron ni cambiaron credenciales.
 
 Conclusión: faltan `UPSTASH_REDIS_REST_URL` y `UPSTASH_REDIS_REST_TOKEN` en los entornos consultados. No se puede ejecutar ni certificar el almacenamiento durable A2A de esta revisión. Antes de promocionar el PR, configurar Redis con un plan y acceso aprobados, asignar las variables a Production y Preview, desplegar de nuevo y probar conexión y replay. La creación o instalación de una integración requiere comprobar sus condiciones y coste antes de confirmar; esta auditoría no autoriza por sí misma compras ni nuevas credenciales.
+
+## Redis aprovisionado — 2026-09-30, sesión de la mañana
+
+Tras aprobación explícita del titular se instaló Upstash Redis mediante Vercel Marketplace y se creó `boltech-a2a-ledger`: plan Free, 500000 comandos mensuales, región `iad1`, Eviction desactivado. Estado del proveedor: Available. La consola REPL devolvió `PONG` a `PING`.
+
+La integración quedó conectada a Production y Preview como secretos (`KV_REST_API_*`). Se añadieron además los nombres exactos requeridos por el código, `UPSTASH_REDIS_REST_URL` y `UPSTASH_REDIS_REST_TOKEN`, en ambos entornos; el panel confirmó guardado. No se incluyen valores. Los despliegues existentes necesitan reconstruirse para recibir estos cambios.
+
+La suite local vigente volvió a pasar: 49/49. El commit `633ab2ee5620820d7bfe3d988fe36a0a605b788d` tenía estado Vercel success y GitHub Actions Governance Validation success (run 36652473173).
+
+Bloqueos para verificación integrada: `AIRTABLE_TOKEN` sigue limitado a Production; Preview no tiene acceso Airtable configurado. No está disponible la credencial original del partner interno `Boltech A2A QA Partner`. No se amplió acceso al CRM ni se rotó esa credencial. Se requiere resolver ambos accesos antes de certificar SendMessage → Referral/Activity → GetTask → replay y antes de integrar el PR #16. PONG confirma conectividad del proveedor, no el flujo de la aplicación.
+
+El plan gratuito permite una sola base. Production y Preview comparten Redis: las verificaciones deben usar messageIds únicos por entorno; compartir credenciales no constituye aislamiento de acceso entre entornos. No se deben borrar reservas ni reutilizar IDs para resolver errores parciales.
