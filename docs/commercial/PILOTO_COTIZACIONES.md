@@ -12,9 +12,9 @@ Una empresa, un canal web y un destino de registro autorizado. Recibir necesidad
 
 14 días desde aceptación del alcance y disponibilidad de accesos. Días 1–2: línea base y reglas; 3–5: configuración y aceptación; 6–10: prueba autorizada; 11–12: correcciones; 13–14: informe y decisión de continuidad. El servicio real debe implementarse y verificarse para el cliente antes de declararlo operativo.
 
-## Precio pendiente de aprobación
+## Precio aprobado el 1 de octubre de 2026
 
-No se publica un precio inventado. Hoja de cálculo de la propuesta: horas estimadas × coste interno aprobado + consumo de proveedores + soporte previsto + margen aprobado. Registrar coste inicial y mensual por separado. Demo gratuita; piloto cotizado y mantenimiento opcional sujeto a aprobación de Ricardo. No asumir comisiones ni descuentos. Wompi y Strike no se presentan como cobrables hasta su verificación completa.
+Ricardo aprobó US$990 como precio base de implementación del piloto de 14 días: US$495 al iniciar tras aceptación del alcance y US$495 contra entrega verificada. Una empresa, un flujo web y una integración sencilla con un destino autorizado; configuración, pruebas, documentación y reporte final incluidos. Los 14 días comienzan con alcance aceptado y accesos disponibles. Herramientas, consumo y mantenimiento se cotizan por separado antes de contratar. No es una suscripción ni una cotización automática de servicios adicionales. El precio especial US$590 no está aprobado ni habilitado.\n\nLa configuración comercial está en config/commercial_pilot.json. paymentEnabled=false: no se agrega este piloto al catálogo de checkout ni se habilitan cobros. Wompi y Strike deben verificarse de extremo a extremo antes de activar pagos. La demo sigue gratuita. El mensaje de consulta no representa compra ni contrato aceptado.
 
 ## Aceptación y métricas
 
