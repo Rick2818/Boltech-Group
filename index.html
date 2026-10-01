@@ -104,6 +104,8 @@
         Boltech Group blinda tu infraestructura y automatiza tus operaciones críticas con software autónomo en la nube. Duerme con la total seguridad de que tu negocio nunca se detiene ni pierde ventas.
       </p>
 
+      <div class="mb-8"><a id="quote-demo-link" href="/demo-cotizaciones" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-300 text-slate-950 font-bold hover:bg-emerald-200 transition-all">Probar demo de cotizaciones →</a></div>
+
       <!-- SOLUCIONES DE BOLTECH GROUP: 2 PILARES AUTÓNOMOS -->
       <div class="mb-14 max-w-4xl mx-auto">
         <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900/90 border border-slate-700/80 text-xs font-mono text-slate-300 font-bold uppercase tracking-wider mb-6 shadow-sm">
@@ -1864,6 +1866,9 @@
       safeSet('hero-badge', t.heroBadge);
       safeSet('hero-title', t.heroTitle, true);
       safeSet('hero-desc', t.heroDesc);
+      safeSet('quote-demo-link', currentLanguage === 'en' ? 'Try the quotation demo →' : 'Probar demo de cotizaciones →');
+      const quoteDemoLink = document.getElementById('quote-demo-link');
+      if (quoteDemoLink) quoteDemoLink.href = '/demo-cotizaciones?lang=' + currentLanguage;
 
       // Hero Hub Cards
       safeSet('hub-badge', t.hubBadge);
