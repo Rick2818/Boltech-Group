@@ -1,0 +1,27 @@
+{
+  "id": "quotation_intake_pilot",
+  "currency": "USD",
+  "implementationAmount": 990,
+  "recurring": false,
+  "durationDays": 14,
+  "milestones": [
+    {
+      "id": "kickoff",
+      "amount": 495,
+      "condition": "Scope accepted and required access available"
+    },
+    {
+      "id": "verified_delivery",
+      "amount": 495,
+      "condition": "Delivery acceptance criteria verified"
+    }
+  ],
+  "scope": {
+    "businesses": 1,
+    "webWorkflows": 1,
+    "simpleIntegrations": 1
+  },
+  "toolsUsageAndMaintenanceIncluded": false,
+  "paymentEnabled": false,
+  "approvedOn": "2026-10-01"
+}
