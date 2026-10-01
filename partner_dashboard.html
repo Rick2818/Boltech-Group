@@ -104,10 +104,12 @@ async function api(path, options={}){
   return data;
 }
 async function loadHealth(){
-  try{const d=await api('health');$('systemStatus').textContent=d.airtableConfigured?'Partner Network · almacenamiento listo':'Partner Network · falta almacenamiento';$('systemStatus').style.color=d.airtableConfigured?'#baf8e8':'#ffcf5a'}catch(e){$('systemStatus').textContent='Partner Network · error'}
+  try{const d=await api('health');$('systemStatus').textContent=d.success?'Partner Network · disponible':'Partner Network · revisar';$('systemStatus').style.color=d.success?'#baf8e8':'#ffcf5a'}catch(e){$('systemStatus').textContent='Partner Network · error'}
 }
+function clearMetrics(){for(const id of ['kPartners','kOpen','kPipeline','kNet'])$(id).textContent='—';$('kActive').textContent='Acceso privado';$('kWon').textContent='Acceso privado';$('kCommission').textContent='Comisiones: acceso privado';}
 async function loadMetrics(){
-  try{const d=await api('metrics');const m=d.metrics;$('kPartners').textContent=m.partners.total;$('kActive').textContent=m.partners.active+' activos';$('kOpen').textContent=m.referrals.open;$('kWon').textContent=m.referrals.won+' ganados';$('kPipeline').textContent=money(m.finance.pipelineUsd);$('kNet').textContent=money(m.finance.netReferralRevenueUsd);$('kCommission').textContent='Comisiones: '+money(m.finance.commissionsUsd)}catch(e){}
+  if(!token()){clearMetrics();return;}
+  try{const d=await api('metrics');const m=d.metrics;$('kPartners').textContent=m.partners.total;$('kActive').textContent=m.partners.active+' activos';$('kOpen').textContent=m.referrals.open;$('kWon').textContent=m.referrals.won+' ganados';$('kPipeline').textContent=money(m.finance.pipelineUsd);$('kNet').textContent=money(m.finance.netReferralRevenueUsd);$('kCommission').textContent='Comisiones: '+money(m.finance.commissionsUsd)}catch(e){clearMetrics();}
 }
 async function loadAdmin(){
   if(!token()) return;
@@ -121,8 +123,8 @@ async function loadAdmin(){
   }catch(e){$('adminMessage').textContent=e.message;$('adminMessage').style.color='#ffd0d0'}
 }
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
-$('connectBtn').onclick=async()=>{const v=$('token').value.trim();if(v)sessionStorage.setItem('boltech_partner_token',v);$('token').value='';await loadAdmin()};
-$('clearBtn').onclick=()=>{sessionStorage.removeItem('boltech_partner_token');$('adminMessage').textContent='Sesión administrativa limpiada.';$('partnerRows').innerHTML='<tr><td colspan="5" class="muted">Conectá el panel administrativo para ver detalle.</td></tr>';$('referralRows').innerHTML='<tr><td colspan="6" class="muted">Conectá el panel administrativo para ver detalle.</td></tr>'};
+$('connectBtn').onclick=async()=>{const v=$('token').value.trim();if(v)sessionStorage.setItem('boltech_partner_token',v);$('token').value='';await loadAdmin();await loadMetrics()};
+$('clearBtn').onclick=()=>{sessionStorage.removeItem('boltech_partner_token');clearMetrics();$('rPartner').innerHTML='<option value="">Conectá el panel para cargar partners</option>';$('adminMessage').textContent='Sesión administrativa limpiada.';$('partnerRows').innerHTML='<tr><td colspan="5" class="muted">Conectá el panel administrativo para ver detalle.</td></tr>';$('referralRows').innerHTML='<tr><td colspan="6" class="muted">Conectá el panel administrativo para ver detalle.</td></tr>'};
 $('addPartnerBtn').onclick=async()=>{try{await api('partner',{method:'POST',body:JSON.stringify({name:$('pName').value,contactEmail:$('pEmail').value,partnerType:$('pType').value,commissionRate:Number($('pRate').value||.2),status:'PROSPECT'})});$('pName').value='';$('pEmail').value='';await loadAdmin();await loadMetrics()}catch(e){alert(e.message)}};
 $('addReferralBtn').onclick=async()=>{try{await api('referral',{method:'POST',body:JSON.stringify({partnerRecordId:$('rPartner').value,serviceType:$('rService').value,budgetUsd:$('rBudget').value,direction:$('rDirection').value,needSummary:$('rNeed').value,clientConsent:$('rConsent').checked,source:'Partner Portal'})});$('rNeed').value='';$('rBudget').value='';$('rConsent').checked=false;await loadAdmin();await loadMetrics()}catch(e){alert(e.message)}};
 loadHealth();loadMetrics();loadAdmin();

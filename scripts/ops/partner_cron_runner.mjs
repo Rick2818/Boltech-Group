@@ -94,7 +94,7 @@ function referralPriority(referral) {
 }
 
 async function runHealth() {
-  const [health, metrics] = await Promise.all([api('health'), api('metrics')]);
+  const [health, metrics] = await Promise.all([api('health-internal', { auth: true }), api('metrics', { auth: true })]);
 
   if (!health.airtableConfigured) throw new Error('Airtable is not configured in production.');
   if (!health.writeAuthConfigured) throw new Error('Partner write authentication is not configured in production.');
@@ -123,7 +123,7 @@ async function runPlanner() {
   const [partnersPayload, referralsPayload, metricsPayload] = await Promise.all([
     api('partners', { auth: true }),
     api('referrals', { auth: true }),
-    api('metrics')
+    api('metrics', { auth: true })
   ]);
 
   const partners = partnersPayload.partners || [];
@@ -202,7 +202,7 @@ async function runCrmSync() {
   const [partnersPayload, referralsPayload, metricsPayload] = await Promise.all([
     api('partners', { auth: true }),
     api('referrals', { auth: true }),
-    api('metrics')
+    api('metrics', { auth: true })
   ]);
 
   const partners = partnersPayload.partners || [];
@@ -261,7 +261,7 @@ async function runReport() {
   const [partnersPayload, referralsPayload, metricsPayload] = await Promise.all([
     api('partners', { auth: true }),
     api('referrals', { auth: true }),
-    api('metrics')
+    api('metrics', { auth: true })
   ]);
 
   const partners = partnersPayload.partners || [];

@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { requireOperationalAuth } from '../lib/operational_auth.js';
 import { checkRateLimit, resolveCorsOrigin } from '../lib/fiduciary_core.js';
 import { resolveProductPricing, getPaymentEnvironment } from '../lib/payment_catalog.js';
 import {
@@ -121,7 +122,7 @@ function applyCors(req, res) {
     res.setHeader('Vary', 'Origin');
   }
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   return true;
 }
 
@@ -140,6 +141,11 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === 'GET' && action === 'readiness') {
+      return json(res, 200, { success: true, status: 'VERIFICATION_REQUIRED', policy: 'PROVIDER_VERIFICATION_REQUIRED' });
+    }
+
+    if (req.method === 'GET' && action === 'readiness-internal') {
+      if (!requireOperationalAuth(req, res)) return;
       return json(res, 200, {
         success: true,
         environment: getPaymentEnvironment(),

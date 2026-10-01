@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { requireOperationalAuth } from '../lib/operational_auth.js';
 import {
   PARTNER_TYPES,
   PARTNER_STATUSES,
@@ -149,9 +150,16 @@ export default async function partnersHandler(req, res) {
 
   try {
     const action = actionFromRequest(req);
+    if (req.method === 'GET' && ['metrics', 'health-internal'].includes(action)) {
+      if (!requireOperationalAuth(req, res)) return;
+    }
     const readiness = getPartnerStoreReadiness();
 
     if (req.method === 'GET' && (action === 'health' || action === '')) {
+      return json(res, 200, { success: true, service: 'Boltech Partner Network', status: 'AVAILABLE' });
+    }
+
+    if (req.method === 'GET' && action === 'health-internal') {
       return json(res, 200, {
         success: true,
         service: 'Boltech Partner Network',
