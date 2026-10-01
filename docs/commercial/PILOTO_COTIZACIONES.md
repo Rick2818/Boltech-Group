@@ -6,7 +6,7 @@ Una empresa, un canal web y un destino de registro autorizado. Recibir necesidad
 
 ## Demo disponible
 
-`/demo-cotizaciones` ofrece un recorrido guiado ES/EN en el navegador. Los datos y la referencia DEMO-001 son demostrativos y se identifican expresamente. No llama a APIs, no persiste en CRM y no acredita inferencia IA, adopción o ejecución externa. Se borran al recargar. El CTA abre un correo de solicitud a ricardo.boltechgroup@gmail.com; el visitante revisa y envía. No se afirma envío automático.
+`/demo-cotizaciones` ofrece un recorrido guiado ES/EN en el navegador. Los datos y la referencia DEMO-001 son demostrativos y se identifican expresamente. No llama a APIs, no persiste en CRM y no acredita inferencia IA, adopción o ejecución externa. Se borran al recargar. El resumen se muestra como texto en pantalla para revisión y copia. El CTA abre un correo de solicitud a ricardo.boltechgroup@gmail.com; el visitante revisa y envía. No se afirma envío automático.
 
 ## Piloto comercial
 
