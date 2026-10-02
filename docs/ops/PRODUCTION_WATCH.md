@@ -27,3 +27,11 @@ PARTNER_API_TOKEN debe estar en GitHub Secrets para diagnóstico interno. No se 
 La revisión horaria de ChatGPT inspecciona GitHub y Vercel y alerta aquí por fallos, falta de ejecuciones o retrasos. Evita duplicar incidencias conocidas. No depende de la laptop ni del scheduler de GitHub y tampoco ofrece SLA de puntualidad. Telegram deep comprueba proveedor/webhook, no una conversación completa; no se afirma un canal de alertas por Telegram probado.
 
 Con un partner aprobado: comprobar aprobación y alcance, registrar evidencia privada, emitir credencial con mínimo privilegio mediante proceso autorizado, configurar secreto seguro y probar autenticación, atribución, consentimiento y reintentos con datos autorizados. Estos pasos quedan pendientes hasta tener aprobación y credencial genuinas. No entregar el token administrativo global al partner.
+
+## Trazabilidad del cron y artefactos (2 de octubre de 2026)
+
+El título de cada nueva ejecución muestra github.event.schedule o el tipo de evento. El resumen y production-health.json guardan trigger.event, schedule, kind, runId y artifactName; solo se admiten los cron conocidos y un ID numérico. Un evento desconocido no se atribuye por proximidad horaria.
+
+El artefacto se llama production-health-<run_id>, contiene production-health.json y se conserva 14 días. La vigilancia independiente debe listar todos los artefactos de la ejecución (sin filtro de nombre), buscar el nombre exacto con ese ID y comprobar expired=false. No buscar únicamente production-health. No declarar ausencia por un error del conector o por una ejecución aún en curso; informar evidencia no disponible y reconsultar antes de alertar. Puede leer trigger en el artefacto para distinguir el cron. Las ejecuciones anteriores a este cambio no permiten atribución retroactiva si sus logs no registraron el activador.
+
+Corrección de la revisión anterior: la ejecución 37008334357 sí publicó production-health-37008334357, ID 11226372451, el 2 de octubre a las 06:43 SV.

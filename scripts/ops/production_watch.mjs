@@ -4,6 +4,14 @@ import { pathToFileURL } from 'node:url';
 const BASE = 'https://boltech-group.vercel.app';
 const REPO = 'Rick2818/Boltech-Group';
 
+export function triggerEvidence(env = {}) {
+  const event = ['schedule', 'push', 'workflow_dispatch'].includes(env.WATCH_EVENT_NAME) ? env.WATCH_EVENT_NAME : 'unknown';
+  const schedule = event === 'schedule' && ['17 * * * *', '30 12 * * 1-5'].includes(env.WATCH_SCHEDULE) ? env.WATCH_SCHEDULE : null;
+  const runId = /^\d+$/.test(env.WATCH_RUN_ID || '') ? env.WATCH_RUN_ID : null;
+  return { event, schedule, kind: event === 'schedule' ? (schedule === '17 * * * *' ? 'hourly' : schedule === '30 12 * * 1-5' ? 'daily' : 'unknown') : event,
+    runId, artifactName: runId ? 'production-health-' + runId : null };
+}
+
 export function classifyPayments(data) {
   if (data?.success !== true || !['production', 'sandbox'].includes(data.environment)) return 'FAILED';
   if (!data.store?.configured || !data.fulfillment?.atomicClaimConfigured) return 'FAILED';
@@ -126,7 +134,7 @@ export async function runWatch({ fetcher = fetch, env = process.env, now = new D
     return { status: findings.length ? 'ATTENTION' : 'PASSED', findings };
   });
   const failed = checks.filter(x => x.status === 'FAILED');
-  return { generatedAt: now.toISOString(), status: failed.length ? 'FAILED' : checks.some(x => ['PENDING', 'ATTENTION'].includes(x.status)) ? 'ATTENTION' : 'PASSED',
+  return { generatedAt: now.toISOString(), trigger: triggerEvidence(env), status: failed.length ? 'FAILED' : checks.some(x => ['PENDING', 'ATTENTION'].includes(x.status)) ? 'ATTENTION' : 'PASSED',
     checks, failedCount: failed.length, scope: 'Read-only diagnostics; no payments, referrals or outbound messages created.' };
 }
 
@@ -134,7 +142,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const report = await runWatch();
   await mkdir('ops-output', { recursive: true });
   await writeFile('ops-output/production-health.json', JSON.stringify(report, null, 2) + '\n');
-  const summary = '# Boltech Production Watch — ' + report.status + '\n\n' + report.checks.map(x => `- ${x.name}: ${x.status}${x.code ? ' (' + x.code + ')' : ''}`).join('\n') + '\n\n' + report.scope + '\n';
+  const summary = '# Boltech Production Watch — ' + report.status + '\n\nTrigger: ' + JSON.stringify(report.trigger) + '\n\n' + report.checks.map(x => `- ${x.name}: ${x.status}${x.code ? ' (' + x.code + ')' : ''}`).join('\n') + '\n\n' + report.scope + '\n';
   console.log(summary);
   if (process.env.GITHUB_STEP_SUMMARY) await appendFile(process.env.GITHUB_STEP_SUMMARY, summary);
   if (report.failedCount) process.exitCode = 1;
