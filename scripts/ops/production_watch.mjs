@@ -106,6 +106,18 @@ export async function runWatch({ fetcher = fetch, env = process.env, now = new D
     const r = await request(BASE + '/api/payments?action=readiness-internal');
     return { status: r.status === 401 && !r.data?.store ? 'PASSED' : 'FAILED', http: r.status };
   });
+  await check('wompi_webhook_method', async () => {
+    const r = await request(BASE + '/api/payments?action=wompi-webhook');
+    return { status: r.status === 405 ? 'PASSED' : 'FAILED', http: r.status };
+  });
+  await check('wompi_webhook_signature', async () => {
+    // Deliberately invalid callback: rejected before any persistent write.
+    const r = await request(BASE + '/api/payments?action=wompi-webhook', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', wompi_hash: '0'.repeat(64) }, body: '{}'
+    });
+    return { status: r.status === 401 && r.data?.code === 'INVALID_WEBHOOK_SIGNATURE' ? 'PASSED' : 'FAILED', http: r.status };
+  });
+  checks.push({ name: 'wompi_payment_end_to_end', status: 'PENDING', code: 'CONTROLLED_PAYMENT_AND_GENUINE_WEBHOOK_REQUIRED' });
   await check('partner_storage', async () => {
     if (!token) return { status: 'FAILED', code: 'ADMIN_MONITOR_CREDENTIAL_MISSING' };
     const [health, metrics] = await Promise.all([
@@ -135,6 +147,13 @@ export async function runWatch({ fetcher = fetch, env = process.env, now = new D
     const findings = scheduleEvidence(r.data.workflow_runs, now);
     return { status: findings.length ? 'ATTENTION' : 'PASSED', findings };
   });
+  const payment = checks.find(x => x.name === 'payments');
+  const connection = payment?.wompiConnection;
+  checks.push({ name: 'wompi_connection', status: connection?.status || 'PENDING', code: connection?.code || 'WOMPI_PROBE_NOT_AVAILABLE' });
+  if (connection?.status === 'PASSED') {
+    checks.push({ name: 'wompi_environment', status: connection.productive === true ? 'PASSED' : 'FAILED',
+      code: connection.productive === true ? 'WOMPI_PRODUCTION_CONFIRMED' : 'WOMPI_PRODUCTION_MODE_REQUIRED' });
+  }
   const failed = checks.filter(x => x.status === 'FAILED');
   return { generatedAt: now.toISOString(), trigger: triggerEvidence(env), status: failed.length ? 'FAILED' : checks.some(x => ['PENDING', 'ATTENTION'].includes(x.status)) ? 'ATTENTION' : 'PASSED',
     checks, failedCount: failed.length, scope: 'Read-only diagnostics; no payments, referrals or outbound messages created.' };

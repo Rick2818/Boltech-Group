@@ -292,3 +292,24 @@ Boltech distinguishes clearly between:
 - **external relationships still awaiting approval**.
 
 A provider is not marked ACTIVE merely because it offers a public affiliate or partner program. Production status requires real evidence and, for technical integrations, verified credentials and an end-to-end test.
+
+## Wompi bidirectional health — 2 October 2026
+
+The Vercel administrative endpoint `GET /api/payments?action=readiness-internal` authenticates with Wompi and reads `GET /Aplicativo`. It returns sanitized connection/productive status and requires the existing administrative bearer token. It never returns credentials, access tokens, business IDs or bank account details.
+
+The GitHub production health workflow checks these Vercel routes hourly and retains `production-health-<run_id>` for 14 days:
+
+| Direction | Automatic check | Meaning |
+|---|---|---|
+| Boltech → Wompi | OAuth + GET /Aplicativo | Credentials accepted and business reachable |
+| Boltech → Wompi | Productive mode | Business is in real-payment mode |
+| Incoming callback boundary | GET webhook returns 405 | Only POST is accepted |
+| Incoming callback boundary | Unsigned/invalid-HMAC callback returns 401 | Rejected before storage, provider calls or reconciliation |
+| Wompi → Boltech genuine callback | PENDING | Requires a genuine controlled transaction |
+| Complete payment, reconciliation and fulfillment | PENDING | Requires amount/environment verification, real callback, duplicate handling and final delivery evidence |
+
+Negative callback probes do not originate from Wompi and do not prove genuine webhook delivery. They do not create payment records. CI also validates HMAC tampering and rejection before external access. Invalid unauthenticated callbacks are now rejected at the API boundary; signed callbacks retain the reconciliation/audit process.
+
+Confirmed on 2 October at 09:08 SV: Wompi authentication and business query PASSED, `estaProductivo=true`. This is not evidence of a completed payment or bank settlement. No health check creates links, charges, refunds or signed synthetic successful payments.
+
+Official references: https://docs.wompi.sv/metodos-api/datos-aplicativo and https://docs.wompi.sv/webhook/validar-webhook.
