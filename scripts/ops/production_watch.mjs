@@ -15,6 +15,7 @@ export function triggerEvidence(env = {}) {
 export function classifyPayments(data) {
   if (data?.success !== true || !['production', 'sandbox'].includes(data.environment)) return 'FAILED';
   if (!data.store?.configured || !data.fulfillment?.atomicClaimConfigured) return 'FAILED';
+  if (data.wompiConnection?.status === 'FAILED') return 'FAILED';
   // Configured credentials never establish a successful payment or bank activation.
   return 'PROVIDER_VERIFICATION_PENDING';
 }
@@ -119,7 +120,8 @@ export async function runWatch({ fetcher = fetch, env = process.env, now = new D
     const r = await request(BASE + '/api/payments?action=readiness-internal', { headers: adminHeaders });
     const state = classifyPayments(r.data);
     return { status: r.status !== 200 || state === 'FAILED' ? 'FAILED' : 'PENDING', code: state,
-      wompiConfigured: r.data?.wompi?.configured === true, strikeConfigured: r.data?.strike?.configured === true,
+      wompiConfigured: r.data?.wompi?.configured === true,
+      wompiConnection: r.data?.wompiConnection || { status: 'PENDING', code: 'WOMPI_PROBE_NOT_AVAILABLE' }, strikeConfigured: r.data?.strike?.configured === true,
       strikeWebhookConfigured: r.data?.strike?.webhookConfigured === true };
   });
   await check('schedule_freshness', async () => {
