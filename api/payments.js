@@ -13,6 +13,7 @@ import {
   createWompiPaymentLink,
   createStrikeInvoiceAndQuote,
   getWompiReadiness,
+  checkWompiConnection,
   getStrikeReadiness
 } from '../lib/payment_providers.js';
 import {
@@ -152,6 +153,7 @@ export default async function handler(req, res) {
         store: getPaymentStoreReadiness(),
         fulfillment: getFulfillmentReadiness(),
         wompi: getWompiReadiness(),
+        wompiConnection: await checkWompiConnection(),
         strike: getStrikeReadiness(),
         policy: 'PROVIDER_VERIFICATION_REQUIRED'
       });
