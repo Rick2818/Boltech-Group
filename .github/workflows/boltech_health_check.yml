@@ -66,7 +66,7 @@ jobs:
                   headers: { Authorization: 'Bearer ' + process.env.PARTNER_API_TOKEN }, signal: AbortSignal.timeout(15000)
                 });
                 const data = await diagnostic.json();
-                if (diagnostic.status === 200 && typeof data.wompiConnection?.status === 'string') { ready = true; break; }
+                if (diagnostic.status === 200 && data.wompiHealthContractVersion === 2) { ready = true; break; }
               }
             } catch {}
             await new Promise(resolve => setTimeout(resolve, 20000));

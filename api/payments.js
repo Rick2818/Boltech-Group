@@ -14,6 +14,7 @@ import {
   createStrikeInvoiceAndQuote,
   getWompiReadiness,
   checkWompiConnection,
+  verifyWompiWebhookSignature,
   getStrikeReadiness
 } from '../lib/payment_providers.js';
 import {
@@ -154,6 +155,7 @@ export default async function handler(req, res) {
         fulfillment: getFulfillmentReadiness(),
         wompi: getWompiReadiness(),
         wompiConnection: await checkWompiConnection(),
+        wompiHealthContractVersion: 2,
         strike: getStrikeReadiness(),
         policy: 'PROVIDER_VERIFICATION_REQUIRED'
       });
@@ -182,6 +184,10 @@ export default async function handler(req, res) {
 
     if (action === 'wompi-webhook') {
       const signature = clean(req.headers?.wompi_hash || req.headers?.Wompi_Hash || '', 200);
+      // Reject unauthenticated callbacks before storage or reconciliation.
+      if (!verifyWompiWebhookSignature(rawBody, signature)) {
+        return json(res, 401, { success: false, code: 'INVALID_WEBHOOK_SIGNATURE', error: 'Invalid Wompi webhook signature.' });
+      }
       const result = await reconcileWompiWebhook({ rawBody, signature });
       return json(res, 200, { success: true, ...result });
     }

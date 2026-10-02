@@ -35,3 +35,9 @@ El título de cada nueva ejecución muestra github.event.schedule o el tipo de e
 El artefacto se llama production-health-<run_id>, contiene production-health.json y se conserva 14 días. La vigilancia independiente debe listar todos los artefactos de la ejecución (sin filtro de nombre), buscar el nombre exacto con ese ID y comprobar expired=false. No buscar únicamente production-health. No declarar ausencia por un error del conector o por una ejecución aún en curso; informar evidencia no disponible y reconsultar antes de alertar. Puede leer trigger en el artefacto para distinguir el cron. Las ejecuciones anteriores a este cambio no permiten atribución retroactiva si sus logs no registraron el activador.
 
 Corrección de la revisión anterior: la ejecución 37008334357 sí publicó production-health-37008334357, ID 11226372451, el 2 de octubre a las 06:43 SV.
+
+## Salud Wompi en ambos sentidos
+
+Readiness interno ejecuta OAuth y GET /Aplicativo desde Vercel y devuelve solo wompiConnection y wompiHealthContractVersion=2. La vigilancia comprueba conexión y modo productivo, GET del webhook rechazado con 405 y POST con firma deliberadamente inválida rechazado con 401 antes de almacenamiento. Estas pruebas negativas vienen del monitor, no de Wompi; no prueban recepción de un callback genuino. Los webhooks sin autenticación se rechazan en la frontera de API; los firmados conservan su conciliación y trazabilidad.
+
+Los checks wompi_connection, wompi_environment, wompi_webhook_method y wompi_webhook_signature tienen estado propio. wompi_payment_end_to_end conserva PENDING hasta prueba controlada con un webhook real, importe y ambiente correctos, conciliación, duplicados y entrega. No confundir entorno productivo con cobro/abono bancario verificado. No se crean enlaces, cargos ni eventos persistentes con las sondas negativas.

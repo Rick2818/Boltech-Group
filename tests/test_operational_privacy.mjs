@@ -1,8 +1,9 @@
 import test from 'node:test';
+import crypto from 'node:crypto';
 import assert from 'node:assert/strict';
 import partners from '../api/partners.js';
 import payments from '../api/payments.js';
-import {checkWompiConnection} from '../lib/payment_providers.js';
+import {checkWompiConnection,verifyWompiWebhookSignature} from '../lib/payment_providers.js';
 
 const response = () => ({ headers: {}, setHeader(k,v){this.headers[k]=v;}, status(n){this.statusCode=n;return this;}, json(v){this.body=v;return this;} });
 const request = (url, token='') => ({ method:'GET', url, headers:{host:'boltech-group.vercel.app',...(token?{authorization:'Bearer '+token}:{})}, socket:{remoteAddress:'privacy-test'} });
@@ -68,4 +69,29 @@ test('Wompi probe authenticates, checks business mode and sanitizes provider res
   assert.ok(calls.every(x=>x.url.endsWith('/connect/token')||x.url.endsWith('/Aplicativo')));
   globalThis.fetch=async()=>Response.json({idAplicativo:'private-id'});
   assert.equal((await checkWompiConnection()).code,'WOMPI_BUSINESS_RESPONSE_INVALID');
+});
+
+test('Wompi HMAC detects altered payloads and invalid signatures', t=>{
+  const keys=['WOMPI_APP_ID','WOMPI_API_SECRET'];const old=Object.fromEntries(keys.map(k=>[k,process.env[k]]));
+  t.after(()=>{for(const[k,v]of Object.entries(old)){if(v===undefined)delete process.env[k];else process.env[k]=v;}});
+  process.env.WOMPI_APP_ID='test-id';process.env.WOMPI_API_SECRET='local-test-secret';
+  const body='{"Monto":495}';const signature=crypto.createHmac('sha256','local-test-secret').update(body).digest('hex');
+  assert.equal(verifyWompiWebhookSignature(body,signature),true);
+  assert.equal(verifyWompiWebhookSignature('{"Monto":1}',signature),false);
+  assert.equal(verifyWompiWebhookSignature(body,''),false);
+  assert.equal(verifyWompiWebhookSignature(body,'invalid'),false);
+});
+test('invalid webhook requests reject before storage or provider access', async t=>{
+  const old=Object.fromEntries(['WOMPI_APP_ID','WOMPI_API_SECRET'].map(k=>[k,process.env[k]]));
+  const original=globalThis.fetch;let calls=0;
+  t.after(()=>{globalThis.fetch=original;for(const[k,v]of Object.entries(old)){if(v===undefined)delete process.env[k];else process.env[k]=v;}});
+  process.env.WOMPI_APP_ID='test-id';process.env.WOMPI_API_SECRET='local-test-secret';
+  globalThis.fetch=async()=>{calls++;throw new Error('no external calls allowed');};
+  for(const signature of ['', '0'.repeat(64)]){
+    const req={method:'POST',url:'/api/payments?action=wompi-webhook',headers:{host:'boltech-group.vercel.app',wompi_hash:signature},
+      socket:{remoteAddress:'webhook-health-test'},async *[Symbol.asyncIterator](){yield '{}';}};
+    const res=response();await payments(req,res);assert.equal(res.statusCode,401);assert.equal(res.body.code,'INVALID_WEBHOOK_SIGNATURE');
+  }
+  const res=response();await payments(request('/api/payments?action=wompi-webhook'),res);assert.equal(res.statusCode,405);
+  assert.equal(calls,0);
 });
