@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {classifyPayments,scheduleEvidence,runWatch} from '../scripts/ops/production_watch.mjs';
+import {classifyPayments,scheduleEvidence,runWatch,triggerEvidence} from '../scripts/ops/production_watch.mjs';
 
 test('configured payments remain pending verification, missing storage is failure',()=>{
   assert.equal(classifyPayments({success:true,environment:'production',store:{configured:true},fulfillment:{atomicClaimConfigured:true},wompi:{configured:true},strike:{configured:true}}),'PROVIDER_VERIFICATION_PENDING');
@@ -27,4 +27,19 @@ test('monitor fails on HTTP-200 Telegram degradation and leaked financial data',
   assert.equal(r.status,'FAILED');assert.equal(r.checks.find(x=>x.name==='telegram_deep').status,'FAILED');assert.equal(r.checks.find(x=>x.name==='private_metrics_boundary').status,'FAILED');
   assert.equal(r.checks.find(x=>x.name==='a2a_authenticated').status,'PENDING');
   assert.doesNotMatch(JSON.stringify(r),/pipelineUsd|3000/);
+});
+
+test('trigger distinguishes schedules and records exact artifact name',()=>{
+  assert.deepEqual(triggerEvidence({WATCH_EVENT_NAME:'schedule',WATCH_SCHEDULE:'17 * * * *',WATCH_RUN_ID:'37008334357'}),{
+    event:'schedule',schedule:'17 * * * *',kind:'hourly',runId:'37008334357',artifactName:'production-health-37008334357'
+  });
+  assert.equal(triggerEvidence({WATCH_EVENT_NAME:'schedule',WATCH_SCHEDULE:'30 12 * * 1-5'}).kind,'daily');
+  assert.equal(triggerEvidence({WATCH_EVENT_NAME:'push',WATCH_SCHEDULE:'17 * * * *'}).schedule,null);
+  assert.equal(triggerEvidence({WATCH_EVENT_NAME:'workflow_dispatch'}).kind,'workflow_dispatch');
+});
+test('unknown trigger values remain unknown without disclosing arbitrary values',()=>{
+  const result=triggerEvidence({WATCH_EVENT_NAME:'secret-value',WATCH_SCHEDULE:'secret-value',WATCH_RUN_ID:'secret-value'});
+  assert.equal(result.kind,'unknown');assert.equal(result.artifactName,null);
+  assert.doesNotMatch(JSON.stringify(result),/secret-value/);
+  assert.equal(triggerEvidence({WATCH_EVENT_NAME:'schedule',WATCH_SCHEDULE:'old cron'}).kind,'unknown');
 });
