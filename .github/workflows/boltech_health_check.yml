@@ -5,6 +5,7 @@ on:
   schedule:
     - cron: '30 12 * * 1-5'
     - cron: '17 * * * *'
+    - cron: '47 * * * *'
   push:
     branches: [main]
     paths:
@@ -25,7 +26,7 @@ permissions:
   actions: read
 
 concurrency:
-  group: production-watch-${{ github.ref }}
+  group: production-watch-${{ github.ref }}-${{ github.event_name == 'pull_request' && 'validation' || 'monitor' }}
   cancel-in-progress: false
 
 jobs:
