@@ -15,6 +15,7 @@ on:
       - 'api/partners.js'
       - 'api/payments.js'
       - 'lib/operational_auth.js'
+      - 'lib/payment_providers.js'
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -52,13 +53,21 @@ jobs:
           node-version: '22'
       - name: Wait for privacy deployment on main pushes
         if: github.event_name == 'push'
+        env:
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
         run: |
           node --input-type=module <<'JS'
           let ready = false;
           for (let attempt = 0; attempt < 10; attempt++) {
             try {
               const response = await fetch('https://boltech-group.vercel.app/api/partners?action=metrics', { signal: AbortSignal.timeout(10000) });
-              if (response.status === 401) { ready = true; break; }
+              if (response.status === 401) {
+                const diagnostic = await fetch('https://boltech-group.vercel.app/api/payments?action=readiness-internal', {
+                  headers: { Authorization: 'Bearer ' + process.env.PARTNER_API_TOKEN }, signal: AbortSignal.timeout(15000)
+                });
+                const data = await diagnostic.json();
+                if (diagnostic.status === 200 && typeof data.wompiConnection?.status === 'string') { ready = true; break; }
+              }
             } catch {}
             await new Promise(resolve => setTimeout(resolve, 20000));
           }

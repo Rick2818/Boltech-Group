@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import partners from '../api/partners.js';
 import payments from '../api/payments.js';
+import {checkWompiConnection} from '../lib/payment_providers.js';
 
 const response = () => ({ headers: {}, setHeader(k,v){this.headers[k]=v;}, status(n){this.statusCode=n;return this;}, json(v){this.body=v;return this;} });
 const request = (url, token='') => ({ method:'GET', url, headers:{host:'boltech-group.vercel.app',...(token?{authorization:'Bearer '+token}:{})}, socket:{remoteAddress:'privacy-test'} });
@@ -37,4 +38,34 @@ test('unconfigured administrative authentication fails closed',async t=>{
   const old=Object.fromEntries(['PARTNER_API_TOKEN','COCKPIT_ACCESS_TOKEN'].map(k=>[k,process.env[k]]));delete process.env.PARTNER_API_TOKEN;delete process.env.COCKPIT_ACCESS_TOKEN;
   t.after(()=>{for(const [k,v] of Object.entries(old)){if(v===undefined)delete process.env[k];else process.env[k]=v;}});
   for(const [handler,url] of [[partners,'/api/partners?action=metrics'],[payments,'/api/payments?action=readiness-internal']]){const r=response();await handler(request(url),r);assert.equal(r.statusCode,503);}
+});
+
+test('Wompi probe authenticates, checks business mode and sanitizes provider responses', async t=>{
+  const old=Object.fromEntries(['WOMPI_APP_ID','WOMPI_API_SECRET','PAYMENT_ENV'].map(k=>[k,process.env[k]]));
+  const originalFetch=globalThis.fetch;
+  t.after(()=>{globalThis.fetch=originalFetch;for(const[k,v]of Object.entries(old)){if(v===undefined)delete process.env[k];else process.env[k]=v;}});
+  delete process.env.WOMPI_APP_ID;delete process.env.WOMPI_API_SECRET;process.env.PAYMENT_ENV='production';
+  globalThis.fetch=async()=>{throw new Error('must not call provider without credentials');};
+  assert.equal((await checkWompiConnection()).code,'WOMPI_CREDENTIALS_MISSING');
+  process.env.WOMPI_APP_ID='test-id';process.env.WOMPI_API_SECRET='test-secret';
+  globalThis.fetch=async()=>Response.json({error_description:'sensitive provider response'},{status:401});
+  const denied=await checkWompiConnection();
+  assert.equal(denied.code,'WOMPI_AUTHENTICATION_FAILED');assert.equal(denied.providerHttp,401);
+  assert.doesNotMatch(JSON.stringify(denied),/sensitive|test-secret/);
+  let productive=false;const calls=[];
+  globalThis.fetch=async(url,options)=>{
+    calls.push({url,method:options.method});
+    if(url.endsWith('/connect/token')){
+      assert.equal(new URLSearchParams(options.body).get('audience'),'wompi_api');
+      return Response.json({access_token:'private-test-token',expires_in:3600});
+    }
+    assert.equal(url,'https://api.wompi.sv/Aplicativo');assert.equal(options.method,'GET');
+    return Response.json({estaProductivo:productive,idAplicativo:'private-business-id',numeroCuenta:'private-account'});
+  };
+  const trial=await checkWompiConnection();assert.equal(trial.status,'PASSED');assert.equal(trial.productive,false);
+  productive=true;const real=await checkWompiConnection();assert.equal(real.code,'WOMPI_CONNECTED_PRODUCTION');
+  assert.doesNotMatch(JSON.stringify(real),/private-|test-secret/);
+  assert.ok(calls.every(x=>x.url.endsWith('/connect/token')||x.url.endsWith('/Aplicativo')));
+  globalThis.fetch=async()=>Response.json({idAplicativo:'private-id'});
+  assert.equal((await checkWompiConnection()).code,'WOMPI_BUSINESS_RESPONSE_INVALID');
 });
