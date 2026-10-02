@@ -43,3 +43,25 @@ test('unknown trigger values remain unknown without disclosing arbitrary values'
   assert.doesNotMatch(JSON.stringify(result),/secret-value/);
   assert.equal(triggerEvidence({WATCH_EVENT_NAME:'schedule',WATCH_SCHEDULE:'old cron'}).kind,'unknown');
 });
+
+test('backup cron is attributed as hourly',()=>{
+  assert.equal(triggerEvidence({WATCH_EVENT_NAME:'schedule',WATCH_SCHEDULE:'47 * * * *'}).kind,'hourly');
+});
+test('queued run cannot hide stale successful coverage',()=>{
+  const path='.github/workflows/boltech_health_check.yml';
+  const findings=scheduleEvidence([
+    {path,event:'schedule',created_at:'2026-10-03T12:17:00Z',status:'completed',conclusion:'success'},
+    {path,event:'schedule',created_at:'2026-10-03T15:17:00Z',status:'queued'}
+  ],new Date('2026-10-03T15:25:00Z'));
+  assert.ok(findings.some(x=>x.code==='HOURLY_HEALTH_STALE'));
+});
+test('fresh completed backup provides coverage while failures remain visible',()=>{
+  const path='.github/workflows/boltech_health_check.yml';
+  const runs=[
+    {path,event:'schedule',created_at:'2026-10-03T15:00:00Z',updated_at:'2026-10-03T15:01:00Z',status:'completed',conclusion:'success'},
+    {path,event:'schedule',created_at:'2026-10-03T15:17:00Z',status:'completed',conclusion:'failure'}
+  ];
+  const findings=scheduleEvidence(runs,new Date('2026-10-03T15:25:00Z'));
+  assert.ok(!findings.some(x=>x.code==='HOURLY_HEALTH_STALE'));
+  assert.ok(findings.some(x=>x.code==='LATEST_HEALTH_FAILED'));
+});
