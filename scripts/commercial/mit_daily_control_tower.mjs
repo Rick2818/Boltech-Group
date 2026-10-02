@@ -1,4 +1,5 @@
 import { mkdir, writeFile } from 'node:fs/promises';
+import { CAMPAIGN_ID, normalizeCampaign, decideTraction } from './traction_cycle.mjs';
 import { evaluateCommercialProgress, buildMitAgenda } from './zero_to_first_sale.mjs';
 
 const APOLLO_API_KEY = (process.env.APOLLO_API_KEY || '').trim();
@@ -83,6 +84,23 @@ async function checkApollo() {
   }
 }
 
+async function checkCampaign() {
+  report.apollo.campaign = { status: 'unavailable', note: 'APOLLO_API_KEY ausente.' };
+  if (!APOLLO_API_KEY) return;
+  try {
+    const r = await jsonFetch('https://api.apollo.io/api/v1/emailer_campaigns/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Api-Key': APOLLO_API_KEY },
+      body: JSON.stringify({ q_name: 'Boltech | Customer Requests | Oct 2026 | EN', page: 1, per_page: 10 })
+    });
+    report.apollo.campaign = r.ok ? normalizeCampaign(r.data, CAMPAIGN_ID)
+      : { status: 'unavailable', note: 'Apollo campaign HTTP ' + r.status };
+  } catch {
+    report.apollo.campaign = { status: 'unavailable', note: 'Fallo de lectura de campaña.' };
+  }
+  report.apollo.campaign.observedAt = new Date().toISOString();
+}
+
 async function checkCommercial() {
   if (!PARTNER_API_TOKEN) {
     report.commercial.note = 'PARTNER_API_TOKEN no está configurado en GitHub Secrets.';
@@ -119,18 +137,21 @@ function buildMessage() {
     `💵 Cobros verificados en checkout de producción: ${progress.cashCollectedUsd === null ? 'N/D' : '$' + progress.cashCollectedUsd.toFixed(2)}`,
     `📄 Órdenes pagadas verificadas: ${progress.paidOrders ?? 'N/D'}`,
     `🏢 Empresas en investigación RSI-01: ${progress.cohort?.stageCounts?.Researching ?? 'N/D'}`,
-    `🗣️ Respuestas / reuniones / propuestas: N/D (sin fuente integrada)`,
+    `✉️ Campaña: entregados ${report.apollo.campaign?.delivered ?? 'N/D'} | respuestas ${report.apollo.campaign?.replied ?? 'N/D'} | rebotes ${report.apollo.campaign?.bounced ?? 'N/D'}`,
+    `Aperturas: ${report.apollo.campaign?.opens ?? 'N/D (sin seguimiento verificable)'}`,
+    `RSI tracción: ${report.commercial.traction.action} — ${report.commercial.traction.next}`,
+    'Diagnósticos y propuestas: N/D hasta evidencia; coordinación exclusivamente por email.',
     '',
     `Bloqueo principal — ${progress.focus}`,
     'PLAN MIT + RSI-01 · Hora de El Salvador',
     ...agenda.map(item => `${item.at} | ${item.owner}: ${item.action} Evidencia: ${item.evidence}.`),
     '',
-    'Ricardo: decisiones, reuniones y precios. Boltech: medición, clasificación y preparación. Explee/Apollo: fuentes solo si están configuradas.',
+    'Ricardo: decisiones y precios por email. Boltech: medición, clasificación y preparación. Explee/Apollo: fuentes solo si están configuradas.',
     'Inventario y presupuestos no equivalen a dinero cobrado.'
   ].join('\n');
 }
 
-await Promise.all([checkBoltech(), checkExplee(), checkApollo(), checkCommercial()]);
+await Promise.all([checkBoltech(), checkExplee(), checkApollo(), checkCampaign(), checkCommercial()]);
 report.commercial.progress = evaluateCommercialProgress({
   verifiedSales: report.commercial.metrics?.verifiedSales,
   referrals: report.commercial.metrics?.referrals,
@@ -138,6 +159,7 @@ report.commercial.progress = evaluateCommercialProgress({
   hotLeads: report.explee.hotLeads,
   savedContacts: report.apollo.savedContacts
 });
+report.commercial.traction = decideTraction(report.apollo.campaign);
 report.commercial.agenda = buildMitAgenda(report.commercial.progress);
 const message = buildMessage();
 console.log(message);
