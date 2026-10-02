@@ -6,9 +6,9 @@ const REPO = 'Rick2818/Boltech-Group';
 
 export function triggerEvidence(env = {}) {
   const event = ['schedule', 'push', 'workflow_dispatch'].includes(env.WATCH_EVENT_NAME) ? env.WATCH_EVENT_NAME : 'unknown';
-  const schedule = event === 'schedule' && ['17 * * * *', '30 12 * * 1-5'].includes(env.WATCH_SCHEDULE) ? env.WATCH_SCHEDULE : null;
+  const schedule = event === 'schedule' && ['17 * * * *', '47 * * * *', '30 12 * * 1-5'].includes(env.WATCH_SCHEDULE) ? env.WATCH_SCHEDULE : null;
   const runId = /^\d+$/.test(env.WATCH_RUN_ID || '') ? env.WATCH_RUN_ID : null;
-  return { event, schedule, kind: event === 'schedule' ? (schedule === '17 * * * *' ? 'hourly' : schedule === '30 12 * * 1-5' ? 'daily' : 'unknown') : event,
+  return { event, schedule, kind: event === 'schedule' ? (['17 * * * *', '47 * * * *'].includes(schedule) ? 'hourly' : schedule === '30 12 * * 1-5' ? 'daily' : 'unknown') : event,
     runId, artifactName: runId ? 'production-health-' + runId : null };
 }
 
@@ -49,10 +49,14 @@ export function scheduleEvidence(runs, now = new Date()) {
       if (first.status === 'completed' && first.conclusion !== 'success') findings.push({ path, code: 'FAILED_EXECUTION' });
     }
   }
-  const health = runs.filter(r => r.path === '.github/workflows/boltech_health_check.yml' && r.event === 'schedule')
+  // Queued/running work does not establish completed monitoring coverage.
+  const scheduled = runs.filter(r => r.path === '.github/workflows/boltech_health_check.yml' && r.event === 'schedule');
+  const latest = [...scheduled].sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
+  if (latest?.status === 'completed' && latest.conclusion !== 'success') findings.push({ code: 'LATEST_HEALTH_FAILED' });
+  const health = scheduled.filter(r => r.status === 'completed' && r.conclusion === 'success')
     .sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
-  if (!health || now - new Date(health.created_at) > 150 * 60000) findings.push({ code: 'HOURLY_HEALTH_STALE' });
-  else if (health.status === 'completed' && health.conclusion !== 'success') findings.push({ code: 'LATEST_HEALTH_FAILED' });
+  if (!health || now - new Date(health.updated_at || health.created_at) > 150 * 60000) findings.push({ code: 'HOURLY_HEALTH_STALE' });
+
   return findings;
 }
 
@@ -144,7 +148,22 @@ export async function runWatch({ fetcher = fetch, env = process.env, now = new D
       headers: { Authorization: `Bearer ${githubToken}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }
     });
     if (r.status !== 200 || !Array.isArray(r.data?.workflow_runs)) return { status: 'FAILED', code: 'SCHEDULE_HISTORY_UNAVAILABLE' };
-    const findings = scheduleEvidence(r.data.workflow_runs, now);
+    const runs = [...r.data.workflow_runs];
+    // Never report complete history when the first page was truncated.
+    const total = r.data.total_count;
+    if (Number.isFinite(total) && total > runs.length) {
+      for (let page = 2; runs.length < total && page <= 10; page++) {
+        const next = await request(`https://api.github.com/repos/${REPO}/actions/runs?created=%3E%3D${encodeURIComponent(since)}&per_page=100&page=${page}`, {
+          headers: { Authorization: `Bearer ${githubToken}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }
+        });
+        if (next.status !== 200 || !Array.isArray(next.data?.workflow_runs) || !next.data.workflow_runs.length) {
+          return { status: 'FAILED', code: 'SCHEDULE_HISTORY_INCOMPLETE' };
+        }
+        runs.push(...next.data.workflow_runs);
+      }
+      if (runs.length < total) return { status: 'FAILED', code: 'SCHEDULE_HISTORY_INCOMPLETE' };
+    }
+    const findings = scheduleEvidence(runs, now);
     return { status: findings.length ? 'ATTENTION' : 'PASSED', findings };
   });
   const payment = checks.find(x => x.name === 'payments');
