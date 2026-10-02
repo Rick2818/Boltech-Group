@@ -1,4 +1,5 @@
 name: Boltech Production Health Watch
+run-name: "Production health | ${{ github.event.schedule || github.event_name }}"
 
 on:
   schedule:
@@ -65,6 +66,9 @@ jobs:
           JS
       - name: Check production and execution history
         env:
+          WATCH_EVENT_NAME: ${{ github.event_name }}
+          WATCH_SCHEDULE: ${{ github.event.schedule }}
+          WATCH_RUN_ID: ${{ github.run_id }}
           GITHUB_TOKEN: ${{ github.token }}
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
           A2A_MONITOR_TOKEN: ${{ secrets.A2A_MONITOR_TOKEN }}
