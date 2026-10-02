@@ -1,0 +1,11 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { CAMPAIGN_ID, normalizeCampaign, decideTraction } from '../scripts/commercial/traction_cycle.mjs';
+const campaign = overrides => normalizeCampaign({emailer_campaigns:[{id:CAMPAIGN_ID,unique_delivered:25,unique_replied:0,unique_bounced:0,unique_delivered_open_tracked:0,unique_opened:0,...overrides}]});
+test('untracked opens are unknown; observed zero replies is retained',()=>{const c=campaign();assert.equal(c.opens,null);assert.equal(c.replied,0);});
+test('wrong or missing campaign never becomes zero',()=>assert.equal(normalizeCampaign({emailer_campaigns:[]}).status,'unavailable'));
+test('real replies take priority over delivery and trigger email diagnosis',()=>{const d=decideTraction(campaign({unique_replied:1,unique_bounced:2}));assert.equal(d.action,'QUALIFY_REPLIES');assert.match(d.next,/email/);});
+test('early silence does not duplicate scheduled outreach',()=>assert.equal(decideTraction(campaign(),new Date('2026-10-02T22:00:00Z')).action,'WAIT_FOR_SCHEDULED_FOLLOWUP'));
+test('missing counters require measurement rather than false silence',()=>assert.equal(decideTraction(campaign({unique_replied:undefined})).action,'RESTORE_MEASUREMENT'));
+test('bounce triggers delivery review',()=>assert.equal(decideTraction(campaign({unique_bounced:1})).action,'REVIEW_DELIVERY'));
+test('tracked opens remain distinct from replies',()=>{const c=campaign({unique_delivered_open_tracked:25,unique_opened:3});assert.equal(c.opens,3);assert.equal(c.replied,0);});
