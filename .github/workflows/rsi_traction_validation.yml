@@ -1,0 +1,19 @@
+name: RSI Traction Validation
+on:
+  pull_request:
+    paths:
+      - 'scripts/commercial/**'
+      - 'tests/test_traction_cycle.mjs'
+      - '.github/workflows/rsi_traction_validation.yml'
+permissions:
+  contents: read
+jobs:
+  traction:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/test_traction_cycle.mjs
+      - run: node --check scripts/commercial/mit_daily_control_tower.mjs

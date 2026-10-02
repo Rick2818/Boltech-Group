@@ -16,7 +16,7 @@ export function evaluateCommercialProgress({ verifiedSales = null, hotLeads = nu
     hypothesis = 'La repetición del canal que ya cobró puede generar una segunda venta verificable.';
   } else if (typeof hotLeads === 'number' && hotLeads > 0) {
     focus = 'Calificar los hot leads reales de Explee y preparar respuesta individual para los que encajen con el ICP.';
-    hypothesis = 'Responder primero a interés observado acortará el camino a una reunión y propuesta.';
+    hypothesis = 'Responder primero a interés observado acortará el camino a un diagnóstico por email y propuesta.';
   } else if (cohort?.stageCounts?.Researching > 0) {
     focus = `Validar el decisor y confirmar la necesidad en las ${cohort.stageCounts.Researching} empresas investigadas de ${cohort.cohort}; no asumir que el formulario de cotización prueba demora.`;
     hypothesis = 'Confirmar decisor y necesidad permitirá pasar de empresas reales a prospectos calificados.';
@@ -58,7 +58,7 @@ export function buildMitAgenda(progress) {
     { at: '09:15', owner: 'Boltech', action: morningFocus, evidence: 'Fuente, decisor y problema confirmado por empresa' },
     { at: '10:00', owner: 'Ricardo', action: 'Revisar oferta piloto y los cinco mensajes preparados; decidir cuáles cuentas y canales se autorizan.', evidence: 'Decisión sobre cada cuenta' },
     { at: '11:00', owner: 'Ricardo + Boltech', action: 'Preparar el contacto individual solo para cuentas aprobadas; registrar envíos genuinos y no activar campañas pagadas.', evidence: 'ID o aceptación real del proveedor si se envía' },
-    { at: '15:00', owner: 'Boltech', action: 'Clasificar respuestas verificadas, proponer reunión y actualizar etapa con evidencia.', evidence: 'Respuesta y siguiente paso fechado' },
+    { at: '15:00', owner: 'Boltech', action: 'Clasificar respuestas verificadas, realizar diagnóstico exclusivamente por email y actualizar etapa con evidencia.', evidence: 'Respuesta y siguiente paso fechado' },
     { at: '17:30', owner: 'Boltech + Ricardo', action: 'Comparar etapas y cobros; escoger una variable para la siguiente iteración.', evidence: 'Antes, después, decisión y referencia de pago si existe' },
   ];
 }
