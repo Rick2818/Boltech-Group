@@ -7,6 +7,8 @@ on:
       - '.github/workflows/mit_commercial_9am.yml'
       - 'scripts/commercial/mit_daily_control_tower.mjs'
       - 'scripts/commercial/zero_to_first_sale.mjs'
+      - 'scripts/commercial/traction_cycle.mjs'
+      - 'tests/test_traction_cycle.mjs'
   schedule:
     # El Salvador is UTC-6 year-round. 15:00 UTC = 09:00 America/El_Salvador.
     - cron: '0 15 * * *'
@@ -27,6 +29,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+
+      - name: Validate traction decisions
+        run: node --test tests/test_traction_cycle.mjs
 
       - name: Run MIT plus RSI-01 commercial control tower
         env:
