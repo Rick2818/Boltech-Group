@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { CAMPAIGN_ID, normalizeCampaign, decideTraction } from './traction_cycle.mjs';
 import { evaluateCommercialProgress, buildMitAgenda } from './zero_to_first_sale.mjs';
-import { decideStrategyActions } from '../../lib/commercial_strategy.js';
+import { decideStrategyActions, buildRsiArchitecture, AUDIT_CAMPAIGN } from '../../lib/commercial_strategy.js';
 
 const APOLLO_API_KEY = (process.env.APOLLO_API_KEY || '').trim();
 const EXPLEE_API_KEY = (process.env.EXPLEE_API_KEY || '').trim();
@@ -102,6 +102,23 @@ async function checkCampaign() {
   report.apollo.campaign.observedAt = new Date().toISOString();
 }
 
+async function checkAuditCampaign() {
+  report.apollo.auditCampaign = { status: 'unavailable', active: null, note: 'APOLLO_API_KEY ausente.' };
+  if (!APOLLO_API_KEY) return;
+  try {
+    const r = await jsonFetch('https://api.apollo.io/api/v1/emailer_campaigns/search', {
+      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Api-Key': APOLLO_API_KEY },
+      body: JSON.stringify({ q_name: AUDIT_CAMPAIGN.name, page: 1, per_page: 10 })
+    });
+    const row = r.data?.emailer_campaigns?.find(item => item.id === AUDIT_CAMPAIGN.id);
+    report.apollo.auditCampaign = r.ok ? { ...normalizeCampaign(r.data, AUDIT_CAMPAIGN.id),
+      active: typeof row?.active === 'boolean' ? row.active : null }
+      : { status: 'unavailable', active: null, note: 'Apollo audit campaign HTTP ' + r.status };
+  } catch {
+    report.apollo.auditCampaign = { status: 'unavailable', active: null, note: 'Fallo de lectura de campaña de auditoría.' };
+  }
+}
+
 async function checkCommercial() {
   if (!PARTNER_API_TOKEN) {
     report.commercial.note = 'PARTNER_API_TOKEN no está configurado en GitHub Secrets.';
@@ -145,6 +162,8 @@ function buildMessage() {
     '',
     `Bloqueo principal — ${progress.focus}`,
     'PLAN MIT + RSI-01/02/03 · Hora de El Salvador',
+    ...report.commercial.architecture.controllers.map(item => `${item.id} | ${item.role} | ${item.state}`),
+    'Ciclo: observar → decidir → acción autorizada → medir → conservar/ajustar.',
     ...report.commercial.strategyActions.map(item => `${item.rsi}: ${item.action}`),
     `A2A socios habilitados: ${report.commercial.metrics?.a2a?.enabledPartners ?? 'N/D'} | referidos genuinos: ${report.commercial.metrics?.a2a?.referrals ?? 'N/D'}`,
     `Costos ${report.commercial.metrics?.operatingCosts?.period ?? ''}: ${report.commercial.metrics?.operatingCosts?.totalCostUsd == null ? 'N/D' : '$' + report.commercial.metrics.operatingCosts.totalCostUsd.toFixed(2)}`,
@@ -156,7 +175,7 @@ function buildMessage() {
   ].join('\n');
 }
 
-await Promise.all([checkBoltech(), checkExplee(), checkApollo(), checkCampaign(), checkCommercial()]);
+await Promise.all([checkBoltech(), checkExplee(), checkApollo(), checkCampaign(), checkAuditCampaign(), checkCommercial()]);
 report.commercial.progress = evaluateCommercialProgress({
   verifiedSales: report.commercial.metrics?.verifiedSales,
   referrals: report.commercial.metrics?.referrals,
@@ -170,6 +189,9 @@ report.commercial.strategyActions = decideStrategyActions({
   cohorts: report.commercial.metrics?.cohorts,
   a2a: report.commercial.metrics?.a2a,
   costs: report.commercial.metrics?.operatingCosts
+});
+report.commercial.architecture = buildRsiArchitecture({
+  metrics: report.commercial.metrics, campaign: report.apollo.campaign, auditCampaign: report.apollo.auditCampaign
 });
 const message = buildMessage();
 console.log(message);
