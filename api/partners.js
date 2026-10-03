@@ -27,6 +27,7 @@ import {
 } from '../lib/airtable_partner_store.js';
 import { getVerifiedSalesMetrics } from '../lib/payment_store.js';
 import { getCommercialCohortMetrics } from '../lib/commercial_cohort_store.js';
+import { getOperatingCostMetrics } from '../lib/commercial_strategy.js';
 
 function json(res, status, payload) {
   return res.status(status).json(payload);
@@ -189,15 +190,24 @@ export default async function partnersHandler(req, res) {
 
     if (req.method === 'GET' && action === 'commercial-metrics') {
       if (!requireWriteAuth(req, res)) return;
-      const [metrics, verifiedSales, cohort] = await Promise.all([
-        getPartnerMetrics(), getVerifiedSalesMetrics(), getCommercialCohortMetrics()
+      const [metrics, verifiedSales] = await Promise.all([getPartnerMetrics(), getVerifiedSalesMetrics()]);
+      const results = await Promise.allSettled([
+        getCommercialCohortMetrics('RSI-01'), getCommercialCohortMetrics('RSI-02'), getOperatingCostMetrics()
       ]);
+      const value = index => results[index].status === 'fulfilled' ? results[index].value : null;
+      const cohorts = { 'RSI-01': value(0), 'RSI-02': value(1) };
+      const componentStatus = { rsi01: value(0) ? 'available' : 'unavailable',
+        rsi02: value(1) ? 'available' : 'unavailable', costs: value(2) ? 'available' : 'unavailable' };
       return json(res, 200, {
         success: true,
         metrics: {
           ...publicMetricsShape(metrics),
           verifiedSales,
-          cohort,
+          cohort: cohorts['RSI-01'],
+          cohorts,
+          a2a: metrics.a2a,
+          operatingCosts: value(2),
+          componentStatus,
           definition: 'Verified production payment orders only; WON revenue and pipeline are not cash collected.'
         }
       });
@@ -447,3 +457,4 @@ export default async function partnersHandler(req, res) {
     });
   }
 }
+
