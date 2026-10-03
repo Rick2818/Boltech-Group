@@ -1,0 +1,379 @@
+{
+  "verifiedAt": "2026-10-03T20:17:17.642Z",
+  "auditor": "ChatGPT / Codex",
+  "implementationCommit": "e585f7b897bed11da2c8b6c91c4d24c52e17302f",
+  "productionDeployment": {
+    "id": "dpl_GGVBRrWVf7rDPv4WraYb3FAjgsAS",
+    "state": "READY"
+  },
+  "workflowRun": "https://github.com/Rick2818/Boltech-Group/actions/runs/37150898200",
+  "scope": "Technical executor cycles; not sales automation completion or commercial outcomes",
+  "reports": [
+    {
+      "timestamp": "2026-10-03T20:17:12.597Z",
+      "auditor": "ChatGPT / Codex",
+      "commit": "e585f7b897bed11da2c8b6c91c4d24c52e17302f",
+      "scope": "Authenticated production RSI handoff QA; no campaigns or charges",
+      "checks": [
+        {
+          "name": "previous deployment record readable",
+          "status": "PASS"
+        },
+        {
+          "name": "previous deployment state retained",
+          "status": "PASS"
+        },
+        {
+          "name": "previous deployment history retained",
+          "status": "PASS"
+        },
+        {
+          "name": "unauthorized GET",
+          "status": "PASS"
+        },
+        {
+          "name": "GET cache disabled",
+          "status": "PASS"
+        },
+        {
+          "name": "unauthorized POST",
+          "status": "PASS"
+        },
+        {
+          "name": "POST cache disabled",
+          "status": "PASS"
+        },
+        {
+          "name": "unauthorized PATCH",
+          "status": "PASS"
+        },
+        {
+          "name": "PATCH cache disabled",
+          "status": "PASS"
+        },
+        {
+          "name": "create durable record",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate creation",
+          "status": "PASS"
+        },
+        {
+          "name": "duplicate does not create",
+          "status": "PASS"
+        },
+        {
+          "name": "conflicting id rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "read persistent record",
+          "status": "PASS"
+        },
+        {
+          "name": "initial state",
+          "status": "PASS"
+        },
+        {
+          "name": "accept handoff",
+          "status": "PASS"
+        },
+        {
+          "name": "stale version rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "block handoff",
+          "status": "PASS"
+        },
+        {
+          "name": "resume handoff",
+          "status": "PASS"
+        },
+        {
+          "name": "complete handoff",
+          "status": "PASS"
+        },
+        {
+          "name": "final state persisted",
+          "status": "PASS"
+        },
+        {
+          "name": "history retained",
+          "status": "PASS"
+        },
+        {
+          "name": "version retained",
+          "status": "PASS"
+        },
+        {
+          "name": "terminal state protected",
+          "status": "PASS"
+        }
+      ],
+      "status": "PASS",
+      "handoffId": "qa-production-37150898200"
+    },
+    {
+      "timestamp": "2026-10-03T20:17:14.274Z",
+      "commit": "e585f7b897bed11da2c8b6c91c4d24c52e17302f",
+      "results": [
+        {
+          "rsi": "RSI-01",
+          "success": true,
+          "receipt": {
+            "schemaVersion": 1,
+            "runId": "RSI-01:2026-10-03T20:17:14.577Z",
+            "rsi": "RSI-01",
+            "engine": "VERCEL_EXECUTOR",
+            "startedAt": "2026-10-03T20:17:14.577Z",
+            "finishedAt": "2026-10-03T20:17:15.065Z",
+            "outcome": "COMPLETED",
+            "tools": [
+              {
+                "name": "airtable_work_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-03T20:17:14.669Z"
+              },
+              {
+                "name": "airtable_leads_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-03T20:17:15.065Z"
+              }
+            ],
+            "actionCount": 1,
+            "blockers": [
+              "LIVE_APOLLO_GMAIL_HISTORY_REQUIRED",
+              "BUYER_OR_CONTACT_EVIDENCE_MISSING"
+            ]
+          },
+          "reused": false
+        },
+        {
+          "rsi": "RSI-02",
+          "success": true,
+          "receipt": {
+            "schemaVersion": 1,
+            "runId": "RSI-02:2026-10-03T20:17:15.779Z",
+            "rsi": "RSI-02",
+            "engine": "VERCEL_EXECUTOR",
+            "startedAt": "2026-10-03T20:17:15.779Z",
+            "finishedAt": "2026-10-03T20:17:16.139Z",
+            "outcome": "COMPLETED",
+            "tools": [
+              {
+                "name": "airtable_work_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-03T20:17:15.844Z"
+              }
+            ],
+            "actionCount": 1,
+            "blockers": [
+              "WAITING_ACCEPTED_AUDIT_DATA"
+            ]
+          },
+          "reused": false
+        },
+        {
+          "rsi": "RSI-03",
+          "success": true,
+          "receipt": {
+            "schemaVersion": 1,
+            "runId": "RSI-03:2026-10-03T20:17:16.531Z",
+            "rsi": "RSI-03",
+            "engine": "VERCEL_EXECUTOR",
+            "startedAt": "2026-10-03T20:17:16.531Z",
+            "finishedAt": "2026-10-03T20:17:17.007Z",
+            "outcome": "COMPLETED",
+            "tools": [
+              {
+                "name": "airtable_work_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-03T20:17:16.584Z"
+              },
+              {
+                "name": "provider_confirmed_payment_ledger_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-03T20:17:16.931Z"
+              },
+              {
+                "name": "cost_evidence_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-03T20:17:16.956Z"
+              },
+              {
+                "name": "airtable_partner_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-03T20:17:16.982Z"
+              },
+              {
+                "name": "airtable_referral_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-03T20:17:17.007Z"
+              }
+            ],
+            "actionCount": 1,
+            "blockers": [
+              "WAITING_VERIFIED_PARTNER",
+              "COST_EVIDENCE_INCOMPLETE",
+              "PILOT_CHECKOUT_DISABLED"
+            ]
+          },
+          "reused": false
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "timestamp": "2026-10-03T20:17:17.386Z",
+      "commit": "e585f7b897bed11da2c8b6c91c4d24c52e17302f",
+      "scope": "Real recorded agent cycles and authenticated telemetry; no outreach, transactions or synthetic work",
+      "status": "PASS",
+      "checks": [
+        {
+          "name": "unauthenticated access rejected",
+          "status": "PASS"
+        },
+        {
+          "name": "RSI-01 receipt readable",
+          "status": "PASS",
+          "outcome": "COMPLETED"
+        },
+        {
+          "name": "RSI-02 receipt readable",
+          "status": "PASS",
+          "outcome": "COMPLETED"
+        },
+        {
+          "name": "RSI-03 receipt readable",
+          "status": "PASS",
+          "outcome": "COMPLETED"
+        }
+      ],
+      "execution": {
+        "contractVersion": 1,
+        "generatedAt": "2026-10-03T20:17:17.642Z",
+        "agents": [
+          {
+            "rsi": "RSI-01",
+            "state": "COMPLETED",
+            "executionProven": true,
+            "code": null,
+            "lastStartedAt": "2026-10-03T20:17:14.577Z",
+            "lastFinishedAt": "2026-10-03T20:17:15.065Z",
+            "receiptAgeMinutes": 0,
+            "receipt": {
+              "schemaVersion": 1,
+              "runId": "RSI-01:2026-10-03T20:17:14.577Z",
+              "rsi": "RSI-01",
+              "engine": "VERCEL_EXECUTOR",
+              "startedAt": "2026-10-03T20:17:14.577Z",
+              "finishedAt": "2026-10-03T20:17:15.065Z",
+              "outcome": "COMPLETED",
+              "tools": [
+                {
+                  "name": "airtable_work_read",
+                  "status": "VERIFIED",
+                  "observedAt": "2026-10-03T20:17:14.669Z"
+                },
+                {
+                  "name": "airtable_leads_read",
+                  "status": "VERIFIED",
+                  "observedAt": "2026-10-03T20:17:15.065Z"
+                }
+              ],
+              "actionCount": 1,
+              "blockers": [
+                "LIVE_APOLLO_GMAIL_HISTORY_REQUIRED",
+                "BUYER_OR_CONTACT_EVIDENCE_MISSING"
+              ]
+            }
+          },
+          {
+            "rsi": "RSI-02",
+            "state": "COMPLETED",
+            "executionProven": true,
+            "code": null,
+            "lastStartedAt": "2026-10-03T20:17:15.779Z",
+            "lastFinishedAt": "2026-10-03T20:17:16.139Z",
+            "receiptAgeMinutes": 0,
+            "receipt": {
+              "schemaVersion": 1,
+              "runId": "RSI-02:2026-10-03T20:17:15.779Z",
+              "rsi": "RSI-02",
+              "engine": "VERCEL_EXECUTOR",
+              "startedAt": "2026-10-03T20:17:15.779Z",
+              "finishedAt": "2026-10-03T20:17:16.139Z",
+              "outcome": "COMPLETED",
+              "tools": [
+                {
+                  "name": "airtable_work_read",
+                  "status": "VERIFIED",
+                  "observedAt": "2026-10-03T20:17:15.844Z"
+                }
+              ],
+              "actionCount": 1,
+              "blockers": [
+                "WAITING_ACCEPTED_AUDIT_DATA"
+              ]
+            }
+          },
+          {
+            "rsi": "RSI-03",
+            "state": "COMPLETED",
+            "executionProven": true,
+            "code": null,
+            "lastStartedAt": "2026-10-03T20:17:16.531Z",
+            "lastFinishedAt": "2026-10-03T20:17:17.007Z",
+            "receiptAgeMinutes": 0,
+            "receipt": {
+              "schemaVersion": 1,
+              "runId": "RSI-03:2026-10-03T20:17:16.531Z",
+              "rsi": "RSI-03",
+              "engine": "VERCEL_EXECUTOR",
+              "startedAt": "2026-10-03T20:17:16.531Z",
+              "finishedAt": "2026-10-03T20:17:17.007Z",
+              "outcome": "COMPLETED",
+              "tools": [
+                {
+                  "name": "airtable_work_read",
+                  "status": "VERIFIED",
+                  "observedAt": "2026-10-03T20:17:16.584Z"
+                },
+                {
+                  "name": "provider_confirmed_payment_ledger_read",
+                  "status": "VERIFIED",
+                  "observedAt": "2026-10-03T20:17:16.931Z"
+                },
+                {
+                  "name": "cost_evidence_read",
+                  "status": "VERIFIED",
+                  "observedAt": "2026-10-03T20:17:16.956Z"
+                },
+                {
+                  "name": "airtable_partner_read",
+                  "status": "VERIFIED",
+                  "observedAt": "2026-10-03T20:17:16.982Z"
+                },
+                {
+                  "name": "airtable_referral_read",
+                  "status": "VERIFIED",
+                  "observedAt": "2026-10-03T20:17:17.007Z"
+                }
+              ],
+              "actionCount": 1,
+              "blockers": [
+                "WAITING_VERIFIED_PARTNER",
+                "COST_EVIDENCE_INCOMPLETE",
+                "PILOT_CHECKOUT_DISABLED"
+              ]
+            }
+          }
+        ],
+        "allExecutionsProven": true,
+        "definition": "Validated private recorded cycles, not scheduler uptime, provider verification, sales, cash or delivery. Airtable markers are not transactional locks."
+      }
+    }
+  ]
+}
