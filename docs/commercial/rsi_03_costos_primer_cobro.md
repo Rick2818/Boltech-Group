@@ -1,4 +1,4 @@
-# RSI-03 — costos operativos y primer cobro
+# RSI-03 — estrategia conjunta A2A, costos operativos y primer cobro
 Fecha: 2 octubre 2026.
 Estado: política y estrategia documentadas; costos reales, presupuesto y automatización de este RSI pendientes de verificación.
 
@@ -47,3 +47,41 @@ No añadir cron duplicado. El control de 09:00 existente no mide todavía todos 
 
 ## Criterio de cierre del RSI
 Registrar primer pago real con fecha y evidencia privada del proveedor, costo de adquirirlo, costo de entregar el servicio y siguiente oportunidad de repetición. Un estado WON, una factura o un pago sintético no cierran la meta de cobro.
+
+## Canal conjunto de adquisición A2A
+Apollo identifica cuentas y socios; RSI-01 mantiene la prospección habitual; RSI-02 ofrece auditorías gratuitas; RSI-03 coordina referidos A2A, cierre, cobro y contribución.
+Hipótesis: socios con relaciones comerciales reales pueden aportar oportunidades calificadas a menor costo de adquisición. Medirla por socio antes de ampliar.
+
+### Oferta y habilitación
+Priorizar hasta tres socios complementarios (implementadores CRM, agencias B2B o consultores de operaciones) con clientes del ICP y relación verificable. No asumir que los proveedores tecnológicos candidatos ya son socios comerciales.
+El socio identifica la necesidad y presenta a Boltech; Boltech realiza diagnóstico, prepara piloto y entrega el servicio. Acordar atribución, responsabilidades, alcance, precio, comisión, reembolsos y quién factura antes de operar. Ricardo aprueba condiciones.
+La comisión se calcula sobre la base de dinero cobrado definida en el acuerdo; sin porcentaje inventado. Registrar obligación y pago de comisión por separado.
+Usar A2A técnico solo con credenciales, consentimiento y validación comprobados. Un acuerdo comercial permite referidos manuales privados mientras se valida la conexión; no habilita automáticamente acceso A2A.
+Deduplicar por dominio/oportunidad en Apollo, Leads y Referrals. Una cuenta tiene un responsable y una oferta principal; preservar origen y socio atribuido sin contar una misma venta dos veces.
+Registrar partner_id, referral_id, cohorte, necesidad, consentimiento, responsable, etapa, siguiente acción y referencia privada de pedido/pago. Excluir QA y referrals sintéticos.
+
+### Plan de acción autorizado
+Los días son jornadas operativas desde el inicio de ejecución; no constituyen envíos programados ni fechas garantizadas de cierre.
+
+| Plazo | Acción | Responsable | Evidencia de terminación |
+|---|---|---|---|
+| Día 1 | Incorporar A2A en RSI-03 y actualizar PR/README | Boltech / asistente | Documentos versionados |
+| Día 1 | Verificar planes, consumo, créditos y renovaciones | Boltech; Ricardo aporta acceso faltante | Inventario con fuentes o N/D |
+| Días 1–2 | Preparar cohortes Apollo habitual y auditoría sin duplicados | Boltech | Cuentas y decisores verificados |
+| Días 1–2 | Evaluar hasta tres socios complementarios | Boltech | Encaje, relación y estado comprobados |
+| Días 2–3 | Ofrecer auditorías por canales disponibles y autorizados | Boltech | Entrega y respuesta genuinas |
+| Días 2–4 | Preparar y acordar colaboración con socios | Boltech + socio; Ricardo aprueba términos | Acuerdo y responsables |
+| Días 3–5 | Ejecutar auditorías aceptadas | Boltech + cliente | Informe con muestra y evidencia |
+| Días 4–7 | Demostrar flujo y presentar piloto pagado | Boltech; Ricardo aprueba precio/contrato | Propuesta y costo máximo |
+| Días 5–10 | Resolver objeciones, formalizar y verificar pago | Ricardo + Boltech | Acuerdo y cobro proveedor |
+| Tras piloto | Medir entrega, contribución y repetibilidad | Boltech + cliente/socio | Aceptación y decisión RSI |
+
+### Evaluación por socio
+Medir referidos genuinos, aceptados, auditorías, propuestas, pilotos, clientes pagadores, cobros y costo de adquisición por socio. Separar ausencia de datos de cero.
+Contribución de caja por oportunidad = cobro confirmado – reembolsos – comisión del proveedor de pago – comisión del socio – costos variables de adquisición y entrega, sin duplicar partidas. Comparar también contribución prevista/real del servicio y tiempo humano.
+Revisar semanalmente origen, muestra, objeciones y margen. Mantener socios con oportunidades reales y contribución sostenible; ajustar oferta si hay interés sin cierre; no escalar por cantidad de referidos.
+El primer cobro puede provenir de cualquiera de los tres canales. El cierre de la hipótesis A2A exige además atribución comprobada al socio y una entrega aceptada.
+
+### Estado de implementación
+Plan comercial aprobado por Ricardo el 2 octubre 2026. La actualización documental no prueba contactos, acuerdos, socios activos, ejecución de auditorías ni cobros.
+La revisión existente de 09:00 se conserva; integrar costos y métricas A2A a su reporte requiere implementación y verificación. No se añade un cron.
