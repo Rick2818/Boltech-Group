@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { COST_PROVIDERS, summarizeCosts, summarizeA2A, decideStrategyActions, getOperatingCostMetrics } from '../lib/commercial_strategy.js';
+import { COST_PROVIDERS, summarizeCosts, summarizeA2A, decideStrategyActions, getOperatingCostMetrics, buildRsiArchitecture } from '../lib/commercial_strategy.js';
 import partnersHandler from '../api/partners.js';
 
 const cost = (Provider, amount = 0) => ({fields: {Provider, Period:'2026-10', Status:'Verified',
@@ -104,3 +104,16 @@ test('authenticated aggregate preserves payments when cost/cohort dependencies f
   }
 });
 
+
+test('coordinator links three RSI through evidence gates and never provisions dots', () => {
+  const flow = buildRsiArchitecture({metrics:{verifiedSales:{cashCollectedUsd:0},a2a:{enabledPartners:0},operatingCosts:{complete:false}},
+    campaign:{status:'verified',id:'main'},auditCampaign:{status:'verified',active:false,id:'audit'}});
+  assert.equal(flow.controllers.length,3);
+  assert.equal(flow.controllers[1].state,'DRAFT_REVIEW');
+  assert.equal(flow.controllers[2].state,'WAITING_COST_EVIDENCE');
+  assert.equal(flow.handoffs[0].from,'RSI-01');
+  assert.equal(flow.handoffs[0].to,'RSI-02');
+  assert.equal(flow.mode,'OBSERVE_DECIDE_REPORT');
+  assert.match(flow.dotProvisioning,/NOT_CONFIGURED/);
+  assert.equal(buildRsiArchitecture().controllers.every(c=>c.state==='WAITING_DATA'),true);
+});
