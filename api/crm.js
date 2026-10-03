@@ -18,6 +18,10 @@ import {
   getCRMStatus,
   syncLeadToCRM
 } from '../lib/crm_integrations.js';
+import { requireOperationalAuth } from '../lib/operational_auth.js';
+import { createCrmRecovery } from '../lib/crm_recovery.js';
+
+export const config = { maxDuration: 60 };
 
 export default async function handler(req, res) {
   applyStrictBankingHeaders(res);
@@ -34,6 +38,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
+  if (!requireOperationalAuth(req, res)) return;
 
   // Rate Limiting perimetral
   const clientIp = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || '127.0.0.1';
@@ -46,6 +51,22 @@ export default async function handler(req, res) {
   try {
     const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
     const pathname = url.pathname;
+    const action = req.query?.action || url.searchParams.get('action');
+    if (action === 'recovery') {
+      const store = createCrmRecovery();
+      if (req.method === 'POST') {
+        const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+        if (body.jobId) return res.status(200).json({ success: true, result: await store.resume(body.jobId) });
+        return res.status(200).json({ success: true, results: await store.drain(), recovery: await store.status() });
+      }
+      if (req.method === 'GET') {
+        const id = req.query?.jobId || url.searchParams.get('jobId');
+        if (!id) return res.status(200).json({ success: true, recovery: await store.status() });
+        const job = await store.read(id);
+        return res.status(job ? 200 : 404).json({ success: Boolean(job), job: job ? { id: job.id, state: job.state, attempts: job.attempts, code: job.code, history: job.history } : null });
+      }
+      return res.status(405).json({ success: false, code: 'METHOD_NOT_ALLOWED' });
+    }
 
     // 1. GET: Estado de integración
     if (req.method === 'GET') {
@@ -64,18 +85,19 @@ export default async function handler(req, res) {
       }
 
       const syncResult = await syncLeadToCRM(lead);
-      return res.status(200).json({
-        success: true,
+      return res.status(syncResult.hubspot?.synced ? 200 : 202).json({
+        success: syncResult.hubspot?.synced === true || syncResult.salesforce?.synced === true,
+        queued: ['PENDING', 'RETRY_PENDING'].includes(syncResult.hubspot?.status),
         data: syncResult
       });
     }
 
     return res.status(405).json({ error: 'Método HTTP no permitido' });
   } catch (error) {
-    console.error('[CRM API Error]:', error);
-    return res.status(500).json({
+    console.error('[CRM API Error]:', error.code || 'CRM_REQUEST_FAILED');
+    return res.status(error.code?.startsWith('CRM_INVALID') ? 400 : 503).json({
       success: false,
-      error: error?.message || 'Error en la integración con CRM'
+      code: error.code || 'CRM_REQUEST_FAILED'
     });
   }
 }

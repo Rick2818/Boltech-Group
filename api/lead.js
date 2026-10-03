@@ -265,7 +265,7 @@ BolTech Group`;
         : 'El proveedor de correo aceptó el diagnóstico para despacho.',
       domain: cleanDomain,
       cabinaUrl: isCustomAgentRequest ? cabinaUrl : undefined,
-      crmSync: crmSync ? { synced: true, hubspot: crmSync.hubspot?.status, explee: crmSync.explee?.status } : undefined,
+      crmSync: crmSync ? { synced: crmSync.hubspot?.synced === true, queued: ['PENDING', 'RETRY_PENDING'].includes(crmSync.hubspot?.status), hubspot: crmSync.hubspot?.status, explee: crmSync.explee?.status } : undefined,
       transport: dispatchResult.transport,
       deliveryStatus: dispatchResult.deliveryStatus,
       providerResponse: dispatchResult.providerResponse || null,

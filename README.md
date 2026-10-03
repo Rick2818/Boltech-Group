@@ -338,3 +338,7 @@ Correcciones de auditoría del 2 octubre: el coordinador mantiene `WAITING_VERIF
 Authenticated administrative GET/POST/PATCH at `/api/partners?action=rsi-handoff` now records handoff state, owner, evidence references and an event history in the existing Upstash Redis store. Creation is idempotent by stable handoff ID; atomic version checks prevent concurrent overwrites. Storage failures return explicit errors without an in-memory success fallback. See `docs/commercial/arquitectura_rsi.md` for the contract and remaining live acceptance checks. No campaign execution or DOTS provisioning is implied.
 
 `npm run build` now checks JavaScript syntax across API, library and script modules instead of returning a placeholder success. Governance includes handoff failure/concurrency tests and operational privacy/monitoring regression tests. Local tests do not certify live provider configuration or uninterrupted production monitoring.
+
+## Recuperación CRM y ejecutores RSI — 3 octubre 2026
+
+[Informe técnico: recuperación CRM y ejecutores pendientes](docs/audits/CRM_RECOVERY_2026-10-03.md). La sincronización entrante HubSpot guarda tareas en Redis, evita falsos éxitos y recupera fallos temporales mediante el workflow CRM existente. Tareas sin credenciales/evidencia quedan BLOCKED. Esta infraestructura no equivale a tres ejecutores RSI completos; Salesforce y la reparación de registros Airtable quedan fuera de este cambio.
