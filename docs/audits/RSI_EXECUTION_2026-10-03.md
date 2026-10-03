@@ -15,4 +15,18 @@ Se verificaron accesos de lectura a GitHub, Airtable, Apollo y Gmail oficial. Se
 
 ## Aceptación productiva
 
-PENDIENTE de integración, deployment READY y tres ciclos reales. No se certifica todavía continuidad, envío, auditoría real de cliente, cobro, aprobación de socio ni ejecución comercial completa. Los recibos técnicos y los del agente consultivo se diferencian por engine.
+VERIFICADA el 3 octubre 2026 a las 14:17 SV (20:17 UTC). [PR 31](https://github.com/Rick2818/Boltech-Group/pull/31) integrado en `e585f7b897bed11da2c8b6c91c4d24c52e17302f`; deployment productivo Vercel `dpl_GGVBRrWVf7rDPv4WraYb3FAjgsAS` en estado READY.
+
+131 casos locales aprobados, incluidos los 17 nuevos; build y governance aprobados. El [control MIT](https://github.com/Rick2818/Boltech-Group/actions/runs/37150898184) completó tres ciclos reales. La [aceptación productiva](https://github.com/Rick2818/Boltech-Group/actions/runs/37150898200) completó otros tres, confirmó sus recibos persistidos y verificó rechazo de acceso público y diagnóstico privado sin caché. Además aprobó 24 controles del handoff existente, incluida conservación de registros del deployment anterior. Production Health también pasó: [ejecución](https://github.com/Rick2818/Boltech-Group/actions/runs/37150898085).
+
+| Ejecutor | Último ciclo confirmado UTC | Trabajo técnico verificado | Dependencia comercial observada |
+|---|---|---|---|
+| RSI-01 | 20:17:14.577–20:17:15.065 | Lectura de trabajos y revisión de leads reales | Historial completo Apollo/Gmail y evidencia de comprador/contacto |
+| RSI-02 | 20:17:15.779–20:17:16.139 | Revisión de la cola de auditorías aceptadas | Datos de auditoría aceptada del cliente |
+| RSI-03 | 20:17:16.531–20:17:17.007 | Lectura de socios, referencias, costos y ledger de pagos | Socio verificado, evidencia de costos y checkout del piloto deshabilitado |
+
+[Evidencia JSON sin datos personales](RSI_EXECUTION_2026-10-03_evidence.json). El artefacto `rsi-production-acceptance-37150898200` conserva los informes originales durante 30 días. La copia anterior queda versionada en Git.
+
+Las tres automatizaciones consultivas existentes conservan calendario y permisos; las solicitudes de ejecución inmediata no acreditan por sí solas nuevos ciclos consultivos completados. Los seis ciclos anteriores corresponden a `VERCEL_EXECUTOR`, no a campañas ni resultados de venta. COMPLETED acredita revisión técnica con herramientas y persistencia incluso cuando el recibo enumera dependencias comerciales.
+
+Esta aceptación cierra la configuración y verificación técnica implementada. No certifica disponibilidad continua al 100%, envío comercial, auditoría real de cliente, cobro, aprobación de socio ni ejecución comercial completa. Las condiciones externas quedan registradas y se revisan en los ciclos siguientes; no se sustituyen con datos simulados. La exclusión mutua Redis protege los ejecutores Vercel, no todas las plataformas consultivas; resultados inciertos requieren conciliación explícita.

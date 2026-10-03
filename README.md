@@ -4,6 +4,8 @@
 
 [Configuración productiva de los tres roles](docs/commercial/rsi_execution.md) · [Verificación de ejecución](docs/audits/RSI_EXECUTION_2026-10-03.md).
 
+Verificación productiva aprobada el 3 octubre 2026 a las 14:17 SV: deployment READY, 131 pruebas locales aprobadas y tres recibos técnicos COMPLETED leídos desde Airtable mediante el diagnóstico privado. La auditoría enlazada conserva evidencia y dependencias comerciales pendientes.
+
 Los tres agentes consultivos de ChatGPT ya estaban habilitados; se actualizan sus instrucciones para registrar inicio, fin, herramientas, resultados y bloqueos en Airtable. Se añaden tres ejecutores técnicos Vercel con lease/idempotencia Redis, lectura de fuentes reales y recibos privados. El control MIT existente ejecuta un ciclo técnico de cada RSI a las 09:00 SV. No se añade cron ni se aprovisionan DOTS. RSI-02 analiza únicamente registros de respuesta con aceptación y datos explícitos; si faltan, registra la dependencia. Los agentes consultivos conservan las acciones comerciales previamente autorizadas.
 
 Diagnóstico privado: `GET /api/partners?action=rsi-agents`. Ejecución administrativa: `POST /api/partners?action=rsi-execute` con `rsi` y `cycleId`. Un ciclo COMPLETED acredita trabajo técnico registrado; no implica campaña enviada, auditoría contratada, socio aprobado o cobro. La protección transaccional del ejecutor no cubre los marcadores de todas las plataformas; resultados inciertos exigen conciliación. El detalle y límites se documentan en los enlaces anteriores.
