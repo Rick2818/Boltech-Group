@@ -32,5 +32,5 @@ Mantener la oferta si produce avance comercial con costo sostenible; ajustar una
 Las primeras tandas son exploratorias. Repetir antes de atribuir causalidad o escalar gasto.
 
 ## Integración operativa
-Usar la revisión existente de 09:00 El Salvador; no añadir cron. RSI-02 todavía no tiene métricas conectadas al control automático, que actualmente agrega RSI-01. Una agenda no implica ejecución en segundo plano.
+Usar la revisión existente de 09:00 El Salvador; no añadir cron. El control lee las cohortes RSI-01/02 y la campaña de auditoría por separado; las lecturas ausentes permanecen N/D. Una agenda no implica ejecución de auditorías ni envío en segundo plano.
 Próximo paso operativo: confirmar elegibilidad, deduplicar y preparar destinatarios/mensajes; después ofrecer la auditoría por un canal autorizado.

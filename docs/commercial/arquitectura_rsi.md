@@ -25,6 +25,7 @@ El calendario de 09:00 no implica acciones autónomas a las 09:15 o 11:00. Cada 
 ## Estados del coordinador
 WAITING_DATA: falta lectura verificable. DRAFT_REVIEW: campaña de auditoría existe pero no está activa. WAITING_COST_EVIDENCE: inventario incompleto. MEASURED: fuente disponible; no significa venta, socio aprobado o auditoría terminada.
 Estados de tres controladores y cuatro transferencias quedan en commercial.architecture del JSON diario.
+La meta permanece WAITING_VERIFIED_CASH cuando falta un monto finito de cobros. FIRST_VERIFIED_COLLECTION requiere un saldo verificado de cero; un saldo positivo selecciona REPEAT_PROFITABLE_COLLECTION como objetivo, sin demostrar rentabilidad. La campaña de auditoría permanece WAITING_DATA si su activación no es un booleano verificado.
 
 ## Campañas vinculadas
 - RSI-01: Boltech | Customer Requests | Oct 2026 | EN. ID 6abea3c24b681c000c082c9f. Activa, observada el 2 octubre: 23 entregas, 0 respuestas, 0 rebotes.

@@ -16,7 +16,7 @@ No publicar facturas, credenciales, identificadores bancarios ni información de
 ## Métricas y fórmulas
 - Facturado: valor de facturas emitidas; separado de ventas acordadas y dinero cobrado.
 - Cobrado: importe verificado por proveedor, con pedidos de prueba excluidos.
-- Efectivo neto del período = cobros – reembolsos – comisiones – gastos efectivamente pagados. No es una utilidad contable.
+- Efectivo neto del período = cobros – reembolsos – gastos efectivamente pagados, incluyendo comisiones de procesamiento y de socios una sola vez. Si el inventario ya incluye esas comisiones, no se restan por separado. Usar cobros y egresos del mismo período; un costo mensual registrado no demuestra que esté pagado. No es una utilidad contable.
 - Contribución por cliente = ingresos del servicio – costos variables atribuibles – comisiones/reembolsos atribuibles.
 - Costo de adquisición por tanda = gasto atribuible a adquisición / nuevos clientes pagadores; N/D si no hay clientes.
 - Cobertura de operación = contribución total / costos fijos del período; N/D si faltan datos o denominador cero.
@@ -43,7 +43,7 @@ Cambiar una variable por ciclo y conservar versión, hipótesis, resultado y dec
 | Presupuesto nuevo, precio y contrato | Ricardo | Acuerdo registrado |
 | Cobro y conciliación | Boltech + proveedor; Ricardo verifica liquidación | Estado proveedor y referencia privada |
 | Comparación de cohortes | Boltech / asistente | Embudo agregado y costos |
-No añadir cron duplicado. El control de 09:00 existente no mide todavía todos estos costos ni cohortes: documentado no equivale a automatizado. Automatización posterior exige conectar fuentes y verificar ejecución.
+No añadir cron duplicado. El control de 09:00 lee cohortes RSI-01/02, referidos A2A, inventario mensual de costos y cobros verificados. Las partidas sin evidencia permanecen N/D; el inventario no sustituye facturación en vivo ni demuestra gastos pagados. Verificar el reporte de cada ejecución; la medición no ejecuta campañas ni acuerdos.
 
 ## Criterio de cierre del RSI
 Registrar primer pago real con fecha y evidencia privada del proveedor, costo de adquirirlo, costo de entregar el servicio y siguiente oportunidad de repetición. Un estado WON, una factura o un pago sintético no cierran la meta de cobro.

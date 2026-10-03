@@ -117,3 +117,22 @@ test('coordinator links three RSI through evidence gates and never provisions do
   assert.match(flow.dotProvisioning,/NOT_CONFIGURED/);
   assert.equal(buildRsiArchitecture().controllers.every(c=>c.state==='WAITING_DATA'),true);
 });
+
+test('collection goal preserves unavailable payment data and distinguishes verified zero from repeat collection', () => {
+  for (const cash of [undefined, null, NaN, Infinity, '0', '49']) {
+    const flow = buildRsiArchitecture({metrics:{verifiedSales:{cashCollectedUsd:cash}}});
+    assert.equal(flow.goal,'WAITING_VERIFIED_CASH');
+    assert.equal(flow.observation.cashCollectedUsd,null);
+  }
+  assert.equal(buildRsiArchitecture().goal,'WAITING_VERIFIED_CASH');
+  assert.equal(buildRsiArchitecture({metrics:{verifiedSales:{cashCollectedUsd:0}}}).goal,'FIRST_VERIFIED_COLLECTION');
+  assert.equal(buildRsiArchitecture({metrics:{verifiedSales:{cashCollectedUsd:49}}}).goal,'REPEAT_PROFITABLE_COLLECTION');
+});
+
+test('audit campaign remains waiting until activation state is verified', () => {
+  for (const active of [undefined, null, 'false']) {
+    assert.equal(buildRsiArchitecture({auditCampaign:{status:'verified',active}}).controllers[1].state,'WAITING_DATA');
+  }
+  assert.equal(buildRsiArchitecture({auditCampaign:{status:'verified',active:false}}).controllers[1].state,'DRAFT_REVIEW');
+  assert.equal(buildRsiArchitecture({auditCampaign:{status:'verified',active:true}}).controllers[1].state,'MEASURED');
+});
