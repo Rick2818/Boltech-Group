@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { createHandoffStore } from '../lib/rsi_handoff_store.js';
 import { requireOperationalAuth } from '../lib/operational_auth.js';
 import {
   PARTNER_TYPES,
@@ -151,6 +152,29 @@ export default async function partnersHandler(req, res) {
 
   try {
     const action = actionFromRequest(req);
+    if (action === 'rsi-handoff') {
+      if (!requireOperationalAuth(req, res)) return;
+      if (!['GET', 'POST', 'PATCH'].includes(req.method)) {
+        res.setHeader('Allow', 'GET, POST, PATCH');
+        return json(res, 405, { success: false, code: 'METHOD_NOT_ALLOWED' });
+      }
+      const store = createHandoffStore();
+      try {
+        if (req.method === 'GET') {
+          const record = await store.read(req.query?.handoffId);
+          return json(res, record ? 200 : 404, { success: Boolean(record), record });
+        }
+        const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+        if (!body || typeof body !== 'object' || Array.isArray(body)) return json(res, 400, { success: false, code: 'RSI_INVALID_INPUT' });
+        if (req.method === 'POST') {
+          const result = await store.create(body);
+          return json(res, result.created ? 201 : 200, { success: true, ...result });
+        }
+        return json(res, 200, { success: true, record: await store.transition(body) });
+      } catch (error) {
+        return json(res, error.statusCode || (error instanceof SyntaxError ? 400 : 503), { success: false, code: error.code || 'RSI_REQUEST_FAILED' });
+      }
+    }
     if (req.method === 'GET' && ['metrics', 'health-internal'].includes(action)) {
       if (!requireOperationalAuth(req, res)) return;
     }

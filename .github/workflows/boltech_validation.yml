@@ -23,6 +23,8 @@ jobs:
           node-version: '22'
       - name: Install dependencies
         run: npm ci
+      - name: Check server module syntax
+        run: npm run build
       - name: Measure partner, truth, payment and MCP safeguards
         run: node scripts/quality/improvement_cycle.mjs
       - name: Validate commercial decision logic

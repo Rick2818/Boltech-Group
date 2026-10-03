@@ -5,7 +5,7 @@
   "type": "module",
   "main": "index.html",
   "scripts": {
-    "build": "echo 'ok'",
+    "build": "node scripts/quality/check_server_syntax.mjs",
     "start": "npx serve .",
     "hunter": "node scripts/outbound/run_cron_hunter.mjs",
     "cron:email-915am": "node scripts/cron/send_daily_dashboard_email_915am.mjs",

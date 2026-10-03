@@ -327,3 +327,9 @@ Integración de código: el endpoint autenticado `commercial-metrics` añade `co
 La verificación local pasó 23 pruebas; CI incluye las pruebas comerciales dentro de governance. Se crearon nueve partidas pendientes de costos para octubre 2026. Socios comerciales activos, facturas de proveedores, auditorías aceptadas y campañas de auditoría requieren evidencia externa. La integración de código no los crea ni garantiza ventas. No se activaron envíos o nuevos gastos.
 
 Correcciones de auditoría del 2 octubre: el coordinador mantiene `WAITING_VERIFIED_CASH` ante cobros ausentes/no finitos y `WAITING_DATA` si no está verificada la activación de la campaña de auditoría. El cálculo documentado de efectivo neto incluye comisiones una sola vez dentro de gastos pagados del mismo período. Las pruebas locales de governance pasaron 66 casos: 26 comerciales, 15 A2A, 6 socios, 5 veracidad, 11 seguridad de pagos y 3 autenticación MCP. Estas pruebas no acreditan cobros, rentabilidad ni DOTS aprovisionados.
+
+## RSI durable handoffs — 3 October 2026
+
+Authenticated administrative GET/POST/PATCH at `/api/partners?action=rsi-handoff` now records handoff state, owner, evidence references and an event history in the existing Upstash Redis store. Creation is idempotent by stable handoff ID; atomic version checks prevent concurrent overwrites. Storage failures return explicit errors without an in-memory success fallback. See `docs/commercial/arquitectura_rsi.md` for the contract and remaining live acceptance checks. No campaign execution or DOTS provisioning is implied.
+
+`npm run build` now checks JavaScript syntax across API, library and script modules instead of returning a placeholder success. Governance includes handoff failure/concurrency tests and operational privacy/monitoring regression tests. Local tests do not certify live provider configuration or uninterrupted production monitoring.
