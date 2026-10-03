@@ -1,0 +1,125 @@
+{
+  "auditor": "ChatGPT / Codex",
+  "mergeCommit": "359ebb11a42c7ae4237bf1bd35727c812ec610c9",
+  "initialDeployment": "dpl_6HNuoXj8zwPe2GxrLtStDjqEWy6A",
+  "subsequentDeployment": {
+    "id": "dpl_6fmAyQw6V8jeUJNJcDfPonsbhAPt",
+    "commit": "b8764576b7439343fa95e6ae48f3a168778aebee",
+    "readyAt": "2026-10-03T18:14:19.971Z"
+  },
+  "firstRun": 37143341066,
+  "secondRun": 37143414265,
+  "previousRecord": "qa-production-37143341066",
+  "secondAcceptanceReport": {
+    "timestamp": "2026-10-03T18:14:26.058Z",
+    "auditor": "ChatGPT / Codex",
+    "commit": "14cbfb067267747f98e138585729926097676b0c",
+    "scope": "Authenticated production RSI handoff QA; no campaigns or charges",
+    "checks": [
+      {
+        "name": "previous deployment record readable",
+        "status": "PASS"
+      },
+      {
+        "name": "previous deployment state retained",
+        "status": "PASS"
+      },
+      {
+        "name": "previous deployment history retained",
+        "status": "PASS"
+      },
+      {
+        "name": "unauthorized GET",
+        "status": "PASS"
+      },
+      {
+        "name": "GET cache disabled",
+        "status": "PASS"
+      },
+      {
+        "name": "unauthorized POST",
+        "status": "PASS"
+      },
+      {
+        "name": "POST cache disabled",
+        "status": "PASS"
+      },
+      {
+        "name": "unauthorized PATCH",
+        "status": "PASS"
+      },
+      {
+        "name": "PATCH cache disabled",
+        "status": "PASS"
+      },
+      {
+        "name": "create durable record",
+        "status": "PASS"
+      },
+      {
+        "name": "duplicate creation",
+        "status": "PASS"
+      },
+      {
+        "name": "duplicate does not create",
+        "status": "PASS"
+      },
+      {
+        "name": "conflicting id rejected",
+        "status": "PASS"
+      },
+      {
+        "name": "read persistent record",
+        "status": "PASS"
+      },
+      {
+        "name": "initial state",
+        "status": "PASS"
+      },
+      {
+        "name": "accept handoff",
+        "status": "PASS"
+      },
+      {
+        "name": "stale version rejected",
+        "status": "PASS"
+      },
+      {
+        "name": "block handoff",
+        "status": "PASS"
+      },
+      {
+        "name": "resume handoff",
+        "status": "PASS"
+      },
+      {
+        "name": "complete handoff",
+        "status": "PASS"
+      },
+      {
+        "name": "final state persisted",
+        "status": "PASS"
+      },
+      {
+        "name": "history retained",
+        "status": "PASS"
+      },
+      {
+        "name": "version retained",
+        "status": "PASS"
+      },
+      {
+        "name": "terminal state protected",
+        "status": "PASS"
+      }
+    ],
+    "status": "PASS",
+    "handoffId": "qa-production-37143414265"
+  },
+  "limits": [
+    "No unattended RSI executor provisioned",
+    "No 72-hour continuity certification",
+    "No real payment tested",
+    "Runtime log scan included a dependency deprecation warning on HTTP 200"
+  ]
+}
