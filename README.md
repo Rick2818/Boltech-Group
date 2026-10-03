@@ -3,7 +3,7 @@
 ## Auditoría técnica vigente
 
 [Auditoría de arquitectura, código y coordinación RSI — 3 octubre 2026, 11:54:43 (El Salvador)](docs/audits/AUDITORIA_TECNICA_RSI_2026-10-03.md)  
-Auditor: ChatGPT / Codex · Solicitante: Ricardo Ernesto Bolaños Hernández. Incluye hallazgos, 97 pruebas aprobadas, cambios publicados en PR 28 y pendientes de producción. No acredita todavía una nota de 9.5.
+Auditor: ChatGPT / Codex · Solicitante: Ricardo Ernesto Bolaños Hernández. Actualizada el 3 octubre 2026 a las 12:14:56 (El Salvador): PR 28 integrado y desplegado; 97 pruebas locales y 24 comprobaciones productivas aprobadas, incluida persistencia tras redespliegue. Evidencia y límites en la auditoría. No acredita todavía una nota de 9.5.
 
 **Autonomous Agents for Business**  
 **Automate. Respond. Scale.**
