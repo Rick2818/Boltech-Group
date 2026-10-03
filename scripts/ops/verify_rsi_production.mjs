@@ -21,6 +21,13 @@ try {
     await new Promise(resolve => setTimeout(resolve, 10000));
   }
   assert.ok(ready, 'RSI route contract is not deployed');
+  const previousId = process.env.RSI_PREVIOUS_QA_ID;
+  if (previousId) {
+    const previous = await request('GET', null, true, previousId);
+    check('previous deployment record readable', previous.status, 200);
+    check('previous deployment state retained', previous.data.record.state, 'COMPLETED');
+    check('previous deployment history retained', previous.data.record.events.length, 5);
+  }
   for (const method of ['GET', 'POST', 'PATCH']) {
     const result = await request(method, method === 'GET' ? null : {} , false);
     check(`unauthorized ${method}`, result.status, 401);
