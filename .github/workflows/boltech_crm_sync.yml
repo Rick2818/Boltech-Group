@@ -1,12 +1,60 @@
-name: Boltech 05:00 PM CRM Integrity Sync
+name: Boltech CRM Recovery and Integrity
 
 on:
   schedule:
     - cron: '0 23 * * 1-5'
+    - cron: '*/5 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/boltech_crm_sync.yml'
+      - 'scripts/ops/crm_recovery_runner.mjs'
   workflow_dispatch:
 
+permissions:
+  contents: read
+concurrency:
+  group: boltech-crm-recovery
+  cancel-in-progress: false
 jobs:
+  recovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Wait for recovery route on deployment pushes
+        if: github.event_name == 'push'
+        env:
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+        run: |
+          node --input-type=module <<'JS'
+          let ready = false;
+          for (let i = 0; i < 12; i++) {
+            try {
+              const response = await fetch('https://boltech-group.vercel.app/api/crm?action=recovery', { headers: { Authorization: 'Bearer ' + process.env.PARTNER_API_TOKEN }, signal: AbortSignal.timeout(10000) });
+              const data = await response.json();
+              if (response.ok && data.recovery && Number.isInteger(data.recovery.queued)) { ready = true; break; }
+            } catch {}
+            await new Promise(resolve => setTimeout(resolve, 5000));
+          }
+          if (!ready) throw new Error('CRM recovery route not ready');
+          JS
+      - name: Recover one due contact job
+        env:
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+        run: node scripts/ops/crm_recovery_runner.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: crm-recovery-${{ github.run_id }}
+          path: ops-output/crm-recovery.json
+          retention-days: 30
+          if-no-files-found: warn
   crm-sync:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '0 23 * * 1-5'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -15,7 +63,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '22'
       - name: Reconcile CRM integrity
         env:
           BOLTECH_APP_URL: https://boltech-group.vercel.app
