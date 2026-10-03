@@ -313,3 +313,13 @@ Negative callback probes do not originate from Wompi and do not prove genuine we
 Confirmed on 2 October at 09:08 SV: Wompi authentication and business query PASSED, `estaProductivo=true`. This is not evidence of a completed payment or bank settlement. No health check creates links, charges, refunds or signed synthetic successful payments.
 
 Official references: https://docs.wompi.sv/metodos-api/datos-aplicativo and https://docs.wompi.sv/webhook/validar-webhook.
+
+
+## Dos nuevas estrategias RSI — 2 octubre 2026
+
+Se mantiene la prospección Apollo de RSI-01. Se añaden:
+
+- [RSI-02: auditoría gratuita](docs/commercial/rsi_02_auditoria_gratuita.md): oferta transparente, pruebas acordadas con el cliente, informe, demostración y piloto pagado; cohortes sin contactos duplicados.
+- [RSI-03: costos y primer cobro](docs/commercial/rsi_03_costos_primer_cobro.md): responsabilidad operativa de análisis y priorización para Boltech / asistente, medición de gasto y contribución, y prioridad al primer cobro real confirmado.
+
+Estado: estrategias documentadas. No se activaron campañas, nuevos gastos ni cron adicionales. El control de 09:00 sigue midiendo su alcance existente; integrar costos y las nuevas cohortes requiere conectar y verificar fuentes. Los objetivos comerciales no garantizan ingresos.
