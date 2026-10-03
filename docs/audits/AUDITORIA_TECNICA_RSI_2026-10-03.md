@@ -56,3 +56,23 @@ Las referencias de evidencia se declaran por el operador; no se validan automát
 ## Disponibilidad y revisiones futuras
 
 Este documento se conserva en Git y se enlaza desde README.md. Ante una solicitud de revisar esta auditoría, leer esta versión y el estado actual del PR/despliegue; conservar esta fecha de corte. Una auditoría posterior debe llevar su propia fecha, hora, auditor y evidencia sin alterar los resultados históricos.
+
+## Actualización de producción — 3 octubre 2026, 12:14:56 El Salvador
+
+**Auditor:** ChatGPT / Codex. Esta actualización conserva el corte inicial y documenta evidencia posterior.
+
+- PR 28 integrado en main: commit 359ebb11a42c7ae4237bf1bd35727c812ec610c9.
+- Despliegue del merge READY: dpl_6HNuoXj8zwPe2GxrLtStDjqEWy6A, alias boltech-group.vercel.app.
+- Governance y health del merge terminaron success. Esto no demuestra continuidad de 72 horas.
+- Sitio principal: HTTP 200. Nuevo endpoint sin autenticación: HTTP 401 OPERATIONAL_AUTH_REQUIRED y Cache-Control no-store.
+- [Aceptación productiva inicial](https://github.com/Rick2818/Boltech-Group/actions/runs/37143341066): 21 comprobaciones aprobadas sobre Redis real.
+- [Segunda aceptación productiva](https://github.com/Rick2818/Boltech-Group/actions/runs/37143414265): 24 comprobaciones aprobadas, incluyendo lectura del registro anterior con estado COMPLETED y cinco eventos.
+- El registro anterior se creó a las 12:12:51 SV en el despliegue del merge. El despliegue posterior dpl_6fmAyQw6V8jeUJNJcDfPonsbhAPt quedó READY a las 12:14:19.971 SV; la segunda verificación comenzó a las 12:14:26.058 SV. Se confirmó persistencia a través de un nuevo despliegue.
+- Operaciones verificadas: creación, lectura, duplicados, conflicto de contenido, aceptación, rechazo de versión obsoleta, bloqueo, recuperación, cierre, historial/versiones y protección de estados terminales.
+- Las credenciales permanecieron en GitHub Actions/Vercel; no se copiaron a la sesión ni al informe.
+- Registro de logs: apareció una advertencia de dependencia por url.parse() en una petición HTTP 200. No se interpreta esa advertencia como fallo funcional.
+- [Evidencia estructurada permanente](evidence/RSI_PRODUCTION_2026-10-03.json). Los artefactos de Actions se conservan 30 días; este archivo conserva los resultados en Git.
+
+**Cerrado para este PR:** integración, despliegue, autenticación, recorrido GET/POST/PATCH, Lua/versionado en Redis real y persistencia tras redespliegue.
+
+**Sigue pendiente para 9.5:** conectar ejecutores RSI al contrato, deduplicación entre campañas por cuenta, recuperación CRM/acciones externas, alcance multiempresa si aplica y continuidad/alertas verificadas durante 72 horas. No se ha probado pago real ni aprovisionado DOTS. La aceptación de este módulo no certifica el proyecto completo.
