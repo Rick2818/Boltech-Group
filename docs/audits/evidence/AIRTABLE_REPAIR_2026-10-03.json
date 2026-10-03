@@ -1,0 +1,27 @@
+{
+  "verifiedAt": "2026-10-03T18:40:42.573Z",
+  "author": "ChatGPT / Codex",
+  "leads": {
+    "total": 21,
+    "incomplete": 11,
+    "researchOnly": 10
+  },
+  "referrals": {
+    "total": 3,
+    "qa": 3,
+    "remainingBudgetUsd": 0,
+    "nonBlankCommissionRates": 0
+  },
+  "chatbase": {
+    "partnerId": "recUy92sa05Lw22YD",
+    "pendingWorkId": "rece1U9OB0706V0C4",
+    "activityLinkVerified": true
+  },
+  "crm": {
+    "runId": 37144383381,
+    "workerPassed": true,
+    "hubspotConfigured": false,
+    "queued": 0,
+    "blocked": 0
+  }
+}

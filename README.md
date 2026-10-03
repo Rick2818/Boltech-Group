@@ -5,6 +5,8 @@
 [Auditoría de arquitectura, código y coordinación RSI — 3 octubre 2026, 11:54:43 (El Salvador)](docs/audits/AUDITORIA_TECNICA_RSI_2026-10-03.md)  
 Auditor: ChatGPT / Codex · Solicitante: Ricardo Ernesto Bolaños Hernández. Actualizada el 3 octubre 2026 a las 12:14:56 (El Salvador): PR 28 integrado y desplegado; 97 pruebas locales y 24 comprobaciones productivas aprobadas, incluida persistencia tras redespliegue. Evidencia y límites en la auditoría. No acredita todavía una nota de 9.5.
 
+[Reparación de Airtable — 3 octubre 2026, 12:40:42 (El Salvador)](docs/audits/AIRTABLE_REPAIR_2026-10-03.md): clasificación de leads, retiro de importes QA y reconstrucción de Chatbase/pendiente RSI-03; responsable ChatGPT / Codex.
+
 **Autonomous Agents for Business**  
 **Automate. Respond. Scale.**
 
@@ -341,4 +343,4 @@ Authenticated administrative GET/POST/PATCH at `/api/partners?action=rsi-handoff
 
 ## Recuperación CRM y ejecutores RSI — 3 octubre 2026
 
-[Informe técnico: recuperación CRM y ejecutores pendientes](docs/audits/CRM_RECOVERY_2026-10-03.md). La sincronización entrante HubSpot guarda tareas en Redis, evita falsos éxitos y recupera fallos temporales mediante el workflow CRM existente. Tareas sin credenciales/evidencia quedan BLOCKED. Esta infraestructura no equivale a tres ejecutores RSI completos; Salesforce y la reparación de registros Airtable quedan fuera de este cambio.
+[Informe técnico: recuperación CRM y ejecutores pendientes](docs/audits/CRM_RECOVERY_2026-10-03.md). La sincronización entrante HubSpot guarda tareas en Redis, evita falsos éxitos y recupera fallos temporales mediante el workflow CRM existente. Tareas sin credenciales/evidencia quedan BLOCKED. Esta infraestructura no equivale a tres ejecutores RSI completos; Salesforce queda fuera de este cambio. La reparación posterior de Airtable está documentada en la auditoría enlazada arriba. Verificación productiva del recuperador: cola vacía y sin credencial HubSpot; no acredita sincronización al proveedor.

@@ -1,7 +1,7 @@
 # Recuperación CRM y ejecutores RSI — 3 octubre 2026
 
 Auditor e implementador: ChatGPT / Codex. Solicitante: Ricardo Ernesto Bolaños Hernández.
-Alcance: recuperación de contactos HubSpot, veracidad de estados y separación de ejecutores RSI. La fecha/hora final y evidencia productiva se añaden tras la verificación.
+Alcance: recuperación de contactos HubSpot, veracidad de estados y separación de ejecutores RSI. Verificado el 3 octubre 2026, 12:32:29 America/El_Salvador (18:32:29 UTC).
 
 ## Qué ejecutores faltan
 
@@ -42,3 +42,9 @@ Los registros conservan datos de contacto privados para recuperación y requiere
 17 pruebas nuevas: reinicio, duplicados, bloqueo, espera, recuperación, agotamiento, supersesión de datos, concurrencia, lease vencido, almacenamiento caído, respuesta perdida, conflicto de creación, actualización sin deals, errores proveedor, autenticación y ausencia de falsos éxitos/notificaciones. Se usa almacenamiento de prueba; la aceptación productiva se documenta después del despliegue. La falta de credenciales no puede resolverse inventando conexión.
 
 Referencia de contrato proveedor: https://developers.hubspot.com/docs/api-reference/legacy/crm/objects/contacts/guide
+
+## Verificación productiva final
+
+PR 29 integrado y deployment READY. Run [37144383381](https://github.com/Rick2818/Boltech-Group/actions/runs/37144383381), segundo intento aprobado: cola 0, bloqueados 0, hubspotConfigured=false. Primer intento agotó espera de ruta durante despliegue. Se verifican ruta autenticada, Redis y worker vacío; entrega real a HubSpot pendiente de configurar credencial. 114 pruebas locales aprobadas y 113 módulos con sintaxis válida.
+
+Los registros Airtable bootstrap documentan automatizaciones RSI ya existentes; ejecutor completo pendiente describe garantías end-to-end, no ausencia total de agentes. [Reparación posterior de registros Airtable](AIRTABLE_REPAIR_2026-10-03.md).
