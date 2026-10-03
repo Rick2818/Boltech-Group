@@ -50,3 +50,17 @@ Coordina socios A2A, costos y cobro. No actives candidatos como socios sin acuer
 ## Aceptación y límites
 Pruebas deben cubrir tres controladores, transferencias explícitas, borrador distinto de campaña activa, falta de datos, costos no comprobados y QA excluido. El control debe ejecutarse después del despliegue para verificar esquema nuevo.
 Dependencias externas pendientes: DOTS elegible/configurado, facturas y consumos comprobados, socios comerciales acordados, prospectos que acepten auditoría y pago genuino completo. No declarar funcionamiento comercial al 100% solo por CI verde.
+
+## Registro persistente de transferencias — 3 octubre 2026
+
+`/api/partners?action=rsi-handoff` requiere el bearer administrativo existente tanto para leer como para escribir. No acepta credenciales de socios. Usa las variables existentes `UPSTASH_REDIS_REST_URL` y `UPSTASH_REDIS_REST_TOKEN`; sin almacenamiento responde 503 y no usa memoria como sustituto.
+
+- POST: `handoffId`, `opportunityId`, `from`, `to`, `owner`, `reason`, `evidenceRef`. IDs estables y referencias sin datos personales. La misma solicitud devuelve el registro existente; reutilizar el ID con otro contenido devuelve 409.
+- GET: `handoffId` en query. Devuelve registro e historial, o 404.
+- PATCH: `handoffId`, `expectedVersion`, `state`, `owner`, `evidenceRef`. Solo el responsable registrado puede cambiar el estado mediante el operador autenticado. La comparación de versión y escritura se realizan en una operación Redis atómica.
+- Estados: PENDING → ACCEPTED/CANCELLED; ACCEPTED → COMPLETED/BLOCKED; BLOCKED → ACCEPTED/CANCELLED. Estados terminales no se reabren. Cada cambio conserva responsable, evidencia y fecha.
+- Una respuesta de escritura perdida se resuelve leyendo el mismo ID y su versión. No se reintentan escrituras inciertas; GET permite hasta tres intentos de cinco segundos. No hay expiración de registros.
+
+Este registro coordina transferencias internas; no envía mensajes, ejecuta campañas, valida pagos ni crea DOTS. Las referencias de evidencia son declaradas por el operador, no verificadas automáticamente. Una oportunidad puede tener varias transferencias con IDs distintos; evitar campañas duplicadas exige contrastar además el historial Apollo/CRM. El endpoint es administrativo de una sola organización, no una API multiempresa.
+
+Aceptación productiva pendiente: confirmar credenciales Redis en Vercel, probar POST/GET/PATCH con una oportunidad QA y leerla después de un nuevo despliegue. No se acredita continuidad de 72 horas mediante pruebas locales.

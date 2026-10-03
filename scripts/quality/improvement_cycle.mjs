@@ -5,10 +5,11 @@ import { resolve } from 'node:path';
 const root = resolve(import.meta.dirname, '../..');
 const output = resolve(root, 'artifacts/improvement-cycle');
 const groups = [
+  { name: 'Durable RSI handoffs', files: ['tests/test_rsi_handoff.mjs'] },
   { name: 'Commercial RSI integration', files: ['tests/test_commercial_strategy.mjs', 'tests/test_commercial_progress.mjs', 'tests/test_traction_cycle.mjs', 'tests/test_store_pagination.mjs', 'tests/test_control_tower_resilience.mjs'] },
   { name: 'A2A intake contracts', files: ['tests/test_a2a_intake.mjs'] },
   { name: 'Partner Network', files: ['tests/test_partner_network.mjs'] },
-  { name: 'Operational truth', files: ['tests/test_operational_truth_guards.mjs'] },
+  { name: 'Operational truth', files: ['tests/test_operational_truth_guards.mjs', 'tests/test_operational_privacy.mjs', 'tests/test_production_watch.mjs'] },
   { name: 'Payment security', files: ['tests/test_payment_security_v2.mjs', 'tests/test_payment_rsi_hardening.mjs', 'tests/test_billing_sentinel.mjs'] },
   { name: 'MCP authentication', files: ['tests/test_mcp_remote_auth.mjs', 'tests/test_mcp_remote_handshake.mjs'] },
 ];
