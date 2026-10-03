@@ -190,22 +190,24 @@ export default async function partnersHandler(req, res) {
 
     if (req.method === 'GET' && action === 'commercial-metrics') {
       if (!requireWriteAuth(req, res)) return;
-      const [metrics, verifiedSales] = await Promise.all([getPartnerMetrics(), getVerifiedSalesMetrics()]);
       const results = await Promise.allSettled([
-        getCommercialCohortMetrics('RSI-01'), getCommercialCohortMetrics('RSI-02'), getOperatingCostMetrics()
+        getCommercialCohortMetrics('RSI-01'), getCommercialCohortMetrics('RSI-02'), getOperatingCostMetrics(),
+        getPartnerMetrics(), getVerifiedSalesMetrics()
       ]);
       const value = index => results[index].status === 'fulfilled' ? results[index].value : null;
+      const metrics = value(3), verifiedSales = value(4);
       const cohorts = { 'RSI-01': value(0), 'RSI-02': value(1) };
       const componentStatus = { rsi01: value(0) ? 'available' : 'unavailable',
-        rsi02: value(1) ? 'available' : 'unavailable', costs: value(2) ? 'available' : 'unavailable' };
+        rsi02: value(1) ? 'available' : 'unavailable', costs: value(2) ? 'available' : 'unavailable',
+        partners: metrics ? 'available' : 'unavailable', payments: verifiedSales ? 'available' : 'unavailable' };
       return json(res, 200, {
         success: true,
         metrics: {
-          ...publicMetricsShape(metrics),
+          ...(metrics ? publicMetricsShape(metrics) : {partners:null, referrals:null, finance:null, generatedAt:new Date().toISOString()}),
           verifiedSales,
           cohort: cohorts['RSI-01'],
           cohorts,
-          a2a: metrics.a2a,
+          a2a: metrics?.a2a ?? null,
           operatingCosts: value(2),
           componentStatus,
           definition: 'Verified production payment orders only; WON revenue and pipeline are not cash collected.'
@@ -457,4 +459,3 @@ export default async function partnersHandler(req, res) {
     });
   }
 }
-

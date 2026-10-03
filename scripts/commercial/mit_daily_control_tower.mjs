@@ -129,9 +129,10 @@ async function checkCommercial() {
       headers: { Authorization: `Bearer ${PARTNER_API_TOKEN}` }
     });
     report.commercial.reachable = r.ok && r.data?.success === true;
-    if (report.commercial.reachable &&
-        Number.isFinite(r.data?.metrics?.verifiedSales?.cashCollectedUsd)) {
+    if (report.commercial.reachable && r.data?.metrics && typeof r.data.metrics === 'object') {
       report.commercial.metrics = r.data.metrics;
+      if (!Number.isFinite(r.data.metrics.verifiedSales?.cashCollectedUsd))
+        report.commercial.note = 'Cobros N/D; se conservan las demás fuentes disponibles.';
     } else {
       report.commercial.note = `Métricas de cobro no verificables (HTTP ${r.status}).`;
     }
@@ -201,4 +202,3 @@ await writeFile('ops-output/commercial-report.json', JSON.stringify(report, null
 if (process.env.GITHUB_STEP_SUMMARY) {
   await writeFile(process.env.GITHUB_STEP_SUMMARY, message + '\n');
 }
-

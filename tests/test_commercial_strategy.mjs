@@ -136,3 +136,27 @@ test('audit campaign remains waiting until activation state is verified', () => 
   assert.equal(buildRsiArchitecture({auditCampaign:{status:'verified',active:false}}).controllers[1].state,'DRAFT_REVIEW');
   assert.equal(buildRsiArchitecture({auditCampaign:{status:'verified',active:true}}).controllers[1].state,'MEASURED');
 });
+
+test('partner and payment failures are independent and never erase healthy cohorts', async t => {
+  const originalFetch=globalThis.fetch, oldToken=process.env.AIRTABLE_TOKEN, oldAuth=process.env.PARTNER_API_TOKEN;
+  process.env.AIRTABLE_TOKEN='test'; process.env.PARTNER_API_TOKEN='secret';
+  t.after(()=>{globalThis.fetch=originalFetch;for(const [key,value] of [['AIRTABLE_TOKEN',oldToken],['PARTNER_API_TOKEN',oldAuth]]) if(value===undefined)delete process.env[key];else process.env[key]=value;});
+  for(const failed of ['partners','payments','both']) {
+    globalThis.fetch=async url=>{
+      const path=new URL(url).pathname;
+      const payment=path.includes('tbl7j8UvfuOAkbgRB');
+      const partner=/tblVpKkNAHmJqxME9|tbl9d6B8ljjOuQ2ED|tbl/.test(path) && !payment && !path.includes('tblZaox2MX5uYA5PZ') && !path.includes('tblpPzMSjM1EVpF8Y');
+      if((payment && failed!=='partners') || (partner && failed!=='payments'))return {ok:false,status:503,text:async()=>'{"error":{"message":"private detail"}}'};
+      const data={records:[]}; return {ok:true,json:async()=>data,text:async()=>JSON.stringify(data)};
+    };
+    let status,payload;const res={setHeader(){},status(n){status=n;return this;},json(p){payload=p;return this;}};
+    await partnersHandler({method:'GET',url:'/api/partners?action=commercial-metrics',headers:{host:'localhost',authorization:'Bearer secret'}},res);
+    assert.equal(status,200);
+    assert.equal(payload.metrics.cohorts['RSI-01'].total,0);
+    assert.equal(payload.metrics.componentStatus.partners,failed==='payments'?'available':'unavailable');
+    assert.equal(payload.metrics.componentStatus.payments,failed==='partners'?'available':'unavailable');
+    if(failed!=='partners')assert.equal(payload.metrics.verifiedSales,null);
+    if(failed!=='payments')assert.equal(payload.metrics.a2a,null);
+    assert.doesNotMatch(JSON.stringify(payload),/private detail/);
+  }
+});
