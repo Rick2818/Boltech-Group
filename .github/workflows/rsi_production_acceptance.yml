@@ -23,6 +23,7 @@ jobs:
       - name: Verify authenticated handoff persistence and transitions
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+          RSI_PREVIOUS_QA_ID: qa-production-37143341066
         run: node scripts/ops/verify_rsi_production.mjs
       - name: Preserve sanitized acceptance evidence
         if: always()
