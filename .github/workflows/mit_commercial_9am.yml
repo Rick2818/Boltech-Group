@@ -14,6 +14,10 @@ on:
       - 'api/partners.js'
       - 'lib/commercial_cohort_store.js'
       - 'lib/airtable_partner_store.js'
+      - 'lib/payment_store.js'
+      - 'lib/store_pagination.js'
+      - 'tests/test_store_pagination.mjs'
+      - 'tests/test_control_tower_resilience.mjs'
   schedule:
     # El Salvador is UTC-6 year-round. 15:00 UTC = 09:00 America/El_Salvador.
     - cron: '0 15 * * *'
@@ -36,7 +40,7 @@ jobs:
           node-version: '22'
 
       - name: Validate traction decisions
-        run: node --test tests/test_traction_cycle.mjs tests/test_commercial_strategy.mjs
+        run: node --test tests/test_traction_cycle.mjs tests/test_commercial_strategy.mjs tests/test_store_pagination.mjs tests/test_control_tower_resilience.mjs
 
       - name: Run MIT plus RSI-01 RSI-02 RSI-03 commercial control tower
         env:
@@ -53,4 +57,3 @@ jobs:
           path: ops-output/commercial-report.json
           if-no-files-found: warn
           retention-days: 30
-
