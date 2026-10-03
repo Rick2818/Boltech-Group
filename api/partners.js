@@ -1,6 +1,10 @@
 import crypto from 'node:crypto';
 import { createHandoffStore } from '../lib/rsi_handoff_store.js';
 import { requireOperationalAuth } from '../lib/operational_auth.js';
+import { getAgentExecutionStatus } from '../lib/rsi_agent_status.js';
+import { createRsiExecutor } from '../lib/rsi_agent_executor.js';
+
+export const config = { maxDuration: 60 };
 import {
   PARTNER_TYPES,
   PARTNER_STATUSES,
@@ -152,6 +156,25 @@ export default async function partnersHandler(req, res) {
 
   try {
     const action = actionFromRequest(req);
+    if (action === 'rsi-execute') {
+      if (!requireOperationalAuth(req, res)) return;
+      if (req.method !== 'POST') return json(res, 405, { success: false, code: 'METHOD_NOT_ALLOWED' });
+      try {
+        const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+        return json(res, 200, { success: true, ...await createRsiExecutor().run(body) });
+      } catch (error) {
+        return json(res, error.statusCode || 503, { success: false, code: /^[A-Z_]+$/.test(error.code || '') ? error.code : 'RSI_EXECUTION_FAILED' });
+      }
+    }
+    if (action === 'rsi-agents') {
+      if (!requireOperationalAuth(req, res)) return;
+      if (req.method !== 'GET') {
+        res.setHeader('Allow', 'GET');
+        return json(res, 405, { success: false, code: 'METHOD_NOT_ALLOWED' });
+      }
+      try { return json(res, 200, { success: true, execution: await getAgentExecutionStatus() }); }
+      catch { return json(res, 503, { success: false, code: 'RSI_AGENT_DIAGNOSTIC_UNAVAILABLE' }); }
+    }
     if (action === 'rsi-handoff') {
       if (!requireOperationalAuth(req, res)) return;
       if (!['GET', 'POST', 'PATCH'].includes(req.method)) {
