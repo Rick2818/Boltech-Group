@@ -18,6 +18,8 @@ on:
       - 'lib/store_pagination.js'
       - 'tests/test_store_pagination.mjs'
       - 'tests/test_control_tower_resilience.mjs'
+      - 'scripts/ops/run_rsi_agents.mjs'
+      - 'lib/rsi_agent_executor.js'
   schedule:
     # El Salvador is UTC-6 year-round. 15:00 UTC = 09:00 America/El_Salvador.
     - cron: '0 15 * * *'
@@ -25,6 +27,9 @@ on:
 
 permissions:
   contents: read
+concurrency:
+  group: boltech-rsi-agent-execution
+  cancel-in-progress: false
 
 jobs:
   commercial-control:
@@ -49,11 +54,17 @@ jobs:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
           BOLTECH_URL: https://boltech-group.vercel.app
         run: node scripts/commercial/mit_daily_control_tower.mjs
+      - name: Execute bounded RSI technical tasks and record private receipts
+        env:
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+        run: node scripts/ops/run_rsi_agents.mjs
       - name: Preserve commercial diagnosis
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: commercial-diagnosis-${{ github.run_id }}
-          path: ops-output/commercial-report.json
+          path: |
+            ops-output/commercial-report.json
+            ops-output/rsi-agent-execution.json
           if-no-files-found: warn
           retention-days: 30

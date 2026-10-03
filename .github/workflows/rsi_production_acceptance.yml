@@ -5,16 +5,20 @@ on:
     paths:
       - '.github/workflows/rsi_production_acceptance.yml'
       - 'scripts/ops/verify_rsi_production.mjs'
+      - 'scripts/ops/verify_rsi_agents.mjs'
+      - 'lib/rsi_agent_status.js'
+      - 'lib/rsi_agent_executor.js'
+      - 'scripts/ops/run_rsi_agents.mjs'
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
-  group: rsi-production-acceptance
+  group: boltech-rsi-agent-execution
   cancel-in-progress: false
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 6
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,11 +29,22 @@ jobs:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
           RSI_PREVIOUS_QA_ID: qa-production-37143341066
         run: node scripts/ops/verify_rsi_production.mjs
+      - name: Execute one bounded technical cycle per RSI
+        env:
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+        run: node scripts/ops/run_rsi_agents.mjs
+      - name: Verify three real agent execution receipts
+        env:
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+        run: node scripts/ops/verify_rsi_agents.mjs
       - name: Preserve sanitized acceptance evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: rsi-production-acceptance-${{ github.run_id }}
-          path: ops-output/rsi-production-verification.json
+          path: |
+            ops-output/rsi-production-verification.json
+            ops-output/rsi-agent-verification.json
+            ops-output/rsi-agent-execution.json
           retention-days: 30
           if-no-files-found: error

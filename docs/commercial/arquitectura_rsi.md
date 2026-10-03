@@ -1,4 +1,5 @@
 # Arquitectura RSI de Boltech — principio a fin
+Actualización 3 octubre 2026: el coordinador descrito abajo sigue siendo de observación; los agentes consultivos existentes y los nuevos ejecutores técnicos tienen su contrato separado en [rsi_execution.md](rsi_execution.md). Esa documentación sustituye el diagnóstico histórico de ausencia total de agentes. DOTS sigue sin aprovisionar.
 Fecha: 2 octubre 2026. Objetivo: primer cobro real y repetición rentable.
 Implementación: buildRsiArchitecture en lib/commercial_strategy.js; observación y decisiones en el control existente de 09:00, con artefacto diario. Es un coordinador de medición y recomendaciones; no un ejecutor autónomo de campañas ni un aprovisionador DOTS.
 
