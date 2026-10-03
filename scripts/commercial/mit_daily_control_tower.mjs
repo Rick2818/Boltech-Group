@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { CAMPAIGN_ID, normalizeCampaign, decideTraction } from './traction_cycle.mjs';
 import { evaluateCommercialProgress, buildMitAgenda } from './zero_to_first_sale.mjs';
+import { decideStrategyActions } from '../../lib/commercial_strategy.js';
 
 const APOLLO_API_KEY = (process.env.APOLLO_API_KEY || '').trim();
 const EXPLEE_API_KEY = (process.env.EXPLEE_API_KEY || '').trim();
@@ -143,7 +144,11 @@ function buildMessage() {
     'Diagnósticos y propuestas: N/D hasta evidencia; coordinación exclusivamente por email.',
     '',
     `Bloqueo principal — ${progress.focus}`,
-    'PLAN MIT + RSI-01 · Hora de El Salvador',
+    'PLAN MIT + RSI-01/02/03 · Hora de El Salvador',
+    ...report.commercial.strategyActions.map(item => `${item.rsi}: ${item.action}`),
+    `A2A socios habilitados: ${report.commercial.metrics?.a2a?.enabledPartners ?? 'N/D'} | referidos genuinos: ${report.commercial.metrics?.a2a?.referrals ?? 'N/D'}`,
+    `Costos ${report.commercial.metrics?.operatingCosts?.period ?? ''}: ${report.commercial.metrics?.operatingCosts?.totalCostUsd == null ? 'N/D' : '$' + report.commercial.metrics.operatingCosts.totalCostUsd.toFixed(2)}`,
+    'Costos mensuales y cobros acumulados no se restan como utilidad. Atribución de cobros A2A: N/D sin vínculo verificado.',
     ...agenda.map(item => `${item.at} | ${item.owner}: ${item.action} Evidencia: ${item.evidence}.`),
     '',
     'Ricardo: decisiones y precios por email. Boltech: medición, clasificación y preparación. Explee/Apollo: fuentes solo si están configuradas.',
@@ -161,6 +166,11 @@ report.commercial.progress = evaluateCommercialProgress({
 });
 report.commercial.traction = decideTraction(report.apollo.campaign);
 report.commercial.agenda = buildMitAgenda(report.commercial.progress);
+report.commercial.strategyActions = decideStrategyActions({
+  cohorts: report.commercial.metrics?.cohorts,
+  a2a: report.commercial.metrics?.a2a,
+  costs: report.commercial.metrics?.operatingCosts
+});
 const message = buildMessage();
 console.log(message);
 console.log('\nJSON REPORT\n' + JSON.stringify(report, null, 2));
@@ -169,3 +179,4 @@ await writeFile('ops-output/commercial-report.json', JSON.stringify(report, null
 if (process.env.GITHUB_STEP_SUMMARY) {
   await writeFile(process.env.GITHUB_STEP_SUMMARY, message + '\n');
 }
+

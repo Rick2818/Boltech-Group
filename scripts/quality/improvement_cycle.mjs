@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 const root = resolve(import.meta.dirname, '../..');
 const output = resolve(root, 'artifacts/improvement-cycle');
 const groups = [
+  { name: 'Commercial RSI integration', files: ['tests/test_commercial_strategy.mjs', 'tests/test_commercial_progress.mjs', 'tests/test_traction_cycle.mjs'] },
   { name: 'A2A intake contracts', files: ['tests/test_a2a_intake.mjs'] },
   { name: 'Partner Network', files: ['tests/test_partner_network.mjs'] },
   { name: 'Operational truth', files: ['tests/test_operational_truth_guards.mjs'] },

@@ -9,6 +9,11 @@ on:
       - 'scripts/commercial/zero_to_first_sale.mjs'
       - 'scripts/commercial/traction_cycle.mjs'
       - 'tests/test_traction_cycle.mjs'
+      - 'tests/test_commercial_strategy.mjs'
+      - 'lib/commercial_strategy.js'
+      - 'api/partners.js'
+      - 'lib/commercial_cohort_store.js'
+      - 'lib/airtable_partner_store.js'
   schedule:
     # El Salvador is UTC-6 year-round. 15:00 UTC = 09:00 America/El_Salvador.
     - cron: '0 15 * * *'
@@ -31,9 +36,9 @@ jobs:
           node-version: '22'
 
       - name: Validate traction decisions
-        run: node --test tests/test_traction_cycle.mjs
+        run: node --test tests/test_traction_cycle.mjs tests/test_commercial_strategy.mjs
 
-      - name: Run MIT plus RSI-01 commercial control tower
+      - name: Run MIT plus RSI-01 RSI-02 RSI-03 commercial control tower
         env:
           APOLLO_API_KEY: ${{ secrets.APOLLO_API_KEY }}
           EXPLEE_API_KEY: ${{ secrets.EXPLEE_API_KEY }}
@@ -48,3 +53,4 @@ jobs:
           path: ops-output/commercial-report.json
           if-no-files-found: warn
           retention-days: 30
+
