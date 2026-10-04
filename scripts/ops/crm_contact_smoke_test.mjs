@@ -12,7 +12,7 @@ async function call(path, body) {
   if (!response.ok && response.status !== 202) throw new Error('CRM_HTTP_' + response.status);
   return response.json();
 }
-const lead = { email: report.email, firstname: 'PRUEBA TÉCNICA', lastname: 'Boltech CRM' };
+const lead = { email: report.email, firstname: 'PRUEBA TÉCNICA', lastname: 'Boltech CRM', company: 'Boltech CRM - PRUEBA TECNICA' };
 try {
   if (!token) throw new Error('PARTNER_API_TOKEN_MISSING');
   const config = await call('/api/crm');
