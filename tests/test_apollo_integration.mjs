@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { createApolloClient, normalizeApolloContact, normalizeApolloDomain, normalizeApolloEmail, validateApolloEmail, apolloHttpFetch } from '../lib/apollo_client.js';
+import { createApolloClient, getApolloApiKey, normalizeApolloContact, normalizeApolloDomain, normalizeApolloEmail, validateApolloEmail, apolloHttpFetch } from '../lib/apollo_client.js';
 import { parseApolloCsv, syncApolloContacts, mergeApolloPipeline, updatePipelineFile } from '../lib/apollo_pipeline.js';
 import { createApolloCrmQueue } from '../lib/apollo_crm_transport.js';
 import { createApolloHandler } from '../lib/apollo_api.js';
@@ -227,4 +227,18 @@ test('collection budget stops further pages instead of returning a partial list'
 test('legacy dispatcher fails closed on import and invocation without opening a mail transport', async () => {
   const { dispatchApolloBatch } = await import('../scripts/outbound/dispatch_apollo_batch_1.mjs');
   await assert.rejects(dispatchApolloBatch(), { code: 'APOLLO_LEGACY_DISPATCH_DISABLED' });
+});
+
+test('sensitive runtime alias is accepted without overriding the standard key', () => {
+  const old = { standard: process.env.APOLLO_API_KEY, alias: process.env.BoltechVercelCRM };
+  try {
+    delete process.env.APOLLO_API_KEY;
+    process.env.BoltechVercelCRM = 'local-alias-only';
+    assert.equal(getApolloApiKey(), 'local-alias-only');
+    process.env.APOLLO_API_KEY = 'local-standard-only';
+    assert.equal(getApolloApiKey(), 'local-standard-only');
+  } finally {
+    for (const [key, value] of [['APOLLO_API_KEY', old.standard], ['BoltechVercelCRM', old.alias]])
+      if (value === undefined) delete process.env[key]; else process.env[key] = value;
+  }
 });
