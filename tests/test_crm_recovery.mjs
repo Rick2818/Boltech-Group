@@ -87,11 +87,11 @@ function providerTest(t) {
  t.after(()=>{if(previous===undefined)delete process.env.HUBSPOT_ACCESS_TOKEN;else process.env.HUBSPOT_ACCESS_TOKEN=previous;});
 }
 test('existing contact is updated by provider id without deal creation or stage downgrade',async t=>{
- providerTest(t);const calls=[];const result=await syncHubSpotContact(normalizeContact(lead),async(url,options)=>{calls.push({url,...options});return Response.json({id:'123'});});
- assert.equal(result.contactId,'123');assert.equal(calls.length,2);assert.equal(calls[1].method,'PATCH');assert.ok(calls[1].url.endsWith('/123'));assert.doesNotMatch(calls[1].body,/lifecyclestage|deal|lead_source/);
+ providerTest(t);const calls=[];const result=await syncHubSpotContact(normalizeContact(lead),async(url,options)=>{calls.push({url,...options});return Response.json({id:'123',properties:normalizeContact(lead)});});
+ assert.equal(result.contactId,'123');assert.equal(calls.length,3);assert.equal(calls[1].method,'PATCH');assert.ok(calls[1].url.endsWith('/123'));assert.doesNotMatch(calls[1].body,/lifecyclestage|deal|lead_source/);
 });
 test('create conflict resolves contact and updates rather than creating another deal',async t=>{
- providerTest(t);let call=0;const result=await syncHubSpotContact(normalizeContact(lead),async()=>{call++;return call===1?new Response('',{status:404}):call===2?new Response('',{status:409}):Response.json({id:'123'});});assert.equal(result.contactId,'123');assert.equal(call,4);
+ providerTest(t);let call=0;const result=await syncHubSpotContact(normalizeContact(lead),async()=>{call++;return call===1?new Response('',{status:404}):call===2?new Response('',{status:409}):Response.json({id:'123',properties:normalizeContact(lead)});});assert.equal(result.contactId,'123');assert.equal(call,5);
 });
 test('provider status classification distinguishes retriable and credential failures',async t=>{
  providerTest(t);
@@ -99,7 +99,7 @@ test('provider status classification distinguishes retriable and credential fail
 });
 test('lost create response retries via lookup of existing email',async t=>{
  providerTest(t);let created=false,posts=0;
- const fetcher=async(url,options)=>{if(options.method==='GET')return created?Response.json({id:'123'}):new Response('',{status:404});if(options.method==='POST'){posts++;created=true;throw new Error('lost response');}return Response.json({id:'123'});};
+ const fetcher=async(url,options)=>{if(options.method==='GET')return created?Response.json({id:'123',properties:normalizeContact(lead)}):new Response('',{status:404});if(options.method==='POST'){posts++;created=true;throw new Error('lost response');}return Response.json({id:'123',properties:normalizeContact(lead)});};
  await assert.rejects(syncHubSpotContact(normalizeContact(lead),fetcher));assert.equal((await syncHubSpotContact(normalizeContact(lead),fetcher)).contactId,'123');assert.equal(posts,1);
 });
 test('administrative recovery rejects unauthorized access before external calls',async t=>{
