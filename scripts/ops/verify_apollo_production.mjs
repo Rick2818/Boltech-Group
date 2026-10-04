@@ -15,7 +15,7 @@ try {
   let ready = false;
   for (let i = 0; i < 24; i++) {
     try {
-      const { response, data } = await call('/api/apollo');
+      const { response, data } = await call('/api/crm?action=apollo-readiness');
       if (response.ok && data.apollo?.revision === 'apollo-hardening-v1') {
         if (!data.apollo.configured) throw new Error('APOLLO_NOT_CONFIGURED');
         ready = true; break;
@@ -24,17 +24,17 @@ try {
     await new Promise(resolve => setTimeout(resolve, 5000));
   }
   if (!ready) throw new Error('APOLLO_DEPLOYMENT_NOT_READY');
-  const unauthorized = await call('/api/apollo?action=verify', undefined, false);
+  const unauthorized = await call('/api/crm?action=apollo-verify', undefined, false);
   if (unauthorized.response.status !== 401) throw new Error('APOLLO_AUTH_GUARD_FAILED');
   report.steps.push({ step: 'unauthenticated_access', status: 401 });
-  const { response, data } = await call('/api/apollo?action=verify&perPage=10');
+  const { response, data } = await call('/api/crm?action=apollo-verify&perPage=10');
   if (!response.ok || !data.success || !data.complete) throw new Error(data.code || 'APOLLO_READ_UNCONFIRMED');
   report.steps.push({ step: 'provider_read', pagesRead: data.pagesRead, providerTotal: data.providerTotal, usableContacts: data.usableContacts,
     rejected: data.rejected, emailValidation: data.emailValidation });
   if (process.env.VERIFY_CRM === 'true') {
     if (!data.sampleContactId) throw new Error('APOLLO_NO_SAVED_CONTACT');
     const payload = { contactIds: [data.sampleContactId] };
-    const first = await call('/api/apollo?action=sync', payload);
+    const first = await call('/api/crm?action=apollo-sync', payload);
     if (!first.response.ok || first.data.submitted !== 1) throw new Error(first.data.code || 'APOLLO_CRM_SUBMISSION_FAILED');
     const jobId = first.data.results?.[0]?.jobId;
     if (!/^[a-f0-9]{64}$/.test(jobId || '')) throw new Error('APOLLO_CRM_JOB_MISSING');
@@ -51,11 +51,11 @@ try {
       }
     }
     if (!completed) throw new Error('APOLLO_CRM_NOT_COMPLETED');
-    const repeat = await call('/api/apollo?action=sync', payload);
+    const repeat = await call('/api/crm?action=apollo-sync', payload);
     const result = repeat.data.results?.[0];
     if (!repeat.response.ok || repeat.data.providerConfirmed !== 1 || result.jobId !== jobId || !/^[1-9]\d*$/.test(result.contactId || ''))
       throw new Error('APOLLO_CRM_READBACK_OR_DEDUP_FAILED');
-    const again = await call('/api/apollo?action=sync', payload);
+    const again = await call('/api/crm?action=apollo-sync', payload);
     if (!again.response.ok || again.data.results?.[0]?.jobId !== jobId || again.data.results?.[0]?.contactId !== result.contactId)
       throw new Error('APOLLO_CRM_IDEMPOTENCY_FAILED');
     report.steps.push({ step: 'crm_sync', state: 'COMPLETED', providerConfirmed: true, identicalPayloadDeduplicated: true });
