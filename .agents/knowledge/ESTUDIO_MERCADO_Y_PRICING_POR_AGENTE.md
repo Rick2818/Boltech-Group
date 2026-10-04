@@ -1,3 +1,5 @@
+> **ARCHIVO HISTÓRICO — NO USAR COMO CATÁLOGO VIGENTE (2026-10-04).** Ricardo confirmó únicamente agentes preelaborados y custom agents, sujetos a alcance y precio aprobados. Los planes y cifras siguientes son antecedentes, no precios autorizados ni resultados comprobados.
+
 # Estudio de Mercado B2B y Matriz de Precios por Agente Fiduciario (2025 - 2026)
 
 > Elaborado para la Dirección General y la Custodia Financiera (CFO).  
@@ -64,3 +66,4 @@ Si se monetizan licencias directas diariamente:
 * **Centroamérica y El Salvador:** Acreditación directa vía **Wompi SV** en cuenta bancaria en USD.
 * **Norteamérica y Europa:** Acreditación vía **Stripe** en USD sin fricción internacional.
 * **Global / Criptofiduciario:** Acreditación vía **Strike Lightning** (satoshis convertidos a USD al instante, con 0% de comisiones transfronterizas).
+
