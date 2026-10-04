@@ -126,3 +126,20 @@ test('inbound CRM queue reports pending instead of synthetic success and does no
  const result=await syncInboundLeadToHubSpotAndExplee(lead);
  assert.equal(result.hubspot.success,false);assert.equal(result.hubspot.synced,false);assert.equal(result.hubspot.status,'PENDING');assert.equal(result.explee.success,false);
 });
+
+test('explicit correction retry resumes invalid-response jobs but keeps rate-limit backoff', async () => {
+  let broken = true;
+  const f = fixture(async () => {
+    if (broken) throw Object.assign(new Error(), { code: 'HUBSPOT_INVALID_RESPONSE', retryable: true });
+    return { success: true, contactId: 'verified' };
+  });
+  const { job } = await f.store.enqueue(lead);
+  await f.store.run(job.id);
+  broken = false;
+  await f.store.resume(job.id);
+  assert.equal((await f.store.drain())[0].state, 'COMPLETED');
+  const limited = fixture(async () => { throw Object.assign(new Error(), { code: 'HUBSPOT_RATE_LIMIT', retryable: true }); });
+  const queued = await limited.store.enqueue(lead);
+  await limited.store.run(queued.job.id);
+  await assert.rejects(limited.store.resume(queued.job.id), { code: 'CRM_NOT_BLOCKED' });
+});
