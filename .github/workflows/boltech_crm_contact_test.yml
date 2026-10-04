@@ -1,8 +1,5 @@
 name: Boltech Controlled CRM Contact Test
 on:
-  push:
-    branches: [codex/crm-smoke-test]
-    paths: ['.github/workflows/boltech_crm_contact_test.yml']
   workflow_dispatch:
     inputs:
       resume_test_job:
@@ -26,7 +23,7 @@ jobs:
           node-version: '22'
       - name: Verify controlled contact sync and identical-payload deduplication
         env:
-          RESUME_TEST_JOB: 'true'
+          RESUME_TEST_JOB: ${{ inputs.resume_test_job }}
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
         run: node scripts/ops/crm_contact_smoke_test.mjs
       - uses: actions/upload-artifact@v4
