@@ -27,7 +27,11 @@ try {
   for (let i = 0; i < 12; i++) {
     job = (await call('/api/crm?action=recovery&jobId=' + jobId)).job;
     if (job?.state === 'COMPLETED') break;
-    if (job?.state === 'BLOCKED') throw new Error(job.code || 'CRM_JOB_BLOCKED');
+    if (job?.state === 'BLOCKED') {
+      if (process.env.RESUME_TEST_JOB !== 'true' || i !== 0) throw new Error(job.code || 'CRM_JOB_BLOCKED');
+      await call('/api/crm?action=recovery', { jobId });
+      report.steps.push({ step: 'resume_test_job', jobId });
+    }
     await call('/api/crm?action=recovery', {});
     await new Promise(resolve => setTimeout(resolve, 5000));
   }
