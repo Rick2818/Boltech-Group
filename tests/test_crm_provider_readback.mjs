@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { syncHubSpotContact } from '../lib/crm_recovery.js';
+import { syncHubSpotContact, normalizeContact, hubspotHttpFetch } from '../lib/crm_recovery.js';
 process.env.HUBSPOT_ACCESS_TOKEN = 'local-test-only';
 const properties = { email: 'boltech-crm-test@example.com', firstname: 'PRUEBA TÉCNICA', lastname: 'Boltech CRM' };
 const contact = { id: '252891994553', archived: false, properties };
@@ -67,4 +67,30 @@ test('malformed GET plus missing batch contact never causes a create', async () 
 test('batch fallback rejects a different email', async () => {
   const s = sequence([response(200), response(200, { results: [{ ...contact, properties: { ...properties, email: 'other@example.com' } }] })]);
   await assert.rejects(syncHubSpotContact(properties, s.fetcher), { code: 'HUBSPOT_BATCH_READ_UNCONFIRMED' });
+});
+
+test('wrong lookup identity blocks every mutation', async () => {
+  for (const bad of [{ ...contact, id: '../other' }, { ...contact, properties: { email: 'other@example.com' } }]) {
+    const s = sequence([response(200, bad)]);
+    await assert.rejects(syncHubSpotContact(properties, s.fetcher), { code: 'HUBSPOT_IDENTITY_MISMATCH' });
+    assert.equal(s.calls.length, 1);
+  }
+});
+test('rejects destination changes before opening a socket', async () => {
+  for (const url of ['http://api.hubapi.com/crm/v3/objects/contacts', 'https://example.com/crm/v3/objects/contacts', 'https://api.hubapi.com/oauth/v1/token', 'https://user:pass@api.hubapi.com/crm/v3/objects/contacts']) {
+    await assert.rejects(hubspotHttpFetch(url, { method: 'GET' }), { code: 'HUBSPOT_INVALID_DESTINATION' });
+  }
+});
+test('rate limits honor HTTP dates and missing header fallback', async () => {
+  for (const header of [new Date(Date.now() + 180000).toUTCString(), null]) {
+    await assert.rejects(syncHubSpotContact(properties, async () => new Response(null, { status: 429, headers: header ? { 'Retry-After': header } : {} })), error => {
+      assert.equal(error.code, 'HUBSPOT_RATE_LIMIT');
+      assert.ok(error.retryAfterMs >= (header ? 170000 : 60000));
+      return true;
+    });
+  }
+});
+test('rejects malformed input and control characters', () => {
+  for (const lead of [null, [], { ...properties, firstname: 'name\nInjected' }])
+    assert.throws(() => normalizeContact(lead), { code: 'CRM_INVALID_CONTACT' });
 });
