@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { createApolloClient, normalizeApolloContact, normalizeApolloDomain, normalizeApolloEmail, validateApolloEmail, apolloHttpFetch } from '../lib/apollo_client.js';
 import { parseApolloCsv, syncApolloContacts, mergeApolloPipeline, updatePipelineFile } from '../lib/apollo_pipeline.js';
 import { createApolloCrmQueue } from '../lib/apollo_crm_transport.js';
-import { createApolloHandler } from '../api/apollo.js';
+import { createApolloHandler } from '../lib/apollo_api.js';
 import { createMcpHandler } from '../scripts/mcp/apollo_explee_mcp_server.mjs';
 
 const id = n => String(n).padStart(24, 'a');
