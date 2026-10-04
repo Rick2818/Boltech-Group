@@ -1,5 +1,9 @@
 # Boltech Group
 
+## HubSpot CRM: prueba productiva aprobada — 3 octubre 2026
+
+[Auditoría de recuperación y duplicados](docs/audits/CRM_PRODUCTION_VERIFICATION_2026-10-03.md). Responsable: ChatGPT / Codex. Verificada a las 21:04 SV: prueba real PASS, trabajo COMPLETED, contacto 252891994553 y un solo registro por correo exacto. Los envíos idénticos conservan el mismo job/contact ID. Incluye diagnóstico, corrección de transporte HTTPS, 26 pruebas locales y límites del alcance.
+
 ## Tres agentes RSI: ejecución y trazabilidad — 3 octubre 2026
 
 [Configuración productiva de los tres roles](docs/commercial/rsi_execution.md) · [Verificación de ejecución](docs/audits/RSI_EXECUTION_2026-10-03.md).
