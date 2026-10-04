@@ -38,3 +38,5 @@ jobs:
           path: ops-output/apollo-verification.json
           if-no-files-found: error
           retention-days: 30
+
+# Controlled verification after the provisioned sensitive-key alias deployment.
