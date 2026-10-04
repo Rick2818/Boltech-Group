@@ -1,0 +1,19 @@
+name: CRM Regression Tests
+on:
+  push:
+    branches: [main]
+    paths: ['lib/crm_recovery.js', 'lib/rsi_handoff_store.js', 'tests/test_crm_provider_readback.mjs', '.github/workflows/crm_regression.yml']
+  pull_request:
+    paths: ['lib/crm_recovery.js', 'lib/rsi_handoff_store.js', 'tests/test_crm_provider_readback.mjs', '.github/workflows/crm_regression.yml']
+permissions:
+  contents: read
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/test_crm_provider_readback.mjs
