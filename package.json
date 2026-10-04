@@ -1,7 +1,7 @@
 {
   "name": "unblock-ai-shield",
   "version": "1.0.0",
-  "description": "Unblock AI Shield • Autonomous Cyber-Defense, Perimeter Hardening & Turnkey Peace of Mind for Business Leaders",
+  "description": "Boltech Group \u2014 Prebuilt agents and custom agents for business workflows",
   "type": "module",
   "main": "index.html",
   "scripts": {
@@ -27,15 +27,13 @@
     "mcp:stdio": "node lib/boltech_mcp_server.js"
   },
   "keywords": [
-    "cybersecurity",
-    "autonomous-agent",
-    "peace-of-mind",
-    "antigravity",
-    "defense-shield",
-    "strike",
-    "wompi"
+    "prebuilt-agents",
+    "custom-agents",
+    "workflow-automation",
+    "wompi",
+    "strike"
   ],
-  "author": "Unblock AI & Boltech Group",
+  "author": "Boltech Group",
   "license": "MIT",
   "dependencies": {
     "@ai-sdk/google": "^4.0.79",

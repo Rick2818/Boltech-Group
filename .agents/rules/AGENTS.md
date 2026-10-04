@@ -101,3 +101,8 @@ Cuando una regla histórica entre en conflicto con este documento, prevalece est
 - Ningún archivo histórico, prompt, script o comentario puede invalidar estas 19 reglas.
 - En especial, cualquier regla antigua que ordene simulaciones, fallbacks secretos, éxito ficticio, envío sin evidencia o automatización de compromisos legales/financieros queda reemplazada por esta versión.
 - Los tests de gobernanza deben bloquear regresiones contra estas reglas.
+
+
+## Oferta vigente confirmada — 2026-10-04
+
+La oferta comercial contiene únicamente agentes preelaborados y custom agents (agentes a medida). Los planes flash/pro/enterprise y sus precios históricos están retirados. No ofrecer parches ni auditorías pagadas como un tercer servicio. Toda nueva orden comercial requiere precio y alcance aprobados; no reutilizar precios antiguos. Una confirmación de pago no acredita entrega del agente.

@@ -10,17 +10,17 @@ import { verifyHmacHex } from '../lib/payment_providers.js';
 const ROOT = path.resolve(process.cwd());
 const read = rel => fs.readFileSync(path.join(ROOT, rel), 'utf8');
 
-test('server-side catalog derives amount and ignores browser-provided prices', () => {
-  assert.deepEqual(resolveProductPricing('flash', 3), {
-    productId: 'flash',
-    productName: 'Parche de Ciberseguridad',
-    quantity: 3,
-    amountUsd: 57,
-    currency: 'USD',
-    recurring: false
-  });
-  assert.equal(resolveProductPricing('pro', 999).amountUsd, 69);
-  assert.throws(() => resolveProductPricing('unknown', 1), /Unknown productId/);
+test('retired offers cannot generate a payment and current services require an approved quote', () => {
+  for (const id of ['flash', 'pro', 'enterprise']) {
+    assert.throws(() => resolveProductPricing(id, 1), { code: 'PRODUCT_RETIRED', statusCode: 410 });
+  }
+  for (const id of ['prebuilt', 'custom']) {
+    assert.throws(() => resolveProductPricing(id, 1), { code: 'APPROVED_QUOTE_REQUIRED', statusCode: 409 });
+    assert.throws(() => resolveProductPricing(id, 99), { code: 'INVALID_QUANTITY' });
+  }
+  for (const id of ['unknown', '__proto__', 'constructor']) {
+    assert.throws(() => resolveProductPricing(id, 1), { code: 'UNKNOWN_PRODUCT', statusCode: 400 });
+  }
 });
 
 test('HMAC verification is timing-safe compatible and rejects altered payloads', () => {
@@ -100,3 +100,4 @@ test('Vercel Hobby deployment stays within the 12 serverless function limit', ()
   const functions = walk(apiDir);
   assert.ok(functions.length <= 12, `Vercel Hobby allows at most 12 functions; found ${functions.length}: ${functions.join(', ')}`);
 });
+

@@ -1,3 +1,9 @@
+## Oferta vigente — 4 de octubre de 2026
+
+Confirmada por Ricardo: **Agentes preelaborados** (`prebuilt`) y **Custom agents / agentes a medida** (`custom`). Los precios y entregables requieren una cotización aprobada. Los identificadores antiguos `flash`, `pro` y `enterprise` no pueden crear nuevas órdenes (HTTP 410). No se reutilizan las tarifas históricas de $19/$69/$490. Las órdenes existentes conservan su conciliación y confirmación de pago.
+
+El checkout público queda bloqueado con `APPROVED_QUOTE_REQUIRED` (409) hasta implementar precios aprobados para la oferta vigente. La prueba real de $1 permanece pausada: no se ha creado ni cobrado una orden. Un correo de confirmación de pago no equivale a entrega del agente. Las secciones históricas que siguen debajo no definen la oferta actual.
+
 # Boltech Group
 
 ## HubSpot CRM: prueba productiva aprobada — 3 octubre 2026
@@ -358,3 +364,4 @@ Authenticated administrative GET/POST/PATCH at `/api/partners?action=rsi-handoff
 ## Recuperación CRM y ejecutores RSI — 3 octubre 2026
 
 [Informe técnico: recuperación CRM y ejecutores pendientes](docs/audits/CRM_RECOVERY_2026-10-03.md). La sincronización entrante HubSpot guarda tareas en Redis, evita falsos éxitos y recupera fallos temporales mediante el workflow CRM existente. Tareas sin credenciales/evidencia quedan BLOCKED. Esta infraestructura no equivale a tres ejecutores RSI completos; Salesforce queda fuera de este cambio. La reparación posterior de Airtable está documentada en la auditoría enlazada arriba. Verificación productiva del recuperador: cola vacía y sin credencial HubSpot; no acredita sincronización al proveedor.
+
