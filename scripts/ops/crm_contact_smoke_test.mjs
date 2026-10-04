@@ -24,7 +24,7 @@ try {
   report.jobId = jobId;
   report.steps.push({ step: 'enqueue', status: first.data.hubspot.status });
   let job;
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < 48; i++) {
     job = (await call('/api/crm?action=recovery&jobId=' + jobId)).job;
     if (job?.state === 'COMPLETED') break;
     if (job?.state === 'BLOCKED') {
