@@ -32,8 +32,8 @@ test('does not report success when saved properties differ', async () => {
 });
 test('does not accept archived or missing read responses', async () => {
   for (const data of [{}, { ...contact, archived: true }]) {
-    const s = sequence([response(404), response(201, contact), response(200, data)]);
-    await assert.rejects(syncHubSpotContact(properties, s.fetcher), { code: 'HUBSPOT_INVALID_RESPONSE' });
+    const s = sequence([response(404), response(201, contact), response(200, data), response(200, { results: [] })]);
+    await assert.rejects(syncHubSpotContact(properties, s.fetcher), { code: data.archived ? 'HUBSPOT_CONTACT_ARCHIVED' : 'HUBSPOT_BATCH_READ_UNCONFIRMED' });
   }
 });
 test('preserves authentication errors and stops before mutation', async () => {
@@ -49,4 +49,22 @@ test('recovers a create conflict by updating and verifying the existing ID', asy
 test('rejects a different contact ID in the verification read', async () => {
   const s = sequence([response(200, contact), response(200, contact), response(200, { ...contact, id: '999' })]);
   await assert.rejects(syncHubSpotContact(properties, s.fetcher), { code: 'HUBSPOT_IDENTITY_MISMATCH' });
+});
+
+test('malformed successful GET recovers through batch read and verifies same saved contact', async () => {
+  const batch = () => response(200, { results: [contact] });
+  const s = sequence([response(200), batch(), response(200, contact), response(200), batch()]);
+  assert.equal((await syncHubSpotContact(properties, s.fetcher)).contactId, contact.id);
+  assert.deepEqual(s.calls.map(x => x.method), ['GET', 'POST', 'PATCH', 'GET', 'POST']);
+  assert.ok(s.calls[1].url.endsWith('/batch/read'));
+  assert.ok(s.calls[4].url.endsWith('/batch/read'));
+});
+test('malformed GET plus missing batch contact never causes a create', async () => {
+  const s = sequence([response(200), response(200, { results: [] })]);
+  await assert.rejects(syncHubSpotContact(properties, s.fetcher), { code: 'HUBSPOT_BATCH_READ_UNCONFIRMED' });
+  assert.ok(s.calls.every(x => !x.url.endsWith('/contacts')));
+});
+test('batch fallback rejects a different email', async () => {
+  const s = sequence([response(200), response(200, { results: [{ ...contact, properties: { ...properties, email: 'other@example.com' } }] })]);
+  await assert.rejects(syncHubSpotContact(properties, s.fetcher), { code: 'HUBSPOT_BATCH_READ_UNCONFIRMED' });
 });
