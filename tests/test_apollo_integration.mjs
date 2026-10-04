@@ -214,3 +214,17 @@ test('MCP global search invokes the real search client', async () => {
   const result = await handler({ jsonrpc: '2.0', id: 5, method: 'tools/call', params: { name: 'apollo_search_infrastructure_leads', arguments: { locations: ['Spain'] } } });
   assert.equal(called, true); assert.equal(result.result.isError, undefined);
 });
+
+test('collection budget stops further pages instead of returning a partial list', async () => {
+  let clock = 0, calls = 0;
+  const client = createApolloClient({ apiKey: 'test', now: () => clock, fetcher: async () => {
+    calls++; clock += 100;
+    return response(200, page([row(1)], 1, 2));
+  }, sleep: async () => {} });
+  await assert.rejects(client.listSavedContacts({ perPage: 1, budgetMs: 50 }), { code: 'APOLLO_OPERATION_TIMEOUT' });
+  assert.equal(calls, 1);
+});
+test('legacy dispatcher fails closed on import and invocation without opening a mail transport', async () => {
+  const { dispatchApolloBatch } = await import('../scripts/outbound/dispatch_apollo_batch_1.mjs');
+  await assert.rejects(dispatchApolloBatch(), { code: 'APOLLO_LEGACY_DISPATCH_DISABLED' });
+});
