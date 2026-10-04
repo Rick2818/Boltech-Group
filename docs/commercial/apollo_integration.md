@@ -27,6 +27,6 @@ Legacy CSV import now submits genuine contacts through the authenticated CRM que
 The legacy Apollo bulk dispatcher is retired because it lacked a durable delivery ledger and contained unsupported claims. Existing approved sales agents retain their role. The MCP no longer claims a rendered video or Airtable write from a generated URL/local JSON file.
 
 ## Acceptance
-31 focused contract tests cover pagination, authentication, limits, retries, timeouts, source identity, MX uncertainty, CSV parsing, local persistence, CRM states and MCP provider calls. Governance includes this group and all existing safeguard groups.
+33 focused contract tests cover pagination, authentication, limits, retries, timeouts, source identity, MX uncertainty, CSV parsing, local persistence, CRM states and MCP provider calls. Governance includes this group and all existing safeguard groups.
 
 The manual Apollo Production Acceptance workflow reads actual Apollo data without paid enrichment or sending mail. Its optional verify_crm input synchronizes one existing saved contact and confirms durable CRM completion and identical-payload deduplication. Reports exclude tokens, email addresses and personal names. Production acceptance must be recorded separately before assigning an operational score.
