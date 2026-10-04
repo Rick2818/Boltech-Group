@@ -1,8 +1,5 @@
 name: Apollo Production Acceptance
 on:
-  push:
-    branches: [codex/apollo-hardening]
-    paths: [.github/workflows/apollo_production_acceptance.yml]
   workflow_dispatch:
     inputs:
       verify_crm:
@@ -24,12 +21,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Allow runtime redeployment to finish
-        run: sleep 45
       - name: Run authenticated production acceptance
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
-          VERIFY_CRM: 'true'
+          VERIFY_CRM: ${{ inputs.verify_crm }}
         run: node scripts/ops/verify_apollo_production.mjs
       - uses: actions/upload-artifact@v4
         if: always()
@@ -38,5 +33,3 @@ jobs:
           path: ops-output/apollo-verification.json
           if-no-files-found: error
           retention-days: 30
-
-# Controlled verification after the provisioned sensitive-key alias deployment.
