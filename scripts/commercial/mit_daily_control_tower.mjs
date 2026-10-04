@@ -1,3 +1,4 @@
+import { createApolloClient } from '../../lib/apollo_client.js';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { CAMPAIGN_ID, normalizeCampaign, decideTraction } from './traction_cycle.mjs';
 import { evaluateCommercialProgress, buildMitAgenda } from './zero_to_first_sale.mjs';
@@ -68,20 +69,15 @@ async function checkApollo() {
     return;
   }
   try {
-    const r = await jsonFetch('https://api.apollo.io/v1/contacts/search', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Api-Key': APOLLO_API_KEY
-      },
-      body: JSON.stringify({ page: 1, per_page: 25 })
-    });
-    report.apollo.reachable = r.ok;
-    report.apollo.savedContacts = Array.isArray(r.data?.contacts) ? r.data.contacts.length : null;
-    if (r.ok && report.apollo.savedContacts === null) report.apollo.note = 'Respuesta sin lista de contactos verificable.';
-    if (!r.ok) report.apollo.note = `HTTP ${r.status}`;
+    const batch = await createApolloClient().listSavedContacts({ perPage: 100, maxPages: 20 });
+    report.apollo.reachable = true;
+    report.apollo.savedContacts = batch.totalEntries ?? batch.contacts.length;
+    report.apollo.usableContacts = batch.contacts.length;
+    report.apollo.pagesRead = batch.pagesRead;
+    report.apollo.rejected = batch.rejected;
+    report.apollo.complete = batch.complete;
   } catch (err) {
-    report.apollo.note = err.message;
+    report.apollo.note = err.code || 'APOLLO_REQUEST_FAILED';
   }
 }
 
@@ -89,13 +85,9 @@ async function checkCampaign() {
   report.apollo.campaign = { status: 'unavailable', note: 'APOLLO_API_KEY ausente.' };
   if (!APOLLO_API_KEY) return;
   try {
-    const r = await jsonFetch('https://api.apollo.io/api/v1/emailer_campaigns/search', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Api-Key': APOLLO_API_KEY },
-      body: JSON.stringify({ q_name: 'Boltech | Customer Requests | Oct 2026 | EN', page: 1, per_page: 10 })
-    });
-    report.apollo.campaign = r.ok ? normalizeCampaign(r.data, CAMPAIGN_ID)
-      : { status: 'unavailable', note: 'Apollo campaign HTTP ' + r.status };
+    const data = await createApolloClient().request('emailer_campaigns/search', { body:
+      { q_name: 'Boltech | Customer Requests | Oct 2026 | EN', page: 1, per_page: 10 } });
+    report.apollo.campaign = normalizeCampaign(data, CAMPAIGN_ID);
   } catch {
     report.apollo.campaign = { status: 'unavailable', note: 'Fallo de lectura de campaña.' };
   }
@@ -106,14 +98,11 @@ async function checkAuditCampaign() {
   report.apollo.auditCampaign = { status: 'unavailable', active: null, note: 'APOLLO_API_KEY ausente.' };
   if (!APOLLO_API_KEY) return;
   try {
-    const r = await jsonFetch('https://api.apollo.io/api/v1/emailer_campaigns/search', {
-      method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Api-Key': APOLLO_API_KEY },
-      body: JSON.stringify({ q_name: AUDIT_CAMPAIGN.name, page: 1, per_page: 10 })
-    });
-    const row = r.data?.emailer_campaigns?.find(item => item.id === AUDIT_CAMPAIGN.id);
-    report.apollo.auditCampaign = r.ok ? { ...normalizeCampaign(r.data, AUDIT_CAMPAIGN.id),
-      active: typeof row?.active === 'boolean' ? row.active : null }
-      : { status: 'unavailable', active: null, note: 'Apollo audit campaign HTTP ' + r.status };
+    const data = await createApolloClient().request('emailer_campaigns/search', { body:
+      { q_name: AUDIT_CAMPAIGN.name, page: 1, per_page: 10 } });
+    const row = data?.emailer_campaigns?.find(item => item.id === AUDIT_CAMPAIGN.id);
+    report.apollo.auditCampaign = { ...normalizeCampaign(data, AUDIT_CAMPAIGN.id),
+      active: typeof row?.active === 'boolean' ? row.active : null };
   } catch {
     report.apollo.auditCampaign = { status: 'unavailable', active: null, note: 'Fallo de lectura de campaña de auditoría.' };
   }
@@ -202,3 +191,4 @@ await writeFile('ops-output/commercial-report.json', JSON.stringify(report, null
 if (process.env.GITHUB_STEP_SUMMARY) {
   await writeFile(process.env.GITHUB_STEP_SUMMARY, message + '\n');
 }
+

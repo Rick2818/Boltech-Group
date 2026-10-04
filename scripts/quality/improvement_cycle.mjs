@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 const root = resolve(import.meta.dirname, '../..');
 const output = resolve(root, 'artifacts/improvement-cycle');
 const groups = [
+  { name: 'Apollo reliable intake and CRM contracts', files: ['tests/test_apollo_integration.mjs'] },
   { name: 'RSI agent execution receipts', files: ['tests/test_rsi_agent_status.mjs', 'tests/test_rsi_agent_executor.mjs'] },
   { name: 'Durable CRM recovery', files: ['tests/test_crm_recovery.mjs'] },
   { name: 'Durable RSI handoffs', files: ['tests/test_rsi_handoff.mjs'] },
@@ -87,3 +88,4 @@ if (process.env.GITHUB_STEP_SUMMARY) {
 }
 console.log(summary);
 process.exitCode = passed ? 0 : 1;
+
