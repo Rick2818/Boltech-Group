@@ -27,7 +27,7 @@ try {
   for (let i = 0; i < 48; i++) {
     job = (await call('/api/crm?action=recovery&jobId=' + jobId)).job;
     if (job?.state === 'COMPLETED') break;
-    if (job?.state === 'BLOCKED' || (i === 0 && process.env.RESUME_TEST_JOB === 'true' && job?.state === 'RETRY_PENDING' && job?.code === 'HUBSPOT_INVALID_RESPONSE')) {
+    if (job?.state === 'BLOCKED' || (i === 0 && process.env.RESUME_TEST_JOB === 'true' && job?.state === 'RETRY_PENDING' && ['HUBSPOT_INVALID_RESPONSE', 'HUBSPOT_BATCH_READ_UNCONFIRMED'].includes(job?.code))) {
       if (process.env.RESUME_TEST_JOB !== 'true' || i !== 0) throw new Error(job.code || 'CRM_JOB_BLOCKED');
       await call('/api/crm?action=recovery', { jobId });
       report.steps.push({ step: 'resume_test_job', jobId });
