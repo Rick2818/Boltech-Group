@@ -96,7 +96,7 @@ export default async function handler(req, res) {
 
   // Restore only an absent webhook or the existing Boltech destination. Never
   // overwrite another integration, drop queued updates or disclose bot secrets.
-  if (req.query?.action === 'repair-webhook') {
+  if (['repair-webhook', 'replace-webhook'].includes(req.query?.action)) {
     if (!requireOperationalAuth(req, res)) return;
     const botToken = String(process.env.TELEGRAM_BOT_TOKEN || '').trim();
     const secret = String(process.env.TELEGRAM_WEBHOOK_SECRET || '').trim();
@@ -108,7 +108,7 @@ export default async function handler(req, res) {
       if (!infoResponse.ok || info.ok !== true || typeof info.result?.url !== 'string') {
         return res.status(502).json({ ok: false, code: 'TELEGRAM_DIAGNOSTIC_FAILED' });
       }
-      if (info.result.url && info.result.url !== expectedUrl) {
+      if (info.result.url && info.result.url !== expectedUrl && req.query.action !== 'replace-webhook') {
         return res.status(409).json({ ok: false, code: 'TELEGRAM_OTHER_WEBHOOK_PRESENT' });
       }
       const response = await fetch(`https://api.telegram.org/bot${botToken}/setWebhook`, {
