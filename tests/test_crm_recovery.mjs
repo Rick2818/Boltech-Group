@@ -31,6 +31,19 @@ function fixture(sync = async () => ({ success: true, contactId: 'provider-1' })
   return { command, store: createCrmRecovery({ command, sync, now: () => time }), advance: () => { time += 4000000; } };
 }
 const lead = { email: ' QA@example.com ', company: 'QA' };
+test('complete requests survive restart and identical retries preserve their reference', async () => {
+  const f = fixture();
+  const input = { ...lead, painPoint: 'Cotizaciones incompletas', service: 'custom' };
+  const first = await f.store.enqueue(input);
+  const retry = await f.store.enqueue(input);
+  assert.equal(first.job.id, retry.job.id);
+  assert.equal(retry.created, false);
+  const restarted = createCrmRecovery({ command: f.command });
+  assert.deepEqual((await restarted.read(first.job.id)).request, { painPoint: input.painPoint, service: 'custom' });
+  const changed = await f.store.enqueue({ ...input, painPoint: 'Otra solicitud' });
+  assert.notEqual(changed.job.id, first.job.id);
+  assert.equal((await restarted.read(first.job.id)).request.painPoint, input.painPoint);
+});
 test('contact validation and stable normalized duplicate enqueue',async()=>{
   assert.throws(()=>normalizeContact({email:'invalid'}));
   const {store}=fixture();const a=await store.enqueue(lead),b=await store.enqueue({...lead,email:'qa@example.com'});

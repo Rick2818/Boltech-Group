@@ -206,19 +206,42 @@ BolTech Group`;
       `;
     }
 
+    // Persist the complete request before acknowledging it or sending a receipt.
+    let crmSync;
+    try {
+      crmSync = await syncInboundLeadToHubSpotAndExplee({
+        email: cleanEmail, companyName: cleanCompany,
+        painPoint: cleanPainPoint, message: cleanMessage, domain: cleanDomain,
+        service: isCustomAgentRequest ? 'Custom Agents (Proceso Lento)' : isCustomSupportInquiry ? 'Support' : 'Unblock AI Shield'
+      });
+      if (!crmSync?.hubspot?.jobId) throw new Error('CRM_RECORD_UNCONFIRMED');
+    } catch {
+      return res.status(503).json({ success: false, registration: { status: 'FAILED' },
+        error: 'No se pudo guardar la solicitud. No se envió un correo de confirmación.' });
+    }
+    const registration = { status: 'RECORDED', requestId: crmSync.hubspot.jobId,
+      contactSyncStatus: crmSync.hubspot.status };
+    textContent += '\n\nReferencia de solicitud: ' + registration.requestId;
+    htmlContent += '<p>Referencia de solicitud: ' + registration.requestId + '</p>';
+
     // DISPARO EN RED REAL (LIVE NETWORK OBLIGATORIO)
-    const dispatchResult = await dispatchUniversalEmail({
+    let dispatchResult;
+    try { dispatchResult = await dispatchUniversalEmail({
       to: cleanEmail,
       subject,
       text: textContent,
       html: htmlContent
-    });
+    }); } catch {
+      return res.status(503).json({ success: false, registration, deliveryStatus: 'UNKNOWN',
+        error: 'Solicitud guardada, pero no se confirmó el correo. Contacta a soporte con la referencia antes de reintentar.' });
+    }
 
     console.log(`[LIVE EMAIL DISPATCH] Success: ${dispatchResult.success} | Transport: ${dispatchResult.transport} | Provider status: ${dispatchResult.deliveryStatus || 'UNKNOWN'}`);
 
     if (!dispatchResult.success || dispatchResult.acceptedByProvider !== true) {
       return res.status(503).json({
         success: false,
+        registration,
         error: 'El correo no fue aceptado por el proveedor. No se reporta como enviado.',
         deliveryStatus: dispatchResult.deliveryStatus || 'FAILED',
         transport: dispatchResult.transport || null
@@ -244,24 +267,11 @@ BolTech Group`;
       }
     }
 
-    // SINCRONIZACIÓN COMERCIAL BIDIRECCIONAL (HUBSPOT CRM & EXPLEE AI)
-    let crmSync = null;
-    try {
-      crmSync = await syncInboundLeadToHubSpotAndExplee({
-        email: cleanEmail,
-        companyName: cleanCompany,
-        painPoint: cleanPainPoint || cleanMessage,
-        service: isCustomAgentRequest ? 'Custom Agents (Proceso Lento)' : 'Unblock AI Shield',
-        amount: 0
-      });
-    } catch (syncErr) {
-      console.warn('[CRM / EXPLEE SYNC NON-BLOCKING]', syncErr.message);
-    }
-
     return res.status(200).json({
       success: true,
+      registration,
       message: isCustomAgentRequest
-        ? 'Requerimiento registrado; Gmail SMTP aceptó el correo de confirmación.'
+        ? 'Solicitud guardada; el proveedor aceptó el correo de confirmación. La cotización requiere evaluación y aprobación.'
         : 'El proveedor de correo aceptó el diagnóstico para despacho.',
       domain: cleanDomain,
       cabinaUrl: isCustomAgentRequest ? cabinaUrl : undefined,
@@ -273,6 +283,6 @@ BolTech Group`;
     });
   } catch (err) {
     console.error('[LEAD HANDLER CRITICAL ERROR]', err);
-    return res.status(500).json({ error: 'Error interno al procesar el diagnóstico técnico', details: err.message });
+    return res.status(500).json({ error: 'Error interno al procesar la solicitud' });
   }
 }

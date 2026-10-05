@@ -2011,7 +2011,7 @@
           body: JSON.stringify({ email, domain, timestamp: new Date().toISOString() })
         });
         const data = await resp.json().catch(() => ({}));
-        sent = resp.ok;
+        sent = resp.ok && data.success === true;
         errorMessage = data.error || '';
       } catch (err) {
         errorMessage = 'No pudimos contactar el servidor. Inténtalo de nuevo.';
@@ -2030,7 +2030,7 @@
       }
 
       feedback.className = 'text-[10px] text-emerald-400 mt-1 font-mono';
-      feedback.textContent = `✓ Informe enviado a ${email}. Revisa tu bandeja de entrada (y spam). Soporte directo: ricardo.boltechgroup@gmail.com`;
+      feedback.textContent = `✓ El proveedor aceptó el informe para ${email}. Revisa tu bandeja de entrada (y spam). Soporte directo: ricardo.boltechgroup@gmail.com`;
       emailInput.value = '';
       if (submitBtn) {
         submitBtn.disabled = false;
@@ -2563,7 +2563,7 @@
         });
         const data = await resp.json().catch(() => ({}));
         if (!resp.ok || data.success !== true) {
-          throw new Error(data.error || 'No se pudo confirmar el despacho.');
+          throw new Error(data.registration?.status === 'RECORDED' ? 'Solicitud guardada con referencia ' + data.registration.requestId + '; correo no confirmado.' : (data.error || 'No se pudo confirmar el despacho.'));
         }
         if (feedback) {
           feedback.classList.remove('hidden');
@@ -2575,12 +2575,12 @@
         console.error('[Support Send Error]', err);
         if (feedback) {
           feedback.classList.remove('hidden');
-          feedback.textContent = '⚠️ No se confirmó el envío. Intenta nuevamente o contacta a ricardo.boltechgroup@gmail.com.';
+          feedback.textContent = '⚠️ ' + err.message;
         }
       }
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.innerText = 'Mensaje Enviado ✓';
+        submitBtn.innerText = 'Enviar Mensaje a Ingeniería →';
         setTimeout(() => {
           submitBtn.innerText = 'Enviar Mensaje a Ingeniería →';
         }, 3500);
@@ -2624,7 +2624,7 @@
         });
         const data = await resp.json().catch(() => ({}));
         if (!resp.ok || data.success !== true) {
-          throw new Error(data.error || 'No se pudo confirmar el registro y despacho.');
+          throw new Error(data.registration?.status === 'RECORDED' ? 'Solicitud guardada con referencia ' + data.registration.requestId + '; correo no confirmado. Contacta a ricardo.boltechgroup@gmail.com antes de reintentar.' : (data.error || 'No se pudo confirmar el registro.'));
         }
 
         if (directCabinaBtn) {
@@ -2637,13 +2637,14 @@
 
         if (submitBtn) {
           submitBtn.classList.add('opacity-70');
-          if (submitLabel) submitLabel.textContent = '✓ Requerimiento Registrado';
+          if (submitLabel) submitLabel.textContent = '✓ Solicitud guardada';
+          if (feedback) feedback.textContent = 'Referencia: ' + data.registration.requestId + '. Correo aceptado para despacho; entrega pendiente de confirmar. Contacto CRM: ' + (data.crmSync?.synced ? 'confirmado' : 'pendiente de sincronización') + '. Cotización pendiente de evaluación.';
         }
       } catch (err) {
         console.error('[Pain Intake Submit Error]', err);
         if (feedback) {
           feedback.classList.remove('hidden');
-          feedback.textContent = '⚠️ No se confirmó el envío. Tu solicitud no se mostrará como despachada hasta tener evidencia del proveedor.';
+          feedback.textContent = '⚠️ ' + err.message;
         }
         if (submitBtn) {
           submitBtn.disabled = false;
