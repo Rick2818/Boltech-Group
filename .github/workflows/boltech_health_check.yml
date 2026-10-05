@@ -75,7 +75,8 @@ jobs:
           if (!ready) throw new Error('Privacy deployment not ready within monitoring grace period.');
           JS
       - name: Replace Telegram destination authorized by Ricardo
-        if: github.event_name == 'push' && github.event.head_commit.message == 'ops: execute authorized Boltech Telegram destination replacement 2026-10-05'
+        if: >-
+          github.event_name == 'push' && github.event.head_commit.message == 'ops: execute authorized Boltech Telegram destination replacement 2026-10-05'
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
         run: |
