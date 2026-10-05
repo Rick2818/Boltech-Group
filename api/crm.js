@@ -58,14 +58,16 @@ export default async function handler(req, res) {
       const store = createCrmRecovery();
       if (req.method === 'POST') {
         const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+        if (body.runJobId) return res.status(200).json({ success: true, result: await store.run(body.runJobId) });
         if (body.jobId) return res.status(200).json({ success: true, result: await store.resume(body.jobId) });
         return res.status(200).json({ success: true, results: await store.drain(), recovery: await store.status() });
       }
       if (req.method === 'GET') {
         const id = req.query?.jobId || url.searchParams.get('jobId');
-        if (!id) return res.status(200).json({ success: true, recovery: await store.status() });
+        if (!id) return res.status(200).json({ success: true, recoveryContractVersion: 1, recovery: await store.status() });
         const job = await store.read(id);
-        return res.status(job ? 200 : 404).json({ success: Boolean(job), job: job ? { id: job.id, state: job.state, attempts: job.attempts, code: job.code, history: job.history } : null });
+        return res.status(job ? 200 : 404).json({ success: Boolean(job), job: job ? { id: job.id, state: job.state, attempts: job.attempts, code: job.code, history: job.history,
+          request: job.request || null, contactId: job.result?.contactId || null } : null });
       }
       return res.status(405).json({ success: false, code: 'METHOD_NOT_ALLOWED' });
     }
