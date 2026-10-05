@@ -4,6 +4,39 @@ import crypto from 'node:crypto';
 import { recoverWompiOrder, reconcileWompiRedirect } from '../lib/payment_reconciliation.js';
 import { resolveApprovedQuote } from '../lib/payment_catalog.js';
 import handler from '../api/payments.js';
+import { claimPaymentCreation, getVerifiedSalesMetrics } from '../lib/payment_store.js';
+import { fulfillPaidOrder } from '../lib/payment_fulfillment.js';
+
+test('technical verification never activates a service', async () => {
+  assert.deepEqual(await fulfillPaidOrder({ status: 'PAID', productId: 'payment-verification' }),
+    { fulfilled: false, technicalTest: true, serviceDeliveryRequired: false });
+});
+
+test('creation claim admits one concurrent request and metrics exclude the real dollar test', async () => {
+  const originalFetch = globalThis.fetch;
+  const keys = ['UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN', 'AIRTABLE_TOKEN'];
+  const previous = Object.fromEntries(keys.map(k => [k, process.env[k]]));
+  Object.assign(process.env, { UPSTASH_REDIS_REST_URL: 'https://redis.example', UPSTASH_REDIS_REST_TOKEN: 'unit', AIRTABLE_TOKEN: 'unit' });
+  let claimed = false;
+  globalThis.fetch = async url => {
+    if (url === 'https://redis.example') {
+      const result = claimed ? null : 'OK'; claimed = true;
+      return new Response(JSON.stringify({ result }), { status: 200 });
+    }
+    return new Response(JSON.stringify({ records: [{ id: 'recTest', fields: {
+      Status: 'PAID', Environment: 'production', 'Product ID': 'payment-verification',
+      'Expected Amount USD': 1, 'Paid At': '2026-10-05T16:14:16Z',
+      'Provider Transaction ID': 'tx-test', 'Provider Evidence': '{"approved":true}'
+    } }] }), { status: 200 });
+  };
+  try {
+    assert.deepEqual((await Promise.all([claimPaymentCreation('Q1'), claimPaymentCreation('Q1')])).sort(), [false, true]);
+    assert.deepEqual(await getVerifiedSalesMetrics(), { paidOrders: 0, cashCollectedUsd: 0 });
+  } finally {
+    globalThis.fetch = originalFetch;
+    for (const key of keys) if (previous[key] === undefined) delete process.env[key]; else process.env[key] = previous[key];
+  }
+});
 
 test('administrative quote requires explicit approval and cents precision', () => {
   const quote = { approved: true, quoteReference: 'Q-1', productId: 'custom', approvedAmountUsd: 25 };

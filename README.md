@@ -2,7 +2,9 @@
 
 Confirmada por Ricardo: **Agentes preelaborados** (`prebuilt`) y **Custom agents / agentes a medida** (`custom`). Los precios y entregables requieren una cotización aprobada. Los identificadores antiguos `flash`, `pro` y `enterprise` no pueden crear nuevas órdenes (HTTP 410). No se reutilizan las tarifas históricas de $19/$69/$490. Las órdenes existentes conservan su conciliación y confirmación de pago.
 
-El checkout público queda bloqueado con `APPROVED_QUOTE_REQUIRED` (409) hasta implementar precios aprobados para la oferta vigente. La prueba real de $1 permanece pausada: no se ha creado ni cobrado una orden. Un correo de confirmación de pago no equivale a entrega del agente. Las secciones históricas que siguen debajo no definen la oferta actual.
+El checkout público exige cotización aprobada (`APPROVED_QUOTE_REQUIRED`, 409). El endpoint administrativo `POST /api/payments?action=create-approved` permite crear un enlace Wompi con aprobación explícita, referencia de cotización e importe USD; requiere autenticación operacional. El importe público no puede modificar una cotización. Los reintentos reutilizan la orden y el enlace; los resultados inciertos exigen conciliación.
+
+El 5 de octubre se cobró una prueba real de US$1 mediante un enlace creado en Wompi. Su orden se importó como `payment-verification` y se recupera consultando al proveedor con `POST /api/payments?action=wompi-recover` (administrativo). El evento original de discrepancia se conserva. Esta prueba se excluye de ventas de agentes y no dispara entrega de servicio. El abono bancario requiere verificación adicional. Un correo de confirmación de pago no equivale a entrega del agente. Las secciones históricas que siguen debajo no definen la oferta actual.
 
 # Boltech Group
 
