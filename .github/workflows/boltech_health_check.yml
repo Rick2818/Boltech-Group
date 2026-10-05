@@ -74,7 +74,33 @@ jobs:
           }
           if (!ready) throw new Error('Privacy deployment not ready within monitoring grace period.');
           JS
+      - name: Recover missing Boltech Telegram webhook
+        env:
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+        run: |
+          node --input-type=module <<'JS'
+          const base = 'https://boltech-group.vercel.app/api/telegram';
+          const health = await fetch(base + '?deep=1', { signal: AbortSignal.timeout(15000) });
+          const state = await health.json();
+          if (!health.ok || state.telegramConfigured !== true) throw new Error('TELEGRAM_DIAGNOSTIC_FAILED');
+          if (state.webhookConfigured === false) {
+            const token = String(process.env.PARTNER_API_TOKEN || '').trim();
+            if (!token) throw new Error('ADMIN_MONITOR_CREDENTIAL_MISSING');
+            const repair = await fetch(base + '?action=repair-webhook', {
+              method: 'POST', headers: { Authorization: 'Bearer ' + token },
+              signal: AbortSignal.timeout(25000)
+            });
+            const result = await repair.json();
+            if (!repair.ok || result.ok !== true) {
+              const code = result.code === 'TELEGRAM_OTHER_WEBHOOK_PRESENT'
+                ? 'TELEGRAM_OTHER_WEBHOOK_PRESENT' : 'TELEGRAM_REPAIR_FAILED';
+              throw new Error(code);
+            }
+            console.log('TELEGRAM_WEBHOOK_RESTORED; pending updates preserved.');
+          }
+          JS
       - name: Check production and execution history
+        if: ${{ !cancelled() }}
         env:
           WATCH_EVENT_NAME: ${{ github.event_name }}
           WATCH_SCHEDULE: ${{ github.event.schedule }}
