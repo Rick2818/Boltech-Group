@@ -1,9 +1,10 @@
 import crypto from 'node:crypto';
 import { requireOperationalAuth } from '../lib/operational_auth.js';
 import { checkRateLimit, resolveCorsOrigin } from '../lib/fiduciary_core.js';
-import { resolveProductPricing, getPaymentEnvironment } from '../lib/payment_catalog.js';
+import { resolveProductPricing, resolveApprovedQuote, getPaymentEnvironment } from '../lib/payment_catalog.js';
 import {
   createOrder,
+  claimPaymentCreation,
   getOrderByOrderId,
   getPaymentStoreReadiness,
   getFulfillmentReadiness,
@@ -21,7 +22,8 @@ import {
   reconcileStrikeOrder,
   reconcileStrikeWebhook,
   reconcileWompiRedirect,
-  reconcileWompiWebhook
+  reconcileWompiWebhook,
+  recoverWompiOrder
 } from '../lib/payment_reconciliation.js';
 
 export const config = {
@@ -156,6 +158,7 @@ export default async function handler(req, res) {
         wompi: getWompiReadiness(),
         wompiConnection: await checkWompiConnection(),
         wompiHealthContractVersion: 2,
+        wompiRecoveryContractVersion: 1,
         strike: getStrikeReadiness(),
         policy: 'PROVIDER_VERIFICATION_REQUIRED'
       });
@@ -200,7 +203,17 @@ export default async function handler(req, res) {
 
     const body = parseJsonBody(rawBody);
 
-    if (action === 'create') {
+    if (action === 'wompi-recover') {
+      if (!requireOperationalAuth(req, res)) return;
+      const result = await recoverWompiOrder({
+        orderId: clean(body.orderId, 500), fingerprint: clean(body.fingerprint, 200)
+      });
+      return json(res, result.ok ? 200 : 422, { success: result.ok, ...result });
+    }
+
+    if (action === 'create' || action === 'create-approved') {
+      const approvedQuote = action === 'create-approved';
+      if (approvedQuote && !requireOperationalAuth(req, res)) return;
       const provider = clean(body.provider, 30).toUpperCase();
       if (!['WOMPI_SV', 'STRIKE'].includes(provider)) {
         return json(res, 400, { success: false, error: 'provider must be WOMPI_SV or STRIKE.' });
@@ -209,10 +222,27 @@ export default async function handler(req, res) {
       const customerEmail = validEmail(body.customerEmail);
       if (!customerEmail) return json(res, 400, { success: false, error: 'A valid customerEmail is required.' });
 
-      const pricing = resolveProductPricing(body.productId, body.quantity ?? 1);
+      const pricing = approvedQuote ? resolveApprovedQuote(body) : resolveProductPricing(body.productId, body.quantity ?? 1);
       const environment = getPaymentEnvironment();
-      const orderId = crypto.randomUUID();
+      const orderId = approvedQuote ? 'quote-' + crypto.createHash('sha256').update(pricing.quoteReference).digest('hex') : crypto.randomUUID();
       const domain = safeDomain(body.domain);
+
+      if (approvedQuote) {
+        const existing = await getOrderByOrderId(orderId);
+        if (existing) {
+          if (existing.productId !== pricing.productId || existing.expectedAmountUsd !== pricing.amountUsd ||
+              existing.customerEmail !== customerEmail || existing.provider !== provider || existing.environment !== environment) {
+            return json(res, 409, { success: false, code: 'QUOTE_CONFLICT' });
+          }
+          if (!['PENDING_PAYMENT', 'PAID'].includes(existing.status) || !existing.providerCheckoutUrl) {
+            return json(res, 409, { success: false, code: 'QUOTE_RECONCILIATION_REQUIRED' });
+          }
+          return json(res, 200, { success: true, duplicate: true, order: statusPayload(existing),
+            checkout: { type: 'HOSTED_URL', url: existing.providerCheckoutUrl } });
+        }
+        if (provider !== 'WOMPI_SV') return json(res, 400, { success: false, code: 'APPROVED_QUOTE_PROVIDER_UNSUPPORTED' });
+        if (!(await claimPaymentCreation(orderId))) return json(res, 409, { success: false, code: 'QUOTE_RECONCILIATION_REQUIRED' });
+      }
 
       let order = await createOrder({
         orderId,
@@ -226,7 +256,7 @@ export default async function handler(req, res) {
         customerEmail,
         domain,
         fulfillmentStatus: 'NOT_READY',
-        notes: 'Amount derived server-side from PAYMENT_CATALOG.'
+        notes: approvedQuote ? 'Approved administrative quote: ' + pricing.quoteReference : 'Amount derived server-side from PAYMENT_CATALOG.'
       });
 
       try {
