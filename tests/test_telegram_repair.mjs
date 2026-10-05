@@ -17,10 +17,10 @@ test('Telegram repair requires admin auth and refuses another integration', asyn
     assert.equal(body.url, 'https://boltech-group.vercel.app/api/telegram');
     return new Response(JSON.stringify({ ok: true }), { status: 200 });
   };
-  async function request(auth) {
+  async function request(auth, action = 'repair-webhook') {
     let status, data;
     const res = { setHeader() {}, status(n) { status = n; return this; }, json(p) { data = p; return this; } };
-    await handler({ method: 'POST', query: { action: 'repair-webhook' }, headers: { authorization: auth } }, res);
+    await handler({ method: 'POST', query: { action }, headers: { authorization: auth } }, res);
     return { status, data };
   }
   try {
@@ -30,6 +30,11 @@ test('Telegram repair requires admin auth and refuses another integration', asyn
     existingUrl = '';
     assert.equal((await request('Bearer admin-unit')).data.code, 'TELEGRAM_WEBHOOK_RESTORED');
     assert.equal(setCalls, 1);
+    existingUrl = 'https://other.example/webhook';
+    assert.equal((await request('', 'replace-webhook')).status, 401);
+    assert.equal(setCalls, 1);
+    assert.equal((await request('Bearer admin-unit', 'replace-webhook')).data.code, 'TELEGRAM_WEBHOOK_RESTORED');
+    assert.equal(setCalls, 2);
   } finally {
     globalThis.fetch = originalFetch;
     for (const key of keys) if (previous[key] === undefined) delete process.env[key]; else process.env[key] = previous[key];
