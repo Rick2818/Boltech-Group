@@ -44,6 +44,7 @@ jobs:
           JS
       - name: Recover one due contact job
         env:
+          VERIFY_CRM_JOB_ID: ${{ github.event_name == 'push' && '9c46ad95768dd7037668d97fe87a1fa82382ba792758573f1fcde5735c78755a' || '' }}
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
         run: node scripts/ops/crm_recovery_runner.mjs
       - uses: actions/upload-artifact@v4
