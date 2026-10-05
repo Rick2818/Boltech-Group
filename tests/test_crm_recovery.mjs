@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createCrmRecovery, syncHubSpotContact, ENQUEUE_SCRIPT, FINISH_SCRIPT, normalizeContact } from '../lib/crm_recovery.js';
+import { createCrmRecovery, syncHubSpotContact, ENQUEUE_SCRIPT, FINISH_SCRIPT, normalizeContact, queueContactSync } from '../lib/crm_recovery.js';
 import crm from '../api/crm.js';
 
 function fixture(sync = async () => ({ success: true, contactId: 'provider-1' })) {
@@ -137,7 +137,31 @@ test('inbound CRM queue reports pending instead of synthetic success and does no
  t.after(()=>{globalThis.fetch=original;for(const[k,v]of Object.entries(old))if(v===undefined)delete process.env[k];else process.env[k]=v;});
  const {syncInboundLeadToHubSpotAndExplee}=await import('../lib/bidirectional_commercial_sync.js');
  const result=await syncInboundLeadToHubSpotAndExplee(lead);
- assert.equal(result.hubspot.success,false);assert.equal(result.hubspot.synced,false);assert.equal(result.hubspot.status,'PENDING');assert.equal(result.explee.success,false);
+ assert.equal(result.hubspot.success,false);assert.equal(result.hubspot.synced,false);assert.equal(result.hubspot.status,'BLOCKED');assert.equal(result.explee.success,false);
+});
+
+test('intake completes provider synchronization immediately and duplicate intake does not repeat it', async () => {
+ let calls = 0;
+ const f = fixture(async () => { calls++; return {success:true,synced:true,contactId:'real-contact'}; });
+ const input = {...lead, painPoint:'Controlled request'};
+ const first = await queueContactSync(input, f.store);
+ assert.equal(first.status, 'SYNCED_PROVIDER_CONFIRMED');
+ assert.equal(first.synced, true);
+ assert.equal((await f.store.read(first.jobId)).request.painPoint, input.painPoint);
+ await queueContactSync(input, f.store);
+ assert.equal(calls, 1);
+ assert.equal((await f.store.status()).queued, 0);
+});
+
+test('provider outage retains durable intake and retries after the backoff', async () => {
+ let calls = 0;
+ const f = fixture(async () => { calls++; throw Object.assign(new Error('Unavailable'), {code:'HUBSPOT_UNAVAILABLE',retryable:true}); });
+ const result = await queueContactSync(lead, f.store);
+ assert.equal(result.status, 'RETRY_PENDING');
+ assert.equal(result.synced, false);
+ await queueContactSync(lead, f.store);
+ assert.equal(calls, 1);
+ assert.equal((await f.store.status()).queued, 1);
 });
 
 test('explicit correction retry resumes invalid-response jobs but keeps rate-limit backoff', async () => {
