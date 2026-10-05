@@ -7,7 +7,7 @@ for (let attempt = 0; attempt < 20; attempt++) {
   try {
     const response = await fetch(base + '/api/payments?action=readiness-internal', { headers, signal: AbortSignal.timeout(20000) });
     const data = await response.json();
-    if (response.ok && data.wompiRecoveryContractVersion === 1) { ready = true; break; }
+    if (response.ok && data.wompiRecoveryContractVersion === 2) { ready = true; break; }
   } catch {}
   await new Promise(resolve => setTimeout(resolve, 15000));
 }
@@ -22,3 +22,11 @@ const response = await fetch(base + '/api/payments?action=wompi-recover', {
 const data = await response.json();
 console.log(JSON.stringify({ status: response.status, accepted: data.accepted === true, duplicate: data.duplicate === true, reason: data.reason || data.code || null }));
 if (!response.ok || data.accepted !== true) throw new Error('Wompi recovery was not accepted. Inspect the payment ledger.');
+
+// One-time repair of the failure identified by the production health report.
+const repair = await fetch(base + '/api/telegram?action=repair-webhook', {
+  method: 'POST', headers, body: '{}', signal: AbortSignal.timeout(30000)
+});
+const telegram = await repair.json();
+console.log(JSON.stringify({ telegramRepairStatus: repair.status, code: telegram.code || null }));
+if (!repair.ok || telegram.ok !== true) throw new Error('Telegram webhook repair requires review.');

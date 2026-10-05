@@ -14,6 +14,7 @@ import {
   getRequiredEnv
 } from '../lib/fiduciary_core.js';
 import { processCloudTelegramUpdate } from '../lib/telegram_cloud_processor.js';
+import { requireOperationalAuth } from '../lib/operational_auth.js';
 
 // Cache de deduplicación en memoria para evitar reprocesar reintentos de Telegram
 const processedUpdatesCache = new Map();
@@ -91,6 +92,37 @@ export default async function handler(req, res) {
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+
+  // Restore only an absent webhook or the existing Boltech destination. Never
+  // overwrite another integration, drop queued updates or disclose bot secrets.
+  if (req.query?.action === 'repair-webhook') {
+    if (!requireOperationalAuth(req, res)) return;
+    const botToken = String(process.env.TELEGRAM_BOT_TOKEN || '').trim();
+    const secret = String(process.env.TELEGRAM_WEBHOOK_SECRET || '').trim();
+    const expectedUrl = 'https://boltech-group.vercel.app/api/telegram';
+    if (!botToken || !secret) return res.status(503).json({ ok: false, code: 'TELEGRAM_CONFIGURATION_MISSING' });
+    try {
+      const infoResponse = await fetch(`https://api.telegram.org/bot${botToken}/getWebhookInfo`, { signal: AbortSignal.timeout(10000) });
+      const info = await infoResponse.json();
+      if (!infoResponse.ok || info.ok !== true || typeof info.result?.url !== 'string') {
+        return res.status(502).json({ ok: false, code: 'TELEGRAM_DIAGNOSTIC_FAILED' });
+      }
+      if (info.result.url && info.result.url !== expectedUrl) {
+        return res.status(409).json({ ok: false, code: 'TELEGRAM_OTHER_WEBHOOK_PRESENT' });
+      }
+      const response = await fetch(`https://api.telegram.org/bot${botToken}/setWebhook`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: AbortSignal.timeout(10000),
+        body: JSON.stringify({ url: expectedUrl, secret_token: secret, max_connections: 40,
+          allowed_updates: ['message', 'callback_query'], drop_pending_updates: false })
+      });
+      const result = await response.json();
+      return res.status(response.ok && result.ok === true ? 200 : 502).json({
+        ok: response.ok && result.ok === true, code: result.ok === true ? 'TELEGRAM_WEBHOOK_RESTORED' : 'TELEGRAM_REPAIR_FAILED'
+      });
+    } catch {
+      return res.status(502).json({ ok: false, code: 'TELEGRAM_REPAIR_FAILED' });
+    }
   }
 
   // PILAR 6: Rate Limiting en Serverless (Anti-DoS / Anti-Flooding)

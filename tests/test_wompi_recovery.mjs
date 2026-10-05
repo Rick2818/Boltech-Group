@@ -105,3 +105,52 @@ test('recovery queries provider, rejects wrong amount, and preserves original mi
     for (const key of keys) if (previous[key] === undefined) delete process.env[key]; else process.env[key] = previous[key];
   }
 });
+
+test('approved quote persists an order before issuing a link and reuses it on retry', async () => {
+  const originalFetch = globalThis.fetch;
+  const keys = ['AIRTABLE_TOKEN', 'PARTNER_API_TOKEN', 'PAYMENT_ENV', 'WOMPI_APP_ID', 'WOMPI_API_SECRET', 'UPSTASH_REDIS_REST_URL', 'UPSTASH_REDIS_REST_TOKEN'];
+  const previous = Object.fromEntries(keys.map(k => [k, process.env[k]]));
+  Object.assign(process.env, { AIRTABLE_TOKEN: 'unit', PARTNER_API_TOKEN: 'unit-admin', PAYMENT_ENV: 'production',
+    WOMPI_APP_ID: 'unit', WOMPI_API_SECRET: 'unit', UPSTASH_REDIS_REST_URL: 'https://redis.example', UPSTASH_REDIS_REST_TOKEN: 'unit' });
+  let record = null, linkCreations = 0;
+  const json = data => new Response(JSON.stringify(data), { status: 200 });
+  globalThis.fetch = async (url, options = {}) => {
+    const address = new URL(url);
+    if (url === 'https://redis.example') return json({ result: 'OK' });
+    if (address.hostname === 'id.wompi.sv') return json({ access_token: 'unit-access' });
+    if (address.hostname === 'api.wompi.sv') {
+      assert.equal(record.fields.Status, 'CREATED');
+      assert.equal(JSON.parse(options.body).monto, 25);
+      linkCreations++;
+      return json({ idEnlace: 'quote-link', urlEnlace: 'https://pagos.wompi.sv/quote-test', estaProductivo: true });
+    }
+    if (options.method === 'PATCH') {
+      const body = JSON.parse(options.body);
+      if (body.records) {
+        record = { id: 'recQuote', fields: body.records[0].fields };
+        return json({ records: [record], createdRecords: ['recQuote'] });
+      }
+      Object.assign(record.fields, body.fields); return json(record);
+    }
+    return json({ records: record ? [record] : [] });
+  };
+  try {
+    for (let attempt = 0; attempt < 2; attempt++) {
+      let status, data;
+      const body = { approved: true, quoteReference: 'approved-Q-25', productId: 'custom', approvedAmountUsd: 25,
+        provider: 'WOMPI_SV', customerEmail: 'buyer@example.com' };
+      const req = { method: 'POST', url: '/api/payments?action=create-approved',
+        headers: { host: 'localhost', authorization: 'Bearer unit-admin' }, socket: { remoteAddress: 'quote-test' },
+        async *[Symbol.asyncIterator]() { yield Buffer.from(JSON.stringify(body)); } };
+      const res = { setHeader() {}, status(n) { status = n; return this; }, json(p) { data = p; return this; } };
+      await handler(req, res);
+      assert.equal(status, attempt ? 200 : 201);
+      assert.equal(data.checkout.url, 'https://pagos.wompi.sv/quote-test');
+      assert.equal(data.order.status, 'PENDING_PAYMENT');
+    }
+    assert.equal(linkCreations, 1);
+  } finally {
+    globalThis.fetch = originalFetch;
+    for (const key of keys) if (previous[key] === undefined) delete process.env[key]; else process.env[key] = previous[key];
+  }
+});

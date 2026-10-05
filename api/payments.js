@@ -158,7 +158,7 @@ export default async function handler(req, res) {
         wompi: getWompiReadiness(),
         wompiConnection: await checkWompiConnection(),
         wompiHealthContractVersion: 2,
-        wompiRecoveryContractVersion: 1,
+        wompiRecoveryContractVersion: 2,
         strike: getStrikeReadiness(),
         policy: 'PROVIDER_VERIFICATION_REQUIRED'
       });
