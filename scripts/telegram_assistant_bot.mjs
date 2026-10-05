@@ -946,6 +946,11 @@ Language & Demeanor Mandate:
   }
 
   async startPolling() {
+    const webhook = await this.sendRequest('getWebhookInfo', {});
+    if (!webhook?.ok || webhook.result?.url) {
+      console.warn('[TELEGRAM POLLING]: No se inicia: webhook activo o estado no verificable.');
+      return;
+    }
     this.isRunning = true;
     this.startCalendarTicker();
 
@@ -969,9 +974,9 @@ Language & Demeanor Mandate:
             }
           }
         } else if (updates.error_code === 409) {
-          console.warn('[TELEGRAM 409 CONFLICT]: Conflicto de Webhook detectado. Liberando canal para Long Polling...');
-          await this.sendRequest('deleteWebhook', { drop_pending_updates: false });
-          await new Promise(r => setTimeout(r, 1000));
+          console.warn('[TELEGRAM 409 CONFLICT]: Se detiene el polling para conservar el webhook y evitar competir con otra instancia.');
+          this.isRunning = false;
+          if (this.calendarTicker) clearInterval(this.calendarTicker);
         } else if (updates.error_code === 429) {
           const retrySec = updates.parameters?.retry_after || 5;
           console.warn(`[TELEGRAM 429 RATE LIMIT]: Esperando ${retrySec}s...`);
