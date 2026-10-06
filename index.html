@@ -37,45 +37,41 @@
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <span id="brand-logo-text" class="font-black text-lg tracking-tight text-white font-mono">
-              BOLTECH <span class="text-cyan-400">GROUP</span>
-            </span>
+            <span id="brand-logo-text" class="font-black text-lg tracking-tight text-white font-mono">BOLTECH <span class="text-cyan-400">GROUP</span></span>
             <span class="text-[9px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/30 font-mono font-semibold uppercase tracking-wider">
-              Autonomous Sentinel
+              Request Workflows
             </span>
           </div>
-          <span id="brand-tagline-text" class="text-[10px] text-slate-400 font-mono tracking-tight block">
-            Autonomous Cyber-Defense & Operational Solutions
-          </span>
+          <span id="brand-tagline-text" class="text-[10px] text-slate-400 font-mono tracking-tight block">Registro, asignación y seguimiento de solicitudes</span>
         </div>
       </div>
 
       <div class="flex items-center gap-2 sm:gap-4">
         <!-- Navegación Hub Boltech Group -->
         <nav class="hidden lg:flex items-center gap-1.5 text-xs font-mono">
-          <a href="#unblock-shield-section" onclick="focusScanInput()" class="px-2.5 py-1.5 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-slate-900 border border-transparent hover:border-cyan-500/30 transition-all font-semibold flex items-center gap-1">
+          <a href="#custom-agents-section" onclick="focusPainInput()" class="px-2.5 py-1.5 rounded-lg text-slate-300 hover:text-cyan-400 hover:bg-slate-900 border border-transparent hover:border-cyan-500/30 transition-all font-semibold flex items-center gap-1">
             <span>🛡️</span> <span id="nav-item-prebuilt">Agentes Pre-elaborados</span>
           </a>
           <a href="#custom-agents-section" onclick="focusPainInput()" class="px-2.5 py-1.5 rounded-lg text-slate-300 hover:text-indigo-400 hover:bg-slate-900 border border-transparent hover:border-indigo-500/30 transition-all font-semibold flex items-center gap-1">
             <span>🤖</span> <span id="nav-item-custom">Agentes a la Medida</span>
           </a>
-          <a href="/cabina" target="_blank" class="px-2.5 py-1.5 rounded-lg text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-all font-semibold flex items-center gap-1">
-            <span>🚀</span> <span id="nav-item-cabina">Cabina Cloud</span>
+          <a href="#custom-agents-section" target="_blank" class="px-2.5 py-1.5 rounded-lg text-amber-300 hover:text-amber-200 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-all font-semibold flex items-center gap-1">
+            <span>🚀</span> <span id="nav-item-cabina">Revisar proceso</span>
           </a>
         </nav>
 
         <div class="hidden md:flex items-center gap-2 text-xs font-mono px-3 py-1.5 rounded-lg bg-slate-900/90 border border-emerald-500/30 text-emerald-400">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>Cloud Sentinel 24/7 Active</span>
+          <span>Revisión de solicitudes</span>
         </div>
 
         <!-- Botón WhatsApp Directo -->
-        <a href="https://wa.me/50375743444?text=Hola%20BolTech%20Group,%20necesito%20asistencia%20inmediata" target="_blank" rel="noopener noreferrer" id="nav-whatsapp-btn" aria-label="WhatsApp Soporte" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-xs font-mono text-emerald-400 font-bold transition-all shadow-sm">
+        <a href="https://wa.me/50375743444?text=Hola%20BolTech%20Group,%20quisiera%20consultar%20el%20alcance" target="_blank" rel="noopener noreferrer" id="nav-whatsapp-btn" aria-label="WhatsApp Soporte" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-xs font-mono text-emerald-400 font-bold transition-all shadow-sm">
           <span>💬</span> <span>WhatsApp</span>
         </a>
 
         <button type="button" onclick="toggleLanguage()" id="lang-switch-btn" aria-label="Cambiar idioma" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-mono text-cyan-300 font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-sm">
-          <span>🌐</span> <span id="lang-btn-label">ES | EN</span>
+          <span>🌐</span> <span id="lang-btn-label"><span class="text-cyan-400 font-bold underline decoration-cyan-400/60 underline-offset-2">ES</span><span class="text-slate-500 mx-1">|</span><span class="text-slate-400 font-normal">EN</span></span>
         </button>
       </div>
     </div>
@@ -92,11 +88,10 @@
       </div>
 
       <!-- Título Maestro -->
-      <h1 id="hero-title" class="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.15] mb-6">Organiza las consultas de tu inmobiliaria.<br><span class="text-cyan-300">Registra, asigna y da seguimiento.</span></span>
-      </h1>
+      <h1 id="hero-title" class="text-3xl sm:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.15] mb-6">Organiza las consultas de tu inmobiliaria.<br><span class="text-cyan-300">Registra, asigna y da seguimiento.</span></h1>
 
       <!-- Subtítulo -->
-      <p id="hero-desc" class="text-base sm:text-lg text-slate-400 max-w-3xl mx-auto leading-relaxed mb-10 font-normal">Implementamos un flujo de solicitudes conectado con tus herramientas. Piloto de US$990 para una empresa, un flujo web y una integración sencilla; alcance y accesos se acuerdan antes de comenzar.</p>
+      <p id="hero-desc" class="text-base sm:text-lg text-slate-400 max-w-3xl mx-auto leading-relaxed mb-10 font-normal">Piloto US$990: US$495 iniciales y US$495 contra entrega verificada. Una empresa, un flujo web y una integración sencilla. Plazo: 14 días desde aceptación y accesos disponibles. Herramientas, consumo y mantenimiento aparte; ampliaciones requieren cotización.</p>
 
       <div class="mb-8"><a id="request-process-link" href="#custom-agents-section" onclick="focusPainInput()" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-cyan-300 text-slate-950 font-bold">Revisar mi proceso de solicitudes →</a> <a id="quote-demo-link" href="/demo-cotizaciones" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-emerald-300 text-slate-950 font-bold hover:bg-emerald-200 transition-all">Probar demo de cotizaciones →</a></div>
 
@@ -110,28 +105,22 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
           
           <!-- SERVICIO 1: AGENTES PRE-ELABORADOS -->
-          <a href="#unblock-shield-section" onclick="focusScanInput()" class="group p-6 rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950 border border-cyan-500/30 hover:border-cyan-400 hover:shadow-xl hover:shadow-cyan-500/10 transition-all flex flex-col justify-between block cursor-pointer">
+          <a href="#custom-agents-section" onclick="focusPainInput()" class="group p-6 rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950 border border-cyan-500/30 hover:border-cyan-400 hover:shadow-xl hover:shadow-cyan-500/10 transition-all flex flex-col justify-between block cursor-pointer">
             <div>
               <div class="flex items-center justify-between mb-3">
-                <span id="hub-card1-badge" class="text-[10px] font-mono font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded border border-cyan-500/20 uppercase tracking-wider">
-                  Servicio 1 • Agentes Pre-elaborados a tu Servicio
-                </span>
+                <span id="hub-card1-badge" class="text-[10px] font-mono font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded border border-cyan-500/20 uppercase tracking-wider">Servicio 1 • Agentes Pre-elaborados a tu Servicio</span>
                 <span class="text-2xl group-hover:scale-110 transition-transform">🛡️</span>
               </div>
-              <h3 id="hub-card1-title" class="text-xl font-black text-white group-hover:text-cyan-300 transition-colors mb-2 font-mono">
-                Agentes Pre-elaborados (Operación & Blindaje 24/7)
-              </h3>
-              <p id="hub-card1-desc" class="text-xs text-slate-400 leading-relaxed mb-4">
-                Soluciones llave en mano listas para operar de inmediato: monitoreo y blindaje perimetral 24/7, atención en WhatsApp, cobranza y logística con alcance y pruebas acordados.
-              </p>
+              <h3 id="hub-card1-title" class="text-xl font-black text-white group-hover:text-cyan-300 transition-colors mb-2 font-mono">Base preelaborada para gestionar solicitudes</h3>
+              <p id="hub-card1-desc" class="text-xs text-slate-400 leading-relaxed mb-4">Adaptamos una base existente para registrar solicitudes, confirmar recepción, asignar responsable y conservar la próxima acción.</p>
               <ul class="text-[11px] font-mono text-slate-300 space-y-1.5 mb-5">
-                <li id="hub-card1-feat1" class="flex items-center gap-1.5 text-cyan-300"><span>✓</span> Configuración y pruebas antes de entrega</li>
-                <li id="hub-card1-feat2" class="flex items-center gap-1.5 text-cyan-300"><span>✓</span> Monitoreo 24/7, atención en WhatsApp y cobranza</li>
+                <li id="hub-card1-feat1" class="flex items-center gap-1.5 text-cyan-300"><span>✓</span> Registro y confirmación con referencia</li>
+                <li id="hub-card1-feat2" class="flex items-center gap-1.5 text-cyan-300"><span>✓</span> Responsable y próxima acción visibles</li>
                 <li id="hub-card1-feat3" class="flex items-center gap-1.5 text-cyan-300">Configuración y precio según alcance</li>
               </ul>
             </div>
             <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs font-mono font-bold text-cyan-400 group-hover:translate-x-1 transition-transform">
-              <span id="hub-card1-cta">Ver Beneficios de Agentes Pre-elaborados</span>
+              <span id="hub-card1-cta">Revisar mi proceso de solicitudes</span>
               <span>→</span>
             </div>
           </a>
@@ -140,25 +129,19 @@
           <a href="#custom-agents-section" onclick="focusPainInput()" class="group p-6 rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950 border border-indigo-500/30 hover:border-indigo-400 hover:shadow-xl hover:shadow-indigo-500/10 transition-all flex flex-col justify-between block cursor-pointer">
             <div>
               <div class="flex items-center justify-between mb-3">
-                <span id="hub-card2-badge" class="text-[10px] font-mono font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-0.5 rounded border border-indigo-500/20 uppercase tracking-wider">
-                  Servicio 2 • Agentes a la Medida
-                </span>
+                <span id="hub-card2-badge" class="text-[10px] font-mono font-bold text-indigo-400 bg-indigo-500/10 px-2.5 py-0.5 rounded border border-indigo-500/20 uppercase tracking-wider">Servicio 2 • Agentes a la Medida</span>
                 <span class="text-2xl group-hover:scale-110 transition-transform">🤖</span>
               </div>
-              <h3 id="hub-card2-title" class="text-xl font-black text-white group-hover:text-indigo-300 transition-colors mb-2 font-mono">
-                Agentes Hechos a la Medida
-              </h3>
-              <p id="hub-card2-desc" class="text-xs text-slate-400 leading-relaxed mb-4">
-                Diseño de agentes de IA adaptados a los procesos específicos y cuellos de botella de tu empresa. Escribe tu dolor operativo, lo programamos y lo activas en tu Cabina Cloud 24/7.
-              </p>
+              <h3 id="hub-card2-title" class="text-xl font-black text-white group-hover:text-indigo-300 transition-colors mb-2 font-mono">Agentes Hechos a la Medida</h3>
+              <p id="hub-card2-desc" class="text-xs text-slate-400 leading-relaxed mb-4">Adaptamos el flujo a tu proceso y validamos compatibilidad, accesos y criterios de entrega antes de proponer una implementación.</p>
               <ul class="text-[11px] font-mono text-slate-300 space-y-1.5 mb-5">
                 <li id="hub-card2-feat1" class="flex items-center gap-1.5 text-indigo-300"><span>✓</span> Diagnóstico y diseño adaptado a tu negocio</li>
-                <li id="hub-card2-feat2" class="flex items-center gap-1.5 text-indigo-300"><span>✓</span> Integración a tus sistemas, CRM o ERP</li>
-                <li id="hub-card2-feat3" class="flex items-center gap-1.5 text-indigo-300"><span>✓</span> Cabina Cloud 24/7 sin instalar software</li>
+                <li id="hub-card2-feat2" class="flex items-center gap-1.5 text-indigo-300"><span>✓</span> Una integración sencilla en el piloto; otras se cotizan</li>
+                <li id="hub-card2-feat3" class="flex items-center gap-1.5 text-indigo-300"><span>✓</span> Pruebas y transferencia de uso</li>
               </ul>
             </div>
             <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs font-mono font-bold text-indigo-400 group-hover:translate-x-1 transition-transform">
-              <span id="hub-card2-cta">Escribir mi Proceso Lento</span>
+              <span id="hub-card2-cta">Describir mi proceso</span>
               <span>→</span>
             </div>
           </a>
@@ -173,9 +156,7 @@
             <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse"></span>
             <span id="scanner-box-title" class="text-xs font-mono uppercase tracking-wider font-bold text-slate-200">Herramienta de diagnóstico técnico</span>
           </div>
-          <span id="scanner-badge-noninvasive" class="text-[10px] font-mono text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
-            100% No Invasivo • Cero Contraseñas
-          </span>
+          <span id="scanner-badge-noninvasive" class="text-[10px] font-mono text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">Consulta HTTPS pública • Sin acceso interno</span>
         </div>
 
         <div class="flex flex-col sm:flex-row gap-2.5">
@@ -186,7 +167,7 @@
             <input id="hero-scan-input" type="text" placeholder="tudominio.com" onkeydown="if(event.key==='Enter'){event.preventDefault();executeLiveScan();}" class="w-full bg-slate-950/90 border border-slate-700/80 rounded-xl pl-20 pr-4 py-3 text-sm text-white font-mono focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all">
           </div>
           <button onclick="executeLiveScan()" id="btn-run-scan" class="px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-slate-950 font-black text-xs font-mono uppercase tracking-wider shadow-lg shadow-cyan-500/25 transition-all flex items-center justify-center gap-2 cursor-pointer">
-            <span>⚡</span> <span id="btn-scan-label">Auditar y Blindar</span>
+            <span>⚡</span> <span id="btn-scan-label">Revisar cabeceras y TLS</span>
           </button>
         </div>
 
@@ -225,14 +206,10 @@
       
       <div class="text-center max-w-2xl mx-auto mb-14">
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono uppercase mb-3">
-          <span id="shields-badge">⚡ Ventajas Exclusivas • Soluciones Llave en Mano</span>
+          <span id="shields-badge">⚡ Base reutilizable • Implementación acordada</span>
         </div>
-        <h2 id="shields-title" class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-          Beneficios de Contar con Agentes Pre-elaborados a tu Servicio
-        </h2>
-        <p id="shields-desc" class="text-sm text-slate-400 mt-2">
-          Base reutilizable adaptada a tus solicitudes, con integración, pruebas y criterios de entrega acordados.
-        </p>
+        <h2 id="shields-title" class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">Beneficios de Contar con Agentes Pre-elaborados a tu Servicio</h2>
+        <p id="shields-desc" class="text-sm text-slate-400 mt-2">Base reutilizable adaptada a tus solicitudes, con integración, pruebas y criterios de entrega acordados.</p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -308,7 +285,7 @@
           <p id="shield-4-p" class="text-xs text-slate-400 leading-relaxed mb-4">La propuesta establece entregables, tratamiento de datos y criterios de aceptación.</p>
           <div class="flex flex-wrap gap-2 text-[11px] font-mono text-amber-300">
             <span class="bg-slate-900 px-2 py-0.5 rounded border border-slate-800">• Criterios de aceptación</span>
-            <span class="bg-slate-900 px-2 py-0.5 rounded border border-slate-800">• Memoria volátil RAM</span>
+            <span class="bg-slate-900 px-2 py-0.5 rounded border border-slate-800">• Tratamiento de datos acordado</span>
             <span class="bg-slate-900 px-2 py-0.5 rounded border border-slate-800">• Entrega verificada</span>
           </div>
         </div>
@@ -325,18 +302,11 @@
         <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
         <span id="video-showroom-badge-text">🎬 Demostración Ejecutiva • Agentes Pre-elaborados</span>
       </div>
-      <h2 id="video-heading" class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mb-3">
-        Agentes Pre-elaborados en Acción: Demostración Ejecutiva
-      </h2>
-      <p id="video-desc" class="text-xs sm:text-sm text-slate-300 max-w-2xl mx-auto leading-relaxed mb-8 font-sans">
-        Mira cómo un agente pre-elaborado monitorea transacciones, atiende clientes y protege operaciones 24/7 con cero nómina humana ni contraseñas.
-      </p>
+      <h2 id="video-heading" class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight mb-3">Agentes Pre-elaborados en Acción: Demostración Ejecutiva</h2>
+      <p id="video-desc" class="text-xs sm:text-sm text-slate-300 max-w-2xl mx-auto leading-relaxed mb-8 font-sans">Flujo ilustrativo; el alcance y funcionamiento del piloto se verifican por separado.</p>
 
       <div class="relative w-full aspect-video rounded-2xl overflow-hidden glass-shield border-2 border-cyan-500/40 shadow-2xl shadow-cyan-950/70">
-        <video id="main-executive-video" controls playsinline webkit-playsinline controlsList="nodownload" preload="metadata" poster="assets/videos/poster_executive.jpg?v=20260925_master" class="w-full h-full object-cover">
-          <source src="assets/videos/Unblock_AI_Shield_Oficial.mp4?v=20260925_master" type="video/mp4">
-          Tu navegador no soporta reproducción de video HTML5.
-        </video>
+        <p class="p-6 text-sm text-slate-300">Flujo ilustrativo: solicitud → revisión → propuesta → implementación → entrega verificada. / Illustrative workflow: request → review → proposal → implementation → verified delivery.</p>
       </div>
 
     </div>
@@ -357,12 +327,7 @@
           <span id="custom-division-badge">Servicio 2 de Boltech Group • Agentes Hechos a la Medida</span>
         </div>
 
-        <h2 id="custom-agents-title" class="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight mb-4">
-          Resolvemos los procesos lentos de tu empresa con<br>
-          <span class="bg-gradient-to-r from-indigo-400 via-purple-300 to-cyan-300 bg-clip-text text-transparent">
-            Agentes Inteligentes a la Medida.
-          </span>
-        </h2>
+        <h2 id="custom-agents-title" class="text-2xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight mb-4">Resolvemos los procesos lentos de tu empresa con<br><span class="bg-gradient-to-r from-indigo-400 via-purple-300 to-cyan-300 bg-clip-text text-transparent">Agentes Inteligentes a la Medida.</span></h2>
 
         <p id="custom-agents-desc" class="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl mx-auto font-sans">Cuéntanos cómo reciben, registran y asignan solicitudes. Revisamos un paso concreto para preparar una propuesta con alcance y criterios de aceptación.</p>
       </div>
@@ -372,21 +337,15 @@
         <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
           <div class="flex items-center gap-2.5">
             <span class="text-xl">📝</span>
-            <span id="pain-box-title" class="text-sm font-bold text-white font-mono uppercase tracking-wider">
-              Escribe el dolor o proceso lento que deseas solucionar
-            </span>
+            <span id="pain-box-title" class="text-sm font-bold text-white font-mono uppercase tracking-wider">Escribe el dolor o proceso lento que deseas solucionar</span>
           </div>
-          <span id="pain-box-badge" class="text-[10px] font-mono text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded border border-cyan-500/20">
-            Revisión de proceso y propuesta individual
-          </span>
+          <span id="pain-box-badge" class="text-[10px] font-mono text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded border border-cyan-500/20">Revisión de proceso y propuesta individual</span>
         </div>
 
         <form id="agent-pain-intake-form" onsubmit="handlePainIntakeSubmit(event)" class="space-y-4 text-left">
           
           <div>
-            <label for="agent-pain-input" id="label-pain-step1" class="block text-xs font-mono font-bold text-slate-300 mb-1.5">
-              1. ¿Qué proceso está lento, fallando o no resuelto en tu empresa? *
-            </label>
+            <label for="agent-pain-input" id="label-pain-step1" class="block text-xs font-mono font-bold text-slate-300 mb-1.5">1. ¿Qué proceso está lento, fallando o no resuelto en tu empresa? *</label>
             <textarea
               id="agent-pain-input"
               rows="3"
@@ -398,9 +357,7 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="agent-email-input" id="label-pain-step2" class="block text-xs font-mono font-bold text-slate-300 mb-1.5">
-                2. Tu Correo Electrónico (para continuar la revisión) *
-              </label>
+              <label for="agent-email-input" id="label-pain-step2" class="block text-xs font-mono font-bold text-slate-300 mb-1.5">2. Tu Correo Electrónico (para continuar la revisión) *</label>
               <input
                 type="email"
                 id="agent-email-input"
@@ -411,9 +368,7 @@
             </div>
 
             <div>
-              <label for="agent-company-input" id="label-pain-step3" class="block text-xs font-mono font-bold text-slate-300 mb-1.5">
-                3. Nombre de tu Empresa o Dominio *
-              </label>
+              <label for="agent-company-input" id="label-pain-step3" class="block text-xs font-mono font-bold text-slate-300 mb-1.5">3. Nombre de tu Empresa o Dominio *</label>
               <input
                 type="text"
                 id="agent-company-input"
@@ -445,19 +400,17 @@
           </div>
           <p id="feedback-success-desc" class="text-xs text-slate-300 leading-relaxed">Recibimos tu proceso para revisar requisitos y preparar una propuesta. Esto no confirma un agente desplegado.</p>
           <div class="pt-2 flex flex-wrap items-center gap-3">
-            <a id="btn-open-cabina-direct" href="/cabina" target="_blank" class="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs font-mono transition-all flex items-center gap-1.5 shadow-md">
+            <a id="btn-open-cabina-direct" href="#custom-agents-section" target="_blank" class="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs font-mono transition-all flex items-center gap-1.5 shadow-md">
               <span>🚀</span> <span id="btn-open-cabina-direct-text">Abrir mi Cabina en la Nube Ahora ↗</span>
             </a>
-            <span id="feedback-cabina-subtext" class="text-[11px] text-slate-400 font-mono">La activación del agente requiere implementación y verificación.</span>
+            <span id="feedback-cabina-subtext" class="text-[11px] text-slate-400 font-mono">La activación requiere implementación y verificación.</span>
           </div>
         </div>
       </div>
 
       <!-- EXPLICACIÓN PASO A PASO: CÓMO SE RECIBE Y CÓMO ACTIVAS TU BOT -->
       <div class="mb-12">
-        <h3 id="flow-title" class="text-center text-xs font-mono uppercase tracking-widest text-indigo-400 font-bold mb-6">
-          ¿Cómo recibes y cómo activas tu Agente a la Medida?
-        </h3>
+        <h3 id="flow-title" class="text-center text-xs font-mono uppercase tracking-widest text-indigo-400 font-bold mb-6">De la revisión a la entrega</h3>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-left">
           
@@ -468,11 +421,9 @@
                 01
               </div>
               <h4 id="flow-step-1-h" class="text-sm font-bold text-white font-mono mb-1.5">Escribes tu Proceso Lento</h4>
-              <p id="flow-step-1-p" class="text-xs text-slate-400 leading-relaxed">
-                Describes en la caja superior qué tarea o proceso está atascado o quitándole tiempo valioso a tu equipo comercial o administrativo.
-              </p>
+              <p id="flow-step-1-p" class="text-xs text-slate-400 leading-relaxed">Describes en la caja superior qué tarea o proceso está atascado o quitándole tiempo valioso a tu equipo comercial o administrativo.</p>
             </div>
-            <span id="flow-step-1-tag" class="text-[10px] font-mono text-indigo-400 pt-3 mt-3 border-t border-slate-800/80">• Diagnóstico en 1 Clic</span>
+            <span id="flow-step-1-tag" class="text-[10px] font-mono text-indigo-400 pt-3 mt-3 border-t border-slate-800/80">• Solicitud para revisión</span>
           </div>
 
           <!-- Paso 2 -->
@@ -481,12 +432,10 @@
               <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 text-purple-400 flex items-center justify-center font-mono font-bold text-sm mb-3">
                 02
               </div>
-              <h4 id="flow-step-2-h" class="text-sm font-bold text-white font-mono mb-1.5">Se Envía por Correo</h4>
-              <p id="flow-step-2-p" class="text-xs text-slate-400 leading-relaxed">
-                Recibes de inmediato un correo formal con la arquitectura de tu agente, las reglas programadas para tu dolor y el enlace único de tu cabina.
-              </p>
+              <h4 id="flow-step-2-h" class="text-sm font-bold text-white font-mono mb-1.5">Diagnóstico y propuesta</h4>
+              <p id="flow-step-2-p" class="text-xs text-slate-400 leading-relaxed">Revisamos tus requisitos y preparamos una propuesta de alcance.</p>
             </div>
-            <span id="flow-step-2-tag" class="text-[10px] font-mono text-purple-400 pt-3 mt-3 border-t border-slate-800/80">• Despacho Inmediato</span>
+            <span id="flow-step-2-tag" class="text-[10px] font-mono text-purple-400 pt-3 mt-3 border-t border-slate-800/80">• Alcance y costos documentados</span>
           </div>
 
           <!-- Paso 3 -->
@@ -495,12 +444,10 @@
               <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center font-mono font-bold text-sm mb-3">
                 03
               </div>
-              <h4 id="flow-step-3-h" class="text-sm font-bold text-white font-mono mb-1.5">Acceso a tu Cabina Cloud</h4>
-              <p id="flow-step-3-p" class="text-xs text-slate-400 leading-relaxed">
-                Entras a la Cabina con 1 clic: tu bot ya está desplegado en la nube y listo para activarse en producción 24/7 sin instalar software.
-              </p>
+              <h4 id="flow-step-3-h" class="text-sm font-bold text-white font-mono mb-1.5">Entrega y transferencia de uso</h4>
+              <p id="flow-step-3-p" class="text-xs text-slate-400 leading-relaxed">Piloto: 14 días desde aceptación y accesos disponibles, con pruebas y entrega verificada.</p>
             </div>
-            <span id="flow-step-3-tag" class="text-[10px] font-mono text-cyan-400 pt-3 mt-3 border-t border-slate-800/80">• Activo 24/7 sin código</span>
+            <span id="flow-step-3-tag" class="text-[10px] font-mono text-cyan-400 pt-3 mt-3 border-t border-slate-800/80">• Pruebas y criterios acordados</span>
           </div>
 
         </div>
@@ -512,27 +459,11 @@
           <span class="w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
           <span id="agent-vid-badge">🎬 Demostración de Solución • Agentes Autónomos en Acción</span>
         </div>
-        <h3 id="agent-vid-title" class="text-2xl sm:text-3xl font-black text-white font-mono tracking-tight mb-3">
-          Video Demostrativo: Cómo un Agente a la Medida resuelve los problemas en tu empresa
-        </h3>
-        <p id="agent-vid-desc" class="text-xs sm:text-sm text-slate-400 max-w-2xl mx-auto leading-relaxed font-sans mb-8">
-          Reproduce el video a continuación para ver cómo la tecnología de agentes autónomos erradica cuellos de botella manuales de 24 horas y los convierte en resoluciones instantáneas de 8 segundos y más de 100% de rentabilidad:
-        </p>
+        <h3 id="agent-vid-title" class="text-2xl sm:text-3xl font-black text-white font-mono tracking-tight mb-3">Flujo de implementación de un agente a medida</h3>
+        <p id="agent-vid-desc" class="text-xs sm:text-sm text-slate-400 max-w-2xl mx-auto leading-relaxed font-sans mb-8">Demostración ilustrativa del flujo de agentes. No acredita resultados de clientes.</p>
 
         <div class="relative w-full max-w-4xl mx-auto aspect-video rounded-3xl overflow-hidden glass-shield border-2 border-indigo-500/40 shadow-2xl shadow-indigo-950/70 mb-6 group">
-          <video
-            id="agent-solution-video"
-            controls
-            playsinline
-            webkit-playsinline
-            controlsList="nodownload"
-            preload="metadata"
-            poster="assets/videos/poster_gerente_estrategia.jpg?v=20260925_master"
-            class="w-full h-full object-cover"
-          >
-            <source src="assets/videos/gerente_bottleneck_agente_es.mp4?v=20260925_voice1_sync" type="video/mp4">
-            Tu navegador no soporta reproducción de video HTML5.
-          </video>
+          <p class="p-6 text-sm text-slate-300">Flujo ilustrativo: solicitud → revisión → propuesta → implementación → entrega verificada. / Illustrative workflow: request → review → proposal → implementation → verified delivery.</p>
         </div>
       </div>
 
@@ -549,19 +480,19 @@
           <span>💎 Modelos de Solución Llave en Mano</span>
         </div>
         <h2 id="pricing-title" class="text-3xl sm:text-4xl font-black text-white tracking-tight">Nuestros dos servicios</h2>
-        <p id="pricing-desc" class="text-xs sm:text-sm text-slate-400 mt-2">Precio, alcance e integraciones se acuerdan antes del pago.</p>
+        <p id="pricing-desc" class="text-xs sm:text-sm text-slate-400 mt-2">Piloto US$990: US$495 iniciales y US$495 contra entrega verificada. Una empresa, un flujo web y una integración sencilla. Plazo: 14 días desde aceptación y accesos disponibles. Herramientas, consumo y mantenimiento aparte; ampliaciones requieren cotización.</p>
       </div>
 
       <div id="current-service-catalog" class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
         <article data-service-id="prebuilt" class="p-7 rounded-2xl glass-shield border border-cyan-400 flex flex-col gap-5">
           <h3 id="p2-title" class="text-xl font-bold text-white">Agentes preelaborados</h3>
-          <p id="p2-desc" class="text-slate-300">Partimos de un flujo existente y definimos su configuración e integraciones para tu operación.</p>
+          <p id="p2-desc" class="text-slate-300">Configuramos un flujo existente para tu operación y herramientas.</p>
           <p id="prebuilt-price" class="text-cyan-300 font-semibold">Precio según alcance aprobado</p>
           <button onclick="requestAgentQuote('prebuilt')" class="py-3 rounded-xl bg-cyan-400 text-slate-950 font-bold"><span id="btn-p2">Solicitar cotización</span></button>
         </article>
         <article data-service-id="custom" class="p-7 rounded-2xl glass-shield border border-indigo-400 flex flex-col gap-5">
           <h3 id="p3-title" class="text-xl font-bold text-white">Custom agents — Agentes a medida</h3>
-          <p id="p3-desc" class="text-slate-300">Diseñamos el agente para tu proceso, herramientas y criterios de aceptación.</p>
+          <p id="p3-desc" class="text-slate-300">Diseñamos el agente para tu proceso y criterios de aceptación.</p>
           <p id="custom-price" class="text-indigo-300 font-semibold">Precio según alcance aprobado</p>
           <button onclick="requestAgentQuote('custom')" class="py-3 rounded-xl bg-indigo-500 text-white font-bold"><span id="btn-p3">Describir mi proceso y cotizar</span></button>
         </article>
@@ -581,7 +512,7 @@
                 <h4 id="page-agent-title" class="text-base font-bold text-white font-mono group-hover:text-cyan-300 transition-colors">Asistente de Boltech Group</h4>
                 <span id="page-agent-live-badge" class="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-[10px] font-mono font-bold animate-pulse">CONSULTAS</span>
               </div>
-              <p id="page-agent-subtitle" class="text-xs text-slate-400 font-sans">Orientación sobre servicios y cotizaciones.</p>
+              <p id="page-agent-subtitle" class="text-xs text-slate-400 font-sans">Registro, asignación y seguimiento de solicitudes.</p>
             </div>
           </div>
           <div class="flex items-center gap-2 text-xs font-mono">
@@ -592,16 +523,16 @@
 
         <!-- Burbuja interactiva del Agente en la página -->
         <div class="mt-4 p-4 rounded-xl bg-slate-950/90 border border-slate-800/80">
-          <div id="page-agent-speech" class="text-xs sm:text-sm text-slate-200 font-sans leading-relaxed">Implementamos un flujo de solicitudes conectado con tus herramientas. Piloto US$990: una empresa, un flujo web y una integración sencilla. Herramientas y mantenimiento aparte.</div>
+          <div id="page-agent-speech" class="text-xs sm:text-sm text-slate-200 font-sans leading-relaxed">Piloto US$990: US$495 iniciales y US$495 contra entrega verificada. Una empresa, un flujo web y una integración sencilla. Plazo: 14 días desde aceptación y accesos disponibles. Herramientas, consumo y mantenimiento aparte; ampliaciones requieren cotización.</div>
 
           <!-- Píldoras interactivas de consulta rápida al agente -->
           <div class="mt-4 pt-3 border-t border-slate-800 flex flex-wrap gap-2">
             <span class="text-[11px] font-mono text-slate-400 flex items-center gap-1">Pregúntame:</span>
             <button type="button" onclick="askPageAgent('calculo')" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-amber-400 text-xs font-mono border border-amber-500/30 transition-all cursor-pointer hover:border-amber-400">
-              <span id="page-agent-btn-calc">🛡️ ¿Qué son los Agentes Listos para Usar?</span>
+              <span id="page-agent-btn-calc">Consultar alcance</span>
             </button>
             <button type="button" onclick="askPageAgent('pro_vs_flash')" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-cyan-400 text-xs font-mono border border-cyan-500/30 transition-all cursor-pointer hover:border-cyan-400">
-              <span id="page-agent-btn-pro">🤖 ¿Qué son los Agentes a la Medida?</span>
+              <span id="page-agent-btn-pro">Agentes preelaborados</span>
             </button>
             <button type="button" onclick="askPageAgent('lightning')" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-yellow-400 text-xs font-mono border border-yellow-500/30 transition-all cursor-pointer hover:border-yellow-400">
               <span id="page-agent-btn-strike">⚡ ¿Cómo pago con Strike?</span>
@@ -610,7 +541,7 @@
               <span id="page-agent-btn-wompi">💳 ¿Cómo pago con Tarjeta / Wompi?</span>
             </button>
             <button type="button" onclick="askPageAgent('garantia')" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-emerald-400 text-xs font-mono border border-emerald-500/30 transition-all cursor-pointer hover:border-emerald-400">
-              <span id="page-agent-btn-warranty">🛡️ ¿Tienen garantía de 7 días?</span>
+              <span id="page-agent-btn-warranty">Revisar condiciones de entrega</span>
             </button>
           </div>
         </div>
@@ -622,7 +553,7 @@
             <span>El alcance y el precio deben aprobarse antes de emitir un cobro.</span>
           </div>
           <button type="button" onclick="requestAgentQuote('prebuilt')" class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-slate-950 font-black text-xs font-mono uppercase tracking-wider shadow-lg shadow-cyan-500/20 transition-all cursor-pointer flex items-center justify-center gap-2 hover:scale-[1.02]">
-            <span>🤖</span> <span id="page-agent-cta">Solicitar cotización →</span>
+            <span>🤖</span> <span id="page-agent-cta">Revisar mi proceso →</span>
           </button>
         </div>
       </div>
@@ -630,12 +561,12 @@
       <!-- Pasarelas Activas Badge Bar -->
       <div class="mt-6 p-4 rounded-xl bg-slate-900/60 border border-slate-800 flex flex-wrap items-center justify-between gap-4">
         <div class="flex items-center gap-2 text-xs font-mono text-slate-400">
-          <span id="badge-active-gateways-title" class="text-cyan-400 font-bold">💳 Rieles de Cobro Activos:</span>
-          <span id="badge-active-gateways-desc">Strike Lightning y Wompi SV / Red Bancaria (Visa, Mastercard)</span>
+          <span id="badge-active-gateways-title" class="text-cyan-400 font-bold">💳 Medios de pago previstos (El Salvador):</span>
+          <span id="badge-active-gateways-desc">Strike Lightning y Wompi SV (Banco Agrícola)</span>
         </div>
         <div class="flex items-center gap-3">
           <button onclick="requestAgentQuote('prebuilt')" class="text-xs font-mono text-cyan-400 hover:text-cyan-300 underline cursor-pointer">
-            <span id="badge-open-checkout-link">Abrir Checkout Fiduciario →</span>
+            <span id="badge-open-checkout-link">Solicitar cotización</span>
           </button>
         </div>
       </div>
@@ -649,22 +580,22 @@
       <div class="flex flex-wrap items-center justify-center gap-3 font-mono text-xs">
         <!-- Botón Manual de Usuario -->
         <button type="button" onclick="openManualModal()" id="footer-manual-btn" aria-label="Abrir manual de usuario" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 font-bold transition-all cursor-pointer flex items-center gap-2 shadow-sm hover:border-cyan-500/50">
-          <span>📖</span> <span id="nav-manual-label">Manual de Usuario</span>
+          <span>📖</span> <span id="nav-manual-label">Manual</span>
         </button>
 
         <!-- Botón Soporte Directo -->
         <button type="button" onclick="openSupportModal()" id="footer-support-btn" aria-label="Abrir centro de soporte" class="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-cyan-500/30 text-cyan-300 font-bold transition-all cursor-pointer flex items-center gap-2 shadow-sm hover:bg-cyan-950/40">
-          <span>🎧</span> <span id="nav-support-label">Centro de Soporte</span>
+          <span>🎧</span> <span id="nav-support-label">Soporte</span>
         </button>
 
         <!-- Botón WhatsApp -->
-        <a href="https://wa.me/50375743444?text=Hola%20Boltech%20Group,%20necesito%20asistencia%20inmediata" target="_blank" rel="noopener noreferrer" id="footer-whatsapp-btn" class="px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-400 font-bold transition-all flex items-center gap-2 shadow-sm">
-          <span>💬</span> <span>WhatsApp 24/7</span>
+        <a href="https://wa.me/50375743444?text=Hola%20Boltech%20Group,%20quisiera%20consultar%20el%20alcance" target="_blank" rel="noopener noreferrer" id="footer-whatsapp-btn" class="px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-400 font-bold transition-all flex items-center gap-2 shadow-sm">
+          <span>💬</span> <span>WhatsApp consultas</span>
         </a>
       </div>
 
       <div class="text-slate-500 text-xs font-mono space-y-1">
-        <p>© 2026 <strong id="footer-brand-name">Boltech Group</strong> • Boltech Group. Operación Desatendida & Ciberseguridad Defensiva en la Nube.</p>
+        <p>© 2026 <strong id="footer-brand-name">Boltech Group</strong> • Boltech Group. Registro, asignación y seguimiento de solicitudes.</p>
         <p class="text-[11px] text-slate-600">Procesamiento diseñado para minimizar retención de datos • Controles de privacidad y seguridad aplicados</p>
       </div>
     </div>
@@ -679,10 +610,10 @@
     </div>
     <div class="hidden sm:block text-left">
       <div class="text-xs font-mono font-bold text-white flex items-center gap-1.5">
-        <span id="float-agent-label">Agente Asistente IA</span>
-        <span class="text-[9px] px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-400 font-mono font-bold">24/7</span>
+        <span id="float-agent-label">Asistente de Boltech</span>
+        <span class="text-[9px] px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-400 font-mono font-bold">CONSULTAS</span>
       </div>
-      <div id="float-agent-sub" class="text-[10px] text-cyan-300 font-sans">¿Dudas de alcance y cotización? Clic aquí</div>
+      <div id="float-agent-sub" class="text-[10px] text-cyan-300 font-sans">Consulta alcance y condiciones</div>
     </div>
   </div>
 
@@ -706,24 +637,24 @@
             </div>
             <div>
               <div class="text-xs font-mono font-bold text-white flex items-center gap-1.5">
-                <span id="modal-agent-title">Centinela de Cobro IA</span>
-                <span id="modal-agent-live-tag" class="text-[9px] px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 font-mono">EN VIVO</span>
+                <span id="modal-agent-title">Asistente de condiciones de pago</span>
+                <span id="modal-agent-live-tag" class="text-[9px] px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 font-mono">CONSULTA</span>
               </div>
-              <div id="modal-agent-status" class="text-[10px] font-mono text-emerald-400">● Vigilando transacción en tiempo real</div>
+              <div id="modal-agent-status" class="text-[10px] font-mono text-emerald-400">● El estado de pago requiere verificación del proveedor</div>
             </div>
           </div>
-          <span class="text-[9px] font-mono text-slate-500 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">RAM efímera</span>
+          <span class="text-[9px] font-mono text-slate-500 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">Datos según alcance</span>
         </div>
 
         <!-- Burbuja de Diálogo Dinámica del Agente -->
         <div class="text-[11px] font-sans text-slate-300 bg-slate-900/90 p-2.5 rounded-lg border border-slate-800 leading-relaxed" id="agent-speech-bubble">
-          👋 <em>Hola, estoy custodiando tu compra. Selecciona tu método preferido abajo; una vez confirmado el pago, emitiré de inmediato tu token de licencia y parches.</em>
+          Consulta las condiciones de una orden aprobada. El proveedor confirma el pago; la entrega se verifica según la propuesta.
         </div>
 
         <!-- Micro-píldoras de ayuda rápida del Agente -->
         <div class="flex flex-wrap gap-1.5 mt-2 font-mono text-[10px]">
           <button type="button" onclick="askAgentAbout('garantia')" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-cyan-400 border border-slate-700 transition-all cursor-pointer">
-            <span id="modal-faq-warranty">🛡️ ¿Garantía 7 Días?</span>
+            <span id="modal-faq-warranty">🛡️ Condiciones de entrega</span>
           </button>
           <button type="button" onclick="askAgentAbout('entrega')" class="px-2 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-cyan-400 border border-slate-700 transition-all cursor-pointer">
             <span id="modal-faq-delivery">⚡ ¿Cómo se Entrega?</span>
@@ -747,11 +678,11 @@
       <!-- Selector de Pestañas de Pasarelas Soberanas (2 Rieles Activos) -->
       <div class="grid grid-cols-2 gap-2.5 mb-4 font-mono text-xs">
         <button id="tab-strike" onclick="switchGatewayTab('strike')" class="py-2.5 px-2 rounded-xl bg-amber-500/20 border-2 border-amber-500 text-amber-300 font-bold flex flex-col items-center gap-1 cursor-pointer transition-all">
-          <span id="modal-tab-strike-title" class="flex items-center gap-1">⚡ Bitcoin Lightning</span>
-          <span id="modal-tab-strike-sub" class="text-[9px] opacity-80">Invoice BOLT11 verificada</span>
+          <span id="modal-tab-strike-title" class="flex items-center gap-1"><span class="flex items-center gap-1">⚡ Bitcoin Lightning</span></span>
+          <span id="modal-tab-strike-sub" class="text-[9px] opacity-80">Billetera Lightning</span>
         </button>
         <button id="tab-wompi" onclick="switchGatewayTab('wompi')" class="py-2.5 px-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-400 font-bold flex flex-col items-center gap-1 cursor-pointer transition-all">
-          <span id="modal-tab-wompi-title" class="flex items-center gap-1">💳 Tarjetas / Wompi SV</span>
+          <span id="modal-tab-wompi-title" class="flex items-center gap-1"><span class="flex items-center gap-1">💳 Tarjetas / Wompi SV</span></span>
           <span id="modal-tab-wompi-sub" class="text-[9px] opacity-80">Visa, Mastercard & Banco</span>
         </button>
       </div>
@@ -797,11 +728,11 @@
 
         <form id="wompi-checkout-form" onsubmit="startWompiCheckout(event)" class="space-y-2.5">
           <div>
-            <label id="modal-wompi-email-label" class="block text-[10px] font-mono text-slate-400 mb-0.5">CORREO PARA LA ORDEN *</label>
+            <label id="modal-wompi-email-label" class="block text-[10px] font-mono text-slate-400 mb-0.5">CORREO DE LA ORDEN APROBADA *</label>
             <input type="email" id="wompi-email" required placeholder="tu-correo@empresa.com" class="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white font-mono focus:border-emerald-400 focus:outline-none">
           </div>
           <button type="submit" id="btn-wompi-submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-mono text-xs font-black shadow-lg transition-all">
-            <span id="label-wompi-submit">Continuar al Checkout Seguro de Wompi</span>
+            <span id="label-wompi-submit">Continuar al checkout de una orden aprobada</span>
           </button>
         </form>
 
@@ -811,9 +742,7 @@
       </div>
 
       <div class="mt-4 pt-2.5 border-t border-slate-800/80 text-center">
-        <p id="modal-footer-contact" class="text-[10px] font-mono text-slate-500">
-          ¿Dudas sobre facturación? <span class="text-slate-400">ricardo.boltechgroup@gmail.com</span>
-        </p>
+        <p id="modal-footer-contact" class="text-[10px] font-mono text-slate-500">Facturación: ricardo.boltechgroup@gmail.com</p>
       </div>
 
     </div>
@@ -955,10 +884,10 @@
       <!-- Garantía Fiduciaria Resumida -->
       <div class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 mb-6 text-xs text-slate-300 font-sans flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div class="flex items-center gap-2">
-          <span class="text-cyan-400 font-bold font-mono">🛡️ Garantía Fiduciaria 7 Días:</span>
-          <span class="text-slate-300 text-[11px]">100% de reembolso si no ahorra tiempo a tu equipo.</span>
+          <span class="text-cyan-400 font-bold font-mono">🛡️ Condiciones de entrega:</span>
+          <span class="text-slate-300 text-[11px]">Pruebas y criterios acordados en la propuesta; sin garantía de ventas o ROI.</span>
         </div>
-        <span class="text-emerald-400 text-[11px] font-mono">Cero Invasión • RAM efímera</span>
+        <span class="text-emerald-400 text-[11px] font-mono">Consulta pública • Alcance limitado</span>
       </div>
 
       <p class="text-[10px] text-slate-500 font-sans leading-relaxed mb-4">
@@ -999,13 +928,13 @@
 
       <div class="border-b border-slate-800 pb-3 mb-5">
         <span class="text-[10px] font-mono uppercase tracking-wider text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded border border-cyan-500/20">
-          🎧 Mesa de Ayuda Fiduciaria 24/7
+          🎧 Consultas y soporte
         </span>
         <h3 class="text-xl font-black text-white font-mono mt-2">
           Centro de Soporte & Concierge
         </h3>
         <p class="text-xs text-slate-400 mt-1 font-sans">
-          Respuesta técnica garantizada en menos de 2 horas por ingenieros de soluciones.
+          El horario, tiempo de respuesta y mantenimiento se acuerdan en la propuesta. No ofrecemos un SLA universal.
         </p>
       </div>
 
@@ -1013,11 +942,11 @@
       <div class="space-y-3 font-mono">
         
         <!-- Opción VIP 1: WhatsApp Concierge Directo 24/7 -->
-        <a href="https://wa.me/50375743444?text=Hola%20Boltech%20Group,%20necesito%20soporte%20fiduciario%20inmediato" target="_blank" rel="noopener noreferrer" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs flex items-center justify-between shadow-lg shadow-emerald-500/25 transition-all cursor-pointer">
+        <a href="https://wa.me/50375743444?text=Hola%20Boltech%20Group,%20quisiera%20consultar%20soporte" target="_blank" rel="noopener noreferrer" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-black text-xs flex items-center justify-between shadow-lg shadow-emerald-500/25 transition-all cursor-pointer">
           <span class="flex items-center gap-2">
             <span>💬</span> <span>WhatsApp Directo</span>
           </span>
-          <span class="text-[10px] uppercase tracking-wider font-bold bg-slate-950/20 px-2 py-0.5 rounded">En Vivo ↗</span>
+          <span class="text-[10px] uppercase tracking-wider font-bold bg-slate-950/20 px-2 py-0.5 rounded">Consultar ↗</span>
         </a>
 
         <!-- Opción 2: Abrir Gmail Directo -->
@@ -1097,71 +1026,71 @@
     let currentSelectedPain = 'whatsapp';
 
     const PAIN_SOLUTIONS = {
-      es: {
-        whatsapp: {
-          agent: "Autonomous Sales Concierge 24/7",
-          problem: "Clientes esperando hasta 2 horas en WhatsApp para resolver dudas de compra o envíos.",
-          payrollWaste: "~$600 USD/mes en analistas copiando y pegando respuestas.",
-          solution: "Un agente en la nube que responde en <20s, califica al cliente y entrega enlace de pago fiduciario.",
-          roi: "8.4x de retorno con solo rescatar 1 venta perdida a la semana."
-        },
-        cobranza: {
-          agent: "Cash-Flow Auditor & Collection Sentinel",
-          problem: "Horas perdidas persiguiendo facturas vencidas y conciliando comprobantes bancarios a mano.",
-          payrollWaste: "~$700 USD/mes en personal administrativo desgastado.",
-          solution: "Agente que monitorea estados de cuenta, envía recordatorios amables y concilia en tiempo real.",
-          roi: "10x de recuperación de liquidez sin fricción interpersonal."
-        },
-        logistica: {
-          agent: "Stock Sentinel & 3PL Fleet Coordinator",
-          problem: "Clientes preguntando el número de guía de mensajería y quiebres de stock imprevistos.",
-          payrollWaste: "~$750 USD/mes en operadores de atención telefónica y fletes urgentes.",
-          solution: "Agente que consulta automáticamente el estado de la guía y alerta sobre stock crítico.",
-          roi: "Eliminación del 85% de llamadas operativas en 7 días."
-        },
-        ventas: {
-          agent: "SDR & Lead Qualification Closer",
-          problem: "Prospectos calificados que se enfrían porque nadie les hace seguimiento el fin de semana.",
-          payrollWaste: "~$800 USD/mes en oportunidades no aprovechadas.",
-          solution: "Cadencia de 3 impactos automáticos de guante blanco y despacho directo a checkout.",
-          roi: "Aumento inmediato de tasa de cierre sin contratar más vendedores."
-        }
-      },
-      en: {
-        whatsapp: {
-          agent: "Autonomous Sales Concierge 24/7",
-          problem: "Customers waiting up to 2 hours on WhatsApp to resolve purchase or shipping inquiries.",
-          payrollWaste: "~$600 USD/mo in analysts copying and pasting responses.",
-          solution: "A cloud agent responding in <20s, qualifying leads, and dispatching fiduciary checkout links.",
-          roi: "8.4x return by recovering just 1 lost deal per week."
-        },
-        cobranza: {
-          agent: "Cash-Flow Auditor & Collection Sentinel",
-          problem: "Hours wasted chasing overdue invoices and manually reconciling bank payment slips.",
-          payrollWaste: "~$700 USD/mo in strained administrative payroll.",
-          solution: "An agent monitoring bank statements, sending polite reminders, and reconciling in real time.",
-          roi: "10x liquidity recovery with zero interpersonal friction."
-        },
-        logistica: {
-          agent: "Stock Sentinel & 3PL Fleet Coordinator",
-          problem: "Customers asking for courier tracking IDs and unexpected inventory stockouts.",
-          payrollWaste: "~$750 USD/mo in customer service agents and emergency freight.",
-          solution: "An agent that automatically queries tracking APIs and alerts on critical stock levels.",
-          roi: "Elimination of 85% of repetitive support calls in 7 days."
-        },
-        ventas: {
-          agent: "SDR & Lead Qualification Closer",
-          problem: "Qualified leads going cold over the weekend because no sales rep followed up.",
-          payrollWaste: "~$800 USD/mo in lost pipeline opportunities.",
-          solution: "White-glove 3-touch automatic cadence dispatching directly to checkout.",
-          roi: "Immediate win-rate increase without hiring more sales reps."
-        }
-      }
-    };
+  "es": {
+    "whatsapp": {
+      "agent": "Flujo a evaluar",
+      "problem": "Confirmar el proceso actual y el paso a mejorar.",
+      "payrollWaste": "Costos por comprobar",
+      "solution": "Proponer alcance después del diagnóstico.",
+      "roi": "Resultados a medir; sin retorno garantizado."
+    },
+    "cobranza": {
+      "agent": "Flujo a evaluar",
+      "problem": "Confirmar el proceso actual y el paso a mejorar.",
+      "payrollWaste": "Costos por comprobar",
+      "solution": "Proponer alcance después del diagnóstico.",
+      "roi": "Resultados a medir; sin retorno garantizado."
+    },
+    "logistica": {
+      "agent": "Flujo a evaluar",
+      "problem": "Confirmar el proceso actual y el paso a mejorar.",
+      "payrollWaste": "Costos por comprobar",
+      "solution": "Proponer alcance después del diagnóstico.",
+      "roi": "Resultados a medir; sin retorno garantizado."
+    },
+    "ventas": {
+      "agent": "Flujo a evaluar",
+      "problem": "Confirmar el proceso actual y el paso a mejorar.",
+      "payrollWaste": "Costos por comprobar",
+      "solution": "Proponer alcance después del diagnóstico.",
+      "roi": "Resultados a medir; sin retorno garantizado."
+    }
+  },
+  "en": {
+    "whatsapp": {
+      "agent": "Workflow to assess",
+      "problem": "Confirm the current process and step to improve.",
+      "payrollWaste": "Costs to verify",
+      "solution": "Propose scope after diagnosis.",
+      "roi": "Measure results; no guaranteed return."
+    },
+    "cobranza": {
+      "agent": "Workflow to assess",
+      "problem": "Confirm the current process and step to improve.",
+      "payrollWaste": "Costs to verify",
+      "solution": "Propose scope after diagnosis.",
+      "roi": "Measure results; no guaranteed return."
+    },
+    "logistica": {
+      "agent": "Workflow to assess",
+      "problem": "Confirm the current process and step to improve.",
+      "payrollWaste": "Costs to verify",
+      "solution": "Propose scope after diagnosis.",
+      "roi": "Measure results; no guaranteed return."
+    },
+    "ventas": {
+      "agent": "Workflow to assess",
+      "problem": "Confirm the current process and step to improve.",
+      "payrollWaste": "Costs to verify",
+      "solution": "Propose scope after diagnosis.",
+      "roi": "Measure results; no guaranteed return."
+    }
+  }
+};
 
     const I18N = {
       es: {
-        logoSub: 'Ingeniería en Soluciones Operativas & Ciberseguridad',
+        logoSub: "Registro, asignación y seguimiento de solicitudes",
         brandText: 'BOLTECH <span class="text-cyan-400">GROUP</span>',
         brandPlain: 'Boltech Group',
         langBtn: '<span class="text-cyan-400 font-bold underline decoration-cyan-400/60 underline-offset-2">ES</span><span class="text-slate-500 mx-1">|</span><span class="text-slate-400 font-normal">EN</span>',
@@ -1171,11 +1100,11 @@
 
         navItemPrebuilt: 'Agentes Pre-elaborados',
         navItemCustom: 'Agentes a la Medida',
-        navItemCabina: 'Cabina Cloud',
+        navItemCabina: 'Revisar proceso',
 
                 heroBadge: "SOLICITUDES CON RESPONSABLE Y PRÓXIMO PASO",
                 heroTitle: "Organiza las consultas de tu inmobiliaria.<br><span class=\"text-cyan-300\">Registra, asigna y da seguimiento.</span>",
-                heroDesc: "Implementamos un flujo de solicitudes conectado con tus herramientas. Piloto de US$990 para una empresa, un flujo web y una integración sencilla; alcance y accesos se acuerdan antes de comenzar.",
+                heroDesc: "Piloto US$990: US$495 iniciales y US$495 contra entrega verificada. Una empresa, un flujo web y una integración sencilla. Plazo: 14 días desde aceptación y accesos disponibles. Herramientas, consumo y mantenimiento aparte; ampliaciones requieren cotización.",
 
         hubBadge: 'Los 2 Servicios de Boltech Group',
         hubCard1Badge: 'Servicio 1 • Agentes Pre-elaborados a tu Servicio',
@@ -1190,21 +1119,21 @@
         hubCard2Title: 'Agentes Hechos a la Medida',
                 hubCard2Desc: "Adaptamos el flujo a tu proceso y validamos compatibilidad, accesos y criterios de entrega antes de proponer una implementación.",
         hubCard2Feat1: '<span>✓</span> Diagnóstico y diseño adaptado a tu negocio',
-        hubCard2Feat2: '<span>✓</span> Integración a tus sistemas, CRM o ERP',
+        hubCard2Feat2: "<span>✓</span> Una integración sencilla en el piloto; otras se cotizan",
                 hubCard2Feat3: "<span>✓</span> Pruebas y transferencia de uso",
                 hubCard2Cta: "Describir mi proceso",
 
         scannerTitle: "Herramienta de diagnóstico técnico",
-        scannerNoninvasive: '100% No Invasivo • Cero Contraseñas',
+        scannerNoninvasive: "Consulta HTTPS pública • Sin acceso interno",
         scanInputPlaceholder: 'tudominio.com',
-        scanBtn: 'Auditar y Blindar',
+        scanBtn: "Revisar cabeceras y TLS",
 
                 metric1: "Registro",
                 metric2: "Asignación",
                 metric3: "Seguimiento",
                 metric4: "Entrega verificada",
 
-        shieldsBadge: '⚡ Ventajas Exclusivas • Soluciones Llave en Mano',
+        shieldsBadge: "⚡ Base reutilizable • Implementación acordada",
         shieldsTitle: 'Beneficios de Contar con Agentes Pre-elaborados a tu Servicio',
         shieldsDesc: 'Base reutilizable adaptada a tus solicitudes, con integración, pruebas y criterios de entrega acordados.',
                 s1h: "Registro con referencia",
@@ -1218,7 +1147,7 @@
 
         videoShowroomBadge: '🎬 Demostración Ejecutiva • Agentes Pre-elaborados',
         videoHeading: 'Agentes Pre-elaborados en Acción: Demostración Ejecutiva',
-                videoDesc: "Video ilustrativo de automatización; el alcance y funcionamiento del piloto se verifican por separado.",
+                videoDesc: "Flujo ilustrativo; el alcance y funcionamiento del piloto se verifican por separado.",
 
         customDivisionBadge: 'Servicio 2 de Boltech Group • Agentes Hechos a la Medida',
         customAgentsTitle: 'Resolvemos los procesos lentos de tu empresa con<br><span class="bg-gradient-to-r from-indigo-400 via-purple-300 to-cyan-300 bg-clip-text text-transparent">Agentes Inteligentes a la Medida.</span>',
@@ -1240,26 +1169,26 @@
                 flowTitle: "De la revisión a la entrega",
         flowStep1H: 'Escribes tu Proceso Lento',
         flowStep1P: 'Describes en la caja superior qué tarea o proceso está atascado o quitándole tiempo valioso a tu equipo comercial o administrativo.',
-        flowStep1Tag: '• Diagnóstico en 1 Clic',
+        flowStep1Tag: "• Solicitud para revisión",
                 flowStep2H: "Diagnóstico y propuesta",
         flowStep2P: "Revisamos tus requisitos y preparamos una propuesta de alcance.",
                 flowStep2Tag: "• Alcance y costos documentados",
                 flowStep3H: "Entrega y transferencia de uso",
-        flowStep3P: "La entrega y activación se verifican después de la implementación acordada.",
+        flowStep3P: "Piloto: 14 días desde aceptación y accesos disponibles, con pruebas y entrega verificada.",
                 flowStep3Tag: "• Pruebas y criterios acordados",
 
         agentVidBadge: '🎬 Demostración de Solución • Agentes Autónomos en Acción',
-        agentVidTitle: 'Video Demostrativo: Cómo un Agente a la Medida resuelve los problemas en tu empresa',
+        agentVidTitle: 'Flujo de implementación de un agente a medida',
         agentVidDesc: "Demostración ilustrativa del flujo de agentes. No acredita resultados de clientes.",
 
         cabinaCtaBadge: '👉 Punto de Activación en Vivo • Cabina de Operaciones 👈',
         cabinaCtaTitle: '¿Dónde haces clic para que el Agente funcione?',
                 cabinaCtaDesc: "La implementación requiere alcance aceptado, accesos y pruebas. La cabina permite revisar el contexto disponible; abrirla no activa un agente de cliente.",
-        cabinaCtaGuide: 'HAZ CLIC AQUÍ PARA ACTIVARLO',
-        cabinaCtaButtonText: 'HACER CLIC AQUÍ PARA ABRIR TU CABINA CLOUD Y PONER A FUNCIONAR TU AGENTE AHORA ↗',
+        cabinaCtaGuide: "Consultar contexto disponible",
+        cabinaCtaButtonText: "ABRIR CABINA; LA ACTIVACIÓN REQUIERE ENTREGA VERIFICADA",
         cabinaCtaFeat1: 'Sin instalaciones locales',
-        cabinaCtaFeat2: 'Ejecución en memoria volátil efímera',
-        cabinaCtaFeat3: 'Monitoreo 24/7 con métricas en vivo',
+        cabinaCtaFeat2: "Datos según el flujo acordado",
+        cabinaCtaFeat3: "Disponibilidad según canales y herramientas",
 
         painModuleBadge: '⚡ Diagnóstico Fiduciario Express',
         painTitle: '¿Tu problema no es solo ciberseguridad?',
@@ -1270,25 +1199,25 @@
         painBtnVentas: '💼 Leads sin seguimiento comercial',
         painBoxAgentRec: '🤖 Agente Recomendado:',
         painBoxCost: 'Según alcance',
-        painBoxLeak: '⚠️ Fuga actual:',
+        painBoxLeak: "Proceso a revisar:",
         painBoxSol: '⚡ Solución Boltech Group:',
-        painBoxImpact: '📈 Impacto:',
+        painBoxImpact: "Medición acordada:",
         painBoxFoot: 'Entrega según alcance y criterios de aceptación',
-        painBoxBtn: 'Activar este Agente (Precio según cotización) →',
+        painBoxBtn: "Solicitar revisión y cotización →",
 
         stepsBadge: '⚙️ Cero Fricción Técnica',
         stepsTitle: 'Fácil de Configurar en 3 Pasos',
-        stepsDesc: 'No necesitas un equipo de ingenieros ni semanas de integración. El agente realiza el trabajo pesado.',
+        stepsDesc: "Acordamos el proceso, accesos y pruebas antes de implementar.",
         step1h: 'Ingresa tu Dominio',
         step1p: 'El agente ejecuta un escaneo perimetral externo no invasivo. No pedimos contraseñas ni permisos internos.',
         step2h: 'Elige tu Solución',
         step2p: "Elige agentes preelaborados o custom agents; acordamos alcance y precio.",
         step3h: 'Activación y Paz Mental',
-        step3p: 'Despliega los parches con un clic en tu servidor o déjanos monitorear tu operación desde la nube con garantía incondicional.',
+        step3p: "Implementación y entrega verificadas según la propuesta aceptada.",
 
-        pricingBadge: '💎 Soluciones Permanentes & Paz Mental 24/7',
+        pricingBadge: "💎 Alcance, costos y entrega acordados",
         pricingTitle: "Nuestros dos servicios",
-        pricingDesc: "Precio, alcance e integraciones se acuerdan antes del pago.",
+        pricingDesc: "Piloto US$990: US$495 iniciales y US$495 contra entrega verificada. Una empresa, un flujo web y una integración sencilla. Plazo: 14 días desde aceptación y accesos disponibles. Herramientas, consumo y mantenimiento aparte; ampliaciones requieren cotización.",
         p2Title: "Agentes preelaborados",
         p2Desc: "Configuramos un flujo existente para tu operación y herramientas.",
         btnP2: "Solicitar cotización",
@@ -1304,20 +1233,20 @@
         pageAgentTitle: "Asistente de Boltech Group",
         pageAgentLiveBadge: "CONSULTAS",
                 pageAgentSubtitle: "Registro, asignación y seguimiento de solicitudes.",
-                pageAgentSpeechDefault: "Implementamos un flujo de solicitudes conectado con tus herramientas. Piloto US$990: una empresa, un flujo web y una integración sencilla. Herramientas y mantenimiento aparte.",
+                pageAgentSpeechDefault: "Piloto US$990: US$495 iniciales y US$495 contra entrega verificada. Una empresa, un flujo web y una integración sencilla. Plazo: 14 días desde aceptación y accesos disponibles. Herramientas, consumo y mantenimiento aparte; ampliaciones requieren cotización.",
         pageAgentBtnCalc: "Consultar alcance",
         pageAgentBtnPro: "Agentes preelaborados",
         pageAgentBtnStrike: '⚡ ¿Cómo pago con Strike?',
         pageAgentBtnWompi: '💳 ¿Cómo pago con Tarjeta / Wompi?',
                 pageAgentBtnWarranty: "Revisar condiciones de entrega",
                 pageAgentCta: "Revisar mi proceso →",
-        floatAgentLabel: 'Centinela de Paz Mental',
-        floatAgentSub: '¿Dudas de cobertura o pagos? Clic aquí',
+        floatAgentLabel: "Asistente de Boltech",
+        floatAgentSub: "Consulta alcance y condiciones",
 
-        modalAgentTitle: 'Centinela de Cobro IA',
-        modalAgentLiveTag: 'EN VIVO',
-        modalAgentStatus: '● Vigilando transacción en tiempo real',
-        modalFaqWarranty: '🛡️ ¿Garantía 7 Días?',
+        modalAgentTitle: "Asistente de condiciones de pago",
+        modalAgentLiveTag: "CONSULTA",
+        modalAgentStatus: "● El estado de pago requiere verificación del proveedor",
+        modalFaqWarranty: "🛡️ Condiciones de entrega",
         modalFaqDelivery: '⚡ ¿Cómo se Entrega?',
         modalFaqSupport: '💬 Ayuda Humana',
         modalProductTitle: 'Activación de Solución',
@@ -1329,21 +1258,21 @@
         modalStrikeDesc: 'Paga mediante una factura Lightning generada por Strike. Las comisiones, si aplican, dependen de tu billetera o proveedor.',
         labelCopyLightning: 'Copiar rick2818@strike.me',
         labelOpenWallet: 'Pagar con Tarjeta (Wompi SV)',
-        modalBtnConfirmLightning: 'Generar Invoice Lightning Segura',
+        modalBtnConfirmLightning: "Generar factura de una orden aprobada",
         modalWompiRailTitle: 'Riel Fiduciario de Tarjetas:',
         modalWompiRailName: 'Wompi SV / Bancaria',
-        modalWompiRailDesc: 'Acepta tarjetas de crédito/débito Visa, Mastercard y transferencias locales directas. El Centinela concilia la referencia y emite tu licencia de inmediato.',
-        modalWompiEmailLabel: 'CORREO PARA DESPACHO DE LICENCIA *',
+        modalWompiRailDesc: "Wompi procesa el pago en su checkout. La entrega del proyecto requiere implementación y aceptación; pagar no activa un agente.",
+        modalWompiEmailLabel: "CORREO DE LA ORDEN APROBADA *",
         modalWompiMethodLabel: 'MÉTODO DE PAGO *',
         modalWompiOptCard: 'Tarjeta Crédito / Débito',
         modalWompiOptTrans: 'Transferencia Bancaria / QR',
         modalWompiOptNequi: 'Nequi / PSE',
         modalWompiRefLabel: 'TITULAR / REFERENCIA *',
-        labelWompiSubmit: 'Continuar al Checkout Seguro de Wompi',
-        modalFooterContact: '¿Dudas sobre facturación corporativa? Contacto directo: <span class="text-slate-400">rick2818@strike.me</span>'
+        labelWompiSubmit: "Continuar al checkout de una orden aprobada",
+        modalFooterContact: "Facturación: ricardo.boltechgroup@gmail.com"
       },
       en: {
-        logoSub: 'Autonomous Operational Solutions & Cyber-Defense',
+        logoSub: "Request recording, assignment and follow-up",
         brandText: 'BOLTECH <span class="text-cyan-400">GROUP</span>',
         brandPlain: 'Boltech Group',
         langBtn: '<span class="text-slate-400 font-normal">ES</span><span class="text-slate-500 mx-1">|</span><span class="text-cyan-400 font-bold underline decoration-cyan-400/60 underline-offset-2">EN</span>',
@@ -1353,11 +1282,11 @@
 
         navItemPrebuilt: 'Pre-built Agents',
         navItemCustom: 'Custom Agents',
-        navItemCabina: 'Cloud Cabina',
+        navItemCabina: 'Review process',
 
                 heroBadge: "REQUESTS WITH AN OWNER AND NEXT STEP",
                 heroTitle: "Organize your real estate inquiries.<br><span class=\"text-cyan-300\">Record, assign and follow up.</span>",
-                heroDesc: "We implement a request workflow connected to your tools. US$990 pilot for one business, one web workflow and one simple integration; scope and access are agreed before kickoff.",
+                heroDesc: "US$990 pilot: US$495 upfront and US$495 upon verified delivery. One business, one web workflow and one simple integration. Timeline: 14 days from acceptance and required access. Tools, usage and maintenance are separate; additional scope requires a quote.",
 
         hubBadge: 'Boltech Group 2 Core Services',
         hubCard1Badge: 'Service 1 • Pre-built Agents at Your Service',
@@ -1372,21 +1301,21 @@
         hubCard2Title: 'Custom Tailored AI Agents',
                 hubCard2Desc: "We adapt the workflow to your process and validate compatibility, access and acceptance criteria before proposing implementation.",
         hubCard2Feat1: '<span>✓</span> Tailored architecture for your workflows',
-        hubCard2Feat2: '<span>✓</span> Integrations with your CRM, ERP or DB',
+        hubCard2Feat2: "<span>✓</span> One simple pilot integration; others require a quote",
                 hubCard2Feat3: "<span>✓</span> Testing and usage handover",
                 hubCard2Cta: "Describe my process",
 
         scannerTitle: "Technical diagnostic tool",
-        scannerNoninvasive: '100% Non-Invasive • Zero Passwords',
+        scannerNoninvasive: "Public HTTPS check • No internal access",
         scanInputPlaceholder: 'yourdomain.com',
-        scanBtn: 'Audit & Shield',
+        scanBtn: "Check headers and TLS",
 
                 metric1: "Recording",
                 metric2: "Assignment",
                 metric3: "Follow-up",
                 metric4: "Verified delivery",
 
-        shieldsBadge: '⚡ Turnkey Advantage • Instant Operations',
+        shieldsBadge: "⚡ Reusable workflow • Agreed implementation",
         shieldsTitle: 'Benefits of Having Pre-built Agents at Your Service',
         shieldsDesc: 'A reusable workflow adapted to your requests, with agreed integration, testing and acceptance criteria.',
                 s1h: "Recording with a reference",
@@ -1400,7 +1329,7 @@
 
         videoShowroomBadge: '🎬 Executive Briefing • Pre-built Agents',
         videoHeading: 'Pre-built Agents in Action: Executive Briefing',
-                videoDesc: "Illustrative automation video; pilot scope and operation are verified separately.",
+                videoDesc: "Illustrative workflow; pilot scope and operation are verified separately.",
 
         customDivisionBadge: 'Boltech Group Service 2 • Custom Tailored Agents',
         customAgentsTitle: 'Eliminate slow business bottlenecks with<br><span class="bg-gradient-to-r from-indigo-400 via-purple-300 to-cyan-300 bg-clip-text text-transparent">Custom Tailored AI Agents.</span>',
@@ -1422,26 +1351,26 @@
                 flowTitle: "From process review to delivery",
         flowStep1H: 'Submit Your Slow Process',
         flowStep1P: 'Describe above what process is delayed or burning your team\'s valuable hours.',
-        flowStep1Tag: '• Diagnosis in 1 Click',
+        flowStep1Tag: "• Request submitted for review",
                 flowStep2H: "Diagnosis and proposal",
         flowStep2P: "We review your requirements and prepare a scoped proposal.",
                 flowStep2Tag: "• Documented scope and costs",
                 flowStep3H: "Delivery and usage handover",
-        flowStep3P: "Delivery and activation are verified after the agreed implementation.",
+        flowStep3P: "Pilot: 14 days from acceptance and required access, with testing and verified delivery.",
                 flowStep3Tag: "• Agreed tests and acceptance criteria",
 
         agentVidBadge: '🎬 Solution Demo • Autonomous Agents in Action',
-        agentVidTitle: 'Demo Video: How a Custom Agent solves bottlenecks in your company',
+        agentVidTitle: 'Custom agent implementation workflow',
         agentVidDesc: "Illustrative demonstration of an agent workflow. It does not establish client results.",
 
         cabinaCtaBadge: '👉 Live Activation Point • Operations Cabina 👈',
         cabinaCtaTitle: 'Where do you click to make the Agent work?',
                 cabinaCtaDesc: "Implementation requires accepted scope, access and testing. The workspace lets you review available context; opening it does not activate a customer agent.",
-        cabinaCtaGuide: 'CLICK HERE TO ACTIVATE IT',
-        cabinaCtaButtonText: 'CLICK HERE TO OPEN YOUR CLOUD CABINA AND RUN YOUR AGENT NOW ↗',
+        cabinaCtaGuide: "Review available context",
+        cabinaCtaButtonText: "OPEN CABINA; ACTIVATION REQUIRES VERIFIED DELIVERY",
         cabinaCtaFeat1: 'Zero local installation',
-        cabinaCtaFeat2: 'Ephemeral volatile RAM execution',
-        cabinaCtaFeat3: '24/7 monitoring with live metrics',
+        cabinaCtaFeat2: "Data handling by agreed workflow",
+        cabinaCtaFeat3: "Availability depends on channels and tools",
 
         painModuleBadge: '⚡ Express Fiduciary Diagnosis',
         painTitle: 'Is your challenge not just cybersecurity?',
@@ -1452,25 +1381,25 @@
         painBtnVentas: '💼 Leads without sales follow-up',
         painBoxAgentRec: '🤖 Recommended Agent:',
         painBoxCost: '$2.30 USD / day',
-        painBoxLeak: '⚠️ Current Leak:',
+        painBoxLeak: "Process to review:",
         painBoxSol: '⚡ BolTech Group Solution:',
-        painBoxImpact: '📈 Impact:',
+        painBoxImpact: "Agreed measurement:",
         painBoxFoot: 'Delivery against agreed scope and acceptance criteria',
-        painBoxBtn: 'Deploy this Agent (Price by approved quote) →',
+        painBoxBtn: "Request review and quote →",
 
         stepsBadge: '⚙️ Zero Technical Friction',
         stepsTitle: 'Effortless 3-Step Setup',
-        stepsDesc: 'No engineering team or weeks of onboarding required. The autonomous agent handles the heavy lifting.',
+        stepsDesc: "We agree on the process, access and testing before implementation.",
         step1h: 'Enter Your Domain',
         step1p: 'The agent executes a non-invasive external perimeter evaluation. We never ask for passwords or internal access.',
         step2h: 'Select Your Shield',
         step2p: "Choose prebuilt or custom agents; we agree scope and price.",
         step3h: 'Activate & Sleep Soundly',
-        step3p: 'Deploy patches with one click to your server or let us monitor your operations from the cloud with a full 7-day guarantee.',
+        step3p: "Implementation and delivery verified against the accepted proposal.",
 
-        pricingBadge: '💎 Permanent Solutions & 24/7 Peace of Mind',
+        pricingBadge: "💎 Agreed scope, costs and delivery",
         pricingTitle: "Our two services",
-        pricingDesc: "Price, scope and integrations are agreed before payment.",
+        pricingDesc: "US$990 pilot: US$495 upfront and US$495 upon verified delivery. One business, one web workflow and one simple integration. Timeline: 14 days from acceptance and required access. Tools, usage and maintenance are separate; additional scope requires a quote.",
         p2Title: "Prebuilt agents",
         p2Desc: "We configure an existing workflow for your operations and tools.",
         btnP2: "Request a quote",
@@ -1486,20 +1415,20 @@
         pageAgentTitle: "Boltech Group assistant",
         pageAgentLiveBadge: "INQUIRIES",
                 pageAgentSubtitle: "Request recording, assignment and follow-up.",
-                pageAgentSpeechDefault: "We implement a request workflow connected to your tools. US$990 pilot: one business, one web workflow and one simple integration. Tools and maintenance are separate.",
+                pageAgentSpeechDefault: "US$990 pilot: US$495 upfront and US$495 upon verified delivery. One business, one web workflow and one simple integration. Timeline: 14 days from acceptance and required access. Tools, usage and maintenance are separate; additional scope requires a quote.",
         pageAgentBtnCalc: "Discuss scope",
         pageAgentBtnPro: "Prebuilt agents",
         pageAgentBtnStrike: '⚡ How to pay with Strike?',
         pageAgentBtnWompi: '💳 How to pay with Cards / Wompi?',
                 pageAgentBtnWarranty: "Review delivery conditions",
                 pageAgentCta: "Review my process →",
-        floatAgentLabel: 'Peace of Mind Sentinel',
-        floatAgentSub: 'Questions on coverage or payments? Click here',
+        floatAgentLabel: "Boltech assistant",
+        floatAgentSub: "Discuss scope and delivery terms",
 
-        modalAgentTitle: 'AI Billing Sentinel',
-        modalAgentLiveTag: 'LIVE',
-        modalAgentStatus: '● Monitoring transaction in real time',
-        modalFaqWarranty: '🛡️ 7-Day Guarantee?',
+        modalAgentTitle: "Payment terms assistant",
+        modalAgentLiveTag: "INQUIRY",
+        modalAgentStatus: "● Payment status requires provider verification",
+        modalFaqWarranty: "🛡️ Delivery terms",
         modalFaqDelivery: '⚡ How is it Delivered?',
         modalFaqSupport: '💬 Human Support',
         modalProductTitle: 'Solution License Activation',
@@ -1511,18 +1440,18 @@
         modalStrikeDesc: 'Pay using a Lightning invoice generated by Strike. Any applicable fees depend on your wallet or provider.',
         labelCopyLightning: 'Copy rick2818@strike.me',
         labelOpenWallet: 'Pay with Card (Wompi SV)',
-        modalBtnConfirmLightning: '✓ I already paid: Notify Sentinel for Instant Provisioning',
+        modalBtnConfirmLightning: "Generate invoice for an approved order",
         modalWompiRailTitle: 'Card & Direct Rail:',
         modalWompiRailName: 'Wompi SV / Banking Rail',
-        modalWompiRailDesc: 'Accepts Visa, Mastercard credit/debit cards and direct bank transfers. The Sentinel reconciles the reference and issues your license instantly.',
-        modalWompiEmailLabel: 'BUSINESS EMAIL FOR LICENSE DISPATCH *',
+        modalWompiRailDesc: "Wompi processes payment in its checkout. Project delivery requires implementation and acceptance; payment does not activate an agent.",
+        modalWompiEmailLabel: "APPROVED ORDER EMAIL *",
         modalWompiMethodLabel: 'PAYMENT METHOD *',
         modalWompiOptCard: 'Credit / Debit Card',
         modalWompiOptTrans: 'Bank Wire / QR',
         modalWompiOptNequi: 'Nequi / PSE',
         modalWompiRefLabel: 'CARDHOLDER / REFERENCE *',
-        labelWompiSubmit: 'Confirm & Activate License',
-        modalFooterContact: 'Questions about corporate invoicing? Direct contact: <span class="text-slate-400">rick2818@strike.me</span>'
+        labelWompiSubmit: "Continue to checkout for an approved order",
+        modalFooterContact: "Billing: ricardo.boltechgroup@gmail.com"
       }
     };
 
@@ -2094,8 +2023,8 @@
     function askPageAgent(topic) {
       const speech = document.getElementById('page-agent-speech');
       if (speech) speech.textContent = currentLanguage === 'en'
-        ? 'Choose prebuilt or custom agents. Request a quote with your process and tools; payment follows an approved scope.'
-        : 'Elige agentes preelaborados o custom agents. Solicita una cotización con tu proceso y herramientas; el pago requiere un alcance aprobado.';
+        ? I18N.en.pageAgentSpeechDefault + ' Payment requires an approved order; provider confirmation does not replace verified project delivery.'
+        : I18N.es.pageAgentSpeechDefault + ' El pago requiere una orden aprobada; la confirmación del proveedor no sustituye la entrega verificada del proyecto.';
     }
 
     function scrollToOrOpenAgent() {
@@ -2120,9 +2049,9 @@
           } else {
             if (btn) btn.className = 'py-2.5 px-2 rounded-xl bg-emerald-500/20 border-2 border-emerald-500 text-emerald-300 font-bold flex flex-col items-center gap-1 cursor-pointer transition-all';
             if (isEn) {
-              setAgentMessage('💳 <strong>Card & Direct Wire Rail (Wompi SV):</strong> Process your Visa/Mastercard or bank wire in USD for instant license provisioning.');
+              setAgentMessage('💳 <strong>Card & Direct Wire Rail (Wompi SV):</strong> Payment is verified with Wompi; implementation and delivery remain subject to the accepted proposal.');
             } else {
-              setAgentMessage('💳 <strong>Wompi El Salvador:</strong> El pago se procesa en el checkout hospedado por Wompi y Boltech activa únicamente después de verificarlo con el proveedor.');
+              setAgentMessage('💳 <strong>Wompi El Salvador:</strong> El pago se verifica con Wompi; la implementación y entrega siguen sujetas a la propuesta aceptada.');
             }
           }
         } else {
