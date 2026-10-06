@@ -8,7 +8,7 @@ test('no accepted audit still produces private qualification and approved propos
   const p=buildCommercialRoutes('RSI-02',[row('sent',{Notes:'SENT: original email logged'})]);
   assert.equal(p.accounts[0].route,'REVIEW_EXISTING_THREAD');assert.equal(p.accounts[0].problemConfirmed,false);
   assert.equal(p.accounts[0].enrollmentReady,false);assert.equal(p.proposal.priceUsd,990);assert.equal(p.proposal.customerAcceptance,'UNCONFIRMED');
-  assert.ok(p.accounts[0].questions.length);assert.match(p.nextAction,/awaiting accepted audit/);
+  assert.ok(p.accounts[0].questions.length);assert.match(p.nextAction,/audit is optional/);assert.equal(p.proposal.diagnosisRequiresAudit,false);
 });
 test('deduplicates and excludes QA, partners and stopped contacts without changing source',()=>{
   const rows=[row('a'),row('b'),row('qa',{'Data Quality':'QA'}),row('partner',{'Experiment Cohort':'RSI-03'}),row('stop',{Status:'Unsubscribed'})];

@@ -40,6 +40,15 @@ test('repeat cycle reads durable receipt without repeated tools or writes',async
   const b=await w.run({rsi:'RSI-01',cycleId:'stable'});
   assert.deepEqual(a.receipt,b.receipt);assert.equal(b.reused,true);assert.equal(f.writes(),writes);
 });
+
+test('missing optional audit does not block commercial diagnosis or infer a customer response',async()=>{
+  const f=fixture();const r=await createRsiExecutor(f.options).run({rsi:'RSI-02',cycleId:'diagnosis-without-audit'});
+  assert.ok(!r.receipt.blockers.includes('WAITING_ACCEPTED_AUDIT_DATA'));
+  const raw=JSON.parse(f.rows[1].fields['Execution Receipt']);
+  assert.ok(raw.actions.some(a=>a.type==='COMMERCIAL_DIAGNOSIS_PREPARED'));
+  assert.match(f.rows[1].fields['Next Action'],/human responses/);
+  assert.equal(f.rows[1].fields.Status,'BUSINESS_STATE');
+});
 test('new hourly cycle retains one stable preparation packet and does not erase later evidence',async()=>{
   const f=fixture(),w=createRsiExecutor(f.options);
   await w.run({rsi:'RSI-02',cycleId:'hour-one'});

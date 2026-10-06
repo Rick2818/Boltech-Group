@@ -43,6 +43,8 @@ test('complete requests survive restart and identical retries preserve their ref
   const changed = await f.store.enqueue({ ...input, painPoint: 'Otra solicitud' });
   assert.notEqual(changed.job.id, first.job.id);
   assert.equal((await restarted.read(first.job.id)).request.painPoint, input.painPoint);
+  assert.equal((await restarted.read(first.job.id)).commercial.owner, 'RSI-02');
+  assert.equal((await restarted.read(first.job.id)).commercial.customerAcceptance, 'UNCONFIRMED');
 });
 test('contact validation and stable normalized duplicate enqueue',async()=>{
   assert.throws(()=>normalizeContact({email:'invalid'}));

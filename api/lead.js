@@ -1,4 +1,6 @@
 // Vercel Serverless Function: Lead Capture, Instant Forensic Report & Fiduciary Dispatch
+import { commercialOfferContext } from '../lib/commercial_offer.js';
+import { confirmIntake } from '../lib/intake_confirmation.js';
 import { dispatchUniversalEmail } from '../lib/universal_email_engine.js';
 import { scanDomain, normalizeDomain } from '../lib/header_scanner.js';
 import { buildScanEmail } from '../lib/scan_report_email.js';
@@ -65,7 +67,9 @@ export default async function handler(req, res) {
 Recibimos la descripción del proceso que desean mejorar:
 "${cleanPainPoint}"
 
-Boltech Group lo registró para evaluación técnica. No afirmamos que exista un agente terminado hasta que el diseño haya sido construido y verificado.
+${commercialOfferContext()}
+
+Boltech Group lo registró para revisión comercial del proceso. No afirmamos que exista un agente terminado hasta que el diseño haya sido construido y verificado.
 
 Puede abrir la Cabina Cloud para revisar el contexto registrado y continuar la evaluación:
 ${cabinaUrl}
@@ -99,9 +103,9 @@ WhatsApp: +503 7574 3444`;
 <body>
   <div class="box">
     <div style="text-align: center; margin-bottom: 20px;">
-      <span class="badge">Agente a la Medida • Activación y Cabina</span>
+      <span class="badge">Revisión de solicitudes • Propuesta individual</span>
       <h2 style="color: #ffffff; margin: 12px 0 6px 0; font-size: 20px; font-weight: 800;">Solución de Proceso Lento para ${escapeForHtml(cleanCompany)}</h2>
-      <p style="color: #94a3b8; margin: 0; font-size: 12px;">BolTech Group — Soluciones Tecnológicas y Paz Mental 24/7</p>
+      <p style="color: #94a3b8; margin: 0; font-size: 12px;">Boltech Group — Registro, asignación y seguimiento</p>
     </div>
 
     <p style="font-size: 14px; line-height: 1.5;">Hola <strong>Equipo de ${escapeForHtml(cleanCompany)}</strong>,</p>
@@ -112,7 +116,7 @@ WhatsApp: +503 7574 3444`;
     </div>
 
     <p style="font-size: 13px; color: #cbd5e1; line-height: 1.5;">
-      Boltech Group registró el proceso para <strong>evaluación técnica de un Agente a la Medida</strong>. No presentamos una automatización como terminada hasta que haya sido construida y verificada.
+      Boltech Group registró el proceso para <strong>revisión comercial del flujo de solicitudes</strong>. No presentamos una automatización como terminada hasta que haya sido construida y verificada.
     </p>
 
     <!-- BOTÓN DE ENLACE DIRECTO A LA CABINA CLOUD -->
@@ -212,7 +216,7 @@ BolTech Group`;
       crmSync = await syncInboundLeadToHubSpotAndExplee({
         email: cleanEmail, companyName: cleanCompany,
         painPoint: cleanPainPoint, message: cleanMessage, domain: cleanDomain,
-        service: isCustomAgentRequest ? 'Custom Agents (Proceso Lento)' : isCustomSupportInquiry ? 'Support' : 'Unblock AI Shield'
+        service: isCustomAgentRequest ? 'Registro, asignación y seguimiento de solicitudes' : isCustomSupportInquiry ? 'Support' : 'Unblock AI Shield'
       });
       if (!crmSync?.hubspot?.jobId) throw new Error('CRM_RECORD_UNCONFIRMED');
     } catch {
@@ -226,12 +230,13 @@ BolTech Group`;
 
     // DISPARO EN RED REAL (LIVE NETWORK OBLIGATORIO)
     let dispatchResult;
-    try { dispatchResult = await dispatchUniversalEmail({
+    try { dispatchResult = await confirmIntake({requestId: registration.requestId, recipient: cleanEmail,
+      send: () => dispatchUniversalEmail({
       to: cleanEmail,
       subject,
       text: textContent,
       html: htmlContent
-    }); } catch {
+    })}); } catch {
       return res.status(503).json({ success: false, registration, deliveryStatus: 'UNKNOWN',
         error: 'Solicitud guardada, pero no se confirmó el correo. Contacta a soporte con la referencia antes de reintentar.' });
     }
@@ -249,7 +254,7 @@ BolTech Group`;
     }
 
     // NOTIFICACIÓN A TELEGRAM (SI ESTÁ CONFIGURADO)
-    if (process.env.TELEGRAM_BOT_TOKEN && (process.env.TELEGRAM_AUTHORIZED_USER_ID || process.env.TELEGRAM_CHAT_ID)) {
+    if (!dispatchResult.duplicate && process.env.TELEGRAM_BOT_TOKEN && (process.env.TELEGRAM_AUTHORIZED_USER_ID || process.env.TELEGRAM_CHAT_ID)) {
       const chatId = process.env.TELEGRAM_AUTHORIZED_USER_ID || process.env.TELEGRAM_CHAT_ID;
       try {
         const text = `🎯 *LEAD PROCESADO EN RED REAL (UNBLOCK AI SHIELD)*\n\n📧 *Email:* \`${cleanEmail}\`\n🏢 *Empresa:* \`${cleanCompany}\`\n📨 *Tipo:* ${isCustomAgentRequest ? 'Agente a la Medida (Proceso Lento)' : isCustomSupportInquiry ? 'Consulta de Soporte' : 'Diagnóstico de Blindaje'}\n🚀 *Transporte:* \`${dispatchResult.transport}\`\n🆔 *MessageID:* \`${dispatchResult.messageId}\`\n⏰ *Fecha:* \`${leadTime}\``;

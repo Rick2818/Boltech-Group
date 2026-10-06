@@ -109,13 +109,14 @@ test('coordinator links three RSI through evidence gates and never provisions do
   const flow = buildRsiArchitecture({metrics:{verifiedSales:{cashCollectedUsd:0},a2a:{enabledPartners:0},operatingCosts:{complete:false}},
     campaign:{status:'verified',id:'main'},auditCampaign:{status:'verified',active:false,id:'audit'}});
   assert.equal(flow.controllers.length,3);
-  assert.equal(flow.controllers[1].state,'DRAFT_REVIEW');
+  assert.equal(flow.controllers[1].state,'WAITING_CUSTOMER_RESPONSE');
   assert.equal(flow.controllers[2].state,'WAITING_COST_EVIDENCE');
   assert.equal(flow.handoffs[0].from,'RSI-01');
   assert.equal(flow.handoffs[0].to,'RSI-02');
   assert.equal(flow.mode,'OBSERVE_DECIDE_REPORT');
   assert.match(flow.dotProvisioning,/NOT_CONFIGURED/);
-  assert.equal(buildRsiArchitecture().controllers.every(c=>c.state==='WAITING_DATA'),true);
+  assert.equal(buildRsiArchitecture().controllers[0].state,'WAITING_DATA');
+  assert.equal(buildRsiArchitecture().controllers[1].auditOptional,true);
 });
 
 test('collection goal preserves unavailable payment data and distinguishes verified zero from repeat collection', () => {
@@ -129,12 +130,13 @@ test('collection goal preserves unavailable payment data and distinguishes verif
   assert.equal(buildRsiArchitecture({metrics:{verifiedSales:{cashCollectedUsd:49}}}).goal,'REPEAT_PROFITABLE_COLLECTION');
 });
 
-test('audit campaign remains waiting until activation state is verified', () => {
+test('optional audit campaign does not gate diagnosis; customer data remains required', () => {
   for (const active of [undefined, null, 'false']) {
-    assert.equal(buildRsiArchitecture({auditCampaign:{status:'verified',active}}).controllers[1].state,'WAITING_DATA');
+    assert.equal(buildRsiArchitecture({auditCampaign:{status:'verified',active}}).controllers[1].state,'WAITING_CUSTOMER_RESPONSE');
   }
-  assert.equal(buildRsiArchitecture({auditCampaign:{status:'verified',active:false}}).controllers[1].state,'DRAFT_REVIEW');
-  assert.equal(buildRsiArchitecture({auditCampaign:{status:'verified',active:true}}).controllers[1].state,'MEASURED');
+  assert.equal(buildRsiArchitecture({auditCampaign:{status:'verified',active:false}}).controllers[1].state,'WAITING_CUSTOMER_RESPONSE');
+  assert.equal(buildRsiArchitecture({auditCampaign:{status:'verified',active:true}}).controllers[1].state,'WAITING_CUSTOMER_RESPONSE');
+  assert.equal(buildRsiArchitecture({metrics:{cohorts:{'RSI-02':{total:1}}}}).controllers[1].state,'DIAGNOSIS_REVIEW');
 });
 
 test('partner and payment failures are independent and never erase healthy cohorts', async t => {
