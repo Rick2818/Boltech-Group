@@ -3,10 +3,32 @@
   "offerVersion": "2026-10-06",
   "name": "Registro, asignación y seguimiento de solicitudes",
   "targetSegment": "Inmobiliarias con equipos de asesores y solicitudes frecuentes",
-  "outcomes": ["Solicitud registrada", "Confirmación con referencia", "Responsable asignado", "Próxima acción visible"],
-  "diagnosticQuestions": ["¿Cómo reciben y registran solicitudes?", "¿Qué herramientas utilizan?", "¿Qué volumen aproximado reciben?", "¿Quién coordina el proceso?", "¿Qué paso quieren mejorar y cuándo?"],
-  "acceptanceCriteria": ["Registro y referencia verificables", "Confirmación con estado de envío visible", "Responsable y próxima acción registrados", "Duplicados y errores recuperables", "Documentación y transferencia de uso"],
-  "exclusions": ["Consumo de herramientas", "Mantenimiento recurrente", "Integraciones adicionales", "Garantía de ventas o funcionamiento ininterrumpido"],
+  "outcomes": [
+    "Solicitud registrada",
+    "Confirmación con referencia",
+    "Responsable asignado",
+    "Próxima acción visible"
+  ],
+  "diagnosticQuestions": [
+    "¿Cómo reciben y registran solicitudes?",
+    "¿Qué herramientas utilizan?",
+    "¿Qué volumen aproximado reciben?",
+    "¿Quién coordina el proceso?",
+    "¿Qué paso quieren mejorar y cuándo?"
+  ],
+  "acceptanceCriteria": [
+    "Registro y referencia verificables",
+    "Confirmación con estado de envío visible",
+    "Responsable y próxima acción registrados",
+    "Duplicados y errores recuperables",
+    "Documentación y transferencia de uso"
+  ],
+  "exclusions": [
+    "Consumo de herramientas",
+    "Mantenimiento recurrente",
+    "Integraciones adicionales",
+    "Garantía de ventas o funcionamiento ininterrumpido"
+  ],
   "currency": "USD",
   "implementationAmount": 990,
   "recurring": false,
@@ -30,5 +52,8 @@
   },
   "toolsUsageAndMaintenanceIncluded": false,
   "paymentEnabled": false,
-  "approvedOn": "2026-10-01"
+  "approvedOn": "2026-10-01",
+  "brandPromise": "Paz mental para tu negocio",
+  "businessAudience": "Empresas de distintos sectores con cuellos de botella en sus procesos",
+  "positioningNote": "El segmento inicial orienta la prospección; no limita los sectores atendidos. Este piloto es un caso de implementación, no el alcance completo de Boltech. Otros procesos requieren alcance y cotización individuales."
 }
