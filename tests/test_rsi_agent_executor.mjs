@@ -30,15 +30,29 @@ test('all three executors perform real tool contracts and preserve commercial au
     const result=await worker.run({rsi,cycleId:'test-cycle'});
     assert.equal(result.receipt.outcome,'COMPLETED');assert.equal(result.receipt.engine,'VERCEL_EXECUTOR');assert.ok(result.receipt.tools.some(t=>t.status==='VERIFIED'));
     const bootstrap=f.rows.find(r=>r.fields['Work ID']===`BOOTSTRAP:${rsi}`);
-    assert.equal(bootstrap.fields.Status,'BUSINESS_STATE');assert.equal(bootstrap.fields.Evidence,'Prior history');assert.equal(bootstrap.fields.Authorization,'Original authorization');
+    assert.equal(bootstrap.fields.Status,'BUSINESS_STATE');assert.ok(bootstrap.fields.Evidence.startsWith('Prior history'));assert.match(bootstrap.fields.Evidence,/RSI_COMMERCIAL_ROUTES_V1/);assert.equal(bootstrap.fields.Authorization,'Original authorization');
   }
-  assert.equal(f.writes(),6);
+  assert.equal(f.writes(),9);
 });
 test('repeat cycle reads durable receipt without repeated tools or writes',async()=>{
   const f=fixture(),w=createRsiExecutor(f.options);
   const a=await w.run({rsi:'RSI-01',cycleId:'stable'}),writes=f.writes();
   const b=await w.run({rsi:'RSI-01',cycleId:'stable'});
   assert.deepEqual(a.receipt,b.receipt);assert.equal(b.reused,true);assert.equal(f.writes(),writes);
+});
+test('new hourly cycle retains one stable preparation packet and does not erase later evidence',async()=>{
+  const f=fixture(),w=createRsiExecutor(f.options);
+  await w.run({rsi:'RSI-02',cycleId:'hour-one'});
+  f.rows[1].fields.Evidence+='\nNew customer evidence';
+  const writes=f.writes();await w.run({rsi:'RSI-02',cycleId:'hour-two'});
+  assert.equal(f.writes()-writes,2);assert.ok(f.rows[1].fields.Evidence.endsWith('New customer evidence'));
+  assert.equal(f.rows[1].fields.Evidence.split('[RSI_COMMERCIAL_ROUTES_V1]').length,2);
+});
+test('lead-source outage leaves RSI-03 independent financial reads available',async()=>{
+  const f=fixture();const request=async(table,opts)=>{if(table==='tblZaox2MX5uYA5PZ')throw new Error('lead source unavailable');return f.request(table,opts);};
+  const r=await createRsiExecutor({...f.options,request}).run({rsi:'RSI-03',cycleId:'lead-outage'});
+  assert.equal(r.receipt.outcome,'BLOCKED');assert.ok(r.receipt.tools.some(t=>t.name==='provider_confirmed_payment_ledger_read'&&t.status==='VERIFIED'));
+  assert.ok(r.receipt.blockers.includes('COMMERCIAL_PREPARATION_UNAVAILABLE'));
 });
 test('missing Redis and conflicting leases fail before any provider write',async()=>{
   const f=fixture();f.data.set('boltech:rsi:executor-lock:RSI-01','someone-else');
@@ -69,7 +83,7 @@ test('unaccepted data and reversed response timestamps never become completed au
 test('failed costs do not hide available payment ledger and do not invent margin',async()=>{
   const f=fixture();const result=await createRsiExecutor({...f.options,costs:async()=>{throw new Error('provider failure');}}).run({rsi:'RSI-03',cycleId:'partial'});
   assert.equal(result.receipt.outcome,'BLOCKED');assert.ok(result.receipt.tools.some(t=>t.name==='provider_confirmed_payment_ledger_read'&&t.status==='VERIFIED'));
-  const raw=JSON.parse(f.rows[2].fields['Execution Receipt']);const evidence=JSON.parse(raw.actions[0].result);
+  const raw=JSON.parse(f.rows[2].fields['Execution Receipt']);const evidence=JSON.parse(raw.actions.find(a=>a.type==='REFERRAL_COST_PAYMENT_REVIEW').result);
   assert.equal(evidence.costs,null);assert.equal(evidence.cash.cashCollectedUsd,0);assert.ok(raw.blockers.includes('RSI_SOURCE_UNAVAILABLE'));
 });
 test('lost lease cannot finalize durable success or delete another workers lock',async()=>{

@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import { createHandoffStore } from '../lib/rsi_handoff_store.js';
 import { requireOperationalAuth } from '../lib/operational_auth.js';
 import { getAgentExecutionStatus } from '../lib/rsi_agent_status.js';
-import { createRsiExecutor } from '../lib/rsi_agent_executor.js';
+import { createRsiExecutor, RSI_EXECUTOR_VERSION } from '../lib/rsi_agent_executor.js';
 
 export const config = { maxDuration: 60 };
 import {
@@ -172,7 +172,7 @@ export default async function partnersHandler(req, res) {
         res.setHeader('Allow', 'GET');
         return json(res, 405, { success: false, code: 'METHOD_NOT_ALLOWED' });
       }
-      try { return json(res, 200, { success: true, execution: await getAgentExecutionStatus() }); }
+      try { return json(res, 200, { success: true, executorVersion: RSI_EXECUTOR_VERSION, execution: await getAgentExecutionStatus() }); }
       catch { return json(res, 503, { success: false, code: 'RSI_AGENT_DIAGNOSTIC_UNAVAILABLE' }); }
     }
     if (action === 'rsi-handoff') {
