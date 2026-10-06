@@ -3,7 +3,7 @@
 Fuente numérica única: config/commercial_pilot.json. Contexto compartido de asistentes: lib/commercial_offer.js.
 
 ## Marca y alcance empresarial
-Boltech ofrece agentes preelaborados y a medida para empresas de distintos sectores con cuellos de botella. La promesa de marca es «Paz mental para tu negocio». Las inmobiliarias son un segmento inicial de prospección, no una restricción del producto. El piloto de solicitudes es un ejemplo delimitado; otros procesos se evalúan y cotizan individualmente. No generalizar USD990/14 días a cualquier desarrollo.
+Boltech ofrece agentes preelaborados y a medida para empresas de distintos sectores con cuellos de botella. La promesa de marca es «Obtén paz mental en tu negocio». Las inmobiliarias son un segmento inicial de prospección, no una restricción del producto. El piloto de solicitudes es un ejemplo delimitado; otros procesos se evalúan y cotizan individualmente. No generalizar USD990/14 días a cualquier desarrollo.
 
 ## Cliente y resultado
 Segmento inicial: inmobiliarias con equipo de asesores y consultas frecuentes. Comprobar el proceso y volumen con el cliente; pertenecer a un directorio no demuestra necesidad.
