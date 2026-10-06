@@ -5,3 +5,6 @@ html{scroll-behavior:smooth;scroll-padding-top:100px}body{background:var(--page)
 #flow-title{line-height:1.25;color:var(--ink)}
 
 .product-film{margin:36px 0 42px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}.film-heading{padding:28px 32px}.film-heading h3{font-size:24px;margin:0 0 14px}.film-heading p:not(.eyebrow){color:var(--muted);font-size:15px;line-height:1.7;margin:0;max-width:760px}.product-film video{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#101e28}.film-heading .eyebrow{margin-bottom:14px}@media(max-width:760px){.film-heading{padding:22px}.film-heading h3{font-size:21px}}
+
+/* Approved institutional identity: use the supplied full logo without cropping. */
+.brand img.institutional-logo{width:200px;height:auto;aspect-ratio:16/9;object-fit:contain;border-radius:0}.brand>div:has([hidden]){display:none}.header-inner{min-height:128px}.footer-institutional-logo{display:block;width:240px;height:auto;object-fit:contain;margin-bottom:18px}@media(max-width:760px){.brand img.institutional-logo{width:130px;height:auto}.header-inner{min-height:88px}.footer-institutional-logo{width:200px}}

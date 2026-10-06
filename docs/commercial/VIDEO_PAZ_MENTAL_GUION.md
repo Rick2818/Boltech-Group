@@ -2,6 +2,8 @@
 
 ## Prompt de producción
 
+Identidad institucional obligatoria: usar `assets/boltech-institutional-logo.png`, el PNG dorado aprobado por Ricardo, completo y sin cambiar colores ni proporciones. Mantenerlo visible en el encabezado de la pieza y destacado en el cierre. No reemplazarlo por un escudo o una letra.
+
 Crea en HyperFrames un único video comercial de Boltech Group, con versiones localizadas del mismo montaje en español latinoamericano e inglés. Dirigido a dueños, gerentes y responsables de equipos de cualquier industria que enfrentan tareas repetitivas o pasos que retrasan el trabajo. Cuenta una historia sobria y empática: reconocer el desgaste, identificar un cuello de botella, explicar el papel concreto de un agente de IA, mostrar un ejemplo de registro y seguimiento y presentar agentes preelaborados y a la medida. Cierra con «Obtén paz mental en tu negocio» y una sola invitación: contar qué proceso quieren mejorar.
 
 Voz masculina cálida, clara, con pronunciación propia de cada idioma. Habla de inteligencia artificial en la locución para evitar abreviaturas poco naturales. Música instrumental original suave, sin letra, por debajo de la voz; ajustar sus frecuencias y volumen para preservar la inteligibilidad. Formato horizontal 1920×1080. Tipografía grande, colores sobrios, animación suave, subtítulos visibles y marca estable. Los tiempos se calculan desde los audios reales, con pausas entre escenas. No atribuir pérdidas, ROI, ventas, ahorros cuantificados, disponibilidad permanente ni garantías a un cliente hipotético. No presentar una ilustración como una prueba de producto o un resultado real. Mantener el criterio humano para las decisiones importantes.
