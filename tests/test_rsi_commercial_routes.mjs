@@ -19,6 +19,11 @@ test('empty cohort opens research route without fabricated prospects or buyer ev
   const p=buildCommercialRoutes('RSI-02',[]);assert.equal(p.queue,'RESEARCH_COHORT_REQUIRED');assert.equal(p.accounts.length,0);
   const incomplete=buildCommercialRoutes('RSI-01',[row('a',{'Contact Email':''})]);assert.ok(incomplete.accounts[0].missing.includes('CONTACT_EMAIL'));
 });
+test('RSI-02 own cohort is prepared ahead of waiting threads owned by RSI-01',()=>{
+  const waiting=Array.from({length:6},(_,i)=>row(`wait${i}`,{'Contact Email':`wait${i}@example.com`,Notes:'SENT'}));
+  const p=buildCommercialRoutes('RSI-02',[...waiting,row('local',{'Experiment Cohort':'RSI-02','Contact Email':'local@example.com'})]);
+  assert.equal(p.accounts[0].sourceRecordId,'local');assert.equal(p.accounts.length,5);
+});
 test('packet update is bounded, stable and preserves historical evidence before and after',()=>{
   const p=buildCommercialRoutes('RSI-01',[row('a')]), first=mergeCommercialPacket('Historical evidence',p)+'\nLater evidence';
   assert.equal(mergeCommercialPacket(first,p),first);
