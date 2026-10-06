@@ -67,7 +67,7 @@ export default async function handler(req, res) {
         if (!id) return res.status(200).json({ success: true, recoveryContractVersion: 1, recovery: await store.status() });
         const job = await store.read(id);
         return res.status(job ? 200 : 404).json({ success: Boolean(job), job: job ? { id: job.id, state: job.state, attempts: job.attempts, code: job.code, history: job.history,
-          request: job.request || null, contactId: job.result?.contactId || null } : null });
+          request: job.request || null, commercial: job.commercial || null, contactId: job.result?.contactId || null } : null });
       }
       return res.status(405).json({ success: false, code: 'METHOD_NOT_ALLOWED' });
     }
