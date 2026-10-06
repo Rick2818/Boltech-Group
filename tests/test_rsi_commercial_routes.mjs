@@ -36,3 +36,22 @@ test('an uncertain RSI failure does not retry the mutation or suppress the other
   assert.deepEqual(calls,['RSI-01','RSI-02','RSI-03']);assert.equal(result[0].success,false);assert.equal(result[2].success,true);
   assert.ok(!JSON.stringify(result).includes('secret'));
 });
+
+test('public weekday cohort is retained and is owned by RSI-01',()=>{
+  const p=buildCommercialRoutes('RSI-01',[row('public',{'Experiment Cohort':'RSI01:WEEKDAY_RESEARCH:2026-10-06','Source Evidence URL':'https://company.example/contact'})]);
+  assert.equal(p.accounts.length,1);
+  assert.equal(p.accounts[0].route,'REVIEW_COHORT_ELIGIBILITY');
+  assert.ok(!p.accounts[0].missing.includes('BUYER_ROLE'));
+  assert.ok(p.accounts[0].gates.includes('LIVE_GMAIL_HISTORY'));
+  assert.ok(p.accounts[0].gates.includes('BUSINESS_RESEARCH_VERIFIED'));
+  assert.equal(p.accounts[0].enrollmentReady,false);
+});
+test('waiting threads do not starve unsent public contacts, and real reply stages have priority',()=>{
+  const waiting=Array.from({length:6},(_,i)=>row(`wait${i}`,{'Contact Email':`wait${i}@example.com`,'Commercial Stage':'Contacted'}));
+  const p=buildCommercialRoutes('RSI-01',[...waiting,row('new',{'Contact Email':'new@example.com','Experiment Cohort':'RSI01:WEEKDAY_RESEARCH:2026-10-06','Source Evidence URL':'https://company.example/contact'}),row('reply',{'Contact Email':'reply@example.com','Commercial Stage':'Replied'})]);
+  assert.equal(p.accounts[0].sourceRecordId,'reply');
+  assert.equal(p.accounts[1].sourceRecordId,'new');
+  assert.deepEqual(p.queueCounts,{total:8,selected:5,pendingContact:1,awaitingResponse:6});
+  assert.equal(p.sendingImplemented,false);
+  assert.match(p.nextAction,/DISPATCH_WORKER_UNVERIFIED/);
+});
