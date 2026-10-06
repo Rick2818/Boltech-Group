@@ -9,7 +9,7 @@ try{
   // Only read retries while waiting for the deployment. Never retry an uncertain POST.
   let ready=false;
   for(let i=0;i<18;i++){
-    try{const res=await fetch(`${base}?action=rsi-agents`,{headers:{Authorization:`Bearer ${token}`},signal:AbortSignal.timeout(10000)});const data=await res.json();if(res.ok&&data.execution?.contractVersion===1&&data.executorVersion>=2){ready=true;break;}}catch{}
+    try{const res=await fetch(`${base}?action=rsi-agents`,{headers:{Authorization:`Bearer ${token}`},signal:AbortSignal.timeout(10000)});const data=await res.json();if(res.ok&&data.execution?.contractVersion===1&&data.executorVersion>=2&&(!process.env.GITHUB_SHA||data.deploymentCommit===process.env.GITHUB_SHA)){ready=true;break;}}catch{}
     await new Promise(r=>setTimeout(r,5000));
   }
   if(!ready)throw new Error('Agent executor deployment not ready');

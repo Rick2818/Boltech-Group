@@ -172,7 +172,8 @@ export default async function partnersHandler(req, res) {
         res.setHeader('Allow', 'GET');
         return json(res, 405, { success: false, code: 'METHOD_NOT_ALLOWED' });
       }
-      try { return json(res, 200, { success: true, executorVersion: RSI_EXECUTOR_VERSION, execution: await getAgentExecutionStatus() }); }
+      try { return json(res, 200, { success: true, executorVersion: RSI_EXECUTOR_VERSION,
+        deploymentCommit: process.env.VERCEL_GIT_COMMIT_SHA || null, execution: await getAgentExecutionStatus() }); }
       catch { return json(res, 503, { success: false, code: 'RSI_AGENT_DIAGNOSTIC_UNAVAILABLE' }); }
     }
     if (action === 'rsi-handoff') {
