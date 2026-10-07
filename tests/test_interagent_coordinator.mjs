@@ -78,6 +78,12 @@ test('migration carries legacy attempts instead of opening a fresh counter',asyn
  const next=await f.worker.submit({...event,eventId:'legacy-next',problem:'NO_RESPONSE',previousEventId:'legacy-two',previousOutcome:'FAILED',resultEvidenceRef:'crm-result-one'});
  assert.equal(next.attempt,3);assert.equal(next.to,'DIRECTORA');
 });
+
+test('concurrent events cannot overwrite opportunity state or bypass the counter',async()=>{
+ const f=fixture();const outcomes=await Promise.allSettled([f.worker.submit(event),f.worker.submit({...event,eventId:'concurrent-other'})]);
+ assert.equal(outcomes.filter(r=>r.status==='fulfilled').length,1);assert.equal(outcomes.filter(r=>r.status==='rejected').length,1);
+ assert.equal(f.index.size,1);const state=JSON.parse(f.data.get(`boltech:interagent:case:v2:${opportunityId}`));assert.equal(state.attempt,0);
+});
 test('closure requires matching production payment; director must provide verification and communication receipt',async()=>{
  const f=fixture(),close={eventId:'close-one',opportunityId,from:'RSI-03',type:'CLOSE_REPORTED',orderId:'order-fixture',acceptanceRef:'crm-acceptance'};
  f.paid.productId='payment-verification';await assert.rejects(f.worker.submit(close),/PAYMENT_UNVERIFIED/);
