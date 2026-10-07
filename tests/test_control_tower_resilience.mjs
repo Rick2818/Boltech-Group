@@ -4,7 +4,8 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawn } from 'node:child_process';
-const script=new URL('../scripts/commercial/mit_daily_control_tower.mjs',import.meta.url).pathname;
+import { fileURLToPath } from 'node:url';
+const script=fileURLToPath(new URL('../scripts/commercial/mit_daily_control_tower.mjs',import.meta.url));
 test('daily control retains cohorts and costs when authenticated payment source is unavailable',async()=>{
  const cwd=await mkdtemp(join(tmpdir(),'boltech-resilience-'));
  const preload=`globalThis.fetch=async(url,options={})=>{

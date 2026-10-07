@@ -42,7 +42,9 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
+      - name: Install locked dependencies
+        run: npm ci --ignore-scripts
 
       - name: Validate traction decisions
         run: node --test tests/test_traction_cycle.mjs tests/test_commercial_strategy.mjs tests/test_store_pagination.mjs tests/test_control_tower_resilience.mjs
