@@ -3,6 +3,7 @@ import { createHandoffStore } from '../lib/rsi_handoff_store.js';
 import { requireOperationalAuth } from '../lib/operational_auth.js';
 import { getAgentExecutionStatus } from '../lib/rsi_agent_status.js';
 import { createRsiExecutor, RSI_EXECUTOR_VERSION } from '../lib/rsi_agent_executor.js';
+import { createSdrDispatch } from '../lib/sdr_dispatch.js';
 
 export const config = { maxDuration: 60 };
 import {
@@ -156,6 +157,20 @@ export default async function partnersHandler(req, res) {
 
   try {
     const action = actionFromRequest(req);
+    if (['sdr-status','sdr-verify','sdr-metrics','sdr-send','sdr-reconcile'].includes(action)) {
+      if (!requireOperationalAuth(req, res)) return;
+      const worker = createSdrDispatch();
+      try {
+        if (action === 'sdr-status' && req.method === 'GET') return json(res, 200, { success:true, ...worker.status() });
+        if (action === 'sdr-metrics' && req.method === 'GET') return json(res, 200, { success:true, ...await worker.metrics() });
+        if (req.method !== 'POST') return json(res, 405, {success:false,code:'METHOD_NOT_ALLOWED'});
+        const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+        const result = action === 'sdr-verify' ? await worker.verify() : action === 'sdr-send' ? await worker.run(body.candidate) : await worker.reconcile(body.id);
+        return json(res, 200, {success:true,...result});
+      } catch (error) {
+        return json(res, 503, {success:false,code:/^(SDR_|GMAIL_)[A-Z_]+$/.test(error.code || '') ? error.code : 'SDR_OPERATION_UNCONFIRMED'});
+      }
+    }
     if (action === 'rsi-execute') {
       if (!requireOperationalAuth(req, res)) return;
       if (req.method !== 'POST') return json(res, 405, { success: false, code: 'METHOD_NOT_ALLOWED' });
