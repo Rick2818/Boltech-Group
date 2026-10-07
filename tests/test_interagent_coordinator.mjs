@@ -16,8 +16,10 @@ function fixture(){
   throw new Error('Unexpected command');
  };
  const lead=async id=>({id,fields:{Name:'Business fixture','Contact Email':'buyer@example.test'}});
- const paid={orderId:'order-fixture',status:'PAID',environment:'production',productId:'custom-agent',providerEvidence:'provider-receipt',paidAt:'2026-10-07T19:00:00Z',providerTransactionId:'provider-fixture',expectedAmountUsd:495,customerEmail:'buyer@example.test'};
- return {data,index,command,lead,paid,worker:createInteragentCoordinator({command,lead,order:async()=>paid,now:()=> '2026-10-07T19:00:00Z'})};
+ const paid={orderId:'order-fixture',status:'PAID',environment:'production',productId:'custom',providerEvidence:'provider-receipt',paidAt:'2026-10-07T19:00:00Z',providerTransactionId:'provider-fixture',expectedAmountUsd:495,customerEmail:'buyer@example.test'};
+ const accepted={from:'buyer@example.test',threadId:'customer-thread',text:'ACEPTO BOLTECH-FIXTURE',receivedAt:'2026-10-07T18:50:00Z'};
+ data.set(`boltech:closing:case:${opportunityId}`,JSON.stringify({orderId:paid.orderId,acceptanceMessageId:'crm-acceptance',state:'WAITING_PAYMENT',proposal:{sentAt:'2026-10-07T18:40:00Z'},approval:{customerEmail:'buyer@example.test',productId:'custom',approvedAmountUsd:495,totalAmountUsd:990,expiresAt:'2026-10-08T19:00:00Z'},threadId:'customer-thread',acceptanceToken:'ACEPTO BOLTECH-FIXTURE'}));
+ return {data,index,command,lead,paid,accepted,worker:createInteragentCoordinator({command,lead,order:async()=>paid,acceptance:async id=>id==='director-message'?{sent:true,from:'ricardo.boltechgroup@gmail.com',to:'ricardo.boltechgroup@gmail.com',text:'[BOLTECH_DIRECTOR_NOTICE:close-one]'}:accepted,verifyPayment:async()=>true,now:()=> '2026-10-07T19:00:00Z'})};
 }
 test('role signature rejects actor spoofing, expiration and missing configuration',()=>{
  const body={...event,signedAt:'2026-10-07T19:00:00Z'},env={INTERAGENT_ROLE_KEYS:JSON.stringify(keys)},now=Date.parse(body.signedAt);
@@ -30,6 +32,7 @@ test('durable support reaches sales and marketing inboxes; replay does not dupli
  const f=fixture();const a=await f.worker.submit(event);assert.ok(a.material);assert.equal(a.usedBySales,false);
  assert.equal((await f.worker.queue('RSI-01')).pending.length,1);assert.equal((await f.worker.queue('MARKETING')).pending.length,1);
  f.index.clear();const b=await f.worker.submit({...event,signedAt:'later',operation:'submit'});assert.equal(b.reused,true);assert.equal(f.index.size,1);
+ assert.equal((await f.worker.submit({problem:event.problem,type:event.type,from:event.from,opportunityId,eventId:event.eventId})).reused,true);
  await assert.rejects(f.worker.submit({...event,problem:'NO_RESPONSE'}),/EVENT_CONFLICT/);
 });
 test('alternative requires stored failed result and acknowledgement is owned and idempotent',async()=>{
@@ -45,9 +48,12 @@ test('alternative requires stored failed result and acknowledgement is owned and
 test('closure requires matching production payment; director must provide verification and communication receipt',async()=>{
  const f=fixture(),close={eventId:'close-one',opportunityId,from:'RSI-03',type:'CLOSE_REPORTED',orderId:'order-fixture',acceptanceRef:'crm-acceptance'};
  f.paid.productId='payment-verification';await assert.rejects(f.worker.submit(close),/PAYMENT_UNVERIFIED/);
- f.paid.productId='custom-agent';f.paid.customerEmail='other@example.test';await assert.rejects(f.worker.submit(close),/ACCOUNT_MISMATCH/);
- f.paid.customerEmail='buyer@example.test';const result=await f.worker.submit(close);assert.equal(result.ricardoNotified,false);assert.equal((await f.worker.queue('DIRECTORA')).pending.length,1);
+ f.paid.productId='custom';f.paid.expectedAmountUsd=undefined;await assert.rejects(f.worker.submit(close),/PAYMENT_UNVERIFIED/);f.paid.expectedAmountUsd=495;
+ f.paid.productId='custom';f.paid.customerEmail='other@example.test';await assert.rejects(f.worker.submit(close),/ACCOUNT_MISMATCH/);
+ f.paid.customerEmail='buyer@example.test';f.accepted.from='spoof@example.test';await assert.rejects(f.worker.submit(close),/CUSTOMER_ACCEPTANCE_UNVERIFIED/);f.accepted.from='buyer@example.test';
+ const result=await f.worker.submit(close);assert.equal(result.ricardoNotified,false);assert.equal((await f.worker.queue('DIRECTORA')).pending.length,1);
  await assert.rejects(f.worker.acknowledge({from:'DIRECTORA',eventId:close.eventId,evidenceRef:'verification'}),/NOTIFICATION_RECEIPT_REQUIRED/);
+ await assert.rejects(f.worker.acknowledge({from:'DIRECTORA',eventId:close.eventId,evidenceRef:'verification',verified:true,communicationRef:'wrong-message'}),/NOTIFICATION_UNVERIFIED/);
  await f.worker.acknowledge({from:'DIRECTORA',eventId:close.eventId,evidenceRef:'verification',verified:true,communicationRef:'director-message'});
  assert.equal((await f.worker.queue('DIRECTORA')).pending.length,0);
 });

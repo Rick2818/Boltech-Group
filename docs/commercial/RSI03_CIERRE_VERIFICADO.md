@@ -1,0 +1,11 @@
+# RSI-03: cierre y aviso verificables
+
+Los cuatro responsables existentes se conservan. RSI-03 atiende un caso aprobado por ciclo, usando estados durables: aprobación → propuesta escrita → aceptación explícita en el hilo del cliente → enlace de pago → pago confirmado por proveedor → revisión de Dirección → aviso a Ricardo con comprobante de Gmail. Google ADK no llama a modelos facturables.
+
+El caso se autoriza en Authorization de una tarea existente RSI-03 mediante JSON firmado por Dirección. `scripts/ops/sign_rsi03_closing_approval.mjs` firma el alcance revisado; no sustituye la aceptación del cliente. Campos necesarios: kind RSI03_CLOSE_APPROVED, approvedBy DIRECTORA, approvalRecordId, opportunityId, quoteReference, productId prebuilt/custom, customerEmail, totalAmountUsd, approvedAmountUsd, approvedAt, expiresAt, scope (summary, deliveryDays, acceptanceCriteria, exclusions), technicalEvidenceRef, accessEvidenceRef, qualificationMessageId y costs (totalUsd, currency USD, evidenceRef). Las referencias CRM y Gmail deben existir; no crear evidencias ficticias.
+
+Dirección consulta nuevamente el proveedor y la aceptación antes de avisar. El acuse exige un mensaje enviado desde el correo comercial a Ricardo y el marcador del evento. La notificación usa ricardo.boltechgroup@gmail.com. Si un envío queda incierto, se busca el RFC Message-ID original; nunca se reenvía por un timeout. La cola vacía no genera avisos.
+
+El workflow horario existente de GitHub invoca los cuatro RSI, consulta `rsi03-readiness` y ejecuta `director-notify` en Vercel. No añade agentes ni otro horario. Los estados se conservan en Redis externo; el proceso puede continuar en otra invocación. Esto no demuestra una venta, entrega, disponibilidad continua ni autonomía comercial completa.
+
+Para verificar recuperación cloud se necesitan el despliegue READY, acceso administrativo existente, Redis persistente disponible y recibos consultables después de otra invocación. `verify_cloud_recovery.mjs` comprueba persistencia por HTTPS sin consultar n8n local. El reinicio real del equipo y n8n requiere una prueba local separada. Vercel Functions tiene tiempo máximo de ejecución y no reemplaza por sí sola un servidor persistente de n8n: https://vercel.com/docs/functions/limitations . No se contrató otro servicio.

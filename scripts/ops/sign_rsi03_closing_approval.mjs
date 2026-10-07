@@ -1,0 +1,10 @@
+import {readFile,writeFile} from 'node:fs/promises';
+import {signClosingApproval} from '../../lib/rsi03_closing.js';
+const path=process.argv[2];if(!path)throw Error('Provide a reviewed actual-customer approval JSON file');
+const payload=JSON.parse(await readFile(path,'utf8'));
+if(payload.kind!=='RSI03_CLOSE_APPROVED'||payload.approvedBy!=='DIRECTORA'||!payload.approvalRecordId)throw Error('Review the explicit scope, costs, technical/access evidence and CRM record before signing');
+if(Object.hasOwn(payload,'signature'))throw Error('Do not replace an existing signed approval');
+const auth=JSON.parse(await readFile('scratch/commercial-scale/n8n-runtime/client-auth.json','utf8'));
+if(!auth.roleKeys?.DIRECTORA)throw Error('DIRECTOR_SIGNING_KEY_MISSING');
+const out=path+'.signed.json';await writeFile(out,JSON.stringify({...payload,signature:signClosingApproval(payload,auth.roleKeys.DIRECTORA)},null,2),{flag:'wx',mode:0o600});
+console.log(JSON.stringify({signed:true,output:out,customerAcceptanceInferred:false,checkoutCreated:false}));

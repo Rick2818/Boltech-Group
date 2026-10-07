@@ -19,6 +19,12 @@ try{
     if(!res.ok||data.success!==true||!data.receipt)throw Object.assign(new Error('Execution unconfirmed'),{code:data.code});
     return data;
   }});
+  const readinessResponse=await fetch(`${base}?action=rsi03-readiness`,{headers:{Authorization:`Bearer ${token}`},signal:AbortSignal.timeout(30000)});
+  report.closingReadiness=await readinessResponse.json();
+  if(!readinessResponse.ok)throw new Error('Closing readiness unconfirmed');
+  const noticeResponse=await fetch(`${base}?action=director-notify`,{method:'POST',headers:{Authorization:`Bearer ${token}`},signal:AbortSignal.timeout(60000)});
+  report.directorNotification=await noticeResponse.json();
+  if(!noticeResponse.ok||report.directorNotification.success!==true)throw new Error('Director notification cycle unconfirmed');
   report.status=report.results.some(r=>!r.success||r.receipt?.outcome!=='COMPLETED')?'ATTENTION':'PASS';
   if(report.results.some(r=>!r.success))process.exitCode=1;
 }catch(error){report.error=String(error.message).slice(0,300);process.exitCode=1;}

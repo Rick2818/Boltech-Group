@@ -38,6 +38,16 @@ La instancia local se limita a 127.0.0.1:5678 y depende de que este equipo siga 
 
 Fuentes oficiales: https://docs.n8n.io/workflows/export-import/ ; https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/ ; https://docs.n8n.io/hosting/cli-commands/ .
 
+## Separación local/cloud — comprobación del 7 octubre, 15:26 SV
+
+La entrada local entrega eventos por HTTPS al coordinador cloud existente. Los clientes cloud usan directamente ese coordinador; no intentan llamar a localhost. La cola durable cloud es la fuente común de pendientes. El ledger local conserva comprobantes complementarios.
+
+Verificación actual: `node scripts/ops/verify_n8n_communication.mjs`, ocho controles PASS. Los tres RSI recibieron sus materiales existentes con `reused=true`, sin duplicar tareas; firmas inválidas y cierres sin pago fueron rechazados. `node scripts/ops/interagent_control.mjs queue` respondió correctamente para Dirección, sin pendientes ni venta inferida. Evidencia privada: `scratch/commercial-scale/n8n-communication-verification.json`, timestamp UTC 2026-10-07T21:26:20.672Z.
+
+Operación supervisada: comprobar esa recepción al iniciar cada sesión y después de reiniciar el equipo. Si la prueba falla, registrar el fallo y revisar el servicio antes de aceptar entregas locales como confirmadas. Conservar las claves y la base de datos existentes; no reinstalar ni reenviar operaciones inciertas. Los clientes cloud pueden consultar la cola común aunque n8n local esté apagado; esto no convierte en cloud las tareas que dependen de herramientas locales.
+
+Estado de la observación: comunicación entre entrada local y cola cloud comprobada; disponibilidad continua y recuperación tras reinicio pendientes de prueba. ACTIVE expresa programación, no una ejecución confirmada. No se contrató alojamiento, no se abrió un túnel público y no se autorizó gasto. Un servicio continuo requiere decisión de Ricardo sobre alojamiento y presupuesto.
+
 ## Evidencia 7 octubre 2026
 
 n8n 2.36.8 existente reparado (binario SQLite faltante), autenticación importada sin imprimir secreto, workflow importado y publicado. Prueba HTTP local a las 13:01 SV: ocho controles PASS, incluidos los tres roles, alternativa, envío incierto, identidad inválida, acceso sin credencial y aviso RSI03 a Dirección sin atribuir cobro. SQLite contiene ejecuciones success verificadas. Artefacto privado: scratch/commercial-scale/n8n-communication-verification.json. La instancia local está operativa; publicación social, demostración real, comunicación cloud hacia localhost y cierre comercial no se acreditan por esta prueba.

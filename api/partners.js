@@ -4,6 +4,8 @@ import { requireOperationalAuth } from '../lib/operational_auth.js';
 import { getAgentExecutionStatus } from '../lib/rsi_agent_status.js';
 import { RSI_EXECUTOR_VERSION } from '../lib/rsi_agent_executor.js';
 import { createGoogleAdkTeam } from '../lib/google_adk_agents.js';
+import {createRsi03Closing} from '../lib/rsi03_closing.js';
+import {createDirectorNotifications} from '../lib/director_notifications.js';
 import { createSdrDispatch } from '../lib/sdr_dispatch.js';
 import {authenticateInteragent,createInteragentCoordinator} from '../lib/interagent_coordinator.js';
 
@@ -182,6 +184,18 @@ export default async function partnersHandler(req, res) {
       } catch (error) {
         return json(res, 503, {success:false,code:/^(SDR_|GMAIL_)[A-Z_]+$/.test(error.code || '') ? error.code : 'SDR_OPERATION_UNCONFIRMED'});
       }
+    }
+    if(action==='director-notify'){
+      if(!requireOperationalAuth(req,res))return;
+      if(req.method!=='POST')return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
+      try{return json(res,200,{success:true,...await createDirectorNotifications().run()});}
+      catch(error){return json(res,409,{success:false,code:error.code||'DIRECTOR_NOTICE_UNCONFIRMED'});}
+    }
+    if(action==='rsi03-readiness'){
+      if(!requireOperationalAuth(req,res))return;
+      if(req.method!=='GET')return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
+      try{return json(res,200,{success:true,...await createRsi03Closing().readiness()});}
+      catch(error){return json(res,503,{success:false,code:error.code||'CLOSE_READINESS_UNAVAILABLE'});}
     }
     if (action === 'rsi-execute') {
       if (!requireOperationalAuth(req, res)) return;

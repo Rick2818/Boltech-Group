@@ -52,6 +52,7 @@
   },
   "toolsUsageAndMaintenanceIncluded": false,
   "paymentEnabled": false,
+  "approvedQuoteClosingEnabled": true,
   "approvedOn": "2026-10-01",
   "brandPromise": "Obtén paz mental en tu negocio",
   "businessAudience": "Empresas de distintos sectores con cuellos de botella en sus procesos",

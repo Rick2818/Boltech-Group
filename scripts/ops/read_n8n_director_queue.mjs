@@ -1,10 +1,6 @@
-import {readdir,readFile,writeFile,mkdir} from 'node:fs/promises';
-const dir='scratch/commercial-scale/interagent-ledger';await mkdir(dir,{recursive:true});
-const mark=process.argv[2];const pending=[];
-for(const name of await readdir(dir)){
- if(!name.endsWith('.json'))continue;
- const path=`${dir}/${name}`,row=JSON.parse(await readFile(path,'utf8'));
- if(mark&&row.eventId===mark){row.directorReviewedAt=new Date().toISOString();await writeFile(path,JSON.stringify(row,null,2));}
- if(row.status==='RECEIVED'&&row.response?.to==='DIRECTORA'&&!row.directorReviewedAt&&!/^qa[-:]/i.test(row.eventId))pending.push({eventId:row.eventId,at:row.at,...row.response});
-}
-console.log(JSON.stringify({queue:'DIRECTORA',pending,definition:'Reported events; director must verify evidence and notify Ricardo before marking reviewed.'}));
+import {spawnSync} from 'node:child_process';
+const operation=process.argv[2]||'queue';
+if(!['queue','acknowledge'].includes(operation))throw Error('Use acknowledge with an evidence JSON file; a bare event ID cannot prove notification');
+if(operation==='acknowledge'&&!process.argv[3])throw Error('Notification receipt and verification JSON file required');
+const result=spawnSync(process.execPath,['scripts/ops/interagent_control.mjs',operation,...(process.argv[3]?[process.argv[3]]:[])],{stdio:'inherit'});
+if(result.error)throw result.error;process.exitCode=result.status??1;
