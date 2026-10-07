@@ -1,22 +1,15 @@
-import {readFile,mkdir,writeFile} from 'node:fs/promises';
-import {createHash} from 'node:crypto';
-import {signInteragent} from '../../lib/interagent_coordinator.js';
-const path=process.argv[2];
-if(!path)throw Error('Provide local event JSON path');
+import {readFile,mkdir,writeFile,rename} from 'node:fs/promises';
+import {createHash,randomUUID} from 'node:crypto';
+import {runN8nMessage} from '../../lib/n8n_message_client.js';
+const path=process.argv[2];if(!path)throw Error('Provide local event JSON path');
 const event=JSON.parse(await readFile(path,'utf8'));
-if(!/^[a-zA-Z0-9_.:-]{1,120}$/.test(event.eventId||''))throw Error('INVALID_EVENT_ID');
 const dir='scratch/commercial-scale/interagent-ledger';await mkdir(dir,{recursive:true});
-const file=`${dir}/${createHash('sha256').update(event.eventId).digest('hex')}.json`;
-const fingerprint=createHash('sha256').update(JSON.stringify(event)).digest('hex');
-try { const saved=JSON.parse(await readFile(file,'utf8'));if(saved.fingerprint!==fingerprint)throw Error('EVENT_ID_CONFLICT');console.log(JSON.stringify({eventId:event.eventId,status:saved.status,response:saved.response||null,reused:true}));process.exit(saved.status==='RECEIVED'?0:1); }
-catch(error){if(error.code!=='ENOENT')throw error;}
+const file=`${dir}/${createHash('sha256').update(event.eventId||'').digest('hex')}.json`;
 const runtime=JSON.parse(await readFile('scratch/commercial-scale/n8n-runtime/client-auth.json','utf8'));
-const roleKey=runtime.roleKeys?.[event.from];if(!roleKey)throw Error('AGENT_SIGNING_KEY_MISSING');
-const signed={...event,signedAt:new Date().toISOString()};
-const record={eventId:event.eventId,fingerprint,status:'PENDING',at:new Date().toISOString()};await writeFile(file,JSON.stringify(record),{flag:'wx'});
-try{
- const response=await fetch('http://127.0.0.1:5678/webhook/boltech-sales-marketing',{method:'POST',headers:{'Content-Type':'application/json','X-Boltech-Agent-Key':runtime.key,'X-Boltech-Signature':signInteragent(signed,roleKey)},body:JSON.stringify(signed),signal:AbortSignal.timeout(25000)});
- const data=await response.json();record.status=response.ok&&data.success?'RECEIVED':'REJECTED';record.response=data;
-}catch{record.status='UNKNOWN';record.code='N8N_RESULT_UNCONFIRMED_NO_AUTO_RETRY';}
-await writeFile(file,JSON.stringify(record,null,2));console.log(JSON.stringify({eventId:event.eventId,status:record.status,response:record.response||null}));
-if(record.status!=='RECEIVED')process.exitCode=1;
+const store={
+ read:async()=>{try{return JSON.parse(await readFile(file,'utf8'));}catch(error){if(error.code==='ENOENT')return null;throw error;}},
+ reserve:record=>writeFile(file,JSON.stringify(record),{flag:'wx',mode:0o600}),
+ save:async record=>{const temporary=file+'.'+randomUUID()+'.tmp';await writeFile(temporary,JSON.stringify(record,null,2),{flag:'wx',mode:0o600});await rename(temporary,file);}
+};
+const {result,exitCode}=await runN8nMessage({event,runtime,store,reconcile:process.argv.includes('--reconcile')});
+console.log(JSON.stringify(result));process.exitCode=exitCode;

@@ -84,6 +84,18 @@ test('concurrent events cannot overwrite opportunity state or bypass the counter
  assert.equal(outcomes.filter(r=>r.status==='fulfilled').length,1);assert.equal(outcomes.filter(r=>r.status==='rejected').length,1);
  assert.equal(f.index.size,1);const state=JSON.parse(f.data.get(`boltech:interagent:case:v2:${opportunityId}`));assert.equal(state.attempt,0);
 });
+
+test('receipt reconciliation is read-only, bound to original actor and content, and survives acknowledgement',async()=>{
+ const f=fixture();await f.worker.submit(event);
+ const input={eventId:event.eventId,from:event.from,event};
+ const first=await f.worker.receipt(input);assert.equal(first.receipt.eventId,event.eventId);
+ await assert.rejects(f.worker.receipt({...input,from:'RSI-02',event:{...event,from:'RSI-02'}}),/OWNER_MISMATCH/);
+ await assert.rejects(f.worker.receipt({...input,event:{...event,problem:'NO_RESPONSE'}}),/CONFLICT/);
+ await assert.rejects(f.worker.receipt({...input,eventId:'absent',event:{...event,eventId:'absent'}}),/NOT_FOUND/);
+ await f.worker.acknowledge({from:event.from,eventId:event.eventId,evidenceRef:'crm-result-one'});
+ assert.equal((await f.worker.queue(event.from)).pending.length,0);
+ assert.ok((await f.worker.receipt(input)).receipt.acknowledgedAt);assert.equal(f.index.size,1);
+});
 test('closure requires matching production payment; director must provide verification and communication receipt',async()=>{
  const f=fixture(),close={eventId:'close-one',opportunityId,from:'RSI-03',type:'CLOSE_REPORTED',orderId:'order-fixture',acceptanceRef:'crm-acceptance'};
  f.paid.productId='payment-verification';await assert.rejects(f.worker.submit(close),/PAYMENT_UNVERIFIED/);
