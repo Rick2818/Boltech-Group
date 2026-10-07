@@ -13,7 +13,7 @@ function row(rsi = 'RSI-01', outcome = 'COMPLETED') {
     'Execution Started At': receipt.startedAt, 'Execution Finished At': receipt.finishedAt, 'Execution Receipt': JSON.stringify(receipt) } };
 }
 test('separate role cycles and blockers are preserved without claiming commercial completion', () => {
-  const result = summarizeAgentExecutions([row(), row('RSI-02', 'BLOCKED'), row('RSI-03')], now);
+  const result = summarizeAgentExecutions([row(), row('RSI-02', 'BLOCKED'), row('RSI-03'), row('MARKETING')], now);
   assert.equal(result.allExecutionsProven, true); assert.equal(result.agents[1].state, 'BLOCKED');
   assert.equal(result.agents[0].receiptAgeMinutes, 1); assert.match(result.definition, /not scheduler uptime/);
   assert.ok(result.agents[1].receipt.blockers.includes('WAITING_CUSTOMER_ACCEPTANCE'));
@@ -53,7 +53,7 @@ test('provider errors and incomplete pagination do not produce a successful diag
   t.after(() => { if (old === undefined) delete process.env.AIRTABLE_TOKEN; else process.env.AIRTABLE_TOKEN = old; });
   await assert.rejects(getAgentExecutionStatus(async () => Response.json({}, { status: 403 }), now));
   await assert.rejects(getAgentExecutionStatus(async () => Response.json({ records: [row()], offset: 'repeated' }), now));
-  const pages = [{ records: [row()], offset: 'page2' }, { records: [row('RSI-02'), row('RSI-03')] }];
+  const pages = [{ records: [row()], offset: 'page2' }, { records: [row('RSI-02'), row('RSI-03'), row('MARKETING')] }];
   const result = await getAgentExecutionStatus(async url => { assert.equal(new URL(url).hostname, 'api.airtable.com'); return Response.json(pages.shift()); }, now);
   assert.equal(result.allExecutionsProven, true);
 });

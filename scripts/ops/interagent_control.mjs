@@ -1,0 +1,10 @@
+import {readFile} from 'node:fs/promises';
+import {signInteragent} from '../../lib/interagent_coordinator.js';
+const operation=process.argv[2]||'queue';
+const args=process.argv[3]?JSON.parse(await readFile(process.argv[3],'utf8')):{};
+const from=args.from||'DIRECTORA';
+const auth=JSON.parse(await readFile('scratch/commercial-scale/n8n-runtime/client-auth.json','utf8'));
+const key=auth.roleKeys?.[from];if(!key)throw Error('AGENT_SIGNING_KEY_MISSING');
+const body={...args,operation,from,signedAt:new Date().toISOString()};
+const r=await fetch('https://boltech-group.vercel.app/api/partners?action=interagent',{method:'POST',headers:{'Content-Type':'application/json','X-Boltech-Signature':signInteragent(body,key)},body:JSON.stringify(body),signal:AbortSignal.timeout(30000)});
+const result=await r.json();console.log(JSON.stringify(result));if(!r.ok||result.success!==true)process.exitCode=1;

@@ -14,7 +14,7 @@ try {
   assert.equal(response.headers.get('cache-control'), 'no-store');
   const body = await response.json();
   assert.equal(body.execution?.contractVersion, 1);
-  assert.deepEqual(body.execution.agents.map(a => a.rsi), ['RSI-01', 'RSI-02', 'RSI-03']);
+  assert.deepEqual(body.execution.agents.map(a => a.rsi), ['RSI-01', 'RSI-02', 'RSI-03', 'MARKETING']);
   report.execution = body.execution;
   for (const agent of body.execution.agents) {
     assert.equal(agent.executionProven, true, `${agent.rsi} needs a real completed or blocked receipt`);

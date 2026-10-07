@@ -4,7 +4,7 @@ import { createRsiExecutor, analyzeAcceptedResponseAudit } from '../lib/rsi_agen
 import handler from '../api/partners.js';
 
 function fixture(extra = []) {
-  const data = new Map(), rows = ['RSI-01','RSI-02','RSI-03'].map((rsi,i)=>({id:`recBootstrap${i}`,fields:{'Work ID':`BOOTSTRAP:${rsi}`,RSI:rsi,Status:'BUSINESS_STATE',Evidence:'Prior history',Authorization:'Original authorization'}}));
+  const data = new Map(), rows = ['RSI-01','RSI-02','RSI-03','MARKETING'].map((rsi,i)=>({id:`recBootstrap${i}`,fields:{'Work ID':`BOOTSTRAP:${rsi}`,RSI:rsi,Status:'BUSINESS_STATE',Evidence:'Prior history',Authorization:'Original authorization'}}));
   rows.push(...extra); let writes = 0;
   const command = async args => {
     if(args[0]==='GET')return data.get(args[1])||null;
@@ -35,6 +35,18 @@ test('all three executors perform real tool contracts and preserve commercial au
     assert.ok(JSON.parse(bootstrap.fields['Execution Receipt']).actions.some(a=>a.type==='MARKETING_SUPPORT_PERSISTED'));
   }
   assert.equal(f.writes(),9);
+});
+test('marketing persists its own evidence for three sales roles and preserves history on later cycles',async()=>{
+  const f=fixture(),w=createRsiExecutor(f.options);
+  const first=await w.run({rsi:'MARKETING',cycleId:'marketing-one'});
+  assert.equal(first.receipt.outcome,'COMPLETED');
+  const row=f.rows[3];assert.ok(row.fields.Evidence.startsWith('Prior history'));
+  const body=JSON.parse(row.fields.Evidence.split('[MARKETING_TEAM_SUPPORT_V1]\n')[1].split('\n[/MARKETING_TEAM_SUPPORT_V1]')[0]);
+  assert.deepEqual(body.support.map(p=>p.requestedBy),['RSI-01','RSI-02','RSI-03']);assert.equal(body.sendingEnabled,false);
+  row.fields.Evidence+='\nSales acceptance remains pending';const writes=f.writes();
+  await w.run({rsi:'MARKETING',cycleId:'marketing-two'});
+  assert.equal(f.writes()-writes,2);assert.ok(row.fields.Evidence.endsWith('Sales acceptance remains pending'));
+  assert.equal(row.fields.Authorization,'Original authorization');
 });
 test('repeat cycle reads durable receipt without repeated tools or writes',async()=>{
   const f=fixture(),w=createRsiExecutor(f.options);

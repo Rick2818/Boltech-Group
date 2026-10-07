@@ -10,6 +10,10 @@ on:
       - 'scripts/ops/verify_rsi_agents.mjs'
       - 'lib/rsi_agent_status.js'
       - 'lib/rsi_agent_executor.js'
+      - 'lib/google_adk_agents.js'
+      - 'lib/interagent_coordinator.js'
+      - 'package.json'
+      - 'package-lock.json'
       - 'lib/rsi_commercial_routes.js'
       - 'lib/marketing_sales_support.js'
       - 'tests/test_marketing_sales_support.mjs'
@@ -30,14 +34,15 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
+      - run: npm ci --ignore-scripts
       - name: Validate commercial routing and isolated failures
-        run: node --test tests/test_rsi_agent_executor.mjs tests/test_rsi_commercial_routes.mjs tests/test_rsi_agent_status.mjs tests/test_marketing_sales_support.mjs tests/test_sales_marketing_router.mjs
+        run: node --test tests/test_google_adk_agents.mjs tests/test_interagent_coordinator.mjs tests/test_rsi_agent_executor.mjs tests/test_rsi_commercial_routes.mjs tests/test_rsi_agent_status.mjs tests/test_marketing_sales_support.mjs tests/test_sales_marketing_router.mjs
       - name: Execute one bounded commercial preparation cycle per RSI
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
         run: node scripts/ops/run_rsi_agents.mjs
-      - name: Verify three real agent execution receipts
+      - name: Verify four real agent execution receipts
         if: always()
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}

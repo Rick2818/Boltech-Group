@@ -14,6 +14,8 @@ El usuario se llama Ricardo, vive en El Salvador y trabaja con marketing digital
 
 ## Mercadeo al servicio de ventas
 
+Presupuesto confirmado por Ricardo el 7 octubre 2026 para conectar modelos de pago: USD0. No conectar APIs facturables, activar suscripciones ni consumo de modelos pagados sin nueva autorización expresa. Google ADK (@google/adk) orquesta los cuatro agentes existentes mediante BaseAgent y código; llamadas a Gemini deshabilitadas. La ruta RSI/n8n usa código, reglas y plantillas; no anunciar autonomía LLM independiente. Las definiciones históricas que indiquen modelos pagados no autorizan su uso.
+
 Por instrucción de Ricardo del 7 octubre 2026, toda tarea de mercadeo debe responder a una necesidad concreta de RSI-01, RSI-02 o RSI-03 y acercar una oportunidad al pago. Aplicar docs/commercial/MERCADEO_APOYO_VENTAS.md. Reutilizar al responsable de mercadeo existente; su identidad/configuración debe verificarse antes de asignarle ejecución. No crear otro agente. Registrar solicitud, oportunidad o segmento, etapa, bloqueo, material solicitado, responsable, fecha y resultado comercial. Dirección prioriza cierres y respuestas con interés antes de adquisición nueva. Los materiales y publicaciones son entregables; su creación no equivale a demanda, envío, venta ni pago.
 
 ## Continuidad del equipo comercial

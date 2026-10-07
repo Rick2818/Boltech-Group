@@ -2,8 +2,10 @@ import crypto from 'node:crypto';
 import { createHandoffStore } from '../lib/rsi_handoff_store.js';
 import { requireOperationalAuth } from '../lib/operational_auth.js';
 import { getAgentExecutionStatus } from '../lib/rsi_agent_status.js';
-import { createRsiExecutor, RSI_EXECUTOR_VERSION } from '../lib/rsi_agent_executor.js';
+import { RSI_EXECUTOR_VERSION } from '../lib/rsi_agent_executor.js';
+import { createGoogleAdkTeam } from '../lib/google_adk_agents.js';
 import { createSdrDispatch } from '../lib/sdr_dispatch.js';
+import {authenticateInteragent,createInteragentCoordinator} from '../lib/interagent_coordinator.js';
 
 export const config = { maxDuration: 60 };
 import {
@@ -157,6 +159,16 @@ export default async function partnersHandler(req, res) {
 
   try {
     const action = actionFromRequest(req);
+    if (action==='interagent') {
+      if(req.method!=='POST')return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
+      try {
+        const body=typeof req.body==='string'?JSON.parse(req.body):req.body||{};
+        const actor=authenticateInteragent(body,req.headers?.['x-boltech-signature']);
+        const worker=createInteragentCoordinator();
+        const result=body.operation==='queue'?await worker.queue(actor):body.operation==='acknowledge'?await worker.acknowledge(body):await worker.submit(body);
+        return json(res,200,{success:true,...result});
+      }catch(error){return json(res,error.statusCode||503,{success:false,code:/^[A-Z_]+$/.test(error.code||'')?error.code:'INTERAGENT_UNCONFIRMED'});}
+    }
     if (['sdr-status','sdr-verify','sdr-metrics','sdr-send','sdr-reconcile'].includes(action)) {
       if (!requireOperationalAuth(req, res)) return;
       const worker = createSdrDispatch();
@@ -176,7 +188,7 @@ export default async function partnersHandler(req, res) {
       if (req.method !== 'POST') return json(res, 405, { success: false, code: 'METHOD_NOT_ALLOWED' });
       try {
         const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-        return json(res, 200, { success: true, ...await createRsiExecutor().run(body) });
+        return json(res, 200, { success: true, ...await createGoogleAdkTeam().run(body) });
       } catch (error) {
         return json(res, error.statusCode || 503, { success: false, code: /^[A-Z_]+$/.test(error.code || '') ? error.code : 'RSI_EXECUTION_FAILED' });
       }

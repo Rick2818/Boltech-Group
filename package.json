@@ -1,7 +1,7 @@
 {
   "name": "unblock-ai-shield",
   "version": "1.0.0",
-  "description": "Boltech Group \u2014 Prebuilt agents and custom agents for business workflows",
+  "description": "Boltech Group — Prebuilt agents and custom agents for business workflows",
   "type": "module",
   "main": "index.html",
   "scripts": {
@@ -38,6 +38,7 @@
   "dependencies": {
     "@ai-sdk/google": "^4.0.79",
     "@ai-sdk/openai": "^4.0.74",
+    "@google/adk": "2.2.1",
     "@google/genai": "^2.23.0",
     "@hubspot/api-client": "^14.0.1",
     "@modelcontextprotocol/sdk": "^1.30.1",

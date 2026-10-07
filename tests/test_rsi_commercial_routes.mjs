@@ -33,7 +33,7 @@ test('packet update is bounded, stable and preserves historical evidence before 
 });
 test('an uncertain RSI failure does not retry the mutation or suppress the other roles',async()=>{
   const calls=[];const result=await runIndependentRsiCycle({execute:async rsi=>{calls.push(rsi);if(rsi==='RSI-01')throw Object.assign(new Error('secret must not leak'),{code:'RSI_TOOL_UNAVAILABLE'});return {success:true};}});
-  assert.deepEqual(calls,['RSI-01','RSI-02','RSI-03']);assert.equal(result[0].success,false);assert.equal(result[2].success,true);
+  assert.deepEqual(calls,['RSI-01','RSI-02','RSI-03','MARKETING']);assert.equal(result[0].success,false);assert.equal(result[2].success,true);
   assert.ok(!JSON.stringify(result).includes('secret'));
 });
 

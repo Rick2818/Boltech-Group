@@ -22,7 +22,9 @@ Máximo tres alternativas; registrar intento y resultado antes de avanzar. Las a
 
 Solo RSI-03 emite CLOSE_REPORTED con referencia de evidencia. RSI-03 cierra e informa a Directora; Directora verifica aceptación/alcance y pago proveedor y después informa a Ricardo. Un aviso no prueba ingreso. n8n devuelve notificación pendiente; el consumidor de Dirección debe leerla y efectuar el aviso. No se considera Ricardo notificado por crear la ejecución.
 
-Los agentes usan scripts/ops/n8n_agent_message.mjs con archivo de evento local; su resultado queda en el ledger privado. En cada ciclo de Dirección, ejecutar scripts/ops/read_n8n_director_queue.mjs. Tras verificar y avisar a Ricardo, marcar el eventId con ese mismo script; jamás marcarlo antes. Los eventos QA no se presentan como cierres comerciales.
+Los agentes usan scripts/ops/n8n_agent_message.mjs con archivo de evento local y firma HMAC por rol. n8n remite al coordinador privado cloud; el servidor valida cuenta CRM real y persiste evento y cola durable. El ledger local complementa ese registro y no sustituye la cola cloud. Dirección ejecuta `node scripts/ops/interagent_control.mjs queue`. Tras verificar y avisar a Ricardo, usar `acknowledge` con archivo que incluya from DIRECTORA, eventId, evidenceRef, verified true y communicationRef; jamás registrar aviso antes de realizarlo. CLOSE_REPORTED exige orderId y acceptanceRef, pago de producción con evidencia del proveedor y vínculo con la cuenta; excluye payment-verification y oportunidades QA.
+
+Ventas lee su cola mediante `interagent_control.mjs queue archivo.json` con from del RSI. Registra resultado con acknowledge; para FAILED adjunta evidenceRef. El servidor exige ese resultado guardado antes de aceptar previousEventId/previousOutcome/resultEvidenceRef y avanzar la alternativa; el contador viene del servidor. La firma distingue roles de red; las claves locales están en un archivo privado de un host de confianza, no equivalen a aislamiento entre usuarios del sistema operativo.
 
 ## Archivos y ejecución
 
@@ -32,7 +34,7 @@ Los agentes usan scripts/ops/n8n_agent_message.mjs con archivo de evento local; 
 - scripts/ops/n8n_agent_message.mjs: cliente local con reserva por evento, conflicto de ID y resultado UNKNOWN sin reintento ciego.
 - lib/rsi_agent_executor.js: persiste apoyo por oportunidad dentro de BOOTSTRAP RSI existentes. Esa entrega privada funciona independientemente de n8n; no se cuentan dos tareas o emisores.
 
-La instancia local se limita a 127.0.0.1:5678. No es accesible a GitHub/Vercel y depende de que este equipo siga encendido. No prometer comunicación cloud continua hasta contar con alojamiento y verificar la conexión real. No se contrata hosting nuevo. Datos/credenciales locales en scratch/commercial-scale/n8n-runtime excluidos de Git.
+La instancia local se limita a 127.0.0.1:5678 y depende de que este equipo siga encendido. Los ejecutores cloud pueden usar el mismo coordinador durable directamente y no necesitan acceder a localhost. No prometer disponibilidad permanente del equipo local. No se contrata hosting nuevo. Datos/credenciales locales en scratch/commercial-scale/n8n-runtime excluidos de Git. INTERAGENT_ROLE_KEYS se conserva como secreto de producción; no incluir valores en workflow, Git o salida.
 
 Fuentes oficiales: https://docs.n8n.io/workflows/export-import/ ; https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/ ; https://docs.n8n.io/hosting/cli-commands/ .
 
