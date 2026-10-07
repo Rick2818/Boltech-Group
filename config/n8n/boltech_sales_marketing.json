@@ -1,0 +1,196 @@
+{
+  "id": "boltechSalesMarketing",
+  "name": "Boltech | Ventas ↔ Mercadeo | apoyo y cierre",
+  "active": false,
+  "nodes": [
+    {
+      "id": "receive",
+      "name": "Recibir solicitud del RSI",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "boltech-sales-marketing",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "boltech-sales-marketing",
+        "authentication": "headerAuth",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "boltechInteragentHeader",
+          "name": "Boltech interagent local"
+        }
+      }
+    },
+    {
+      "id": "decide",
+      "name": "Directora asigna ruta y alternativa",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "jsCode": "function routeSalesMarketingEvent(event) {\n  const fail=code=>({success:false,code,httpStatus:400});\n  const text=value=>typeof value==='string'&&/^[a-zA-Z0-9_.:-]{1,120}$/.test(value);\n  if(!event || !text(event.eventId) || !text(event.opportunityId) || !['RSI-01','RSI-02','RSI-03'].includes(event.from)) return fail('INVALID_AGENT_EVENT');\n  if(!['SUPPORT_REQUEST','PROBLEM','CLOSE_REPORTED'].includes(event.type))return fail('INVALID_EVENT_TYPE');\n  if(event.type==='CLOSE_REPORTED') {\n    if(event.from!=='RSI-03'||!text(event.evidenceRef))return fail('CLOSURE_EVIDENCE_REQUIRED');\n    return {success:true,eventId:event.eventId,opportunityId:event.opportunityId,from:'RSI-03',to:'DIRECTORA',\n      status:'CLOSE_REPORTED_REQUIRES_DIRECTOR_VERIFICATION',evidenceRef:event.evidenceRef,\n      next:'Directora verifica aceptación, alcance y evidencia de pago del proveedor; después informa a Ricardo.',\n      notificationChain:['RSI-03','DIRECTORA','RICARDO'],ricardoNotified:false,paymentVerified:false,saleCounted:false};\n  }\n  const attempt=event.attempt??0;\n  if(!Number.isInteger(attempt)||attempt<0||attempt>3)return fail('INVALID_ATTEMPT');\n  const alternatives={\n    NO_RESPONSE:['REVIEW_FIT_AND_HISTORY','REFRAME_ONE_SPECIFIC_PROBLEM','WRITTEN_FOLLOWUP_WITH_EXISTING_THREAD'],\n    MISSING_DATA:['RESEARCH_PUBLISHED_BUSINESS_SOURCE','REQUEST_MINIMUM_DATA_IN_WRITING','PREPARE_REDUCED_SCOPE_PENDING_VALIDATION'],\n    DEMO_UNAVAILABLE:['PROVIDE_WRITTEN_PROCESS_WALKTHROUGH','USE_EXISTING_VERIFIED_RECORDING','REQUEST_TECHNICAL_VALIDATION'],\n    PRICE_OBJECTION:['CLARIFY_APPROVED_SCOPE_AND_VALUE','EVALUATE_SMALLER_SCOPE_FOR_DIRECTOR_APPROVAL','ESCALATE_PRICING_DECISION'],\n    TOOL_FAILURE:['CHECK_STATUS_WITH_READ_ONLY_REQUEST','USE_LOCAL_PRIVATE_MATERIAL_AND_KEEP_PENDING_SYNC','ESCALATE_TECHNICAL_FAILURE'],\n    SEND_UNKNOWN:['RECONCILE_PROVIDER_RECEIPT_WITHOUT_RESENDING'],\n    BOUNCED:['SUPPRESS_FAILED_ADDRESS','RESEARCH_ALTERNATIVE_PUBLISHED_BUSINESS_CHANNEL'],\n    SUPPORT_NEEDED:['PREPARE_ROLE_SPECIFIC_MATERIAL','CLARIFY_THE_SALES_BLOCKER','ESCALATE_WITH_EVIDENCE']\n  };\n  const problem=event.problem??'SUPPORT_NEEDED';\n  if(!Object.hasOwn(alternatives,problem))return fail('UNKNOWN_PROBLEM');\n  const choices=alternatives[problem],action=choices[Math.min(attempt,choices.length-1)];\n  const approval=['EVALUATE_SMALLER_SCOPE_FOR_DIRECTOR_APPROVAL','ESCALATE_PRICING_DECISION','ESCALATE_WITH_EVIDENCE','ESCALATE_TECHNICAL_FAILURE','REQUEST_TECHNICAL_VALIDATION'].includes(action)||attempt===3;\n  return {success:true,eventId:event.eventId,opportunityId:event.opportunityId,from:event.from,to:approval?'DIRECTORA':'marketing-director',returnTo:event.from,\n    problem,attempt,action,status:approval?'DIRECTOR_DECISION_REQUIRED':'SUPPORT_PREPARED_REQUIRES_SALES_VALIDATION',\n    nextAttemptAllowed:!approval&&attempt<choices.length-1,externalSendingAllowed:false,\n    priceChangeAllowed:false,newSpendAllowed:false,credentialChangeAllowed:false,paymentVerified:false,saleCounted:false,\n    next:'Registrar resultado en notas existentes del CRM. Si la alternativa falla, conservar eventId nuevo y referenciar el anterior; máximo tres alternativas y luego Dirección.'};\n}\n\nconst event=$json.body||$json;const decision=routeSalesMarketingEvent(event);return [{json:decision}];"
+      }
+    },
+    {
+      "id": "branch",
+      "name": "Apoyo o decisión de Dirección",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        520,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "target",
+              "leftValue": "={{ $json.to }}",
+              "rightValue": "marketing-director",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "marketing",
+      "name": "Mercadeo entrega apoyo al RSI solicitante",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        -140
+      ],
+      "parameters": {
+        "jsCode": "const pilot={\"id\":\"quotation_intake_pilot\",\"offerVersion\":\"2026-10-06\",\"name\":\"Registro, asignación y seguimiento de solicitudes\",\"targetSegment\":\"Inmobiliarias con equipos de asesores y solicitudes frecuentes\",\"outcomes\":[\"Solicitud registrada\",\"Confirmación con referencia\",\"Responsable asignado\",\"Próxima acción visible\"],\"diagnosticQuestions\":[\"¿Cómo reciben y registran solicitudes?\",\"¿Qué herramientas utilizan?\",\"¿Qué volumen aproximado reciben?\",\"¿Quién coordina el proceso?\",\"¿Qué paso quieren mejorar y cuándo?\"],\"acceptanceCriteria\":[\"Registro y referencia verificables\",\"Confirmación con estado de envío visible\",\"Responsable y próxima acción registrados\",\"Duplicados y errores recuperables\",\"Documentación y transferencia de uso\"],\"exclusions\":[\"Consumo de herramientas\",\"Mantenimiento recurrente\",\"Integraciones adicionales\",\"Garantía de ventas o funcionamiento ininterrumpido\"],\"currency\":\"USD\",\"implementationAmount\":990,\"recurring\":false,\"durationDays\":14,\"milestones\":[{\"id\":\"kickoff\",\"amount\":495,\"condition\":\"Scope accepted and required access available\"},{\"id\":\"verified_delivery\",\"amount\":495,\"condition\":\"Delivery acceptance criteria verified\"}],\"scope\":{\"businesses\":1,\"webWorkflows\":1,\"simpleIntegrations\":1},\"toolsUsageAndMaintenanceIncluded\":false,\"paymentEnabled\":false,\"approvedOn\":\"2026-10-01\",\"brandPromise\":\"Obtén paz mental en tu negocio\",\"businessAudience\":\"Empresas de distintos sectores con cuellos de botella en sus procesos\",\"positioningNote\":\"El segmento inicial orienta la prospección; no limita los sectores atendidos. Este piloto es un caso de implementación, no el alcance completo de Boltech. Otros procesos requieren alcance y cotización individuales.\"};\n\nconst MARKETING_SUPPORT_VERSION = 1;\nconst roles = new Set(['RSI-01', 'RSI-02', 'RSI-03']);\nconst clean = value => typeof value === 'string' && value.length <= 250 && !/[\\x00-\\x1f]/.test(value);\n\n// Produces private sales enablement, never sends, publishes, invents customer facts or changes terms.\nfunction buildMarketingSupport(packet) {\n  if (!roles.has(packet?.rsi) || !Array.isArray(packet.accounts) || packet.accounts.length > 5) throw Object.assign(new Error('MARKETING_INVALID_INPUT'), { code: 'MARKETING_INVALID_INPUT' });\n  const rsi = packet.rsi;\n  const es = rsi === 'RSI-01' ? {\n    subject: 'Seguimiento de solicitudes en su empresa',\n    text: 'Hola. En Boltech Group trabajamos con agentes preelaborados y a medida para procedimientos empresariales. Estamos evaluando un caso concreto: registrar cada solicitud, asignar un responsable y dejar visible el próximo paso. ¿Cómo lleva su equipo ese seguimiento hoy? Puede responder por este correo con el paso que quiere mejorar. Evaluaremos el encaje antes de proponer una solución.',\n    cta: 'Describa por este correo cómo recibe y da seguimiento a las solicitudes.'\n  } : rsi === 'RSI-02' ? {\n    questions: ['¿Qué ocurre paso a paso desde que llega una solicitud?', '¿Cuántas reciben y qué tiempo o trabajo les exige?', '¿Qué herramientas y datos utilizan?', '¿Quién interviene y qué decisiones requieren aprobación?', '¿Qué resultado medible indicaría que se resolvió?', '¿Qué nunca debe hacer el agente?'],\n    demonstrationChecklist: ['Acordar permiso y datos para la demostración.', 'Mostrar registro, referencia, responsable y próxima acción dentro del alcance validado.', 'Comprobar duplicado, dato incompleto y fallo de integración.', 'Registrar resultado y límites; solicitar confirmación escrita del encaje.'],\n    cta: 'Responda estas preguntas para preparar un alcance individual.'\n  } : {\n    offer: `${pilot.name}: USD${pilot.implementationAmount}, ${pilot.durationDays} días para el piloto delimitado; USD${pilot.milestones[0].amount} tras aceptación de alcance y accesos, USD${pilot.milestones[1].amount} contra entrega verificada.`,\n    scope: 'Una empresa, un flujo web y una integración simple. Consumo de herramientas, mantenimiento e integraciones adicionales se cotizan aparte.',\n    objections: ['Si ya usa una hoja o CRM: revisar el paso manual que necesita mejorar antes de añadir otra herramienta.', 'Si pregunta por resultados: acordar una prueba y criterios medibles del procedimiento.', 'Si pregunta por otro agente: evaluar su caso y cotizarlo individualmente.'],\n    cta: 'Confirme por escrito el alcance propuesto; validaremos accesos y costos antes de iniciar.'\n  };\n  const en = rsi === 'RSI-01' ? {\n    subject: 'Tracking incoming requests',\n    text: 'Hello. Boltech Group works with prebuilt and custom agents for business workflows. We are evaluating a specific use case: recording each request, assigning an owner and keeping the next action visible. How does your team track this today? Reply with the step you want to improve. We will assess fit before proposing a solution.',\n    cta: 'Reply with how your team receives and follows up on requests.'\n  } : rsi === 'RSI-02' ? {\n    questions: ['What happens from receipt through resolution?', 'What volume, time or manual work is involved?', 'Which tools and data do you use?', 'Who participates and what requires human approval?', 'What measurable outcome would demonstrate success?', 'What must the agent never do?'],\n    demonstrationChecklist: ['Agree on permission and demonstration data.', 'Show registration, reference, owner and next action within validated scope.', 'Check duplicates, incomplete inputs and integration failure.', 'Record results and limitations; request written confirmation of fit.'],\n    cta: 'Reply to these questions so we can define an individual scope.'\n  } : {\n    offer: `Request intake pilot: USD${pilot.implementationAmount}, ${pilot.durationDays} days for the defined scope; USD${pilot.milestones[0].amount} after scope acceptance and required access, USD${pilot.milestones[1].amount} after verified delivery.`,\n    scope: 'One business, one web workflow and one simple integration. Tool usage, maintenance and additional integrations are separate.',\n    objections: ['Existing spreadsheet or CRM: identify the manual step before adding a tool.', 'Results: agree on a test and measurable workflow acceptance criteria.', 'Other agent: assess and quote the case individually.'],\n    cta: 'Confirm the proposed scope in writing; required access and costs must be verified before starting.'\n  };\n  const requests = packet.accounts.map(a => {\n    if (!clean(a.sourceRecordId) || !clean(a.account) || !clean(a.route)) throw Object.assign(new Error('MARKETING_INVALID_INPUT'), { code: 'MARKETING_INVALID_INPUT' });\n    return { requestId: `marketing:${rsi}:${a.sourceRecordId}`, sourceRecordId: a.sourceRecordId, account: a.account,\n      requestedBy: rsi, owner: 'marketing-director', route: a.route,\n      priority: a.route === 'QUALIFY_CUSTOMER_REPLY' ? (rsi === 'RSI-03' ? 1 : 2) : 3,\n      need: rsi === 'RSI-01' ? 'MESSAGE_AND_FIT' : rsi === 'RSI-02' ? 'WRITTEN_DIAGNOSIS_AND_DEMONSTRATION' : 'SCOPE_VALUE_AND_OBJECTIONS',\n      status: 'MATERIAL_PREPARED_REQUIRES_SALES_REVIEW', due: 'CURRENT_EXISTING_SALES_CYCLE',\n      gates: [...(a.gates || []), 'SALES_MATERIAL_ACCEPTANCE', ...(rsi === 'RSI-03' ? ['CUSTOMER_CONFIRMED_PROBLEM', 'DOCUMENTED_COSTS', 'SCOPE_ACCEPTANCE'] : [])],\n      salesAcceptance: 'UNCONFIRMED', commercialResult: 'UNCONFIRMED' };\n  }).sort((a,b)=>a.priority-b.priority || a.requestId.localeCompare(b.requestId));\n  const support = { version: MARKETING_SUPPORT_VERSION, owner: 'marketing-director', requestedBy:rsi,\n    mode:'PRIVATE_SALES_SUPPORT', requests, materials:{es,en}, offerVersion:pilot.offerVersion,\n    delivery:'EXISTING_RSI_BOOTSTRAP_EVIDENCE', publicPublishingEnabled:false, sendingEnabled:false,\n    demoExecuted:false, saleVerified:false,\n    nextAction:'Sales reviews the material, selects the customer language, applies current contact/technical permissions and records acceptance, use and commercial outcome in existing CRM notes.' };\n  return {...support,fingerprint:'n8n-private-support'};\n}\n\nfunction mergeMarketingSupport(evidence, support) {\n  const begin='[MARKETING_SALES_SUPPORT_V1]', end='[/MARKETING_SALES_SUPPORT_V1]';\n  const original=typeof evidence==='string'?evidence:'';\n  const start=original.indexOf(begin),finish=original.indexOf(end,start);\n  if(start>=0 && finish<start) throw Object.assign(new Error('MARKETING_EVIDENCE_RECONCILE_REQUIRED'),{code:'MARKETING_EVIDENCE_RECONCILE_REQUIRED'});\n  // Human acceptance/outcome notes are kept outside this replaceable generated block.\n  const block=`${begin}\\n${JSON.stringify(support)}\\n${end}`;\n  return start>=0 ? original.slice(0,start)+block+original.slice(finish+end.length) : `${original}${original?'\\n\\n':''}${block}`;\n}\n\nconst decision=$json; if(!decision.success)return [{json:decision}]; const material=buildMarketingSupport({rsi:decision.from,accounts:[{sourceRecordId:decision.opportunityId,account:'CRM-linked opportunity',route:'REVIEW_COHORT_ELIGIBILITY',gates:['SALES_REVIEW','LIVE_HISTORY_REQUIRED']}]});return [{json:{...decision,material,deliveredTo:decision.returnTo,usedBySales:false}}];"
+      }
+    },
+    {
+      "id": "director",
+      "name": "Dirección recibe cierre o bloqueo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        160
+      ],
+      "parameters": {
+        "jsCode": "return [{json:{...$json,directorActionPending:$json.success===true,notificationDelivered:false, instruction:'RSI-03 informa a Directora; Directora verifica y comunica a Ricardo. Conservar esta ejecución como evidencia; no contabilizar cobro por el aviso.'}}];"
+      }
+    },
+    {
+      "id": "response",
+      "name": "Devolver resultado y conservar ejecución",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1080,
+        0
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseCode": "={{ $json.success ? 200 : 400 }}"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Recibir solicitud del RSI": {
+      "main": [
+        [
+          {
+            "node": "Directora asigna ruta y alternativa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Directora asigna ruta y alternativa": {
+      "main": [
+        [
+          {
+            "node": "Apoyo o decisión de Dirección",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apoyo o decisión de Dirección": {
+      "main": [
+        [
+          {
+            "node": "Mercadeo entrega apoyo al RSI solicitante",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Dirección recibe cierre o bloqueo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mercadeo entrega apoyo al RSI solicitante": {
+      "main": [
+        [
+          {
+            "node": "Devolver resultado y conservar ejecución",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dirección recibe cierre o bloqueo": {
+      "main": [
+        [
+          {
+            "node": "Devolver resultado y conservar ejecución",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/El_Salvador",
+    "saveDataSuccessExecution": "all",
+    "saveDataErrorExecution": "all",
+    "executionTimeout": 60
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  },
+  "tags": []
+}

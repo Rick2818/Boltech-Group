@@ -31,6 +31,8 @@ test('all three executors perform real tool contracts and preserve commercial au
     assert.equal(result.receipt.outcome,'COMPLETED');assert.equal(result.receipt.engine,'VERCEL_EXECUTOR');assert.ok(result.receipt.tools.some(t=>t.status==='VERIFIED'));
     const bootstrap=f.rows.find(r=>r.fields['Work ID']===`BOOTSTRAP:${rsi}`);
     assert.equal(bootstrap.fields.Status,'BUSINESS_STATE');assert.ok(bootstrap.fields.Evidence.startsWith('Prior history'));assert.match(bootstrap.fields.Evidence,/RSI_COMMERCIAL_ROUTES_V1/);assert.equal(bootstrap.fields.Authorization,'Original authorization');
+    assert.match(bootstrap.fields.Evidence,/MARKETING_SALES_SUPPORT_V1/);
+    assert.ok(JSON.parse(bootstrap.fields['Execution Receipt']).actions.some(a=>a.type==='MARKETING_SUPPORT_PERSISTED'));
   }
   assert.equal(f.writes(),9);
 });
