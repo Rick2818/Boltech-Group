@@ -46,6 +46,38 @@ test('alternative requires stored failed result and acknowledgement is owned and
  assert.equal((await f.worker.submit(next)).attempt,1);
  await assert.rejects(f.worker.submit({...next,eventId:'support-three'}),/PREVIOUS_RESULT_REQUIRED/);
 });
+
+test('different event, role or problem cannot reset opportunity attempts; third alternative escalates',async()=>{
+ const f=fixture();f.worker=createInteragentCoordinator({...f,acceptance:async()=>f.accepted,gmail:{verify:async()=>({verified:true}),search:async()=>[]}});const base={...event,problem:'NO_RESPONSE'};await f.worker.submit(base);
+ await assert.rejects(f.worker.submit({...base,eventId:'reset-role',from:'RSI-02'}),/PREVIOUS_RESULT_REQUIRED/);
+ await assert.rejects(f.worker.submit({...base,eventId:'reset-problem',problem:'PRICE_OBJECTION'}),/PREVIOUS_RESULT_REQUIRED/);
+ let previous=event.eventId;
+ for(let attempt=1;attempt<=3;attempt++){
+  await f.worker.acknowledge({from:'RSI-01',eventId:previous,evidenceRef:'crm-result-one',outcome:'FAILED'});
+  const next=await f.worker.submit({...base,eventId:`attempt-${attempt}`,attempt:0,previousEventId:previous,previousOutcome:'FAILED',resultEvidenceRef:'crm-result-one'});
+  assert.equal(next.attempt,attempt);previous=next.eventId;
+  if(attempt===3){assert.equal(next.to,'DIRECTORA');assert.equal(next.alternativeExecuted,false);}
+ }
+ await assert.rejects(f.worker.submit({...base,eventId:'reset-after-escalation'}),/PREVIOUS_RESULT_REQUIRED/);
+});
+
+test('permitted read executes, persists real failed receipt and gates the next alternative without Gmail outage ack',async()=>{
+ const f=fixture();let calls=0;
+ const worker=createInteragentCoordinator({...f,gmail:{verify:async()=>{calls++;throw Object.assign(Error('GMAIL_DOWN'),{code:'GMAIL_DOWN'});}},now:()=> '2026-10-07T19:00:00Z'});
+ const first=await worker.submit({...event,problem:'TOOL_FAILURE'});assert.equal(first.execution.status,'FAILED');assert.equal(first.execution.code,'GMAIL_DOWN');assert.equal(calls,1);
+ await worker.submit({...event,problem:'TOOL_FAILURE'});assert.equal(calls,1);
+ await assert.rejects(worker.submit({...event,problem:'TOOL_FAILURE',eventId:'next-read',previousEventId:first.eventId,previousOutcome:'FAILED',resultEvidenceRef:'invented'}),/RESULT_UNVERIFIED/);
+ const next=await worker.submit({...event,problem:'TOOL_FAILURE',eventId:'next-read',previousEventId:first.eventId,previousOutcome:'FAILED',resultEvidenceRef:first.eventId});
+ assert.equal(next.attempt,1);assert.equal(next.execution.status,'PENDING_AUTHORIZED_EXECUTION');assert.equal(next.alternativeExecuted,false);
+});
+
+test('migration carries legacy attempts instead of opening a fresh counter',async()=>{
+ const f=fixture(),key='boltech:interagent:event:legacy-two';
+ f.data.set(key,JSON.stringify({eventId:'legacy-two',opportunityId,from:'RSI-02',problem:'NO_RESPONSE',attempt:2,createdAt:'2026-10-07T18:00:00Z',salesAcceptance:'FAILED',ackEvidence:'crm-result-one'}));f.index.add(key);
+ await assert.rejects(f.worker.submit({...event,eventId:'legacy-reset'}),/PREVIOUS_RESULT_REQUIRED/);
+ const next=await f.worker.submit({...event,eventId:'legacy-next',problem:'NO_RESPONSE',previousEventId:'legacy-two',previousOutcome:'FAILED',resultEvidenceRef:'crm-result-one'});
+ assert.equal(next.attempt,3);assert.equal(next.to,'DIRECTORA');
+});
 test('closure requires matching production payment; director must provide verification and communication receipt',async()=>{
  const f=fixture(),close={eventId:'close-one',opportunityId,from:'RSI-03',type:'CLOSE_REPORTED',orderId:'order-fixture',acceptanceRef:'crm-acceptance'};
  f.paid.productId='payment-verification';await assert.rejects(f.worker.submit(close),/PAYMENT_UNVERIFIED/);

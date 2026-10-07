@@ -18,6 +18,10 @@ Ruta: RSI solicita apoyo o reporta bloqueo → n8n valida identidad/tipo → Dir
 
 Máximo tres alternativas; registrar intento y resultado antes de avanzar. Las acciones son recomendaciones operativas entregadas al responsable: no declaran que la herramienta alternativa ya funcionó. Ninguna cambia precios, gasto, permisos o compromisos por sí sola.
 
+El coordinador conserva ahora el contador por oportunidad, compartido entre roles y problemas, y recupera el historial anterior. Cambiar eventId, from o problem no inicia otro presupuesto de intentos. Cada avance exige un FAILED registrado con evidencia real, o el recibo persistido de un fallo de ejecución de lectura del servidor. Después del límite, la oportunidad queda en revisión de Dirección.
+
+Ejecuciones automáticas permitidas: preparar y persistir material específico; consultar estado real de Gmail; revisar historial real con el contacto CRM validado. Se guardan action, status, verified y el recibo o código de fallo. Repetir el mismo evento recupera el recibo sin repetir la consulta. Las demás acciones conservan PENDING_AUTHORIZED_EXECUTION o DIRECTOR_DECISION_REQUIRED y alternativeExecuted=false hasta que exista ejecución y evidencia: no se inventan seguimientos enviados, grabaciones verificadas ni cambios de precio.
+
 ## Cierre y aviso
 
 Solo RSI-03 emite CLOSE_REPORTED con referencia de evidencia. RSI-03 cierra e informa a Directora; Directora verifica aceptación/alcance y pago proveedor y después informa a Ricardo. Un aviso no prueba ingreso. n8n devuelve notificación pendiente; el consumidor de Dirección debe leerla y efectuar el aviso. No se considera Ricardo notificado por crear la ejecución.
