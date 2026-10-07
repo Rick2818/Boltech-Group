@@ -26,6 +26,8 @@ Los agentes usan scripts/ops/n8n_agent_message.mjs con archivo de evento local y
 
 Ventas lee su cola mediante `interagent_control.mjs queue archivo.json` con from del RSI. Registra resultado con acknowledge; para FAILED adjunta evidenceRef. El servidor exige ese resultado guardado antes de aceptar previousEventId/previousOutcome/resultEvidenceRef y avanzar la alternativa; el contador viene del servidor. La firma distingue roles de red; las claves locales están en un archivo privado de un host de confianza, no equivalen a aislamiento entre usuarios del sistema operativo.
 
+Para un acuse de ventas, evidenceRef debe identificar un correo real de Gmail asociado al cliente de la oportunidad: salida del correo comercial al cliente o respuesta del cliente al correo comercial. Se rechazan referencias inventadas, respuestas automáticas y evidencia de otra cuenta. Un fallo técnico sin mensaje verificable queda pendiente de revisión; no fabricar un acuse. El cierre también exige coincidencia de pedido, producto, importe y cliente con el alcance aprobado, aceptación real en el hilo y comprobación independiente del proveedor. La llave compartida de la entrada local por sí sola no autoriza estas acciones.
+
 ## Archivos y ejecución
 
 - config/n8n/boltech_sales_marketing.json: workflow de seis nodos, sin secretos, importable.

@@ -17,7 +17,7 @@ function fixture(){
  };
  const lead=async id=>({id,fields:{Name:'Business fixture','Contact Email':'buyer@example.test'}});
  const paid={orderId:'order-fixture',status:'PAID',environment:'production',productId:'custom',providerEvidence:'provider-receipt',paidAt:'2026-10-07T19:00:00Z',providerTransactionId:'provider-fixture',expectedAmountUsd:495,customerEmail:'buyer@example.test'};
- const accepted={from:'buyer@example.test',threadId:'customer-thread',text:'ACEPTO BOLTECH-FIXTURE',receivedAt:'2026-10-07T18:50:00Z'};
+ const accepted={id:'crm-result-one',to:'ricardo.boltechgroup@gmail.com',from:'buyer@example.test',threadId:'customer-thread',text:'ACEPTO BOLTECH-FIXTURE',receivedAt:'2026-10-07T18:50:00Z'};
  data.set(`boltech:closing:case:${opportunityId}`,JSON.stringify({orderId:paid.orderId,acceptanceMessageId:'crm-acceptance',state:'WAITING_PAYMENT',proposal:{sentAt:'2026-10-07T18:40:00Z'},approval:{customerEmail:'buyer@example.test',productId:'custom',approvedAmountUsd:495,totalAmountUsd:990,expiresAt:'2026-10-08T19:00:00Z'},threadId:'customer-thread',acceptanceToken:'ACEPTO BOLTECH-FIXTURE'}));
  return {data,index,command,lead,paid,accepted,worker:createInteragentCoordinator({command,lead,order:async()=>paid,acceptance:async id=>id==='director-message'?{sent:true,from:'ricardo.boltechgroup@gmail.com',to:'ricardo.boltechgroup@gmail.com',text:'[BOLTECH_DIRECTOR_NOTICE:close-one]'}:accepted,verifyPayment:async()=>true,now:()=> '2026-10-07T19:00:00Z'})};
 }
@@ -41,6 +41,7 @@ test('alternative requires stored failed result and acknowledgement is owned and
  await assert.rejects(f.worker.submit(next),/RESULT_UNVERIFIED/);
  await assert.rejects(f.worker.acknowledge({from:'RSI-02',eventId:event.eventId,evidenceRef:'crm-result-one'}),/OWNER_MISMATCH/);
  const ack={from:'RSI-01',eventId:event.eventId,evidenceRef:'crm-result-one',outcome:'FAILED',usedBySales:true};
+ f.accepted.from='unrelated@example.test';await assert.rejects(f.worker.acknowledge(ack),/SALES_EVIDENCE_UNVERIFIED/);f.accepted.from='buyer@example.test';
  await f.worker.acknowledge(ack);assert.equal((await f.worker.acknowledge(ack)).reused,true);
  assert.equal((await f.worker.submit(next)).attempt,1);
  await assert.rejects(f.worker.submit({...next,eventId:'support-three'}),/PREVIOUS_RESULT_REQUIRED/);
