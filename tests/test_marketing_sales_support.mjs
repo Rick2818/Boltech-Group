@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildMarketingSupport, mergeMarketingSupport } from '../lib/marketing_sales_support.js';
+import followups from '../config/rsi01_followups.json' with {type:'json'};
 const packet = rsi => ({rsi,accounts:[{sourceRecordId:'recFixture',account:'Unit fixture',route:'QUALIFY_CUSTOMER_REPLY',gates:['LIVE_GMAIL_HISTORY']}]});
 test('three existing roles receive distinct bilingual materials with no commercial side effects',()=>{
   for(const rsi of ['RSI-01','RSI-02','RSI-03']) {
@@ -20,4 +21,10 @@ test('invalid input and damaged evidence fail closed',()=>{
   assert.throws(()=>buildMarketingSupport({...packet('RSI-01'),accounts:Array(6).fill(packet('RSI-01').accounts[0])}));
   const p=packet('RSI-01');p.accounts[0].account='unsafe\nheader';assert.throws(()=>buildMarketingSupport(p));
   assert.throws(()=>mergeMarketingSupport('[MARKETING_SALES_SUPPORT_V1]broken',buildMarketingSupport(packet('RSI-01'))));
+});
+test('authorized account receives the exact scheduled follow-up, other accounts do not',()=>{
+ const plan=followups.accounts[0];const p=packet('RSI-01');p.accounts[0].sourceRecordId=plan.recordId;
+ const support=buildMarketingSupport(p);assert.equal(support.materials.es.text,plan.text);assert.equal(support.authorizedFollowup.dueAt,plan.dueAt);assert.equal(support.sendingEnabled,false);
+ p.accounts.push({...p.accounts[0],sourceRecordId:'other'});assert.equal(buildMarketingSupport(p).authorizedFollowup,undefined);
+ assert.notEqual(buildMarketingSupport(packet('RSI-01')).materials.es.text,plan.text);
 });

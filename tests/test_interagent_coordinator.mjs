@@ -1,9 +1,33 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {authenticateInteragent,signInteragent,createInteragentCoordinator,EVENT_COMMIT} from '../lib/interagent_coordinator.js';
+import followups from '../config/rsi01_followups.json' with {type:'json'};
 const keys={'RSI-01':'sales-one','RSI-02':'sales-two','RSI-03':'closer','MARKETING':'marketing','DIRECTORA':'director'};
 const opportunityId='rec0123456789abcd';
 const event={eventId:'support-one',opportunityId,from:'RSI-01',type:'SUPPORT_REQUEST',problem:'SUPPORT_NEEDED'};
+test('scheduled follow-up material requires actual original Gmail receipt and account ownership, and replays once',async()=>{
+ const f=fixture(),plan=followups.accounts[0];let original={id:plan.originalMessageId,sent:true,from:'ricardo.boltechgroup@gmail.com',to:plan.email,threadId:'actual-thread',rfcMessageId:'original@fixture'};
+ const worker=createInteragentCoordinator({...f,lead:async id=>({id,fields:{'Contact Email':plan.email,'Experiment Cohort':'RSI-01'}}),gmail:{verify:async()=>({verified:true}),message:async()=>original},now:()=> '2026-10-08T19:00:00Z'});
+ original.from='wrong@example.test';await assert.rejects(worker.prepareFollowupSupport(),/ORIGINAL_UNVERIFIED/);assert.equal(f.index.size,0);
+ original.from='ricardo.boltechgroup@gmail.com';const r=await worker.prepareFollowupSupport();assert.equal(r.results[0].sendingPerformed,false);assert.equal(r.results[0].dueAt,plan.dueAt);
+ assert.equal((await worker.prepareFollowupSupport()).results[0].reused,true);assert.equal(f.index.size,1);
+ const row=(await worker.queue('MARKETING')).pending[0];assert.equal(row.material.materials.es.text,plan.text);assert.equal(row.usedBySales,false);
+});
+test('unknown alternative is persisted without success or permission to reset durable attempts',async()=>{
+ const f=fixture();const worker=createInteragentCoordinator({...f,gmail:{verify:async()=>({verified:true}),search:async()=>[]}});
+ const input={...event,problem:'SEND_UNKNOWN',rfcMessageId:'original@fixture'};
+ const row=await worker.submit(input);assert.equal(row.execution.status,'UNKNOWN');assert.equal(row.alternativeExecuted,false);
+ await assert.rejects(worker.submit({...input,eventId:'another',previousEventId:input.eventId,previousOutcome:'FAILED',resultEvidenceRef:input.eventId}),/RESULT_UNVERIFIED/);
+});
+test('later provider receipt reconciles the existing unknown event without a new event, send or attempt',async()=>{
+ const f=fixture();let found=[];let sends=0;
+ const worker=createInteragentCoordinator({...f,gmail:{verify:async()=>({verified:true}),search:async()=>found,message:async()=>({id:'provider-message',sent:true,from:'ricardo.boltechgroup@gmail.com',to:'buyer@example.test',rfcMessageId:'original@fixture'}),send:async()=>sends++}});
+ const input={...event,problem:'SEND_UNKNOWN',rfcMessageId:'original@fixture'};
+ await worker.submit(input);assert.equal((await worker.executePending({from:input.from,eventId:input.eventId})).execution.status,'UNKNOWN');
+ found=[{id:'provider-message'}];assert.equal((await worker.executePending({from:input.from,eventId:input.eventId})).execution.deliveryStatus,'SENT_CONFIRMED');
+ const row=(await worker.queue(input.from)).pending[0];assert.equal(row.attempt,0);assert.equal(row.reconciliationChecks,2);assert.equal(f.index.size,1);assert.equal(sends,0);
+ assert.equal((await worker.executePending({from:input.from,eventId:input.eventId})).reused,true);
+});
 function fixture(){
  const data=new Map(),index=new Set();
  const command=async a=>{
