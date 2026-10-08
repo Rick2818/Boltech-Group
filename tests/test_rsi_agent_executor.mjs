@@ -21,7 +21,7 @@ function fixture(extra = []) {
   };
   let tick=0;
   const options={command,request,now:()=>new Date(Date.parse('2026-10-03T20:05:00Z')+tick++*100).toISOString(),
-    followups:async()=>({enabled:true,results:[{state:'NOT_DUE'}]}),costs:async()=>({complete:false,totalCostUsd:null}),sales:async()=>({paidOrders:0,cashCollectedUsd:0}),partners:async()=>[],referrals:async()=>[],closing:async()=>({state:'WAITING_QUALIFIED_APPROVED_CASE',processed:0}),marketingCycle:async rsi=>rsi==='MARKETING'?{requested:3,accepted:3,used:0,resultsVerified:0}:{reviewed:1,usedBySales:false}};
+    relay:async()=>({results:[]}),followups:async()=>({enabled:true,results:[{state:'NOT_DUE'}]}),costs:async()=>({complete:false,totalCostUsd:null}),sales:async()=>({paidOrders:0,cashCollectedUsd:0}),partners:async()=>[],referrals:async()=>[],closing:async()=>({state:'WAITING_QUALIFIED_APPROVED_CASE',processed:0}),marketingCycle:async rsi=>rsi==='MARKETING'?{requested:3,accepted:3,used:0,resultsVerified:0}:{reviewed:1,usedBySales:false}};
   return {data,rows,options,request,writes:()=>writes};
 }
 test('all three executors perform real tool contracts and preserve commercial authorization/history',async()=>{
