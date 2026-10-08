@@ -21,7 +21,7 @@ function fixture(extra = []) {
   };
   let tick=0;
   const options={command,request,now:()=>new Date(Date.parse('2026-10-03T20:05:00Z')+tick++*100).toISOString(),
-    costs:async()=>({complete:false,totalCostUsd:null}),sales:async()=>({paidOrders:0,cashCollectedUsd:0}),partners:async()=>[],referrals:async()=>[],closing:async()=>({state:'WAITING_QUALIFIED_APPROVED_CASE',processed:0}),marketingCycle:async rsi=>rsi==='MARKETING'?{requested:3,accepted:3,used:0,resultsVerified:0}:{reviewed:1,usedBySales:false}};
+    followups:async()=>({enabled:true,results:[{state:'NOT_DUE'}]}),costs:async()=>({complete:false,totalCostUsd:null}),sales:async()=>({paidOrders:0,cashCollectedUsd:0}),partners:async()=>[],referrals:async()=>[],closing:async()=>({state:'WAITING_QUALIFIED_APPROVED_CASE',processed:0}),marketingCycle:async rsi=>rsi==='MARKETING'?{requested:3,accepted:3,used:0,resultsVerified:0}:{reviewed:1,usedBySales:false}};
   return {data,rows,options,request,writes:()=>writes};
 }
 test('all three executors perform real tool contracts and preserve commercial authorization/history',async()=>{
@@ -36,6 +36,7 @@ test('all three executors perform real tool contracts and preserve commercial au
   }
   assert.equal(f.writes(),9);
 });
+test('RSI-01 invokes the authorized follow-up worker in its ordinary cycle and exposes uncertain sends',async()=>{const f=fixture();let calls=0;f.options.followups=async()=>{calls++;return {enabled:true,results:[{state:'UNKNOWN',retryAllowed:false}]};};const r=await createRsiExecutor(f.options).run({rsi:'RSI-01',cycleId:'proactive-followup'});assert.equal(calls,1);assert.ok(r.receipt.blockers.includes('RSI01_FOLLOWUP_REVIEW_REQUIRED'));const stored=JSON.parse(f.rows[0].fields['Execution Receipt']);assert.ok(stored.actions.some(a=>a.type==='RSI01_PROACTIVE_FOLLOWUP'));});
 test('marketing persists its own evidence for three sales roles and preserves history on later cycles',async()=>{
   const f=fixture(),w=createRsiExecutor(f.options);
   const first=await w.run({rsi:'MARKETING',cycleId:'marketing-one'});

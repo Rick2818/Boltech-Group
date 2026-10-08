@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "authorization": "Ricardo: RSI-01 proactive authorized follow-up; corrected on 2026-10-08",
+  "maxPerCycle": 1,
+  "accounts": [{
+    "recordId": "rec9X5olyq0nieU0K",
+    "email": "ajal@aylinmobiliaria.com",
+    "originalMessageId": "1a111c53c5218506",
+    "dueAt": "2026-10-09T20:00:00Z",
+    "expiresAt": "2026-10-16T23:00:00Z",
+    "text": "Hola, equipo de A y L. Retomo mi correo sobre el seguimiento de consultas por código de propiedad. ¿Hay algún paso que todavía deban registrar o asignar manualmente, o ya lo tienen resuelto? Puede responder por este mismo correo e indicar quién coordina ese proceso. Revisaremos el encaje antes de proponer una solución.\n\nRicardo | Boltech Group\nricardo.boltechgroup@gmail.com\nSi prefiere no recibir seguimiento, responda «no»."
+  }]
+}
