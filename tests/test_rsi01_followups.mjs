@@ -20,3 +20,13 @@ test('human reply routes to qualification, no is suppression, bounce blocks send
 test('unknown POST is not retried and subsequent cycles preserve uncertainty',async()=>{const f=fixture();f.setUnknown(true);assert.equal((await f.worker.run()).results[0].state,'UNKNOWN');assert.equal((await f.worker.run()).results[0].state,'UNKNOWN');assert.equal(f.sends(),1);});
 test('sent follow-up still monitors later replies and hands off without a second send',async()=>{const f=fixture();await f.worker.run();f.messages.push({id:'reply',threadId:'thread',from:email,to:sender,text:'Sí, nos interesa revisar el proceso',receivedAt:'2026-10-09T21:00:00Z'});assert.equal((await f.worker.run()).results[0].state,'CUSTOMER_REPLY');assert.equal(f.sends(),1);assert.equal(f.row.fields['Commercial Stage'],'Replied');});
 test('CRM outage produces a visible blocker and cannot send',async()=>{const f=fixture();f.setCrmDown(true);assert.equal((await f.worker.run()).results[0].state,'BLOCKED');assert.equal(f.sends(),0);});
+test('an automatic reply does not permanently hide a later human reply',async()=>{
+ const f=fixture();f.messages.push({id:'auto',from:email,to:sender,threadId:'thread',automatic:true,text:'Out of office',receivedAt:'2026-10-08T20:00:00Z'});
+ assert.equal((await f.worker.run()).results[0].state,'AUTOMATIC_REPLY_HOLD');
+ f.messages.push({id:'human',from:email,to:sender,threadId:'thread',text:'Sí, queremos revisar el proceso',receivedAt:'2026-10-09T20:00:00Z'});
+ const result=(await f.worker.run()).results[0];assert.equal(result.state,'CUSTOMER_REPLY');assert.equal(result.evidenceRef,'human');assert.equal(f.sends(),0);
+});
+test('a newer opt-out takes precedence over an older interested reply',async()=>{
+ const f=fixture();f.messages.push({id:'interested',from:email,to:sender,threadId:'thread',text:'Me interesa',receivedAt:'2026-10-08T20:00:00Z'},{id:'stop',from:email,to:sender,threadId:'thread',text:'No deseo recibir seguimiento',receivedAt:'2026-10-09T20:00:00Z'});
+ assert.equal((await f.worker.run()).results[0].state,'SUPPRESSED');assert.equal(f.sends(),0);
+});

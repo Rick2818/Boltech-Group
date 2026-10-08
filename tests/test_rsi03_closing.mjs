@@ -16,7 +16,7 @@ function fixture(){
   throw Error('Unexpected Redis command');
  };
  const qualification={id:'qualification-id',from:a.customerEmail,to:'ricardo.boltechgroup@gmail.com',text:'Customer workflow request',threadId:'thread-fixture',rfcMessageId:'<qualification@example.test>',receivedAt:'2026-10-07T18:30:00Z',sent:false,automatic:false};
- const gmail={verify:async()=>({verified:true}),message:async id=>id==='qualification-id'?qualification:sent.find(s=>s.receipt.messageId===id)?.message,thread:async()=>replies,search:async q=>q.includes('rfc822msgid')?sent.filter(s=>q.includes(s.job.rfcMessageId)).map(s=>({id:s.receipt.messageId,threadId:'thread-fixture'})):[],send:async job=>{const receipt={messageId:`sent-${sent.length+1}`,threadId:'thread-fixture'};sent.push({job,receipt,message:{id:receipt.messageId,threadId:receipt.threadId,receivedAt:now().toISOString()}});return receipt;}};
+ const gmail={verify:async()=>({verified:true}),message:async id=>id==='qualification-id'?qualification:sent.find(s=>s.receipt.messageId===id)?.message,thread:async()=>replies,search:async q=>q.includes('rfc822msgid')?sent.filter(s=>q.includes(s.job.rfcMessageId)).map(s=>({id:s.receipt.messageId,threadId:'thread-fixture'})):[],send:async job=>{const receipt={messageId:`sent-${sent.length+1}`,threadId:'thread-fixture'};sent.push({job,receipt,message:{id:receipt.messageId,threadId:receipt.threadId,receivedAt:now().toISOString(),sent:true,from:'ricardo.boltechgroup@gmail.com',to:job.email,rfcMessageId:job.rfcMessageId,text:job.text}});return receipt;}};
  const lead=async id=>({id,fields:{'Contact Email':a.customerEmail}});
  const checkout=async approval=>{checkoutCalls++;invoice={orderId:'quote-'+crypto.createHash('sha256').update(approval.quoteReference).digest('hex'),productId:a.productId,customerEmail:a.customerEmail,expectedAmountUsd:495,provider:'WOMPI_SV',environment:'production',status:'PENDING_PAYMENT',providerCheckoutUrl:'https://pay.wompi.sv/test-fixture'};return {success:true};};
  const options={command,gmail,lead,checkout,order:async()=>invoice,gateway:async()=>({status:'PASSED',productive:true}),verifyPayment:async()=>true,handoff:async input=>{handoffs.push(input);return {success:true};},coordinator:{submit:async event=>{notifications.push(event);return {success:true,eventId:event.eventId};}},env,now};
@@ -53,11 +53,26 @@ test('ambiguous real response creates one handoff to existing RSI-02, never chec
  await f.worker.step(f.a.opportunityId);await f.worker.step(f.a.opportunityId);
  assert.equal(f.handoffs.length,1);assert.equal(f.handoffs[0].to,'RSI-02');assert.equal(f.handoffs[0].evidenceRef,'ambiguous-reply');assert.equal(f.checkoutCalls(),0);
 });
+test('default clarification adapter indexes the durable handoff in the actual RSI-02 inbox',async()=>{
+ const f=fixture(),queued=new Set();const {handoff,...options}=f.options;
+ const worker=createRsi03Closing({...options,command:async args=>args[0]==='SADD'?(queued.add(args[2]),1):options.command(args)});
+ await worker.register(f.row);await worker.step(f.a.opportunityId);
+ f.replies.push({id:'clarification',from:f.a.customerEmail,threadId:'thread-fixture',text:'Can we adjust scope?',receivedAt:now().toISOString()});
+ await worker.step(f.a.opportunityId);await worker.step(f.a.opportunityId);
+ assert.equal(queued.size,1);assert.ok(f.data.has('boltech:rsi:handoff:'+ [...queued][0]));assert.equal(f.checkoutCalls(),0);
+});
 test('uncertain Gmail mutation reconciles unique sent receipt before moving forward; never resends',async()=>{
  const f=fixture();await f.worker.register(f.row);const original=f.options.gmail.send;
  f.options.gmail.send=async job=>{await original(job);throw Object.assign(Error('timeout'),{code:'GMAIL_SEND_UNKNOWN'});};
  await assert.rejects(f.worker.step(f.a.opportunityId),/timeout/);assert.equal(f.sent.length,1);
  assert.equal((await f.worker.step(f.a.opportunityId)).state,'PROPOSAL_SENT');assert.equal(f.sent.length,1);
+});
+test('uncertain close never accepts an unrelated sent message as its provider receipt',async()=>{
+ const f=fixture();await f.worker.register(f.row);const original=f.options.gmail.send;
+ f.options.gmail.send=async job=>{await original(job);throw Error('timeout');};
+ await assert.rejects(f.worker.step(f.a.opportunityId),/timeout/);
+ Object.assign(f.sent[0].message,{sent:true,from:'ricardo.boltechgroup@gmail.com',to:'wrong@example.test',rfcMessageId:f.sent[0].job.rfcMessageId});
+ await assert.rejects(f.worker.step(f.a.opportunityId),/RECONCILIATION_REQUIRED/);assert.equal(f.sent.length,1);
 });
 test('payment POST timeout leaves durable unknown and never generates a second link',async()=>{
  const f=fixture(),w=createRsi03Closing({...f.options,checkout:async()=>{throw Object.assign(Error('timeout'),{code:'CLOSE_CHECKOUT_UNKNOWN'});}});
@@ -70,4 +85,9 @@ test('no qualified approved cases, unavailable gateway and fake payment do not b
  await assert.rejects(createRsi03Closing({...f.options,gateway:async()=>({status:'FAILED'})}).register(f.row),/GATEWAY/);
  const record=await f.worker.register(f.row);record.state='WAITING_PAYMENT';record.acceptanceMessageId='acceptance-id';f.data.set(`boltech:closing:case:${f.a.opportunityId}`,JSON.stringify(record));f.invoice={status:'PAID'};
  await assert.rejects(createRsi03Closing({...f.options,verifyPayment:async()=>false}).step(f.a.opportunityId),/PROVIDER_PAYMENT_UNVERIFIED/);assert.equal(f.notifications.length,0);
+});
+test('a recorded opt-out after approval blocks the existing closer before any email is sent',async()=>{
+ const f=fixture();await f.worker.register(f.row);
+ const worker=createRsi03Closing({...f.options,lead:async id=>({id,fields:{'Contact Email':f.a.customerEmail,Notes:`[RSI01_FOLLOWUP:${'0'.repeat(64)}:SUPPRESSED]`}})});
+ await assert.rejects(worker.step(f.a.opportunityId),/CONTACT_HOLD/);assert.equal(f.sent.length,0);
 });

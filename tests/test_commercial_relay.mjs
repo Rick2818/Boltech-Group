@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createCommercialRelay,relayId} from '../lib/commercial_relay.js';
 import {CAS_SCRIPT} from '../lib/rsi_handoff_store.js';
+import {createHandoffStore} from '../lib/rsi_handoff_store.js';
 import {signClosingApproval} from '../lib/rsi03_closing.js';
 function fixture(){
  const data=new Map(),indexes=new Map(),opportunityId='rec00000000000002',email='buyer@example.test',key='test-only-key';let registrations=0;
@@ -18,5 +19,11 @@ function fixture(){
 }
 test('automatic relays persist, survive new consumers, wait for signed approval and never duplicate',async()=>{const f=fixture();await f.worker.run('RSI-01',f.context);await f.worker.run('RSI-01',f.context);assert.equal(f.data.size,1);let second=await createCommercialRelay(f.options).run('RSI-02',f.ctx02);assert.equal(second.results[0].state,'WAITING_DIRECTOR_APPROVAL');assert.match(f.work[0].fields.Evidence,/Previous commercial history/);assert.equal(f.registrations(),0);f.work.push(f.approval());second=await f.worker.run('RSI-02',f.ctx02);assert.equal(second.results[0].state,'TRANSFERRED_TO_RSI03');const third=await f.worker.run('RSI-03');assert.equal(third.results[0].state,'RSI03_CASE_REGISTERED');await f.worker.run('RSI-03');assert.equal(f.registrations(),1);assert.equal(f.data.size,2);assert.equal(JSON.parse(f.data.get('boltech:rsi:handoff:'+relayId('RSI-01','RSI-02',f.opportunityId,'reply'))).state,'COMPLETED');});
 test('foreign or automatic replies cannot create a commercial handoff',async()=>{for(const change of [{from:'wrong@example.test'},{automatic:true},{sent:true},{to:'other@example.test'}]){const f=fixture();Object.assign(f.message,change);await assert.rejects(f.worker.run('RSI-01',f.context),/REPLY_UNVERIFIED/);assert.equal(f.data.size,0);}});
+test('recorded follow-up opt-out prevents an older reply from advancing to another seller',async()=>{const f=fixture();f.lead.fields.Notes=`[RSI01_FOLLOWUP:${'0'.repeat(64)}:SUPPRESSED]`;await assert.rejects(f.worker.run('RSI-01',f.context),/CUSTOMER_EXCLUDED/);assert.equal(f.data.size,0);});
 test('tampered individual approval cannot transfer a case or register closing',async()=>{const f=fixture();await f.worker.run('RSI-01',f.context);const row=f.approval(),body=JSON.parse(row.fields.Authorization);body.approvedAmountUsd=1;row.fields.Authorization=JSON.stringify(body);f.work.push(row);await assert.rejects(f.worker.run('RSI-02',f.ctx02),/DIRECTOR_SIGNATURE/);assert.equal(f.data.size,1);assert.equal(f.registrations(),0);});
 test('lost inbox response is repaired by the same source without a duplicate handoff',async()=>{const f=fixture();let lost=true;const worker=createCommercialRelay({...f.options,command:async args=>{if(args[0]==='SADD'&&lost){lost=false;throw Error('lost');}return f.options.command(args);}});await assert.rejects(worker.run('RSI-01',f.context));assert.equal(f.data.size,1);await worker.run('RSI-01',f.context);assert.equal(f.data.size,1);assert.equal((await worker.run('RSI-02',f.ctx02)).results[0].state,'WAITING_DIRECTOR_APPROVAL');});
+test('RSI-02 consumes a scope clarification returned by RSI-03 without authorizing payment',async()=>{
+ const f=fixture(),handoffId='clarify-audit';await createHandoffStore(f.options.command,f.options.now).create({handoffId,opportunityId:f.opportunityId,from:'RSI-03',to:'RSI-02',owner:'RSI-02',reason:'Customer requires scope clarification',evidenceRef:'reply'});
+ await f.options.command(['SADD','boltech:rsi:commercial:inbox:RSI-02',handoffId]);
+ const result=await f.worker.run('RSI-02',f.ctx02);assert.equal(result.results[0].state,'WAITING_DIRECTOR_APPROVAL');assert.equal(f.registrations(),0);assert.match(f.work[0].fields.Evidence,/Customer|customerStatement/);
+});
