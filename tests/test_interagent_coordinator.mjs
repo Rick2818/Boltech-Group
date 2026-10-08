@@ -68,7 +68,7 @@ test('permitted read executes, persists real failed receipt and gates the next a
  await worker.submit({...event,problem:'TOOL_FAILURE'});assert.equal(calls,1);
  await assert.rejects(worker.submit({...event,problem:'TOOL_FAILURE',eventId:'next-read',previousEventId:first.eventId,previousOutcome:'FAILED',resultEvidenceRef:'invented'}),/RESULT_UNVERIFIED/);
  const next=await worker.submit({...event,problem:'TOOL_FAILURE',eventId:'next-read',previousEventId:first.eventId,previousOutcome:'FAILED',resultEvidenceRef:first.eventId});
- assert.equal(next.attempt,1);assert.equal(next.execution.status,'PENDING_AUTHORIZED_EXECUTION');assert.equal(next.alternativeExecuted,false);
+ assert.equal(next.attempt,1);assert.equal(next.execution.status,'SUCCEEDED');assert.equal(next.execution.deliveryStatus,'NOT_SENT');assert.equal(next.alternativeExecuted,true);
 });
 
 test('migration carries legacy attempts instead of opening a fresh counter',async()=>{
@@ -77,6 +77,13 @@ test('migration carries legacy attempts instead of opening a fresh counter',asyn
  await assert.rejects(f.worker.submit({...event,eventId:'legacy-reset'}),/PREVIOUS_RESULT_REQUIRED/);
  const next=await f.worker.submit({...event,eventId:'legacy-next',problem:'NO_RESPONSE',previousEventId:'legacy-two',previousOutcome:'FAILED',resultEvidenceRef:'crm-result-one'});
  assert.equal(next.attempt,3);assert.equal(next.to,'DIRECTORA');
+});
+test('existing pending alternatives execute once without resetting the attempt or actor',async()=>{
+ const f=fixture();await f.worker.submit(event);const key=`boltech:interagent:event:${event.eventId}`;
+ const row=JSON.parse(f.data.get(key));row.action='USE_LOCAL_PRIVATE_MATERIAL_AND_KEEP_PENDING_SYNC';row.attempt=1;row.execution={status:'PENDING_AUTHORIZED_EXECUTION',verified:false};f.data.set(key,JSON.stringify(row));
+ await assert.rejects(f.worker.executePending({from:'RSI-02',eventId:event.eventId}),/OWNER_MISMATCH/);
+ const done=await f.worker.executePending({from:'RSI-01',eventId:event.eventId});assert.equal(done.execution.status,'SUCCEEDED');assert.equal(done.execution.deliveryStatus,'NOT_SENT');
+ assert.equal(JSON.parse(f.data.get(key)).attempt,1);assert.equal((await f.worker.executePending({from:'RSI-01',eventId:event.eventId})).reused,true);
 });
 
 test('concurrent events cannot overwrite opportunity state or bypass the counter',async()=>{
