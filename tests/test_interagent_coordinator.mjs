@@ -109,6 +109,11 @@ test('existing pending alternatives execute once without resetting the attempt o
  const done=await f.worker.executePending({from:'RSI-01',eventId:event.eventId});assert.equal(done.execution.status,'SUCCEEDED');assert.equal(done.execution.deliveryStatus,'NOT_SENT');
  assert.equal(JSON.parse(f.data.get(key)).attempt,1);assert.equal((await f.worker.executePending({from:'RSI-01',eventId:event.eventId})).reused,true);
 });
+test('legacy material without execution receipt is persisted once and retains original identity and counter',async()=>{
+ const f=fixture();await f.worker.submit(event);const key=`boltech:interagent:event:${event.eventId}`,row=JSON.parse(f.data.get(key));delete row.execution;delete row.type;f.data.set(key,JSON.stringify(row));
+ const r=await f.worker.executePending({from:row.from,eventId:row.eventId});assert.equal(r.execution.status,'SUCCEEDED');assert.equal(r.execution.deliveryStatus,'NOT_SENT');
+ const saved=JSON.parse(f.data.get(key));assert.equal(saved.fingerprint,row.fingerprint);assert.equal(saved.attempt,row.attempt);assert.equal(f.index.size,1);assert.equal((await f.worker.executePending({from:row.from,eventId:row.eventId})).reused,true);
+});
 
 test('concurrent events cannot overwrite opportunity state or bypass the counter',async()=>{
  const f=fixture();const outcomes=await Promise.allSettled([f.worker.submit(event),f.worker.submit({...event,eventId:'concurrent-other'})]);
