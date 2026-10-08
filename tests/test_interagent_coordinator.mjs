@@ -40,7 +40,7 @@ test('alternative requires stored failed result and acknowledgement is owned and
  const next={...event,eventId:'support-two',previousEventId:event.eventId,previousOutcome:'FAILED',resultEvidenceRef:'crm-result-one',attempt:0};
  await assert.rejects(f.worker.submit(next),/RESULT_UNVERIFIED/);
  await assert.rejects(f.worker.acknowledge({from:'RSI-02',eventId:event.eventId,evidenceRef:'crm-result-one'}),/OWNER_MISMATCH/);
- const ack={from:'RSI-01',eventId:event.eventId,evidenceRef:'crm-result-one',outcome:'FAILED',usedBySales:true};
+ const ack={from:'RSI-01',eventId:event.eventId,evidenceRef:'crm-result-one',outcome:'FAILED',usedBySales:false};
  f.accepted.from='unrelated@example.test';await assert.rejects(f.worker.acknowledge(ack),/SALES_EVIDENCE_UNVERIFIED/);f.accepted.from='buyer@example.test';
  await f.worker.acknowledge(ack);assert.equal((await f.worker.acknowledge(ack)).reused,true);
  assert.equal((await f.worker.submit(next)).attempt,1);

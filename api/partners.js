@@ -167,6 +167,9 @@ export default async function partnersHandler(req, res) {
         const body=typeof req.body==='string'?JSON.parse(req.body):req.body||{};
         const actor=authenticateInteragent(body,req.headers?.['x-boltech-signature']);
         const worker=createInteragentCoordinator();
+        const marketingOperations={'marketing-review':'review','marketing-use':'use','marketing-result':'result'};
+        if(marketingOperations[body.operation])return json(res,200,await worker.marketing[marketingOperations[body.operation]](body));
+        if(body.operation==='marketing-metrics'){if(actor!=='MARKETING'&&actor!=='DIRECTORA')return json(res,403,{success:false,code:'MARKETING_METRICS_OWNER_REQUIRED'});return json(res,200,{success:true,...await worker.marketing.metrics()});}
         const result=body.operation==='queue'?await worker.queue(actor):body.operation==='receipt'?await worker.receipt(body):body.operation==='acknowledge'?await worker.acknowledge(body):await worker.submit(body);
         return json(res,200,{success:true,...result});
       }catch(error){return json(res,error.statusCode||503,{success:false,code:/^[A-Z_]+$/.test(error.code||'')?error.code:'INTERAGENT_UNCONFIRMED'});}

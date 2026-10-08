@@ -24,19 +24,10 @@ const MAX_UPDATE_CACHE_SIZE = 1000;
 function isUpdateDuplicate(updateId) {
   if (!updateId) return false;
   const now = Date.now();
-  if (processedUpdatesCache.has(updateId)) {
-    return true;
+  for (const [id, entry] of processedUpdatesCache) {
+    if (now - entry.time > UPDATE_CACHE_TTL_MS) processedUpdatesCache.delete(id);
   }
-  processedUpdatesCache.set(updateId, now);
-  // Limpieza periódica de entradas vencidas
-  if (processedUpdatesCache.size > MAX_UPDATE_CACHE_SIZE) {
-    for (const [id, time] of processedUpdatesCache.entries()) {
-      if (now - time > UPDATE_CACHE_TTL_MS) {
-        processedUpdatesCache.delete(id);
-      }
-    }
-  }
-  return false;
+  return processedUpdatesCache.get(updateId)?.state === 'DONE';
 }
 
 export default async function handler(req, res) {
@@ -68,6 +59,10 @@ export default async function handler(req, res) {
           status: tgData?.ok && info.url === expectedUrl && !info.last_error_message ? 'ONLINE' : 'DEGRADED',
           telegramConfigured: Boolean(tgData?.ok),
           webhookConfigured: info.url === expectedUrl,
+          assistantAiConfigured: false,
+          assistantMode: 'FREE_OPERATIONAL_COMMANDS',
+          configuredModel: 'gemini-2.5-flash',
+          paidModelCallsEnabled: false,
           pendingUpdates: info.pending_update_count ?? null,
           lastError: info.last_error_message || null,
           agent: '@ricardo_asistente_2026_bot',
@@ -148,6 +143,7 @@ export default async function handler(req, res) {
 
   // Operación administrativa autenticada: registrar/reparar el webhook sin exponer el Bot Token.
   if (req.query?.action === 'register-webhook') {
+    if (!requireOperationalAuth(req, res)) return;
     const botToken = (process.env.TELEGRAM_BOT_TOKEN || '').trim();
     if (!botToken) {
       return res.status(503).json({ error: 'TELEGRAM_BOT_TOKEN_MISSING' });
@@ -181,20 +177,37 @@ export default async function handler(req, res) {
     }
   }
 
+  let updateId;
   try {
     const update = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    updateId = update?.update_id;
 
     // Deduplicación rápida por update_id
     if (update?.update_id && isUpdateDuplicate(update.update_id)) {
       console.log(`[DEDUPE]: Update #${update.update_id} ya procesado recientemente. Ignorando reintento.`);
       return res.status(200).json({ ok: true, duplicate: true });
     }
+    if (updateId && processedUpdatesCache.get(updateId)?.state === 'PROCESSING') {
+      return res.status(503).json({ ok: false, code: 'TELEGRAM_UPDATE_IN_PROGRESS' });
+    }
+    if (updateId) {
+      if (processedUpdatesCache.size >= MAX_UPDATE_CACHE_SIZE) {
+        return res.status(503).json({ ok: false, code: 'TELEGRAM_PROCESSOR_BUSY' });
+      }
+      processedUpdatesCache.set(updateId, { time: Date.now(), state: 'PROCESSING' });
+    }
 
     // Procesar actualización de Telegram en memoria RAM
     const result = await processCloudTelegramUpdate(update, process.env);
+    if (result?.delivered === false) {
+      if (updateId) processedUpdatesCache.delete(updateId);
+      return res.status(502).json({ ok: false, code: 'TELEGRAM_REPLY_NOT_DELIVERED' });
+    }
+    if (updateId) processedUpdatesCache.set(updateId, { time: Date.now(), state: 'DONE' });
 
     return res.status(200).json({ ok: true, result });
   } catch (err) {
+    if (updateId) processedUpdatesCache.delete(updateId);
     // PILAR 7: Cero fuga de stack traces a clientes externos
     console.error('[TELEGRAM SERVERLESS ERROR]:', err.message);
     return res.status(500).json({ error: 'Internal Server Error' });

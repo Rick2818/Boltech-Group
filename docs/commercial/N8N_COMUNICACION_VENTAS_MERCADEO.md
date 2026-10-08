@@ -24,6 +24,16 @@ Ejecuciones automáticas permitidas: preparar y persistir material específico; 
 
 ## Cierre y aviso
 
+## Aceptación y uso de Mercadeo
+
+Mercadeo conserva su único BOOTSTRAP:MARKETING existente. En su evidencia propia registra métricas de la cola durable, sin crear otro agente ni sustituir los tres BOOTSTRAP de ventas. Cada RSI revisa sus materiales privados en su ciclo existente; se comprueba la versión y estructura ES/EN. Esta aceptación interna no acredita necesidad o aceptación del cliente.
+
+Operaciones firmadas: marketing-review (eventId, materialFingerprint), marketing-use (eventId, messageId, language es/en) y marketing-result (eventId, messageId). Cada una exige from del RSI dueño. El uso requiere un correo real enviado al cliente CRM después de preparar el material y con un pasaje completo del material de al menos 40 caracteres. El resultado requiere una respuesta real del cliente en ese mismo hilo, posterior al envío y no automática. No se acepta usedBySales=true sin ese comprobante. Se conservan la versión del material y los IDs de los mensajes. Los replays no duplican las etapas.
+
+MARKETING y DIRECTORA consultan marketing-metrics: requested, prepared, accepted, used, resultsVerified, pendingAcceptance y pendingUse. Una respuesta verificada no se contabiliza como venta; el pago sigue su verificación independiente. Una cifra cero indica falta de evidencia de esa etapa, no un resultado inventado.
+
+El bot de Ricardo admite /estado, /ventas y /mercadeo como consultas sin modelos pagados. Voz y conversación libre con modelo no están habilitadas por el presupuesto USD0.
+
 Solo RSI-03 emite CLOSE_REPORTED con referencia de evidencia. RSI-03 cierra e informa a Directora; Directora verifica aceptación/alcance y pago proveedor y después informa a Ricardo. Un aviso no prueba ingreso. n8n devuelve notificación pendiente; el consumidor de Dirección debe leerla y efectuar el aviso. No se considera Ricardo notificado por crear la ejecución.
 
 Los agentes usan scripts/ops/n8n_agent_message.mjs con archivo de evento local y firma HMAC por rol. n8n remite al coordinador privado cloud; el servidor valida cuenta CRM real y persiste evento y cola durable. El ledger local complementa ese registro y no sustituye la cola cloud. Dirección ejecuta `node scripts/ops/interagent_control.mjs queue`. Tras verificar y avisar a Ricardo, usar `acknowledge` con archivo que incluya from DIRECTORA, eventId, evidenceRef, verified true y communicationRef; jamás registrar aviso antes de realizarlo. CLOSE_REPORTED exige orderId y acceptanceRef, pago de producción con evidencia del proveedor y vínculo con la cuenta; excluye payment-verification y oportunidades QA.

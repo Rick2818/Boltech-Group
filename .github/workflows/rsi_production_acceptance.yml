@@ -15,6 +15,8 @@ on:
       - 'lib/n8n_message_client.js'
       - 'scripts/ops/n8n_agent_message.mjs'
       - 'tests/test_n8n_message_client.mjs'
+      - 'lib/marketing_trace.js'
+      - 'tests/test_marketing_trace.mjs'
       - 'package.json'
       - 'package-lock.json'
       - 'lib/rsi_commercial_routes.js'
@@ -40,7 +42,7 @@ jobs:
           node-version: '24'
       - run: npm ci --ignore-scripts
       - name: Validate commercial routing and isolated failures
-        run: node --test tests/test_google_adk_agents.mjs tests/test_interagent_coordinator.mjs tests/test_n8n_message_client.mjs tests/test_director_notifications.mjs tests/test_rsi03_closing.mjs tests/test_rsi_agent_executor.mjs tests/test_rsi_commercial_routes.mjs tests/test_rsi_agent_status.mjs tests/test_marketing_sales_support.mjs tests/test_sales_marketing_router.mjs
+        run: node --test tests/test_google_adk_agents.mjs tests/test_interagent_coordinator.mjs tests/test_n8n_message_client.mjs tests/test_director_notifications.mjs tests/test_rsi03_closing.mjs tests/test_rsi_agent_executor.mjs tests/test_rsi_commercial_routes.mjs tests/test_rsi_agent_status.mjs tests/test_marketing_sales_support.mjs tests/test_marketing_trace.mjs tests/test_sales_marketing_router.mjs
       - name: Execute one bounded commercial preparation cycle per RSI
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
