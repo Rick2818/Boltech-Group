@@ -3,11 +3,13 @@ on:
   push:
     branches: [main]
     paths: ['.github/workflows/telegram_recovery_once.yml']
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
   recover:
     if: >-
+      github.event_name == 'workflow_dispatch' ||
       github.event.head_commit.message == 'fix: restore Boltech Telegram connection and truthful replies'
     runs-on: ubuntu-latest
     timeout-minutes: 3

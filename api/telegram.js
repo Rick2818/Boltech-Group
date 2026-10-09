@@ -50,6 +50,10 @@ export default async function handler(req, res) {
         });
       }
 
+      const geminiKeyPresent = Boolean((process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY || '').trim());
+      const geminiDisabled = String(process.env.TELEGRAM_GEMINI_DISABLED || '').trim() === '1';
+      const geminiActive = geminiKeyPresent && !geminiDisabled;
+
       try {
         const tgRes = await fetch(`https://api.telegram.org/bot${botToken}/getWebhookInfo`);
         const tgData = await tgRes.json();
@@ -59,10 +63,12 @@ export default async function handler(req, res) {
           status: tgData?.ok && info.url === expectedUrl && !info.last_error_message ? 'ONLINE' : 'DEGRADED',
           telegramConfigured: Boolean(tgData?.ok),
           webhookConfigured: info.url === expectedUrl,
-          assistantAiConfigured: false,
-          assistantMode: 'FREE_OPERATIONAL_COMMANDS',
+          assistantAiConfigured: geminiActive,
+          assistantMode: geminiActive ? 'GEMINI_2_5_FLASH' : 'FREE_OPERATIONAL_COMMANDS',
           configuredModel: 'gemini-2.5-flash',
-          paidModelCallsEnabled: false,
+          paidModelCallsEnabled: geminiActive,
+          geminiDisabledBySwitch: geminiDisabled,
+          geminiKeyPresent: geminiKeyPresent,
           pendingUpdates: info.pending_update_count ?? null,
           lastError: info.last_error_message || null,
           agent: '@ricardo_asistente_2026_bot',
