@@ -1,5 +1,6 @@
 name: Telegram incident recovery 2026-10-06
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths: ['.github/workflows/telegram_recovery_once.yml']
@@ -8,7 +9,8 @@ permissions:
 jobs:
   recover:
     if: >-
-      github.event.head_commit.message == 'fix: restore Boltech Telegram connection and truthful replies'
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.head_commit.message, 'restore Boltech Telegram connection')
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
@@ -16,18 +18,56 @@ jobs:
         with:
           node-version: '22'
       - name: Restore authorized Boltech destination without dropping updates
+        id: replace
+        continue-on-error: true
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
         run: |
           node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const out = code => fs.appendFileSync(process.env.GITHUB_OUTPUT, 'code=' + code + '\n');
+          const token = String(process.env.PARTNER_API_TOKEN || '').trim();
+          if (!token) { out('NO_PARTNER_API_TOKEN_SECRET'); process.exit(1); }
           const response = await fetch('https://boltech-group.vercel.app/api/telegram?action=replace-webhook', {
-            method: 'POST', headers: { Authorization: 'Bearer ' + process.env.PARTNER_API_TOKEN },
+            method: 'POST', headers: { Authorization: 'Bearer ' + token },
             signal: AbortSignal.timeout(25000)
           });
-          const result = await response.json();
-          if (!response.ok || result.ok !== true) throw new Error(result.code || 'TELEGRAM_REPAIR_FAILED');
-          console.log(result.code);
+          const result = await response.json().catch(() => ({}));
+          out(String(result.code || 'HTTP_' + response.status));
+          console.log(response.status, result.code);
+          if (!response.ok || result.ok !== true) process.exit(1);
+          JS
+      - name: Confirm webhook state
+        id: confirm
+        continue-on-error: true
+        run: |
+          node --input-type=module <<'JS'
           const state = await (await fetch('https://boltech-group.vercel.app/api/telegram?deep=1')).json();
-          console.log(JSON.stringify(state));
+          console.log(JSON.stringify({ status: state.status, webhookConfigured: state.webhookConfigured, pendingUpdates: state.pendingUpdates, lastError: state.lastError }));
           if (!state.webhookConfigured) throw new Error('TELEGRAM_WEBHOOK_NOT_CONFIRMED');
           JS
+      # Result markers: a step shows as success only when its condition matched.
+      - name: 'RESULT TELEGRAM_WEBHOOK_RESTORED'
+        if: steps.replace.outputs.code == 'TELEGRAM_WEBHOOK_RESTORED'
+        run: echo restored
+      - name: 'RESULT NO_PARTNER_API_TOKEN_SECRET'
+        if: steps.replace.outputs.code == 'NO_PARTNER_API_TOKEN_SECRET'
+        run: echo missing-github-secret
+      - name: 'RESULT OPERATIONAL_AUTH_REQUIRED'
+        if: steps.replace.outputs.code == 'OPERATIONAL_AUTH_REQUIRED'
+        run: echo token-mismatch-with-vercel
+      - name: 'RESULT OPERATIONAL_AUTH_NOT_CONFIGURED'
+        if: steps.replace.outputs.code == 'OPERATIONAL_AUTH_NOT_CONFIGURED'
+        run: echo vercel-missing-PARTNER_API_TOKEN
+      - name: 'RESULT TELEGRAM_CONFIGURATION_MISSING'
+        if: steps.replace.outputs.code == 'TELEGRAM_CONFIGURATION_MISSING'
+        run: echo vercel-missing-bot-token-or-webhook-secret
+      - name: 'RESULT TELEGRAM_REPAIR_FAILED'
+        if: steps.replace.outputs.code == 'TELEGRAM_REPAIR_FAILED' || steps.replace.outputs.code == 'TELEGRAM_DIAGNOSTIC_FAILED'
+        run: echo telegram-api-rejected-token-or-setwebhook
+      - name: 'RESULT WEBHOOK_CONFIRMED'
+        if: steps.confirm.outcome == 'success'
+        run: echo confirmed
+      - name: Fail if not confirmed
+        if: steps.confirm.outcome != 'success'
+        run: exit 1
