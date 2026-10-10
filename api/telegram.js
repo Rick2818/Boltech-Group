@@ -15,6 +15,7 @@ import {
 } from '../lib/fiduciary_core.js';
 import { processCloudTelegramUpdate } from '../lib/telegram_cloud_processor.js';
 import { requireOperationalAuth } from '../lib/operational_auth.js';
+import { isFreeGeminiEnabled } from '../lib/telegram_free_gemini.js';
 
 // Cache de deduplicación en memoria para evitar reprocesar reintentos de Telegram
 const processedUpdatesCache = new Map();
@@ -59,8 +60,8 @@ export default async function handler(req, res) {
           status: tgData?.ok && info.url === expectedUrl && !info.last_error_message ? 'ONLINE' : 'DEGRADED',
           telegramConfigured: Boolean(tgData?.ok),
           webhookConfigured: info.url === expectedUrl,
-          assistantAiConfigured: false,
-          assistantMode: 'FREE_OPERATIONAL_COMMANDS',
+          assistantAiConfigured: isFreeGeminiEnabled(process.env),
+          assistantMode: isFreeGeminiEnabled(process.env) ? 'FREE_COMMANDS_PLUS_FREE_GEMINI' : 'FREE_OPERATIONAL_COMMANDS',
           configuredModel: 'gemini-2.5-flash',
           paidModelCallsEnabled: false,
           pendingUpdates: info.pending_update_count ?? null,
