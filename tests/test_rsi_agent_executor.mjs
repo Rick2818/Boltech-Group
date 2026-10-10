@@ -24,6 +24,15 @@ function fixture(extra = []) {
     relay:async()=>({results:[]}),followups:async()=>({enabled:true,results:[{state:'NOT_DUE'}]}),costs:async()=>({complete:false,totalCostUsd:null}),sales:async()=>({paidOrders:0,cashCollectedUsd:0}),partners:async()=>[],referrals:async()=>[],closing:async()=>({state:'WAITING_QUALIFIED_APPROVED_CASE',processed:0}),marketingCycle:async rsi=>rsi==='MARKETING'?{requested:3,accepted:3,used:0,resultsVerified:0}:{reviewed:1,usedBySales:false}};
   return {data,rows,options,request,writes:()=>writes};
 }
+test('existing RSI-01 cycle consumes web intake context without inventing customer email replies',async()=>{
+  const f=fixture([{id:'recWebRequest',fields:{'Work ID':'WEB_INTAKE:abc',RSI:'RSI-01',Status:'PENDING_RSI01_RESEARCH','Source Record ID':'recLead',Evidence:JSON.stringify({painPoint:'Consultas perdidas',impact:'Dos horas diarias'}),'Next Action':'Calificar solicitud web'}}]);
+  const result=await createRsiExecutor(f.options).run({rsi:'RSI-01',cycleId:'web-intake'});
+  assert.equal(result.receipt.outcome,'COMPLETED');
+  const action=JSON.parse(f.rows[0].fields['Execution Receipt']).actions.find(a=>a.type==='RSI01_WEB_INBOX_REVIEW');
+  assert.ok(action);
+  assert.match(f.rows[0].fields.Evidence,/Consultas perdidas/);
+});
+
 test('all three executors perform real tool contracts and preserve commercial authorization/history',async()=>{
   const f=fixture(),worker=createRsiExecutor(f.options);
   for(const rsi of ['RSI-01','RSI-02','RSI-03']){

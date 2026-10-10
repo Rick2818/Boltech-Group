@@ -6,6 +6,7 @@ import { scanDomain, normalizeDomain } from '../lib/header_scanner.js';
 import { buildScanEmail } from '../lib/scan_report_email.js';
 import { checkRateLimit } from '../lib/fiduciary_core.js';
 import { syncInboundLeadToHubSpotAndExplee } from '../lib/bidirectional_commercial_sync.js';
+import { receiveWebLead } from '../lib/web_reception.js';
 
 function escapeForHtml(text) {
   return String(text == null ? '' : text)
@@ -33,6 +34,15 @@ export default async function handler(req, res) {
   }
 
   try {
+    if (req.body?.source === 'RSI01_WEB') {
+      try { return res.status(200).json(await receiveWebLead(req.body)); }
+      catch (error) {
+        const invalid = error.message === 'RECEPTION_INVALID_INPUT';
+        return res.status(invalid ? 400 : 503).json({success:false,error:invalid
+          ? 'Completa los datos y autoriza el contacto.'
+          : 'No pudimos confirmar la asignación. Conserva tus datos y reintenta la misma solicitud; no se enviará automáticamente ningún correo.'});
+      }
+    }
     const { email, domain, message, timestamp } = req.body || {};
 
     // Strict email validation
