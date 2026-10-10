@@ -1,3 +1,7 @@
+## Campaña freelance n8n — 10 de octubre de 2026
+
+[Registro de cinco presentaciones enviadas y conciliación con RSI/Airtable](docs/commercial/N8N_FREELANCE_OUTREACH_2026-10-10.md). Evidencia Gmail: cinco mensajes aceptados (uno el 9 de octubre, cuatro el 10). Pendiente verificar registro en Airtable y ejecución real del flujo RSI; HubSpot no es condición obligatoria según la arquitectura comercial documentada. Seguimiento preparado para el 12 de octubre. **No se acreditan respuestas, contratos ni ventas por estos envíos.**
+
 ## Oferta vigente — 4 de octubre de 2026
 
 Confirmada por Ricardo: **Agentes preelaborados** (`prebuilt`) y **Custom agents / agentes a medida** (`custom`). Los precios y entregables requieren una cotización aprobada. Los identificadores antiguos `flash`, `pro` y `enterprise` no pueden crear nuevas órdenes (HTTP 410). No se reutilizan las tarifas históricas de $19/$69/$490. Las órdenes existentes conservan su conciliación y confirmación de pago.
