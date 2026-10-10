@@ -37,3 +37,17 @@ Los correos son presentaciones iniciales, no cotizaciones ni contratos; confirma
 - `.github/workflows/mit_commercial_9am.yml`
 
 Este archivo registra evidencia observada en esta conversación; **no ejecuta integraciones ni cambia datos productivos**.
+
+## Conciliación ejecutada y releída — 10 octubre 2026
+
+**Resultado comprobado:** 5/5 contactos en Airtable Leads, todos con Commercial Stage = `Contacted`, Gmail message ID en Notes, Next Action para 2026-10-12 y origen de n8n. Cada lead tiene una fila correspondiente `N8N_OUTREACH:<lead-id>` en `RSI Agent Work`, RSI-01, estado `CONTACTED_AWAITING_REPLY`. Se verificó la lectura de ambas tablas después de escribir. Se aplicó upsert por correo exacto en Leads y por Work ID en la cola; LeadFlow AI ya existía y se actualizó, sin duplicarlo.
+
+| Prospecto | Airtable Lead ID | RSI Agent Work ID |
+|---|---|---|
+| LeadFlow AI | `recwRh4cvq9Xon63G` | `recFBJKQHv4ZpCluX` |
+| KB DIGITAL | `recN7MaYBsclDG7mW` | `recRD2Py8hU3Vp8Hn` |
+| Raj AI Automation | `reccnTBCDp9riKEey` | `reccPftcfjWuhaggN` |
+| Yusuf Maged | `recfbO6OnWyDrUYN4` | `recqKxqR9Lzr9g225` |
+| ZVEPOW | `rec3Aohb4XXjQDTEB` | `rec33SDv0EwZ7heiT` |
+
+**Límites:** se verificó conciliación de los registros, NO ejecución posterior del ciclo autónomo RSI/n8n, ni lectura automatizada de respuestas, apertura de las vacantes, recepción por destinatario, contratos ni ingresos. El estado `RESEARCH_ONLY` de calidad de datos se mantiene hasta validar al comprador. Ningún email nuevo fue enviado durante la conciliación.
