@@ -32,6 +32,16 @@ test('existing RSI-01 cycle consumes web intake context without inventing custom
   assert.ok(action);
   assert.match(f.rows[0].fields.Evidence,/Consultas perdidas/);
 });
+test('synthetic web cases are excluded from RSI-01 commercial inbox',async()=>{
+  const f=fixture([{id:'recWebQa',fields:{'Work ID':'WEB_INTAKE:qa',RSI:'RSI-01',Status:'PENDING_RSI01_RESEARCH','Source Record ID':'recLead',Evidence:'QA only'}}]);
+  const original=f.options.request;f.options.request=async(table,opts)=>{
+    const response=await original(table,opts);
+    if(table==='tblZaox2MX5uYA5PZ')response.records[0].fields['Data Quality']='QA';
+    return response;
+  };
+  await createRsiExecutor(f.options).run({rsi:'RSI-01',cycleId:'exclude-web-qa'});
+  assert.ok(!f.rows[0].fields.Evidence.includes('[RSI01_WEB_INBOX_V1]'));
+});
 
 test('all three executors perform real tool contracts and preserve commercial authorization/history',async()=>{
   const f=fixture(),worker=createRsiExecutor(f.options);
