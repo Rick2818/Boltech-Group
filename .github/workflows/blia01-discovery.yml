@@ -64,7 +64,7 @@ jobs:
             umask 077
             printf '%s' "$RSI_APPROVALS_JSON" > "$RUNNER_TEMP/rsi-approvals.json"
             RSI_APPROVALS_FILE="$RUNNER_TEMP/rsi-approvals.json" node scripts/rsi01-outreach-executor.cjs
-            RSI_APPROVALS_FILE="$RUNNER_TEMP/rsi-approvals.json" node scripts/rsi01-gmail-dispatch.cjs
+            RSI_APPROVALS_FILE="$RUNNER_TEMP/rsi-approvals.json" node scripts/rsi01-gmail-dispatch.cjs | tee "$RUNNER_TEMP/rsi01-dispatch-receipt.json"
           else
             echo 'RSI Gmail dispatch DISABLED (default)'
           fi
@@ -73,9 +73,14 @@ jobs:
         run: |
           echo '## BLIA-01 to RSI-01 autonomous execution' >> "$GITHUB_STEP_SUMMARY"
           echo "Run: $GITHUB_RUN_ID / $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
-          echo 'The Gmail dispatcher is NOT included in this workflow. A green run does not prove commercial delivery.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Gmail dispatcher is included but disabled by default. Green CI does not establish delivery.' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f "$RUNNER_TEMP/rsi01-dispatch-receipt.json" ]; then
+            node -e 'const fs=require("fs");const r=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));console.log("Gmail dispatch result: "+r.state+"; sent: "+r.sent)' "$RUNNER_TEMP/rsi01-dispatch-receipt.json" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Gmail dispatch receipt absent: disabled, skipped, or failed; sent not confirmed.' >> "$GITHUB_STEP_SUMMARY"
+          fi
           if [ -f artifacts/blia01/rsi01-outreach-queue.json ]; then
-            node -e 'const q=require("./artifacts/blia01/rsi01-outreach-queue.json"); console.log("Research events: "+q.count+"; blocked: "+q.results.filter(x=>x.status==="BLOCKED_RESEARCH").length+"; sent: 0")' >> "$GITHUB_STEP_SUMMARY"
+            node -e 'const q=require("./artifacts/blia01/rsi01-outreach-queue.json"); console.log("Research events: "+q.count+"; blocked: "+q.results.filter(x=>x.status==="BLOCKED_RESEARCH").length+"; ready for approved dispatch: "+q.results.filter(x=>x.status==="APPROVED_PENDING_DISPATCH").length")' >> "$GITHUB_STEP_SUMMARY"
           else
             echo 'Outreach queue missing: inspect failing step logs.' >> "$GITHUB_STEP_SUMMARY"
           fi
