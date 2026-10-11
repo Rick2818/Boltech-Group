@@ -62,3 +62,8 @@ lib/sovereign_auth.json
 # Video build cache
 video-exec/
 artifacts/improvement-cycle/
+
+# Exportaciones generadas con datos personales de prospectos (se regeneran con scripts/mcp/export_to_airtable_csv.mjs)
+data/airtable_leads.csv
+data/airtable_deals.csv
+data/airtable_metrics.csv

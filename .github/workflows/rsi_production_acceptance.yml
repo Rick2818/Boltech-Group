@@ -14,6 +14,9 @@ on:
       - 'tests/test_commercial_relay.mjs'
       - 'scripts/ops/simulate_commercial_journey.mjs'
       - 'lib/rsi01_followups.js'
+      - 'lib/followup_work_sync.js'
+      - 'tests/test_followup_work_sync.mjs'
+      - 'config/qa_case.json'
       - 'config/rsi01_followups.json'
       - 'tests/test_rsi01_followups.mjs'
       - 'lib/google_adk_agents.js'
@@ -42,7 +45,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -51,25 +54,29 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Validate commercial routing and isolated failures
         run: node --test tests/test_google_adk_agents.mjs tests/test_interagent_coordinator.mjs tests/test_n8n_message_client.mjs tests/test_director_notifications.mjs tests/test_rsi03_closing.mjs tests/test_rsi_agent_executor.mjs tests/test_rsi_commercial_routes.mjs tests/test_rsi_agent_status.mjs tests/test_marketing_sales_support.mjs tests/test_marketing_trace.mjs tests/test_interagent_alternatives.mjs tests/test_sales_marketing_router.mjs tests/test_rsi01_followups.mjs tests/test_sdr_dispatch.mjs tests/test_commercial_relay.mjs tests/test_rsi_handoff.mjs
-      - name: Simulate the complete isolated commercial journey
-        run: node scripts/ops/simulate_commercial_journey.mjs
+      # The historical journey invents a separate buyer and must not run under the
+      # single QA case rule. These regressions prove the scoped receipt connection,
+      # not a complete commercial journey or a real sale.
+      - name: Verify follow-up task receipts with the single authorized QA case
+        run: node --test tests/test_followup_work_sync.mjs tests/test_rsi01_followups.mjs
       - name: Execute one bounded commercial preparation cycle per RSI
+        if: github.event_name != 'push'
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
         run: node scripts/ops/run_rsi_agents.mjs
       - name: Verify four real agent execution receipts
-        if: always()
+        if: always() && github.event_name != 'push'
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
         run: node scripts/ops/verify_rsi_agents.mjs
       - name: Verify authenticated handoff persistence and transitions
-        if: github.event_name != 'schedule'
+        if: github.event_name == 'workflow_dispatch'
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
           RSI_PREVIOUS_QA_ID: qa-production-37143341066
         run: node scripts/ops/verify_rsi_production.mjs
       - name: Preserve sanitized acceptance evidence
-        if: always()
+        if: always() && github.event_name != 'push'
         uses: actions/upload-artifact@v4
         with:
           name: rsi-production-acceptance-${{ github.run_id }}

@@ -15,7 +15,8 @@
           "PainPoint": "Fricción en pagos y renovaciones para 28M de jugadores",
           "LeadScore": 98,
           "CheckoutUrl": "https://unblock-shield.vercel.app/?domain=52-entertainment.com&lang=en",
-          "CreatedAt": "2026-09-23T11:43:19Z"
+          "CreatedAt": "2026-09-23T11:43:19Z",
+          "DataQuality": "RESEARCH_ONLY"
         }
       },
       {
@@ -32,7 +33,8 @@
           "PainPoint": "Carritos abandonados y soporte 24/7 en tienda online",
           "LeadScore": 99,
           "CheckoutUrl": "https://unblock-shield.vercel.app/?domain=legacywireless.org&lang=en",
-          "CreatedAt": "2026-09-22T17:44:07Z"
+          "CreatedAt": "2026-09-22T17:44:07Z",
+          "DataQuality": "RESEARCH_ONLY"
         }
       },
       {
@@ -49,7 +51,8 @@
           "PainPoint": "Saturación en tickets Nivel 1 de hosting e infraestructura",
           "LeadScore": 92,
           "CheckoutUrl": "https://unblock-shield.vercel.app/?domain=sdata.net.pl&lang=en",
-          "CreatedAt": "2026-09-23T10:10:51Z"
+          "CreatedAt": "2026-09-23T10:10:51Z",
+          "DataQuality": "RESEARCH_ONLY"
         }
       },
       {
@@ -66,7 +69,8 @@
           "PainPoint": "Saturación de WhatsApp en rastreo de guías e-commerce",
           "LeadScore": 85,
           "CheckoutUrl": "https://unblock-shield.vercel.app/?domain=coordinadora.com",
-          "CreatedAt": "2026-09-22T22:46:15Z"
+          "CreatedAt": "2026-09-22T22:46:15Z",
+          "DataQuality": "RESEARCH_ONLY"
         }
       },
       {
@@ -83,7 +87,8 @@
           "PainPoint": "Demoras en cotización de fletes corporativos",
           "LeadScore": 82,
           "CheckoutUrl": "https://unblock-shield.vercel.app/?domain=tcc.com.co",
-          "CreatedAt": "2026-09-22T22:46:15Z"
+          "CreatedAt": "2026-09-22T22:46:15Z",
+          "DataQuality": "RESEARCH_ONLY"
         }
       }
     ],
@@ -98,8 +103,8 @@
           "PlanTier": "Enterprise Annual Shield ($490 USD)",
           "PaymentGateway": "Strike Lightning (rick2818@strike.me) / Stripe Bridge",
           "Stage": "Propuesta Enviada / Diagnóstico en Curso",
-          "MRR_USD": 69,
-          "ARR_USD": 828,
+          "MRR_USD": 40.83,
+          "ARR_USD": 490,
           "CreatedAt": "2026-09-23T11:43:19Z"
         }
       },
@@ -161,15 +166,15 @@
       {
         "id": "m2",
         "fields": {
-          "Metric": "Hot Leads en Caliente",
-          "Value": "3 Calificados (Francia, EE.UU., Polonia)",
+          "Metric": "Leads con interés declarado (sin calificar)",
+          "Value": "3 con interés declarado (Francia, EE.UU., Polonia)",
           "Category": "Pipeline"
         }
       },
       {
         "id": "m3",
         "fields": {
-          "Metric": "Pipeline Total en Cierre",
+          "Metric": "Pipeline Total en Cierre (propuestas, sin pagos confirmados)",
           "Value": "$697.00 USD",
           "Category": "Revenue"
         }
@@ -178,7 +183,7 @@
         "id": "m4",
         "fields": {
           "Metric": "MRR Recurrente Proyectado",
-          "Value": "$276.00 USD/mes",
+          "Value": "$247.83 USD/mes",
           "Category": "Revenue"
         }
       },
@@ -186,7 +191,7 @@
         "id": "m5",
         "fields": {
           "Metric": "ARR Anual Proyectado",
-          "Value": "$3312.00 USD/año",
+          "Value": "$2974.00 USD/año",
           "Category": "Revenue"
         }
       },

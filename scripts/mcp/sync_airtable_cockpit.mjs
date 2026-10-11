@@ -125,8 +125,8 @@ async function syncAirtableCockpit() {
         PlanTier: 'Enterprise Annual Shield ($490 USD)',
         PaymentGateway: 'Strike Lightning (rick2818@strike.me) / Stripe Bridge',
         Stage: 'Propuesta Enviada / Diagnóstico en Curso',
-        MRR_USD: 69.00,
-        ARR_USD: 828.00,
+        MRR_USD: 40.83, // 490 / 12 (plan anual)
+        ARR_USD: 490.00,
         CreatedAt: '2026-09-23T11:43:19Z'
       }
     },
@@ -184,8 +184,8 @@ async function syncAirtableCockpit() {
 
   const metricsTable = [
     { id: 'm1', fields: { Metric: 'Total Leads Activos en Cockpit', Value: `${leadsTable.length} Leads`, Category: 'Pipeline' } },
-    { id: 'm2', fields: { Metric: 'Hot Leads en Caliente', Value: '3 Calificados (Francia, EE.UU., Polonia)', Category: 'Pipeline' } },
-    { id: 'm3', fields: { Metric: 'Pipeline Total en Cierre', Value: `$${totalPipelineUSD.toFixed(2)} USD`, Category: 'Revenue' } },
+    { id: 'm2', fields: { Metric: 'Leads con interés declarado (sin calificar)', Value: '3 con interés declarado (Francia, EE.UU., Polonia)', Category: 'Pipeline' } },
+    { id: 'm3', fields: { Metric: 'Pipeline Total en Cierre (propuestas, sin pagos confirmados)', Value: `$${totalPipelineUSD.toFixed(2)} USD`, Category: 'Revenue' } },
     { id: 'm4', fields: { Metric: 'MRR Recurrente Proyectado', Value: `$${totalMRR.toFixed(2)} USD/mes`, Category: 'Revenue' } },
     { id: 'm5', fields: { Metric: 'ARR Anual Proyectado', Value: `$${totalARR.toFixed(2)} USD/año`, Category: 'Revenue' } },
     { id: 'm6', fields: { Metric: 'Canal de Liquidación Fiduciaria', Value: 'https://strike.me/rick2818', Category: 'Finance' } },

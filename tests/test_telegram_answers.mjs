@@ -31,7 +31,8 @@ test('Authorized Telegram message delivers an answer or a truthful service notic
     assert.equal((await processCloudTelegramUpdate(update('Cuanto es 2*2'), env)).delivered, true);
     assert.equal(messages[0], '2 * 2 = 4');
     await processCloudTelegramUpdate(update('Revisa mis correos'), env);
-    assert.match(messages[1], /Falta configurar/);
+    assert.match(messages[1], /opero sin modelos de pago/);
+    assert.match(messages[1], /\/estado/);
     assert.doesNotMatch(messages[1], /Instrucción registrada|operando 24\/7/);
   } finally { globalThis.fetch = original; }
 });

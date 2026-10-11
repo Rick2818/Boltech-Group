@@ -1,0 +1,90 @@
+name: Telegram diagnose
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/telegram_diagnose.yml']
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Read live state
+        id: state
+        continue-on-error: true
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          const out = (k, v) => fs.appendFileSync(process.env.GITHUB_OUTPUT, k + '=' + v + '\n');
+          const r = await fetch('https://boltech-group.vercel.app/api/telegram?deep=1', { signal: AbortSignal.timeout(20000) });
+          const s = await r.json().catch(() => ({}));
+          out('http', r.status);
+          out('status', s.status || 'NONE');
+          out('webhook', String(s.webhookConfigured));
+          out('configured', String(s.telegramConfigured));
+          out('reason', s.reason || 'none');
+          out('pending', String(s.pendingUpdates));
+          out('haserror', String(Boolean(s.lastError)));
+          const e = String(s.lastError || '').toLowerCase();
+          out('err401', String(e.includes('401')));
+          out('err500', String(e.includes('500')));
+          out('err502', String(e.includes('502') || e.includes('503') || e.includes('504')));
+          out('errtimeout', String(e.includes('timeout') || e.includes('timed out')));
+          out('errssl', String(e.includes('ssl') || e.includes('tls') || e.includes('certificate')));
+          JS
+      - name: 'MARK http 200'
+        if: steps.state.outputs.http == '200'
+        run: echo ok
+      - name: 'MARK http not 200'
+        if: steps.state.outputs.http != '200'
+        run: echo bad
+      - name: 'MARK status ONLINE'
+        if: steps.state.outputs.status == 'ONLINE'
+        run: echo ok
+      - name: 'MARK status DEGRADED'
+        if: steps.state.outputs.status == 'DEGRADED'
+        run: echo bad
+      - name: 'MARK telegramConfigured true'
+        if: steps.state.outputs.configured == 'true'
+        run: echo ok
+      - name: 'MARK reason BOT_TOKEN_MISSING'
+        if: steps.state.outputs.reason == 'TELEGRAM_BOT_TOKEN_MISSING'
+        run: echo bad
+      - name: 'MARK webhook true'
+        if: steps.state.outputs.webhook == 'true'
+        run: echo ok
+      - name: 'MARK webhook false'
+        if: steps.state.outputs.webhook == 'false'
+        run: echo bad
+      - name: 'MARK pending zero'
+        if: steps.state.outputs.pending == '0'
+        run: echo ok
+      - name: 'MARK pending above zero'
+        if: steps.state.outputs.pending != '0' && steps.state.outputs.pending != 'undefined' && steps.state.outputs.pending != 'null'
+        run: echo bad
+      - name: 'MARK lastError none'
+        if: steps.state.outputs.haserror == 'false'
+        run: echo ok
+      - name: 'MARK lastError present'
+        if: steps.state.outputs.haserror == 'true'
+        run: echo bad
+      - name: 'MARK lastError 401'
+        if: steps.state.outputs.err401 == 'true'
+        run: echo secret-mismatch
+      - name: 'MARK lastError 500'
+        if: steps.state.outputs.err500 == 'true'
+        run: echo server-error
+      - name: 'MARK lastError 502-504'
+        if: steps.state.outputs.err502 == 'true'
+        run: echo reply-not-delivered-or-busy
+      - name: 'MARK lastError timeout'
+        if: steps.state.outputs.errtimeout == 'true'
+        run: echo timeout
+      - name: 'MARK lastError tls'
+        if: steps.state.outputs.errssl == 'true'
+        run: echo tls

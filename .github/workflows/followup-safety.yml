@@ -1,0 +1,40 @@
+name: Followup Safety
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  followup-safety:
+    name: followup-safety
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify research-only discovery safety
+        run: node --test tests/test_blia01_discovery.cjs
+      - name: Check BLIA-01 no unauthorized outreach or CRM writes
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const source=fs.readFileSync('scripts/blia01-discovery.cjs','utf8');
+          const forbidden=[
+            /(?:sendMail|sendEmail|messages\.send|gmail\.users\.messages\.send)\s*\(/i,
+            /(?:airtable|hubspot|wompi|stripe|resend|nodemailer)\s*\(/i,
+            /fetch\s*\(\s*[^\n]*\{[^\n]*method\s*:\s*['"]POST['"]/i
+          ];
+          if(forbidden.some(re=>re.test(source))) {
+            console.error('Potential outbound side effect found. Manual review required.');
+            process.exit(1);
+          }
+          if(!source.includes("status:'RESEARCH_REQUIRED'") || !source.includes('buyer_verified:false')) {
+            console.error('Unverified discovery guard missing.');
+            process.exit(1);
+          }
+          console.log('BLIA-01 research-only safety checks passed');
+          NODE
