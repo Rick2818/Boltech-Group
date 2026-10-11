@@ -36,11 +36,16 @@ jobs:
       - name: Build RSI-01 pending research intake
         run: node scripts/blia01-rsi-handoff.cjs
       - name: Authenticated research intake into RSI-01
-        if: ${{ env.AIRTABLE_TOKEN != '' && env.AIRTABLE_BASE_ID != '' }}
         env:
           AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
           AIRTABLE_BASE_ID: ${{ secrets.AIRTABLE_BASE_ID }}
-        run: node scripts/rsi01-airtable-intake.cjs
+        run: |
+          if [ -n "$AIRTABLE_TOKEN" ] && [ -n "$AIRTABLE_BASE_ID" ]; then
+            node scripts/rsi01-airtable-intake.cjs
+          else
+            echo 'RSI intake BLOCKED: AIRTABLE_TOKEN or AIRTABLE_BASE_ID missing' >&2
+            exit 1
+          fi
       - name: Prepare RSI-01 verified outreach queue (no send)
         run: node scripts/rsi01-outreach-executor.cjs
       - name: Upload evidence for manual qualification
