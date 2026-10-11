@@ -1,7 +1,7 @@
 ---
 type: runbook
 title: Protección de seguimientos comerciales
-status: proposed
+status: verified
 ---
 
 # Protección de seguimientos comerciales
@@ -26,7 +26,9 @@ Para restablecer una proyección automática sobre campos compartidos se necesit
 
 ## Integración y producción
 
-El workflow solo puede impedir integrar si GitHub exige el check `followup-safety` en la regla de main y se controla el bypass. No se ha configurado ni verificado esa regla desde esta entrega. Un aviso de AGENTS depende de que el agente lo siga; no es un hook bloqueante instalado.
+El 11 octubre se configuró y releyó la protección clásica de main: `followup-safety` requerido, vinculado a GitHub Actions app 15368, strict=true y enforce_admins=true. Antes no existía protección clásica ni rulesets. El check del commit a05b94d terminó success en el run 38149505905. GitHub exige ese check y rama actualizada para integrar, también a administradores. Un administrador con permisos puede modificar posteriormente la regla; esta entrega verifica su configuración en este corte.
+
+Un aviso de AGENTS depende de que el agente lo siga; no es un hook bloqueante instalado. La protección efectiva de integración se verifica en GitHub, no por la mera presencia del workflow.
 
 Preparar PR revisable y esperar validación remota. Antes de publicar, revisar esta limitación funcional de proyección y el despliegue exacto. Producción exige comprobación posterior del ciclo existente y de sus recibos sin forzar contactos ni pagos.
 
