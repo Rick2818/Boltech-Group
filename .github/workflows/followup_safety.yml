@@ -1,0 +1,23 @@
+name: Followup Safety Gate
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  followup-safety:
+    name: followup-safety
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Reject known defective baseline and verify corrected integrated path
+        run: node scripts/quality/followup_safety_gate.mjs --self-test
