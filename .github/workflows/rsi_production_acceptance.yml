@@ -76,7 +76,7 @@ jobs:
           RSI_PREVIOUS_QA_ID: qa-production-37143341066
         run: node scripts/ops/verify_rsi_production.mjs
       - name: Preserve sanitized acceptance evidence
-        if: always()
+        if: always() && github.event_name != 'push'
         uses: actions/upload-artifact@v4
         with:
           name: rsi-production-acceptance-${{ github.run_id }}
