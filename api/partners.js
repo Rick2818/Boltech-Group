@@ -7,6 +7,7 @@ import { createGoogleAdkTeam } from '../lib/google_adk_agents.js';
 import {createRsi03Closing} from '../lib/rsi03_closing.js';
 import {createDirectorNotifications} from '../lib/director_notifications.js';
 import { createSdrDispatch } from '../lib/sdr_dispatch.js';
+import { createApolloClient, getApolloApiKey } from '../lib/apollo_client.js';
 import {authenticateInteragent,createInteragentCoordinator} from '../lib/interagent_coordinator.js';
 
 export const config = { maxDuration: 60 };
@@ -174,6 +175,25 @@ export default async function partnersHandler(req, res) {
         const result=body.operation==='queue'?await worker.queue(actor):body.operation==='receipt'?await worker.receipt(body):body.operation==='acknowledge'?await worker.acknowledge(body):await worker.submit(body);
         return json(res,200,{success:true,...result});
       }catch(error){return json(res,error.statusCode||503,{success:false,code:/^[A-Z_]+$/.test(error.code||'')?error.code:'INTERAGENT_UNCONFIRMED'});}
+    }
+    if (['apollo-leads-status', 'apollo-leads-saved'].includes(action)) {
+      if (!requireOperationalAuth(req, res)) return;
+      if (req.method !== 'GET') return json(res, 405, { success: false, code: 'METHOD_NOT_ALLOWED' });
+      const apiKey = getApolloApiKey();
+      if (action === 'apollo-leads-status') {
+        return json(res, 200, { success: true, integration: 'APOLLO_LEAD_AGENT',
+          apiKeyConfigured: Boolean(apiKey), readOnly: true, creditConsumingOperationsEnabled: false, sendingEnabled: false });
+      }
+      if (!apiKey) return json(res, 503, { success: false, code: 'APOLLO_NOT_CONFIGURED' });
+      try {
+        const batch = await createApolloClient({ apiKey }).listSavedContacts({ perPage: 100, maxPages: 20, budgetMs: 20000 });
+        return json(res, 200, { success: true, source: 'APOLLO_SAVED_CONTACT',
+          leads: batch.contacts.map(contact => ({ ...contact, contactEligible: false, researchOnly: true })),
+          complete: batch.complete, observedAt: batch.observedAt, emailSendingAuthorized: false });
+      } catch (error) {
+        const code = String(error?.code || '');
+        return json(res, 503, { success: false, code: /^APOLLO_[A-Z_]+$/.test(code) ? code : 'APOLLO_REQUEST_UNCONFIRMED' });
+      }
     }
     if (['sdr-status','sdr-verify','sdr-metrics','sdr-send','sdr-reconcile'].includes(action)) {
       if (!requireOperationalAuth(req, res)) return;
