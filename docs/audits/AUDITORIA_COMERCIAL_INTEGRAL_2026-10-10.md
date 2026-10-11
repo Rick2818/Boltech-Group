@@ -69,3 +69,11 @@ Se releyeron de `main` `lib/rsi_commercial_routes.js`, `tests/test_n8n_cohort.mj
 **Resultado de auditoría:** 5 leads reales y sus 5 filas RSI-01 conciliados; la capa de preparación ahora reconoce su cohorte. No se ha confirmado ni el ciclo RSI-01 con recibo productivo posterior, ni los cinco seguimientos por Gmail, ni integración comprobada con n8n, ni un trayecto RSI-02→RSI-03→Wompi→fulfillment real. Se mantiene `E2E=NO_CERTIFICADO`, evitando cifras inventadas.
 
 **Acción del próximo control:** abrir el último deployment de producción y verificar `READY`, revisar pruebas Actions, leer recibo RSI-01 de fecha posterior al despliegue, diagnosticar inbox Gmail y bloquear cualquier reenvío incierto. `Cliente Sintético` sigue reservado para simulación explícita y no se creó ni procesó aquí.
+
+## Rectificación de alcance de Wompi — 10 octubre 2026
+
+**Cobro técnico real: VERIFICADO (PASS en el alcance probado).** El 5 de octubre se creó un enlace real Wompi para **US$1.00**, se procesó un pago aprobado y se recuperó/conciliò la transacción con verificación independiente del proveedor. La orden de Airtable está en estado `PAID` y producto `payment-verification`; la entrega permanece `NOT_READY`. Es evidencia de funcionamiento del enlace, procesamiento, verificación y conciliación de un pago real en producción, no de una venta de agentes.
+
+**Cobro comercial extremo a extremo: NO CERTIFICADO.** La prueba de US$1 no acredita por sí sola la ruta `respuesta del prospecto → calificación RSI-02 → cotización aprobada → aceptación contractual → checkout → entrega automatizada`. Tampoco acredita depósito final en cuenta bancaria, reembolso o recibo de un comprador externo. No se repetirá ni cobrará otra prueba sin aprobación específica.
+
+**Criterio de reporte obligatorio:** separar siempre `WOMPI_PAYMENT_TEST=PASS`, `COMMERCIAL_CUSTOMER_PAYMENT=NO_VERIFICADO` y `FULFILLMENT_E2E=NO_CERTIFICADO`. Nunca clasificar Wompi como no probado; nunca contar US$1 como venta comercial ni como ruptura del objetivo $0.00.
