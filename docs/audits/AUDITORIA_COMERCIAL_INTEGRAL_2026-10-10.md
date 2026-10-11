@@ -59,3 +59,13 @@ La auditoría end-to-end se considerará completada solo cuando existan recibos 
 **Limitación adicional identificada en fuente:** `lib/rsi01_followups.js` ejecuta una lista explícita `config/rsi01_followups.json` con comprobación `Experiment Cohort = RSI-01`; los cinco `N8N_FREELANCE` no quedan incluidos automáticamente en ese despachador. No deben introducirse a dicho plan sin autorización diferenciada de seguimiento y pruebas del conector Gmail. El reporte diario y la tarea de seguimiento de ChatGPT no equivalen a ejecución del despachador productivo.
 
 **Bloqueos de aceptación:** CI PASS en último commit, deployment READY en último commit, diagnóstico RSI-01 con evidencia de cohorte en producción, conciliador de respuestas verificado, ejecución controlada de cotización y pago QA sin tocar dinero real ni contaminar métricas, y verificación de n8n si es una dependencia realmente desplegada. Hasta entonces: `FLUJO_COMERCIAL_E2E = NO_CERTIFICADO`.
+
+## Segunda auditoría y solicitud de publicación — 10 de octubre de 2026
+
+Se releyeron de `main` `lib/rsi_commercial_routes.js`, `tests/test_n8n_cohort.mjs`, `.github/workflows/mit_commercial_9am.yml` y el presente informe. La corrección de la cohorte `N8N_FREELANCE_2026-10-10` está en `main`, así como la protección `Cliente Sintético` y tres tests de regresión definidos (no equivale a afirmar ejecución de CI). El workflow MIT referencia las pruebas y tiene trigger `push` para esas rutas.
+
+**Auditoría de despliegue:** Vercel confirmó el deployment `dpl_7ESZjKyarTVCnjzM3sgNCvV6Nz5g`, Git SHA `934fa2b0da42f57dc25e8499b08d1259ed7af6b5`, estado `BUILDING` en la lectura; otro deployment del workflow (SHA `ddb1af8`) figuraba `READY`, pero no contiene los cambios de cierre posteriores. Por tanto el estado de publicación del código consolidado aún es **NO CERTIFICADO**. El nuevo commit documental de esta segunda auditoría inicia por la integración GitHub→Vercel su propio proceso de despliegue; no confundir creación con estado READY.
+
+**Resultado de auditoría:** 5 leads reales y sus 5 filas RSI-01 conciliados; la capa de preparación ahora reconoce su cohorte. No se ha confirmado ni el ciclo RSI-01 con recibo productivo posterior, ni los cinco seguimientos por Gmail, ni integración comprobada con n8n, ni un trayecto RSI-02→RSI-03→Wompi→fulfillment real. Se mantiene `E2E=NO_CERTIFICADO`, evitando cifras inventadas.
+
+**Acción del próximo control:** abrir el último deployment de producción y verificar `READY`, revisar pruebas Actions, leer recibo RSI-01 de fecha posterior al despliegue, diagnosticar inbox Gmail y bloquear cualquier reenvío incierto. `Cliente Sintético` sigue reservado para simulación explícita y no se creó ni procesó aquí.
