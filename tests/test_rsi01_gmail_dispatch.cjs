@@ -1,0 +1,11 @@
+const test=require('node:test');
+const assert=require('node:assert/strict');
+const {dispatch,validate}=require('../scripts/rsi01-gmail-dispatch.cjs');
+const event='a'.repeat(64);
+const intent={event_id:event,status:'APPROVED_PENDING_DISPATCH',send_performed:false,sender:'sales@example.com',recipient:'owner@example.com',subject:'Test',body:'Test body',source:'https://example.com'};
+const approval={buyer_verified:true,contact_verified:true,intent_verified:true,permission_verified:true,template_approved:true,recipient_verified:true,release_to_send:true,recipient:'owner@example.com',approved_subject:'Test',approved_body:'Test body'};
+test('disabled by default',async()=>assert.deepEqual(await dispatch({results:[intent]}, {},{enabled:undefined}),{state:'DISABLED',sent:0}));
+test('rejects absent explicit release',()=>assert.throws(()=>validate(intent,{...approval,release_to_send:false},'sales@example.com'),/RELEASE_NOT_AUTHORIZED/));
+test('rejects mismatched sender',()=>assert.throws(()=>validate(intent,approval,'wrong@example.com'),/MISMATCH/));
+test('reserved events never resend',async()=>{let calls=0;const f=async()=>{calls++;return {ok:true,json:async()=>({records:[{id:'recExisting'}]})}};const r=await dispatch({executor:'RSI-01',mode:'PREPARE_ONLY',results:[intent]},{[event]:approval},{enabled:'true',airtableToken:'test',airtableBase:'appTest',gmailAccessToken:'test',sender:'sales@example.com'},{fetchImpl:f});assert.equal(r.sent,0);assert.equal(calls,1);assert.equal(r.results[0].state,'ALREADY_RESERVED_RECONCILE')});
+test('reserves before Gmail and writes receipt',async()=>{const steps=[];const f=async(url,opt)=>{steps.push([url,opt?.method||'GET']);if(url.includes('gmail.googleapis.com'))return {ok:true,json:async()=>({id:'gmail123'})};if(opt?.method==='POST')return {ok:true,json:async()=>({records:[{id:'recNew'}]})};if(opt?.method==='PATCH')return {ok:true,json:async()=>({})};return {ok:true,json:async()=>({records:[]})}};const r=await dispatch({executor:'RSI-01',mode:'PREPARE_ONLY',results:[intent]},{[event]:approval},{enabled:'true',airtableToken:'test',airtableBase:'appTest',gmailAccessToken:'test',sender:'sales@example.com'},{fetchImpl:f});assert.equal(r.sent,1);assert.deepEqual(steps.map(s=>s[1]),['GET','POST','POST','PATCH']);});
