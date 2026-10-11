@@ -6,6 +6,8 @@ on:
       - '.github/workflows/blia01-discovery.yml'
       - 'scripts/blia01-discovery.cjs'
       - 'tests/test_blia01_discovery.cjs'
+      - 'scripts/blia01-rsi-handoff.cjs'
+      - 'tests/test_blia01_rsi_handoff.cjs'
   workflow_dispatch:
   schedule:
     - cron: '23 15 * * 1-5'
@@ -24,14 +26,16 @@ jobs:
         with:
           node-version: '22'
       - name: Unit tests
-        run: node --test tests/test_blia01_discovery.cjs
+        run: node --test tests/test_blia01_discovery.cjs tests/test_blia01_rsi_handoff.cjs
       - name: Run research-only discovery
         run: node scripts/blia01-discovery.cjs
+      - name: Build RSI-01 pending research intake
+        run: node scripts/blia01-rsi-handoff.cjs
       - name: Upload evidence for manual qualification
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: blia01-research-${{ github.run_id }}
-          path: artifacts/blia01/candidates.json
+          path: artifacts/blia01/*.json
           if-no-files-found: warn
           retention-days: 14
