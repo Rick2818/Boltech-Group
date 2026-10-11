@@ -14,6 +14,9 @@ on:
       - 'tests/test_commercial_relay.mjs'
       - 'scripts/ops/simulate_commercial_journey.mjs'
       - 'lib/rsi01_followups.js'
+      - 'lib/followup_work_sync.js'
+      - 'tests/test_followup_work_sync.mjs'
+      - 'config/qa_case.json'
       - 'config/rsi01_followups.json'
       - 'tests/test_rsi01_followups.mjs'
       - 'lib/google_adk_agents.js'
@@ -51,8 +54,11 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Validate commercial routing and isolated failures
         run: node --test tests/test_google_adk_agents.mjs tests/test_interagent_coordinator.mjs tests/test_n8n_message_client.mjs tests/test_director_notifications.mjs tests/test_rsi03_closing.mjs tests/test_rsi_agent_executor.mjs tests/test_rsi_commercial_routes.mjs tests/test_rsi_agent_status.mjs tests/test_marketing_sales_support.mjs tests/test_marketing_trace.mjs tests/test_interagent_alternatives.mjs tests/test_sales_marketing_router.mjs tests/test_rsi01_followups.mjs tests/test_sdr_dispatch.mjs tests/test_commercial_relay.mjs tests/test_rsi_handoff.mjs
-      - name: Simulate the complete isolated commercial journey
-        run: node scripts/ops/simulate_commercial_journey.mjs
+      # The historical journey invents a separate buyer and must not run under the
+      # single QA case rule. These regressions prove the scoped receipt connection,
+      # not a complete commercial journey or a real sale.
+      - name: Verify follow-up task receipts with the single authorized QA case
+        run: node --test tests/test_followup_work_sync.mjs tests/test_rsi01_followups.mjs
       - name: Execute one bounded commercial preparation cycle per RSI
         if: github.event_name != 'push'
         env:
