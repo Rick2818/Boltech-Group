@@ -12,6 +12,8 @@ on:
       - 'tests/test_rsi01_outreach_executor.cjs'
       - 'scripts/rsi01-airtable-intake.cjs'
       - 'tests/test_rsi01_airtable_intake.cjs'
+      - 'scripts/rsi01-gmail-dispatch.cjs'
+      - 'tests/test_rsi01_gmail_dispatch.cjs'
   workflow_dispatch:
   schedule:
     - cron: '23 15 * * 1-5'
@@ -30,7 +32,7 @@ jobs:
         with:
           node-version: '22'
       - name: Unit tests
-        run: node --test tests/test_blia01_discovery.cjs tests/test_blia01_rsi_handoff.cjs tests/test_rsi01_outreach_executor.cjs tests/test_rsi01_airtable_intake.cjs
+        run: node --test tests/test_blia01_discovery.cjs tests/test_blia01_rsi_handoff.cjs tests/test_rsi01_outreach_executor.cjs tests/test_rsi01_airtable_intake.cjs tests/test_rsi01_gmail_dispatch.cjs
       - name: Run research-only discovery
         run: node scripts/blia01-discovery.cjs
       - name: Build RSI-01 pending research intake
@@ -48,6 +50,24 @@ jobs:
           fi
       - name: Prepare RSI-01 verified outreach queue (no send)
         run: node scripts/rsi01-outreach-executor.cjs
+      - name: Dispatch verified and explicitly released Gmail intents
+        env:
+          RSI_GMAIL_SEND_ENABLED: ${{ vars.RSI_GMAIL_SEND_ENABLED }}
+          RSI_GMAIL_SENDER: ${{ vars.RSI_GMAIL_SENDER }}
+          RSI_APPROVALS_JSON: ${{ secrets.RSI_APPROVALS_JSON }}
+          GMAIL_ACCESS_TOKEN: ${{ secrets.GMAIL_ACCESS_TOKEN }}
+          AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
+          AIRTABLE_BASE_ID: ${{ secrets.AIRTABLE_BASE_ID }}
+        run: |
+          if [ "$RSI_GMAIL_SEND_ENABLED" = 'true' ]; then
+            if [ -z "$RSI_APPROVALS_JSON" ]; then echo 'RSI APPROVALS missing; no send' >&2; exit 1; fi
+            umask 077
+            printf '%s' "$RSI_APPROVALS_JSON" > "$RUNNER_TEMP/rsi-approvals.json"
+            RSI_APPROVALS_FILE="$RUNNER_TEMP/rsi-approvals.json" node scripts/rsi01-outreach-executor.cjs
+            RSI_APPROVALS_FILE="$RUNNER_TEMP/rsi-approvals.json" node scripts/rsi01-gmail-dispatch.cjs
+          else
+            echo 'RSI Gmail dispatch DISABLED (default)'
+          fi
       - name: Report autonomous execution result
         if: always()
         run: |
