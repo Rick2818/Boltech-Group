@@ -2,16 +2,20 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createRsi01Followups} from '../lib/rsi01_followups.js';
 import {sdrWindow} from '../lib/sdr_dispatch.js';
-const sender='ricardo.boltechgroup@gmail.com',email='business@example.test';
+import {readFileSync} from 'node:fs';
+const qa=JSON.parse(readFileSync(new URL('../config/qa_case.json',import.meta.url)));
+const sender='ricardo.boltechgroup@gmail.com',email=qa.answers[8];
 function fixture(){
  const data=new Map();let sends=0,clock=new Date('2026-10-09T20:23:00Z'),unknown=false,crmDown=false;
- const row={id:'recFixture1234567',fields:{'Contact Email':email,'Experiment Cohort':'RSI-01',Notes:'Initial SENT authorized'}};
+ const row={id:'recQA202610100000',fields:{Name:qa.answers[7],'Contact Email':email,'Experiment Cohort':'RSI-01',Notes:qa.purpose}};
  const initial={id:'original',threadId:'thread',from:sender,to:email,sent:true,rfcMessageId:'<original@test>',subject:'Process tracking',text:'Original',receivedAt:'2026-10-06T15:00:00Z'};const messages=[initial];
  const command=async([op,key,val,...rest])=>{if(op==='GET')return data.get(key)||null;if(op==='SET'){if(rest.includes('NX')&&data.has(key))return null;data.set(key,val);return 'OK';}if(op==='ZCOUNT')return 0;if(op==='ZADD')return 1;if(op==='EVAL'){if(data.get(rest[0])===rest[1])data.delete(rest[0]);return 1;}throw Error(op);};
  const gmail={verify:async()=>({verified:true}),search:async q=>q.includes('rfc822')?messages.filter(m=>m.id!=='original'&&m.sent).map(m=>({id:m.id})):q==='in:sent newer_than:1d'?[]:messages.map(m=>({id:m.id})),message:async id=>messages.find(m=>m.id===id),send:async job=>{sends++;assert.equal(JSON.parse([...data.entries()].find(([k])=>k.startsWith('boltech:sdr:followup:'))[1]).state,'SEND_PENDING');assert.equal(job.threadId,'thread');assert.equal(job.inReplyTo,'<original@test>');if(unknown)throw Object.assign(Error('timeout'),{code:'GMAIL_SEND_UNKNOWN'});messages.push({id:'followup',threadId:'thread',from:sender,to:email,sent:true,rfcMessageId:`<${job.rfcMessageId}>`,receivedAt:clock.toISOString()});return {messageId:'followup',threadId:'thread'};}};
  const record=async(id,fields)=>{if(crmDown)throw Error('CRM down');assert.equal(id,row.id);if(fields)Object.assign(row.fields,fields);return structuredClone(row);};
  const plan={enabled:true,authorization:'Authorized fixture',maxPerCycle:1,accounts:[{recordId:row.id,email,originalMessageId:'original',dueAt:'2026-10-09T20:00:00Z',expiresAt:'2026-10-16T23:00:00Z',text:'Written question; reply no to stop.'}]};
- const worker=createRsi01Followups({command,gmail,record,now:()=>clock,plan});return {worker,data,messages,row,sends:()=>sends,setClock:v=>clock=new Date(v),setUnknown:v=>unknown=v,setCrmDown:v=>crmDown=v};
+ let workDown=false,workCalls=0;
+ const syncWork=async job=>{assert.equal(job.recordId,row.id);workCalls++;if(workDown&&job.state==='SENT')throw Error('Work unavailable');return {state:job.state==='SENT'?'VERIFIED':'PRESERVED'};};
+ const worker=createRsi01Followups({command,gmail,record,syncWork,now:()=>clock,plan});return {worker,data,messages,row,sends:()=>sends,workCalls:()=>workCalls,setWorkDown:v=>workDown=v,setClock:v=>clock=new Date(v),setUnknown:v=>unknown=v,setCrmDown:v=>crmDown=v};
 }
 test('14:00 follow-up window is open; outside business hours is closed',()=>{assert.equal(sdrWindow(new Date('2026-10-09T20:00:00Z')).allowed,true);assert.equal(sdrWindow(new Date('2026-10-09T23:00:00Z')).allowed,false);});
 test('due follow-up reserves durably and sends once in original thread',async()=>{const f=fixture();assert.equal((await f.worker.run()).results[0].state,'SENT');assert.equal((await f.worker.run()).results[0].reused,true);assert.equal(f.sends(),1);assert.match(f.row.fields.Notes,/:SENT\]/);});
@@ -29,4 +33,17 @@ test('an automatic reply does not permanently hide a later human reply',async()=
 test('a newer opt-out takes precedence over an older interested reply',async()=>{
  const f=fixture();f.messages.push({id:'interested',from:email,to:sender,threadId:'thread',text:'Me interesa',receivedAt:'2026-10-08T20:00:00Z'},{id:'stop',from:email,to:sender,threadId:'thread',text:'No deseo recibir seguimiento',receivedAt:'2026-10-09T20:00:00Z'});
  assert.equal((await f.worker.run()).results[0].state,'SUPPRESSED');assert.equal(f.sends(),0);
+});
+test('task sync failure after provider success recovers without resending',async()=>{
+ const f=fixture();f.setWorkDown(true);
+ const first=(await f.worker.run()).results[0];assert.equal(first.state,'SENT');assert.equal(first.crmSynced,false);assert.equal(f.sends(),1);
+ f.setWorkDown(false);await f.worker.run();
+ const saved=JSON.parse([...f.data.entries()].find(([k])=>k.startsWith('boltech:sdr:followup:'))[1]);
+ assert.equal(saved.workSynced,true);assert.equal(saved.crmSynced,true);assert.equal(f.sends(),1);
+});
+test('historical synced lead lacking task receipt is reconciled without resending',async()=>{
+ const f=fixture();await f.worker.run();
+ const [key,raw]=[...f.data.entries()].find(([k])=>k.startsWith('boltech:sdr:followup:'));
+ const old=JSON.parse(raw);delete old.workSynced;f.data.set(key,JSON.stringify(old));
+ const before=f.workCalls();await f.worker.run();assert.equal(f.workCalls(),before+1);assert.equal(f.sends(),1);
 });
