@@ -44,3 +44,18 @@ P2: crear tablero con métricas respaldadas: enviados, rebotes, respuestas human
 La auditoría end-to-end se considerará completada solo cuando existan recibos correlacionados por una ID estable de cada transición, prueba negativa de duplicado/replay y comprobación de que **Cliente Sintético** no alimenta ingresos, KPIs comerciales reales ni canales de terceros.
 
 **Veredicto:** conciliación de cinco contactos confirmada; proceso comercial extremo a extremo NO CERTIFICADO. No se afirma funcionalidad al 100%.
+
+## Ejecución correctiva (10 octubre 2026, posterior al dictamen original)
+
+**Cambios aplicados a `main`:**
+
+1. `lib/rsi_commercial_routes.js` reconoce `N8N_FREELANCE_YYYY-MM-DD` como cohorte de RSI-01. Antes la función `isCommercialCohort` la excluía: los cinco prospectos podían permanecer en Airtable sin figurar en la preparación RSI. El cambio solo incluye preparación, **no activa envíos**.
+2. Se añadió exclusión nominal explícita de `Cliente Sintético` / `Cliente Sintetico` en `lib/rsi_commercial_routes.js`, `lib/rsi_agent_executor.js`, `lib/commercial_relay.js` y `lib/rsi03_closing.js`. Se mantienen las exclusiones ya existentes por `Data Quality = QA` y otras evidencias de prueba.
+3. `tests/test_n8n_cohort.mjs` documenta los casos de cohorte de cinco, paso `Contacted`, protección del cliente sintético y ausencia de envío implícito. `.github/workflows/mit_commercial_9am.yml` incluye esta prueba en la etapa de regresión.
+4. Cinco Leads y cinco work items ya conciliados en Airtable según `docs/commercial/N8N_FREELANCE_OUTREACH_2026-10-10.md`.
+
+**Verificación incompleta, prohibido declarar PASS de producción:** el listado de Vercel durante la revisión mostró el despliegue del último commit `f126765` en estado `QUEUED`; los anteriores también en cola/compilación. No se ha obtenido aún resultado del workflow de GitHub Actions ni ejecución `RSI-01` posterior al despliegue que muestre los cinco prospectos. Tampoco se probó la recepción automática de nuevas respuestas, el encadenamiento RSI-02/03, el checkout y fulfillment de un caso íntegro. No se creó ni envió un cliente sintético.
+
+**Limitación adicional identificada en fuente:** `lib/rsi01_followups.js` ejecuta una lista explícita `config/rsi01_followups.json` con comprobación `Experiment Cohort = RSI-01`; los cinco `N8N_FREELANCE` no quedan incluidos automáticamente en ese despachador. No deben introducirse a dicho plan sin autorización diferenciada de seguimiento y pruebas del conector Gmail. El reporte diario y la tarea de seguimiento de ChatGPT no equivalen a ejecución del despachador productivo.
+
+**Bloqueos de aceptación:** CI PASS en último commit, deployment READY en último commit, diagnóstico RSI-01 con evidencia de cohorte en producción, conciliador de respuestas verificado, ejecución controlada de cotización y pago QA sin tocar dinero real ni contaminar métricas, y verificación de n8n si es una dependencia realmente desplegada. Hasta entonces: `FLUJO_COMERCIAL_E2E = NO_CERTIFICADO`.
