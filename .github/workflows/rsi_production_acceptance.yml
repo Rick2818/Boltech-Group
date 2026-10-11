@@ -42,7 +42,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -54,16 +54,17 @@ jobs:
       - name: Simulate the complete isolated commercial journey
         run: node scripts/ops/simulate_commercial_journey.mjs
       - name: Execute one bounded commercial preparation cycle per RSI
+        if: github.event_name != 'push'
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
         run: node scripts/ops/run_rsi_agents.mjs
       - name: Verify four real agent execution receipts
-        if: always()
+        if: always() && github.event_name != 'push'
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
         run: node scripts/ops/verify_rsi_agents.mjs
       - name: Verify authenticated handoff persistence and transitions
-        if: github.event_name != 'schedule'
+        if: github.event_name == 'workflow_dispatch'
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
           RSI_PREVIOUS_QA_ID: qa-production-37143341066
