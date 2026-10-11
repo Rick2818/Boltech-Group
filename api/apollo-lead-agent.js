@@ -1,5 +1,5 @@
 import { requireOperationalAuth } from '../lib/operational_auth.js';
-import { createApolloClient } from '../lib/apollo_client.js';
+import { createApolloClient, getApolloApiKey } from '../lib/apollo_client.js';
 
 // Private, read-only handoff to the lead agent. No enrichment, purchases or sends.
 export const config = { maxDuration: 30 };
@@ -11,7 +11,7 @@ export default async function apolloLeadAgent(req, res) {
     res.setHeader('Allow', 'GET');
     return res.status(405).json({ success: false, code: 'METHOD_NOT_ALLOWED' });
   }
-  const keyConfigured = Boolean(String(process.env.APOLLO_API_KEY || '').trim());
+  const keyConfigured = Boolean(getApolloApiKey());
   const mode = String(req.query?.mode || 'status');
   if (mode === 'status') return res.status(200).json({
     success: true, integration: 'APOLLO_LEAD_AGENT', apiKeyConfigured: keyConfigured,
@@ -21,7 +21,7 @@ export default async function apolloLeadAgent(req, res) {
   if (!keyConfigured) return res.status(503).json({ success: false, code: 'APOLLO_NOT_CONFIGURED' });
   try {
     // Small bounded read; never claim that saved contacts are verified prospects.
-    const batch = await createApolloClient({ apiKey: process.env.APOLLO_API_KEY }).listSavedContacts({
+    const batch = await createApolloClient({ apiKey: getApolloApiKey() }).listSavedContacts({
       perPage: 100, maxPages: 20, budgetMs: 20000
     });
     return res.status(200).json({
