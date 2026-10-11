@@ -17,6 +17,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Unit tests
+        run: node --test tests/test_blia01_discovery.cjs
       - name: Run research-only discovery
         run: node scripts/blia01-discovery.cjs
       - name: Upload evidence for manual qualification
