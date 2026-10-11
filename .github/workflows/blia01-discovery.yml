@@ -48,6 +48,17 @@ jobs:
           fi
       - name: Prepare RSI-01 verified outreach queue (no send)
         run: node scripts/rsi01-outreach-executor.cjs
+      - name: Report autonomous execution result
+        if: always()
+        run: |
+          echo '## BLIA-01 to RSI-01 autonomous execution' >> "$GITHUB_STEP_SUMMARY"
+          echo "Run: $GITHUB_RUN_ID / $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+          echo 'The Gmail dispatcher is NOT included in this workflow. A green run does not prove commercial delivery.' >> "$GITHUB_STEP_SUMMARY"
+          if [ -f artifacts/blia01/rsi01-outreach-queue.json ]; then
+            node -e 'const q=require("./artifacts/blia01/rsi01-outreach-queue.json"); console.log("Research events: "+q.count+"; blocked: "+q.results.filter(x=>x.status==="BLOCKED_RESEARCH").length+"; sent: 0")' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Outreach queue missing: inspect failing step logs.' >> "$GITHUB_STEP_SUMMARY"
+          fi
       - name: Upload evidence for manual qualification
         if: always()
         uses: actions/upload-artifact@v4
