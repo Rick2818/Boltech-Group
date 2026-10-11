@@ -22,7 +22,7 @@ export default async function apolloLeadAgent(req, res) {
   try {
     // Small bounded read; never claim that saved contacts are verified prospects.
     const batch = await createApolloClient({ apiKey: process.env.APOLLO_API_KEY }).listSavedContacts({
-      perPage: 25, maxPages: 1, budgetMs: 20000
+      perPage: 100, maxPages: 20, budgetMs: 20000
     });
     return res.status(200).json({
       success: true, source: 'APOLLO_SAVED_CONTACT',
