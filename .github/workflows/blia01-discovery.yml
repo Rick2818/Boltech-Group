@@ -1,0 +1,31 @@
+name: BLIA-01 Autonomous Discovery
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 15 * * 1-5'
+permissions:
+  contents: read
+concurrency:
+  group: blia01-discovery
+  cancel-in-progress: false
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Unit tests
+        run: node --test tests/test_blia01_discovery.cjs
+      - name: Run research-only discovery
+        run: node scripts/blia01-discovery.cjs
+      - name: Upload evidence for manual qualification
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: blia01-research-${{ github.run_id }}
+          path: artifacts/blia01/candidates.json
+          if-no-files-found: warn
+          retention-days: 14
