@@ -1,0 +1,19 @@
+{
+  "id": "QA_WEB_RECEPTION_20261010",
+  "purpose": "Único caso reutilizable de pruebas; excluido de actividad y métricas comerciales",
+  "requestId": "baefaac4b82778f069cbb89291c1a2071e6af5103373890abc66eb5d792aa2e3",
+  "answers": [
+    "QA: consultas sin responsable",
+    "QA: llegan por correo y se copian a una hoja",
+    "QA: diez minutos por solicitud",
+    "Correo y hoja de cálculo",
+    "QA: gerente aprueba acciones externas",
+    "QA: registrar y asignar solicitudes esta semana",
+    "QA: nunca enviar mensajes ni cobrar",
+    "QA web reception 20261010",
+    "qa-web-reception-20261010@example.com"
+  ],
+  "externalMessagesAllowed": false,
+  "paymentsAllowed": false,
+  "commercialEvidence": false
+}

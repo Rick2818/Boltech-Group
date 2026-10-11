@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createRsiExecutor, analyzeAcceptedResponseAudit } from '../lib/rsi_agent_executor.js';
 import handler from '../api/partners.js';
+import qaCase from '../config/qa_case.json' with {type:'json'};
 
 function fixture(extra = []) {
   const data = new Map(), rows = ['RSI-01','RSI-02','RSI-03','MARKETING'].map((rsi,i)=>({id:`recBootstrap${i}`,fields:{'Work ID':`BOOTSTRAP:${rsi}`,RSI:rsi,Status:'BUSINESS_STATE',Evidence:'Prior history',Authorization:'Original authorization'}}));
@@ -17,13 +18,48 @@ function fixture(extra = []) {
   };
   const request = async(table,opts={})=>{
     if(opts.method==='PATCH'){writes++;for(const change of opts.body.records){const row=rows.find(r=>r.id===change.id);assert.ok(row);Object.assign(row.fields,change.fields);}return {records:structuredClone(opts.body.records.map(r=>rows.find(x=>x.id===r.id)))};}
-    return {records:table==='tblHVqUMifOFjlGvj'?structuredClone(rows):[{id:'recLead',fields:{Name:'Actual fixture','Experiment Cohort':'RSI-01','Data Quality':'INCOMPLETE'}}]};
+    return {records:table==='tblHVqUMifOFjlGvj'?structuredClone(rows):[{id:'recLead',fields:{Name:qaCase.answers[7],'Contact Email':qaCase.answers[8],'Experiment Cohort':'RSI-01','Data Quality':'QA'}}]};
   };
   let tick=0;
   const options={command,request,now:()=>new Date(Date.parse('2026-10-03T20:05:00Z')+tick++*100).toISOString(),
-    relay:async()=>({results:[]}),followups:async()=>({enabled:true,results:[{state:'NOT_DUE'}]}),costs:async()=>({complete:false,totalCostUsd:null}),sales:async()=>({paidOrders:0,cashCollectedUsd:0}),partners:async()=>[],referrals:async()=>[],closing:async()=>({state:'WAITING_QUALIFIED_APPROVED_CASE',processed:0}),marketingCycle:async rsi=>rsi==='MARKETING'?{requested:3,accepted:3,used:0,resultsVerified:0}:{reviewed:1,usedBySales:false}};
+    webRequests:async()=>({results:[]}),relay:async()=>({results:[]}),followups:async()=>({enabled:true,results:[{state:'NOT_DUE'}]}),costs:async()=>({complete:false,totalCostUsd:null}),sales:async()=>({paidOrders:0,cashCollectedUsd:0}),partners:async()=>[],referrals:async()=>[],closing:async()=>({state:'WAITING_QUALIFIED_APPROVED_CASE',processed:0}),marketingCycle:async rsi=>rsi==='MARKETING'?{requested:3,accepted:3,used:0,resultsVerified:0}:{reviewed:1,usedBySales:false}};
   return {data,rows,options,request,writes:()=>writes};
 }
+test('existing RSI-01 cycle excludes the sole QA web intake from its commercial inbox',async()=>{
+  const f=fixture([{id:'recWebRequest',fields:{'Work ID':`WEB_INTAKE:${qaCase.requestId}`,RSI:'RSI-01',Status:'PENDING_RSI01_RESEARCH','Source Record ID':'recLead',Evidence:JSON.stringify({requestId:qaCase.requestId,painPoint:qaCase.answers[0],impact:qaCase.answers[2]}),'Next Action':'QA: revisión interna sin contacto'}}]);
+  const result=await createRsiExecutor(f.options).run({rsi:'RSI-01',cycleId:'web-intake'});
+  assert.equal(result.receipt.outcome,'COMPLETED');
+  const action=JSON.parse(f.rows[0].fields['Execution Receipt']).actions.find(a=>a.type==='RSI01_WEB_INBOX_REVIEW');
+  assert.equal(action,undefined);
+  assert.ok(!f.rows[0].fields.Evidence.includes('[RSI01_WEB_INBOX_V1]'));
+});
+test('synthetic web cases are excluded from RSI-01 commercial inbox',async()=>{
+  const f=fixture([{id:'recWebRequest',fields:{'Work ID':`WEB_INTAKE:${qaCase.requestId}`,RSI:'RSI-01',Status:'PENDING_RSI01_RESEARCH','Source Record ID':'recLead',Evidence:qaCase.purpose}}]);
+  const original=f.options.request;f.options.request=async(table,opts)=>{
+    const response=await original(table,opts);
+    if(table==='tblZaox2MX5uYA5PZ')response.records[0].fields['Data Quality']='QA';
+    return response;
+  };
+  await createRsiExecutor(f.options).run({rsi:'RSI-01',cycleId:'exclude-web-qa'});
+  assert.ok(!f.rows[0].fields.Evidence.includes('[RSI01_WEB_INBOX_V1]'));
+});
+
+test('sole QA cannot enter commercial inbox when name and QA classification are missing',async()=>{
+  const f=fixture([{id:'recWebRequest',fields:{'Work ID':`WEB_INTAKE:${qaCase.requestId}`,RSI:'RSI-01',Status:'PENDING_RSI01_RESEARCH','Source Record ID':'recLead',Evidence:qaCase.purpose}}]);
+  const request=f.options.request;
+  f.options.request=async(table,opts)=>{
+    const response=await request(table,opts);
+    if(table==='tblZaox2MX5uYA5PZ'){
+      delete response.records[0].fields.Name;
+      delete response.records[0].fields['Data Quality'];
+      response.records[0].fields['Contact Email']=qaCase.answers[8].toUpperCase();
+    }
+    return response;
+  };
+  await createRsiExecutor(f.options).run({rsi:'RSI-01',cycleId:'qa-missing-classification'});
+  assert.ok(!f.rows[0].fields.Evidence.includes('[RSI01_WEB_INBOX_V1]'));
+});
+
 test('all three executors perform real tool contracts and preserve commercial authorization/history',async()=>{
   const f=fixture(),worker=createRsiExecutor(f.options);
   for(const rsi of ['RSI-01','RSI-02','RSI-03']){
@@ -90,7 +126,7 @@ test('abandoned ledger and running bootstrap require reconciliation, not a secon
   await assert.rejects(createRsiExecutor(f.options).run({rsi:'RSI-01',cycleId:'another'}),e=>e.code==='RSI_EXECUTION_RECONCILE_REQUIRED');assert.equal(f.writes(),0);
 });
 test('accepted response data yields useful/automatic medians and a persisted report without sending',async()=>{
-  const auth={accepted:true,kind:'RESPONSE_LOG_ANALYSIS',evidenceRef:'customer-log-fixture',samples:[
+  const auth={accepted:true,kind:'RESPONSE_LOG_ANALYSIS',evidenceRef:qaCase.id,samples:[
     {receivedAt:'2026-10-01T09:00:00Z',automaticResponseAt:'2026-10-01T09:00:02Z',usefulResponseAt:'2026-10-01T09:01:00Z'},
     {receivedAt:'2026-10-01T10:00:00Z',usefulResponseAt:'2026-10-01T10:03:00Z'},
     {receivedAt:'2026-10-01T11:00:00Z'}]};
