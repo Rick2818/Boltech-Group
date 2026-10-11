@@ -11,9 +11,9 @@ function fixture(status='PENDING_RSI01_RESEARCH',role='RSI-01'){
  const job={recordId:leadId,state:'SENT',messageId:qa.requestId,threadId:qa.id};
  return {row,job,request,writes:()=>writes};
 }
-test('same QA receipt updates pending task once, preserving owner and execution',async()=>{
- const f=fixture();await syncFollowupWork(f.job,f);await syncFollowupWork(f.job,f);
- assert.equal(f.row.fields.Status,'WAITING_RESPONSE');assert.equal(f.writes(),1);
+test('pending task requires reconciliation without overwriting shared fields',async()=>{
+ const f=fixture();assert.equal((await syncFollowupWork(f.job,f)).state,'RECONCILE_REQUIRED');await syncFollowupWork(f.job,f);
+ assert.equal(f.row.fields.Status,'PENDING_RSI01_RESEARCH');assert.equal(f.writes(),0);
  assert.equal(f.row.fields.Owner,qa.answers[7]);assert.equal(f.row.fields['Execution State'],'COMPLETED');
 });
 test('advanced, blocked and uncertain states are preserved',async()=>{
@@ -28,6 +28,9 @@ test('ambiguous or advanced-role tasks cannot be mutated',async()=>{
  const f=fixture();await assert.rejects(syncFollowupWork(f.job,{request:async()=>({records:[f.row,f.row]})}),/RECONCILE_REQUIRED/);
  const advanced=fixture('WAITING_RESPONSE','RSI-02');await assert.rejects(syncFollowupWork(advanced.job,advanced),/RECONCILE_REQUIRED/);assert.equal(advanced.writes(),0);
 });
-test('write without matching readback remains unconfirmed',async()=>{
- const f=fixture();await assert.rejects(syncFollowupWork(f.job,{request:async q=>q.id?structuredClone(f.row):{records:[f.row]}}),/SYNC_UNCONFIRMED/);
+test('only an existing matching task receipt is verified',async()=>{
+ const f=fixture('WAITING_RESPONSE');
+ assert.equal((await syncFollowupWork(f.job,f)).state,'RECONCILE_REQUIRED');
+ f.row.fields.Evidence+=`\n[FOLLOWUP_WORK_RECEIPT:${f.job.messageId}]`;
+ assert.equal((await syncFollowupWork(f.job,f)).state,'VERIFIED');assert.equal(f.writes(),0);
 });

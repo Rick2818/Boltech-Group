@@ -1,5 +1,9 @@
 # Instrucciones de Ricardo
 
+## Puerta preventiva de seguimientos
+
+Antes de modificar lib/rsi01_followups.js, lib/followup_work_sync.js o sus consumidores, ejecutar `node scripts/quality/followup_safety_gate.mjs --preflight` y leer `02-DOCS/wiki/harness/proteccion-seguimientos.md`. Registrar escritores compartidos, exclusiones, transiciones y fallos parciales. Antes de proponer integración o publicación, ejecutar `node scripts/quality/followup_safety_gate.mjs --self-test` y leer su resultado. Un fallo, omisión o prueba no ejecutada impide declarar este alcance corregido. La puerta comprueba las tres regresiones conocidas y el recorrido integrado con el único caso QA; no certifica todo el producto ni la operación comercial real. El check de GitHub debe configurarse como requerido antes de afirmar bloqueo automático de integración.
+
 ## Regla 1: Regla de oro del MicroSaaS
 
 Leer y aplicar REGLA-DE-ORO.md antes de responder sobre el negocio, tomar decisiones importantes o verificar la operación. Es la prioridad número 1 entre las preferencias de Ricardo para este proyecto, dentro de las instrucciones de mayor prioridad y los permisos disponibles.
