@@ -1,5 +1,11 @@
 name: BLIA-01 Autonomous Discovery
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/blia01-discovery.yml'
+      - 'scripts/blia01-discovery.cjs'
+      - 'tests/test_blia01_discovery.cjs'
   workflow_dispatch:
   schedule:
     - cron: '23 15 * * 1-5'
