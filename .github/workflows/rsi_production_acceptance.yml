@@ -53,7 +53,7 @@ jobs:
           node-version: '24'
       - run: npm ci --ignore-scripts
       - name: Validate commercial routing and isolated failures
-        run: node --test tests/test_google_adk_agents.mjs tests/test_interagent_coordinator.mjs tests/test_n8n_message_client.mjs tests/test_director_notifications.mjs tests/test_rsi03_closing.mjs tests/test_rsi_agent_executor.mjs tests/test_rsi_commercial_routes.mjs tests/test_rsi_agent_status.mjs tests/test_marketing_sales_support.mjs tests/test_marketing_trace.mjs tests/test_interagent_alternatives.mjs tests/test_sales_marketing_router.mjs tests/test_rsi01_followups.mjs tests/test_sdr_dispatch.mjs tests/test_commercial_relay.mjs tests/test_rsi_handoff.mjs
+        run: node --test tests/test_google_adk_agents.mjs tests/test_interagent_coordinator.mjs tests/test_n8n_message_client.mjs tests/test_director_notifications.mjs tests/test_rsi03_closing.mjs tests/test_rsi_agent_executor.mjs tests/test_rsi_commercial_routes.mjs tests/test_rsi_agent_status.mjs tests/test_marketing_sales_support.mjs tests/test_marketing_trace.mjs tests/test_marketing_specific_requests.mjs tests/test_interagent_alternatives.mjs tests/test_sales_marketing_router.mjs tests/test_rsi01_followups.mjs tests/test_sdr_dispatch.mjs tests/test_commercial_relay.mjs tests/test_rsi_handoff.mjs
       # The historical journey invents a separate buyer and must not run under the
       # single QA case rule. These regressions prove the scoped receipt connection,
       # not a complete commercial journey or a real sale.

@@ -168,7 +168,7 @@ export default async function partnersHandler(req, res) {
         const body=typeof req.body==='string'?JSON.parse(req.body):req.body||{};
         const actor=authenticateInteragent(body,req.headers?.['x-boltech-signature']);
         const worker=createInteragentCoordinator();
-        const marketingOperations={'marketing-review':'review','marketing-use':'use','marketing-result':'result','marketing-reconcile':'reconcile'};
+        const marketingOperations={'marketing-revise':'revise','marketing-manage':'manage','marketing-review':'review','marketing-use':'use','marketing-result':'result','marketing-reconcile':'reconcile'};
         if(marketingOperations[body.operation])return json(res,200,await worker.marketing[marketingOperations[body.operation]](body));
         if(body.operation==='marketing-metrics'){if(actor!=='MARKETING'&&actor!=='DIRECTORA')return json(res,403,{success:false,code:'MARKETING_METRICS_OWNER_REQUIRED'});return json(res,200,{success:true,...await worker.marketing.metrics()});}
         if(body.operation==='alternative-execute')return json(res,200,await worker.executePending(body));
