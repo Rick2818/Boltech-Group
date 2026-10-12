@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
-import {mkdir,writeFile} from 'node:fs/promises';
+import {mkdir,writeFile,readFile} from 'node:fs/promises';
 import {createHandoffStore,CAS_SCRIPT} from '../../lib/rsi_handoff_store.js';
 import {createRsiExecutor} from '../../lib/rsi_agent_executor.js';
 import {createGoogleAdkTeam} from '../../lib/google_adk_agents.js';
@@ -18,9 +18,11 @@ globalThis.fetch=async()=>{networkAttempts++;throw Error('SIMULATION_NETWORK_FOR
 const report={kind:'FICTIONAL_OFFLINE_INTEGRATION',date:'2026-10-08',realCustomer:false,realRevenueUsd:0,steps:[],automaticChainComplete:false,manualSimulationInterventions:[],status:'RUNNING'};
 const data=new Map(),index=new Map();let tick=0,order=null,checkouts=0;
 const now=()=>new Date(Date.parse('2026-10-08T16:00:00Z')+tick++*1000),iso=()=>now().toISOString();
-const buyer='buyer@example.test',opportunityId='rec00000000000002',directorKey='simulation-only-key';
+// Cliente de prueba reutilizable del repo (config/qa_case.json): mismo caso que usan los demás tests.
+const qaCase=JSON.parse(await readFile(new URL('../../config/qa_case.json',import.meta.url),'utf8'));
+const buyer=qaCase.answers[8],opportunityId='rec00000000000002',directorKey='simulation-only-key';
 const messages=[];
-const lead={id:opportunityId,fields:{Name:'Empresa ficticia del recorrido','Contact Email':buyer,'Experiment Cohort':'RSI-01','Data Quality':'RESEARCH_ONLY','Commercial Stage':'Contacted','Source Evidence URL':'https://example.test/contact','Buyer Role':'Owner',Notes:'Initial SENT, fictional offline fixture'}};
+const lead={id:opportunityId,fields:{Name:qaCase.answers[7],'Contact Email':buyer,'Experiment Cohort':'RSI-01','Data Quality':'RESEARCH_ONLY','Commercial Stage':'Contacted','Source Evidence URL':'https://example.test/contact','Buyer Role':'Owner',Notes:'Initial SENT, fictional offline fixture'}};
 const work=['RSI-01','RSI-02','RSI-03','MARKETING'].map((rsi,i)=>({id:`rec0000000000001${i}`,fields:{'Work ID':`BOOTSTRAP:${rsi}`,RSI:rsi,Status:'READY',Evidence:'Fictional local fixture'}}));
 async function command(a){
  if(a[0]==='GET')return data.get(a[1])||null;
