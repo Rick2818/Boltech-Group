@@ -1,6 +1,6 @@
-# Procedimiento general del harness
+# Regla de Oro 1 — Procedimiento lógico del harness
 
-Instrucción de Ricardo, 12 octubre 2026. Aplicable al desarrollo, corrección y entrega de cualquier app. Objetivo: reducir retrabajo y obtener un resultado funcional en la primera entrega validada. No significa garantizar ausencia absoluta de fallos ni saltar pruebas.
+Instrucción de Ricardo, 12 octubre 2026. Primera regla general del harness, aplicable al desarrollo, corrección y entrega de cualquier app, dentro de las instrucciones de mayor prioridad y el alcance autorizado. Objetivo: reducir retrabajo y obtener un resultado funcional en la primera entrega validada. No significa garantizar ausencia absoluta de fallos ni saltar pruebas.
 
 ## Una guía amigable y una IA con responsabilidad
 
