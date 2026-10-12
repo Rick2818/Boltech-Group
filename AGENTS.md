@@ -1,5 +1,15 @@
 # Instrucciones de Ricardo
 
+## Arquitectura comercial y guía del harness
+
+Aplicar docs/architecture/HARNESS_WORKFLOW.md como procedimiento general: entender → recuperar contexto → comprobar recursos → diseñar → construir el recorrido mínimo → probar y corregir → publicar y verificar → entregar y aprender. La IA ayuda a razonar y ejecutar; evidencias, contratos y autorizaciones gobiernan los cambios. Reutilizar la guía en próximos proyectos y adaptarla a su criterio de éxito.
+
+Por instrucción de Ricardo del 12 octubre 2026, usar docs/architecture/COMMERCIAL_HARNESS.md como estructura de referencia para esta app y como base portable para las siguientes apps comerciales. El harness debe leer estas reglas, comprobar el plan contra la arquitectura y reorientar cualquier desviación antes de ampliar la implementación.
+
+Si una decisión no está documentada, contrastarla con la instrucción del usuario, el alcance autorizado y la Regla de Oro; registrar la decisión, responsable, razón, evidencia y criterio de aceptación. Resolver por criterio técnico los cambios reversibles dentro del alcance. Para una acción fuera de lo autorizado, preparar primero el resultado revisable y solicitar solo la autorización que falte. No confundir falta de documentación con falta automática de permiso.
+
+Conservar roles existentes, un responsable por oportunidad y estado durable. IA analiza y propone; los permisos, precios, presupuesto, transiciones comerciales y confirmación de pago se validan con reglas y fuentes reales. No llamar funcionalidad validada a una preparación local, un despliegue READY o una prueba simulada. La imagen es un mapa; el documento y las pruebas son el contrato verificable. No prometer ausencia absoluta de fallos ni vender o entregar agentes sin el protocolo de la Regla de Oro.
+
 ## Regla 1: Regla de oro del MicroSaaS
 
 Leer y aplicar REGLA-DE-ORO.md antes de responder sobre el negocio, tomar decisiones importantes o verificar la operación. Es la prioridad número 1 entre las preferencias de Ricardo para este proyecto, dentro de las instrucciones de mayor prioridad y los permisos disponibles.
