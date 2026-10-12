@@ -4,8 +4,10 @@ const base='https://boltech-group.vercel.app/api/partners';
 const token=process.env.PARTNER_API_TOKEN,expected=process.env.GITHUB_SHA;
 const report={at:new Date().toISOString(),commit:expected || null,status:'FAIL',sendingPerformed:false};
 async function request(action,method='GET') {
-  const response=await fetch(`${base}?action=${action}`,{method,headers:{Authorization:`Bearer ${token}`},signal:AbortSignal.timeout(55000)});
-  const data=await response.json();
+  const response=await fetch(`${base}?action=${action}`,{method,headers:{Authorization:`Bearer ${token}`,...(method==='POST'?{'Content-Type':'application/json'}:{})},...(method==='POST'?{body:'{}'}:{}),signal:AbortSignal.timeout(55000)});
+  let data;
+  try {data=await response.json();}
+  catch {throw Object.assign(new Error('Response was not JSON'),{code:'MARKETING_REPAIR_NON_JSON_RESPONSE',httpStatus:response.status});}
   if(!response.ok || data.success!==true) throw Object.assign(new Error('MARKETING_REPAIR_UNCONFIRMED'),{code:data.code});
   return data;
 }
@@ -20,7 +22,7 @@ try {
   report.before=await request('marketing-maintenance');
   // Exactly one POST. An uncertain response is followed by readback, never a blind retry.
   try {report.repair=await request('marketing-maintenance','POST');}
-  catch(error) {report.mutationCode=error.code || 'MARKETING_REPAIR_RESPONSE_UNKNOWN';}
+  catch(error) {report.mutationCode=typeof error.code==='string'?error.code:'MARKETING_REPAIR_RESPONSE_UNKNOWN';report.mutationHttpStatus=error.httpStatus || null;}
   report.after=await request('marketing-maintenance');
   if(!report.repair || report.after.events.length!==4 || !report.after.events.every(row=>row.version===2 && row.reviewed)) {
     throw Object.assign(new Error('Reconciliation required'),{code:'MARKETING_REPAIR_RECONCILIATION_REQUIRED'});

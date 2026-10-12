@@ -2,14 +2,14 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { runIndependentRsiCycle } from '../../lib/rsi_cycle_runner.js';
 const base='https://boltech-group.vercel.app/api/partners';
 const token=process.env.PARTNER_API_TOKEN;
-const expectedSha=(process.env.RSI_EXPECT_DEPLOYMENT_SHA||'').trim();
+const expectedSha=(process.env.RSI_EXPECT_DEPLOYMENT_SHA||(process.env.GITHUB_EVENT_NAME==='push'?process.env.GITHUB_SHA:'')||'').trim();
 const report={timestamp:new Date().toISOString(),commit:process.env.GITHUB_SHA||null,results:[],status:'FAIL'};
 const cycleId=`workflow-${process.env.GITHUB_RUN_ID||Date.now()}-attempt-${process.env.GITHUB_RUN_ATTEMPT||1}`;
 try{
   if(!token)throw new Error('Administrative secret is required');
   // Only read retries while waiting for the deployment. Never retry an uncertain POST.
   let ready=false;
-  for(let i=0;i<18;i++){
+  for(let i=0;i<36;i++){
     try{const res=await fetch(`${base}?action=rsi-agents`,{headers:{Authorization:`Bearer ${token}`},signal:AbortSignal.timeout(10000)});const data=await res.json();if(res.ok&&data.execution?.contractVersion===1&&data.executorVersion>=2&&typeof data.deploymentCommit==='string'&&/^[a-f0-9]{40}$/i.test(data.deploymentCommit)&&(!expectedSha||data.deploymentCommit===expectedSha)){ready=true;break;}}catch{}
     await new Promise(r=>setTimeout(r,5000));
   }
