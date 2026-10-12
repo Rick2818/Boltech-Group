@@ -129,6 +129,17 @@ test('failed costs do not hide available payment ledger and do not invent margin
   const raw=JSON.parse(f.rows[2].fields['Execution Receipt']);const evidence=JSON.parse(raw.actions.find(a=>a.type==='REFERRAL_COST_PAYMENT_REVIEW').result);
   assert.equal(evidence.costs,null);assert.equal(evidence.cash.cashCollectedUsd,0);assert.ok(raw.blockers.includes('RSI_SOURCE_UNAVAILABLE'));
 });
+test('one marketing history outage is visible but does not suppress independent sales relay or financial reads',async()=>{
+ const f=fixture();let relays=0;f.options.relay=async()=>{relays++;return {results:[]};};
+ f.options.marketingCycle=async()=>({reviewed:1,failures:[{stage:'HISTORY',code:'GMAIL_OAUTH_AUTH_FAILED'}],sendingPerformed:false});
+ const worker=createRsiExecutor(f.options);
+ for(const rsi of ['RSI-02','RSI-03']) {
+  const result=await worker.run({rsi,cycleId:'marketing-outage'});assert.equal(result.receipt.outcome,'BLOCKED');
+  assert.ok(result.receipt.blockers.includes('GMAIL_OAUTH_AUTH_FAILED'));
+ }
+ assert.equal(relays,2);const raw=JSON.parse(f.rows[2].fields['Execution Receipt']);
+ assert.ok(raw.actions.some(a=>a.type==='REFERRAL_COST_PAYMENT_REVIEW'));assert.ok(raw.actions.some(a=>a.type==='RSI03_CLOSING_CYCLE'));
+});
 test('lost lease cannot finalize durable success or delete another workers lock',async()=>{
   const f=fixture();let writes=0;
   const request=async(...args)=>{const value=await f.request(...args);if(args[1]?.method==='PATCH'&&++writes===2)f.data.set('boltech:rsi:executor-lock:RSI-01','new-lease');return value;};
