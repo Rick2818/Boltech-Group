@@ -4,104 +4,96 @@ import path from 'node:path';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 
-test('Boltech Payments MCP Server: Initialises, lists tools and executes full payment suite', async () => {
-  const serverPath = path.resolve('mcp/boltech-payments-mcp.mjs');
-  
-  const transport = new StdioClientTransport({
-    command: process.execPath,
-    args: [serverPath],
-    env: {
-      ...process.env,
-      STRIKE_API_KEY: '',
-      WOMPI_PRIVATE_KEY: '',
-      WOMPI_ENV: 'sandbox',
-      USD_COP_RATE: '4000'
+// Contrato v2 del servidor MCP de pagos: solo expone estado de configuración.
+// Las herramientas que crean o consultan cobros están deshabilitadas a propósito;
+// las órdenes reales se crean y concilian en /api/payments.
+const serverPath = path.resolve('mcp/boltech-payments-mcp.mjs');
+const DISABLED_TOOLS = [
+  ['strike_create_invoice', { amount_usd: 69, description: 'Plan Pro $69 USD via Lightning' }],
+  ['strike_get_invoice', { invoice_id: 'inv-test' }],
+  ['wompi_create_payment_link', { amount_usd: 69, description: 'Plan Pro' }],
+  ['wompi_get_transaction', { transaction_id: 'tx-test' }]
+];
+
+// Entorno aislado: no hereda credenciales ni PAYMENT_ENV del proceso padre.
+function isolatedEnv(overrides = {}) {
+  const env = { ...process.env };
+  for (const key of Object.keys(env)) {
+    if (/^(PAYMENT_ENV|STRIKE_|WOMPI_)/.test(key)) delete env[key];
+  }
+  return { ...env, ...overrides };
+}
+
+// El cierre del cliente va en finally: si una aserción falla, el proceso hijo
+// del servidor MCP no queda vivo y la suite no se cuelga.
+async function withClient(env, fn) {
+  const transport = new StdioClientTransport({ command: process.execPath, args: [serverPath], env, stderr: 'ignore' });
+  const client = new Client({ name: 'boltech-test-client', version: '1.0.0' }, { capabilities: {} });
+  try {
+    await client.connect(transport);
+    return await fn(client);
+  } finally {
+    await client.close().catch(() => {});
+  }
+}
+
+test('Boltech Payments MCP: lista herramientas y reporta estado sin revelar credenciales', { timeout: 30000 }, async () => {
+  const canary = 'CANARY_SECRET_DO_NOT_LEAK';
+  const env = isolatedEnv({
+    PAYMENT_ENV: 'sandbox',
+    STRIKE_SANDBOX_API_KEY: canary,
+    STRIKE_WEBHOOK_SECRET: canary,
+    WOMPI_APP_ID: 'app-id-canary',
+    WOMPI_API_SECRET: canary
+  });
+
+  await withClient(env, async (client) => {
+    const { tools } = await client.listTools();
+    const names = tools.map((t) => t.name);
+    for (const name of ['payments_status', ...DISABLED_TOOLS.map(([n]) => n)]) {
+      assert.ok(names.includes(name), `Debe exponer la herramienta ${name}`);
+    }
+
+    const status = await client.callTool({ name: 'payments_status', arguments: {} });
+    assert.notStrictEqual(status.isError, true, 'payments_status no debe fallar con PAYMENT_ENV definido');
+    const text = status.content[0].text;
+    assert.ok(!text.includes(canary), 'payments_status nunca debe revelar credenciales');
+    assert.ok(!text.includes('app-id-canary'), 'payments_status nunca debe revelar identificadores de credenciales');
+
+    const parsed = JSON.parse(text);
+    assert.strictEqual(parsed.environment, 'sandbox');
+    assert.strictEqual(parsed.strike.configured, true);
+    assert.strictEqual(parsed.strike.webhookConfigured, true);
+    assert.strictEqual(parsed.strike.environment, 'sandbox');
+    assert.strictEqual(parsed.wompi.configured, true);
+    assert.strictEqual(parsed.policy, 'PROVIDER_VERIFICATION_REQUIRED');
+    assert.strictEqual(parsed.mutations, 'DISABLED_IN_MCP_USE_VERIFIED_PAYMENT_API');
+  });
+});
+
+test('Boltech Payments MCP: sin credenciales reporta configured=false', { timeout: 30000 }, async () => {
+  await withClient(isolatedEnv({ PAYMENT_ENV: 'sandbox' }), async (client) => {
+    const parsed = JSON.parse((await client.callTool({ name: 'payments_status', arguments: {} })).content[0].text);
+    assert.strictEqual(parsed.strike.configured, false);
+    assert.strictEqual(parsed.wompi.configured, false);
+  });
+});
+
+test('Boltech Payments MCP: las herramientas que crean o consultan cobros están deshabilitadas', { timeout: 30000 }, async () => {
+  await withClient(isolatedEnv({ PAYMENT_ENV: 'sandbox' }), async (client) => {
+    for (const [name, args] of DISABLED_TOOLS) {
+      const result = await client.callTool({ name, arguments: args });
+      assert.strictEqual(result.isError, true, `${name} debe devolver error`);
+      assert.match(result.content[0].text, /deshabilitada/i, `${name} debe explicar que está deshabilitada`);
+      assert.ok(!/READY_FOR_(PAYMENT|COMMERCE)|checkout\.wompi\.co/.test(result.content[0].text), `${name} no debe fabricar links ni facturas`);
     }
   });
+});
 
-  const client = new Client(
-    { name: 'boltech-test-client', version: '1.0.0' },
-    { capabilities: {} }
-  );
-
-  await client.connect(transport);
-
-  // 1. List tools
-  const toolsResult = await client.listTools();
-  assert.ok(toolsResult && toolsResult.tools, 'Tools list must be returned');
-  const toolNames = toolsResult.tools.map(t => t.name);
-
-  assert.ok(toolNames.includes('payments_status'), 'Must have payments_status tool');
-  assert.ok(toolNames.includes('strike_create_invoice'), 'Must have strike_create_invoice tool');
-  assert.ok(toolNames.includes('strike_get_invoice'), 'Must have strike_get_invoice tool');
-  assert.ok(toolNames.includes('wompi_create_payment_link'), 'Must have wompi_create_payment_link tool');
-  assert.ok(toolNames.includes('wompi_get_transaction'), 'Must have wompi_get_transaction tool');
-
-  // 2. Call payments_status tool
-  const statusResult = await client.callTool({
-    name: 'payments_status',
-    arguments: {}
+test('Boltech Payments MCP: falla cerrado si PAYMENT_ENV no está configurado', { timeout: 30000 }, async () => {
+  await withClient(isolatedEnv(), async (client) => {
+    const result = await client.callTool({ name: 'payments_status', arguments: {} });
+    assert.strictEqual(result.isError, true, 'Sin PAYMENT_ENV debe devolver error, nunca asumir un entorno');
+    assert.match(result.content[0].text, /PAYMENT_ENV/);
   });
-
-  assert.ok(statusResult && statusResult.content, 'Status result content must exist');
-  const parsedStatus = JSON.parse(statusResult.content[0].text);
-  assert.strictEqual(parsedStatus.strike, false);
-  assert.strictEqual(parsedStatus.wompi, false);
-  assert.strictEqual(parsedStatus.wompi_env, 'sandbox');
-  assert.strictEqual(parsedStatus.usd_cop_rate_set, true);
-
-  // 3. Test wompi_create_payment_link in sandbox simulation mode ($69.00 USD)
-  const wompiLinkResult = await client.callTool({
-    name: 'wompi_create_payment_link',
-    arguments: {
-      name: 'Plan Pro - Centinela 24/7',
-      description: 'Activación Plan Pro $69 USD',
-      amount_usd: 69,
-      single_use: true
-    }
-  });
-  assert.ok(wompiLinkResult && wompiLinkResult.content, 'Wompi link result must exist');
-  const parsedWompi = JSON.parse(wompiLinkResult.content[0].text);
-  assert.strictEqual(parsedWompi.amount_usd, 69);
-  assert.strictEqual(parsedWompi.amount_cop, 276000);
-  assert.strictEqual(parsedWompi.status, 'READY_FOR_COMMERCE');
-  assert.ok(parsedWompi.url.includes('checkout.wompi.co'), 'Url must point to Wompi checkout');
-
-  // 4. Test wompi_get_transaction in sandbox simulation mode
-  const wompiTxResult = await client.callTool({
-    name: 'wompi_get_transaction',
-    arguments: {
-      transaction_id: parsedWompi.link_id
-    }
-  });
-  const parsedTx = JSON.parse(wompiTxResult.content[0].text);
-  assert.strictEqual(parsedTx.status, 'APPROVED');
-  assert.strictEqual(parsedTx.approved, true);
-  assert.strictEqual(parsedTx.payment_method, 'NEQUI');
-
-  // 5. Test strike_create_invoice in sandbox simulation mode ($69.00 USD)
-  const strikeInvResult = await client.callTool({
-    name: 'strike_create_invoice',
-    arguments: {
-      amount_usd: 69,
-      description: 'Plan Pro $69 USD via Lightning'
-    }
-  });
-  const parsedStrike = JSON.parse(strikeInvResult.content[0].text);
-  assert.strictEqual(parsedStrike.amount_usd, 69);
-  assert.strictEqual(parsedStrike.strike_lightning_address, 'rick2818@strike.me');
-  assert.strictEqual(parsedStrike.status, 'READY_FOR_PAYMENT');
-
-  // 6. Test strike_get_invoice
-  const strikeGetResult = await client.callTool({
-    name: 'strike_get_invoice',
-    arguments: {
-      invoice_id: parsedStrike.invoice_id
-    }
-  });
-  const parsedStrikeStatus = JSON.parse(strikeGetResult.content[0].text);
-  assert.strictEqual(parsedStrikeStatus.paid, true);
-  assert.strictEqual(parsedStrikeStatus.state, 'PAID');
-
-  await client.close();
 });

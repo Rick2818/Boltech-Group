@@ -12,6 +12,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 
 console.log('🏛️ =================================================================');
 console.log('🏛️ AUDITORÍA MAESTRA DE SDKs & SERVICIOS COGNITIVOS BOLTECH GROUP');
@@ -21,7 +22,7 @@ const auditResults = [];
 
 function recordAudit(num, name, category, status, detail) {
   auditResults.push({ num, name, category, status, detail });
-  const icon = status === 'PASADO' ? '✅' : '❌';
+  const icon = status === 'PASADO' ? '✅' : status === 'ADVERTENCIA' ? '⚠️' : '❌';
   console.log(`[SDK #${String(num).padStart(2, '0')}] ${icon} ${name.padEnd(25)} | Cat: ${category.padEnd(16)} | ${detail}`);
 }
 
@@ -255,7 +256,9 @@ try {
 // -----------------------------------------------------------------------------
 
 // 22. mcp-agent-generator
-const mcpPath = path.resolve(process.env.USERPROFILE || 'C:\\Users\\Ricardo', '.gemini/antigravity/mcp/mcp-agent-generator');
+// Componente local de la máquina de Ricardo (fuera del repositorio): si no existe
+// se reporta como ADVERTENCIA y no bloquea la auditoría (CI, otros equipos).
+const mcpPath = path.resolve(process.env.USERPROFILE || process.env.HOME || os.homedir(), '.gemini/antigravity/mcp/mcp-agent-generator');
 if (fs.existsSync(mcpPath)) {
   const hasTools = fs.readdirSync(mcpPath).filter(f => f.endsWith('.json')).length;
   recordAudit(22, 'mcp-agent-generator', 'Servidor MCP', 'PASADO', `Ubicado en ${mcpPath} (${hasTools} herramientas registradas)`);
@@ -265,10 +268,13 @@ if (fs.existsSync(mcpPath)) {
 
 console.log('\n🏛️ =================================================================');
 const passedCount = auditResults.filter(r => r.status === 'PASADO').length;
+const warningCount = auditResults.filter(r => r.status === 'ADVERTENCIA').length;
+const blocking = auditResults.filter(r => r.status !== 'PASADO' && r.status !== 'ADVERTENCIA');
 const totalCount = auditResults.length;
-console.log(`🏛️ RESULTADO FINAL DE LA AUDITORÍA: ${passedCount}/${totalCount} COMPONENTES OPERATIVOS AL 100%`);
+console.log(`🏛️ RESULTADO FINAL DE LA AUDITORÍA: ${passedCount}/${totalCount} COMPONENTES OPERATIVOS AL 100%` +
+  (warningCount ? ` (${warningCount} advertencia${warningCount > 1 ? 's' : ''} no bloqueante${warningCount > 1 ? 's' : ''})` : ''));
 console.log('🏛️ =================================================================\n');
 
-if (passedCount !== totalCount) {
+if (blocking.length > 0) {
   process.exit(1);
 }

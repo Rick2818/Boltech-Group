@@ -67,3 +67,6 @@ artifacts/improvement-cycle/
 data/airtable_leads.csv
 data/airtable_deals.csv
 data/airtable_metrics.csv
+
+# Reportes generados por scripts/ops (los workflows los suben como artefactos)
+ops-output/

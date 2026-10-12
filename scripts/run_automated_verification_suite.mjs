@@ -76,26 +76,38 @@ const SUITES = [
     cmd: 'node',
     args: ['--test', 'tests/test_operational_truth_guards.mjs'],
     category: 'Gobernanza & Evidencia'
-  }
+  },
+  // --- Cadena comercial RSI-01 → RSI-02 → RSI-03 → Dirección → Ricardo (+ Mercadeo) ---
+  { name: '11. RSI-01 — Seguimientos y registro de respuestas', cmd: 'node', args: ['--test', 'tests/test_rsi01_followups.mjs', 'tests/test_followup_work_sync.mjs'], category: 'Cadena Comercial' },
+  { name: '12. Relevos durables entre agentes (RSI handoff y relay)', cmd: 'node', args: ['--test', 'tests/test_rsi_handoff.mjs', 'tests/test_commercial_relay.mjs'], category: 'Cadena Comercial' },
+  { name: '13. RSI-03 — Cierre, aceptación y checkout único', cmd: 'node', args: ['--test', 'tests/test_rsi03_closing.mjs'], category: 'Cadena Comercial' },
+  { name: '14. Coordinador interagente y avisos a Dirección', cmd: 'node', args: ['--test', 'tests/test_interagent_coordinator.mjs', 'tests/test_director_notifications.mjs'], category: 'Cadena Comercial' },
+  { name: '15. Orquestación ADK y ejecutor de agentes RSI', cmd: 'node', args: ['--test', 'tests/test_google_adk_agents.mjs', 'tests/test_rsi_agent_executor.mjs'], category: 'Cadena Comercial' },
+  { name: '16. Mercadeo al servicio de ventas', cmd: 'node', args: ['--test', 'tests/test_marketing_sales_support.mjs', 'tests/test_marketing_specific_requests.mjs'], category: 'Cadena Comercial' },
+  { name: '17. Recorrido comercial ficticio de punta a punta (offline)', cmd: 'node', args: ['scripts/ops/simulate_commercial_journey.mjs'], category: 'Cadena Comercial' }
 ];
+
+// Una suite colgada no debe bloquear a las demás: se mata y se reporta como fallida.
+const SUITE_TIMEOUT_MS = Number(process.env.VERIFY_SUITE_TIMEOUT_MS) || 120000;
 
 function runCommand(cmd, args) {
   return new Promise((resolve) => {
     const startTime = Date.now();
-    const proc = spawn(cmd, args, { cwd: ROOT_DIR, shell: false });
+    const proc = spawn(cmd, args, { cwd: ROOT_DIR, shell: false, timeout: SUITE_TIMEOUT_MS, killSignal: 'SIGKILL' });
     let stdout = '';
     let stderr = '';
 
     proc.stdout.on('data', (d) => { stdout += d.toString(); });
     proc.stderr.on('data', (d) => { stderr += d.toString(); });
 
-    proc.on('close', (code) => {
+    proc.on('close', (code, signal) => {
       const durationMs = Date.now() - startTime;
+      const timedOut = signal === 'SIGKILL';
       resolve({
         code,
         success: code === 0,
         stdout,
-        stderr,
+        stderr: timedOut ? `TIMEOUT: la suite superó ${SUITE_TIMEOUT_MS} ms y fue terminada.\n${stderr}` : stderr,
         durationMs
       });
     });
@@ -156,7 +168,9 @@ async function main() {
     console.log('\n❌ [ALERTA FIDUCIARIA]: Se detectaron fallas en la verificación. Revisar logs.');
     process.exit(1);
   } else {
-    console.log('\n💎 [CERTIFICACIÓN OK]: Todos los agentes y subsistemas cumplen con los estándares fiduciarios.');
+    console.log('\n✅ [PRUEBAS OFFLINE OK]: la lógica de los agentes y subsistemas pasa con datos ficticios.');
+    console.log('⚠️  Esto NO verifica producción: ni correos realmente enviados, ni respuestas de clientes, ni pagos confirmados por el proveedor.');
+    console.log('   Para eso revisa los workflows de GitHub Actions (Production Health Watch / RSI Production Acceptance) y la evidencia real.');
     process.exit(0);
   }
 }
