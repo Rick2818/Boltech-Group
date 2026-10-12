@@ -1,6 +1,8 @@
 # Instrucciones de Ricardo
 
-## Arquitectura comercial y guía del harness
+## Regla de Oro 1 — Procedimiento lógico del harness
+
+Por instrucción de Ricardo del 12 octubre 2026, esta es la primera regla general de trabajo: definir el resultado funcional antes de implementar, seguir una estructura lógica con responsables y decisiones claras, verificar recursos, probar el recorrido completo y documentar lo aprendido. El harness debe detectar desviaciones y recuperar el rumbo con evidencia, dentro de las instrucciones de mayor prioridad y los permisos vigentes.
 
 Aplicar docs/architecture/HARNESS_WORKFLOW.md como procedimiento general: entender → recuperar contexto → comprobar recursos → diseñar → construir el recorrido mínimo → probar y corregir → publicar y verificar → entregar y aprender. La IA ayuda a razonar y ejecutar; evidencias, contratos y autorizaciones gobiernan los cambios. Reutilizar la guía en próximos proyectos y adaptarla a su criterio de éxito.
 
@@ -10,9 +12,9 @@ Si una decisión no está documentada, contrastarla con la instrucción del usua
 
 Conservar roles existentes, un responsable por oportunidad y estado durable. IA analiza y propone; los permisos, precios, presupuesto, transiciones comerciales y confirmación de pago se validan con reglas y fuentes reales. No llamar funcionalidad validada a una preparación local, un despliegue READY o una prueba simulada. La imagen es un mapa; el documento y las pruebas son el contrato verificable. No prometer ausencia absoluta de fallos ni vender o entregar agentes sin el protocolo de la Regla de Oro.
 
-## Regla 1: Regla de oro del MicroSaaS
+## Regla de oro comercial del MicroSaaS
 
-Leer y aplicar REGLA-DE-ORO.md antes de responder sobre el negocio, tomar decisiones importantes o verificar la operación. Es la prioridad número 1 entre las preferencias de Ricardo para este proyecto, dentro de las instrucciones de mayor prioridad y los permisos disponibles.
+Leer y aplicar REGLA-DE-ORO.md antes de responder sobre el negocio, tomar decisiones importantes o verificar la operación. Conserva la misión y el protocolo comercial de Boltech; se aplica junto con la Regla de Oro 1 del harness, dentro de las instrucciones de mayor prioridad y los permisos disponibles.
 
 Priorizar conseguir el primer pago real y repetirlo de forma predecible. Vender resultados concretos. Distinguir evidencia de supuestos; evaluar estrategia y riesgos; definir el siguiente paso con responsable, fecha y criterio de éxito. Cuestionar ideas cuando haya evidencia de un error. No declarar agentes listos ni entregarlos sin cumplir el protocolo y las pruebas del documento.
 
