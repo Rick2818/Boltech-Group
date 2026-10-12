@@ -9,6 +9,8 @@ import {createDirectorNotifications} from '../lib/director_notifications.js';
 import { createSdrDispatch } from '../lib/sdr_dispatch.js';
 import { createApolloClient, getApolloApiKey } from '../lib/apollo_client.js';
 import {authenticateInteragent,createInteragentCoordinator} from '../lib/interagent_coordinator.js';
+import {createMarketingMaintenance} from '../lib/marketing_maintenance.js';
+import {marketingErrorCode} from '../lib/rsi_marketing_cycle.js';
 
 export const config = { maxDuration: 60 };
 import {
@@ -162,6 +164,14 @@ export default async function partnersHandler(req, res) {
 
   try {
     const action = actionFromRequest(req);
+    if(action==='marketing-maintenance') {
+      if(!requireOperationalAuth(req,res))return;
+      if(!['GET','POST'].includes(req.method))return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
+      try {
+        const worker=createMarketingMaintenance();
+        return json(res,200,await (req.method==='POST'?worker.repair():worker.inspect()));
+      }catch(error){return json(res,error.statusCode||503,{success:false,code:marketingErrorCode(error)});}
+    }
     if (action==='interagent') {
       if(req.method!=='POST')return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
       try {

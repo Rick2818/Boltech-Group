@@ -13,3 +13,10 @@ test('actor version usage and result gates reject invented adoption',async()=>{c
 test('wrong account automatic reply old message or different thread is not a commercial result',async()=>{const f=fixture();await f.review();await f.worker.use({...f.input,messageId:'sent',language:'es'});for(const change of [{from:'wrong@example.test'},{automatic:true},{threadId:'other'},{receivedAt:'2026-10-07T18:00:00Z'}]){const old={...f.messages.reply};Object.assign(f.messages.reply,change);await assert.rejects(f.worker.result({...f.input,messageId:'reply'}),/RESULT_UNVERIFIED/);f.messages.reply=old;}assert.equal((await f.worker.metrics()).resultsVerified,0);});
 test('existing Gmail history automatically connects verified use and customer reply',async()=>{const f=fixture();await f.review();const r=await f.worker.reconcile(f.input);assert.equal(r.used,true);assert.equal(r.resultVerified,true);assert.equal(r.sendingPerformed,false);assert.equal(r.saleInferred,false);assert.equal((await f.worker.reconcile(f.input)).status,'CUSTOMER_REPLY_VERIFIED');});
 test('no matching sent material remains pending with a durable real check',async()=>{const f=fixture();await f.review();f.messages.sent.text='Unrelated correspondence';const r=await f.worker.reconcile(f.input);assert.equal(r.status,'NO_VERIFIED_USE');assert.equal(r.used,false);assert.equal(f.row().marketingHistoryCheck.candidateMessages,1);});
+
+test('a previous email cannot be attributed to a newly revised material version',async()=>{
+ const f=fixture();await f.worker.revise({...f.input,materialFingerprint:f.row().material.fingerprint,supportRequest:{kind:'MESSAGE_AND_FIT',need:'QA existing workflow review',deliverable:'QA written qualification questions',evidenceRefs:['qa-existing-case']}});
+ await f.review();f.messages.sent.text=f.row().material.materials.es.brief;
+ await assert.rejects(f.worker.use({...f.input,messageId:'sent',language:'es'}),/USAGE_UNVERIFIED/);
+ assert.equal((await f.worker.metrics()).used,0);
+});

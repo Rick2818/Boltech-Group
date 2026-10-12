@@ -10,6 +10,11 @@ on:
       - 'scripts/ops/verify_rsi_agents.mjs'
       - 'lib/rsi_agent_status.js'
       - 'lib/rsi_agent_executor.js'
+      - 'lib/rsi_marketing_cycle.js'
+      - 'lib/marketing_maintenance.js'
+      - 'scripts/ops/repair_marketing_production.mjs'
+      - 'tests/test_rsi_marketing_cycle.mjs'
+      - 'tests/test_marketing_maintenance.mjs'
       - 'lib/commercial_relay.js'
       - 'tests/test_commercial_relay.mjs'
       - 'scripts/ops/simulate_commercial_journey.mjs'
@@ -54,6 +59,8 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Validate commercial routing and isolated failures
         run: node --test tests/test_google_adk_agents.mjs tests/test_interagent_coordinator.mjs tests/test_n8n_message_client.mjs tests/test_director_notifications.mjs tests/test_rsi03_closing.mjs tests/test_rsi_agent_executor.mjs tests/test_rsi_commercial_routes.mjs tests/test_rsi_agent_status.mjs tests/test_marketing_sales_support.mjs tests/test_marketing_trace.mjs tests/test_marketing_specific_requests.mjs tests/test_interagent_alternatives.mjs tests/test_sales_marketing_router.mjs tests/test_rsi01_followups.mjs tests/test_sdr_dispatch.mjs tests/test_commercial_relay.mjs tests/test_rsi_handoff.mjs
+      - name: Validate isolated marketing checks and bounded existing draft repair
+        run: node --test tests/test_rsi_marketing_cycle.mjs tests/test_marketing_maintenance.mjs
       # The historical journey invents a separate buyer and must not run under the
       # single QA case rule. These regressions prove the scoped receipt connection,
       # not a complete commercial journey or a real sale.
@@ -64,6 +71,11 @@ jobs:
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
         run: node scripts/ops/run_rsi_agents.mjs
+      - name: Repair four existing private marketing drafts after the exact production deployment
+        if: github.event_name == 'push'
+        env:
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+        run: node scripts/ops/repair_marketing_production.mjs
       - name: Verify four real agent execution receipts
         if: always() && github.event_name != 'push'
         env:
@@ -76,7 +88,7 @@ jobs:
           RSI_PREVIOUS_QA_ID: qa-production-37143341066
         run: node scripts/ops/verify_rsi_production.mjs
       - name: Preserve sanitized acceptance evidence
-        if: always() && github.event_name != 'push'
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: rsi-production-acceptance-${{ github.run_id }}
@@ -86,5 +98,6 @@ jobs:
             ops-output/rsi-production-verification.json
             ops-output/rsi-agent-verification.json
             ops-output/rsi-agent-execution.json
+            ops-output/marketing-production-repair.json
           retention-days: 30
           if-no-files-found: error
