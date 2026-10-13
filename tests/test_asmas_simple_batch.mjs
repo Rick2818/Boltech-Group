@@ -10,7 +10,7 @@ function fixture(){
 }
 test('one bounded host runs five roles and records verified model results; no sale certification',async()=>{
  const f=fixture();let calls=0;
- const handler=createBatchHandler({repository:f.repository,apiKeyPresent:true,runModel:async(agent)=>{calls++;return{agent,model:'gemini-2.5-flash',text:'test-only response'}}});
+ const handler=createBatchHandler({repository:f.repository,apiKeyPresent:true,runModel:async(agent)=>{calls++;return{agent,model:'gemini-3.8-flash',text:'test-only response'}}});
  const r=await handler(request());const body=await r.json();
  assert.equal(r.status,200);assert.equal(calls,5);assert.equal(body.processed,5);
  assert.equal(body.certified,false);assert.equal(body.payments,0);assert.deepEqual(f.done.map(x=>x.agent),['A5','A1','A2','A3','A4']);
@@ -31,7 +31,7 @@ test('unauthorized caller cannot invoke model or read tasks',async()=>{
 test('uncertain model result or lease conflict is held for review without a second attempt',async()=>{
  for(const conflict of [false,true]){
   const f=fixture();let calls=0;f.repository.finish=async()=>false;
-  const handler=createBatchHandler({repository:f.repository,apiKeyPresent:true,runModel:async(agent)=>{calls++;if(!conflict)throw Error('secret-provider-detail');return{agent,model:'gemini-2.5-flash',text:'test'};}});
+  const handler=createBatchHandler({repository:f.repository,apiKeyPresent:true,runModel:async(agent)=>{calls++;if(!conflict)throw Error('secret-provider-detail');return{agent,model:'gemini-3.8-flash',text:'test'};}});
   const r=await handler(request());assert.equal(r.status,502);assert.equal(calls,1);assert.equal(f.failed.length,1);
   assert.ok(!(await r.text()).includes('secret-provider-detail'));
  }
