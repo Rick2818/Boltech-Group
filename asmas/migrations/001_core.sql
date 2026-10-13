@@ -1,4 +1,4 @@
--- ASMAS ONLY. Run on a NEW dedicated Supabase project, never on Boltech/Quinta Celia.
+-- ASMAS ONLY. Run solely on a dedicated ASMAS Supabase project.
 create schema if not exists asmas;
 create table if not exists asmas.opportunities(
  id text primary key, lead_id text not null, stage text not null default 'NEW_LEAD',
