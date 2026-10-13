@@ -2,7 +2,7 @@ import postgres from 'npm:postgres@3.4.3';
 import {createBatchHandler} from '../simple-batch.mjs';
 import {createGeminiRuntime} from '../gemini-runtime.mjs';
 const dbUrl=Deno.env.get('SUPABASE_DB_URL');
-const key=Deno.env.get('GOOGLE_API_KEY');
+const key=Deno.env.get('GOOGLE_API_KEY')||Deno.env.get('GEMINI_API_KEY')||Deno.env.get('GOOGLE_GENERATIVE_AI_API_KEY');
 let db;
 function database(){if(!dbUrl)throw Error('DB_REQUIRED');return db??=postgres(dbUrl,{prepare:false,max:1,connect_timeout:8,idle_timeout:10});}
 const repository={

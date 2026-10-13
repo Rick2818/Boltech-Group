@@ -36,3 +36,10 @@ Redis and an additional Vercel server credential are no longer prerequisites. Co
 - GitHub contract run 38424407968: 30 tests, 30 passed, 0 failed.
 - All five workflows for the code commit succeeded. Draft PR #62 remains unmerged.
 - No Gemini inference, real email, payment or commercial certification occurred.
+
+## Existing Gemini credential audit
+- User clarified that the existing key should be reused, not replaced.
+- Located GEMINI_API_KEY in Vercel project one-click-billing, for Production and Preview. No source project settings were changed.
+- The variable is Secret/sensitive. The normal get-project-env request returned metadata without a recoverable value; no key was printed or copied.
+- ASMAS Vault has no Google/Gemini-named secret. ASMAS Edge Function version 5 checks GOOGLE_API_KEY, GEMINI_API_KEY and GOOGLE_GENERATIVE_AI_API_KEY; live authorized probe still returned BLOCKED_GOOGLE_API_KEY with model_calls=0.
+- Need the ORIGINAL existing credential value from its owner/provider, then save it to ASMAS Supabase secrets. Creating a new key is not required.
