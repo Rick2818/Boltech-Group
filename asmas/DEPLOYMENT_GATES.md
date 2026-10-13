@@ -1,16 +1,18 @@
-# ASMAS isolated deployment gates
+# ASMAS isolated deployment gates — simplified route
+Ricardo selected Supabase queue + one Edge Function + Cron on 2026-10-13, to reduce code and keep USD0. This replaces the earlier mandatory Redis/independent-worker plan for synthetic staging.
 
-**Current status: NOT DEPLOYED.** Source branch: feature/asmas-v4-1-core. Never merge with main or deploy on boltech-group's production Vercel project.
+## Applied
+- Dedicated Supabase project pkgztteqtyebsggxnett; no Boltech database.
+- Five distinct roles and durable task ownership within one batch host.
+- Private functions/tables, scoped endpoint token, idempotency and lease fencing.
+- Cron every 15 minutes; independent Vercel diagnostics.
+- Unit/CI and database contract tests; live HTTP preflight.
 
-1. Obtain explicit selection of Supabase organization and confirm pricing before provisioning an ASMAS-only project.
-2. Create *separate* Vercel project or external durable worker hosting. Never use Boltech project environment variables.
-3. Apply asmas/migrations/001_core.sql only to ASMAS dedicated database. Review schema, roles, backup and provider security first.
-4. Provision Redis with persistence and distinct ASMAS namespace/credentials. Wire queue-worker to real broker and repo.
-5. Install and pin @openai/agents in worker project; configure API key only in secret store. Test actual agent invocations with spending caps.
-6. Configure Airtable QA base appwADonOZJEjwsgg; switch from staging to production only after explicit validation.
-7. Verify vendor credentials from *worker* runtime: Apollo/Lusha/Gmail/payment provider and least-privilege MCP.
-8. Execute the 15 fault scenarios in actual staging; offline model tests are not equivalent.
-9. Keep outbound email/payment disabled until dry runs, provider reconciliation and go-live policy are approved.
-10. Open a standalone ASMAS repository before any public-facing production rollout if isolation requires a separate deployment pipeline.
+## Still required
+1. Configure GOOGLE_API_KEY securely in ASMAS Supabase and verify the Google API project's free tier before enabling model calls.
+2. Complete actual A5 → A1 → A2 → A3 → A4 inference for SYN-E2E-001; inspect durable results and receipts.
+3. Verify remaining commercial integrations and fault cases separately. Provider inference is not commercial delivery certification.
+4. Keep real outbound emails and payments disabled in this staging project.
+5. No merge into main and no rollout to Boltech production under this staging authorization.
 
-Current offline unit tests demonstrate behavioral contracts only, not service availability.
+Redis and a Vercel database secret are not requirements for the simplified route. Offline tests, database test outputs and deployment ACTIVE/READY are not evidence of live model autonomy.

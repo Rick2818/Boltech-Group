@@ -25,3 +25,14 @@ This supersedes the earlier Redis-dependent staging plan following Ricardo's ins
 4. Real inference does not certify the entire commercial flow. Vendor integrations and the remaining fault scenarios still need independent verification.
 
 Redis and an additional Vercel server credential are no longer prerequisites. Commercial certification remains false. A SQL contract test, mock, deployed function or READY state is not a live five-agent model execution.
+
+## Final readback
+- Commit deployed in Vercel: f98805d24ca7885ca3d81d3498c65ce603b2cb4f.
+- Independent Vercel deployment dpl_EBVAr9PguMFPLLhJTVWQdRnkJYGJ is READY; diagnostic delegates to Supabase readiness. Protected Vercel HTTP readback remains subject to the previously blocked account access; no protection was disabled.
+- Supabase Edge Function asmas-batch is ACTIVE, version 4. Source hash 7421b1eebc01fdac52f9bcc1e427a0384592113ec26cfa67a6048437e4751b4f.
+- Latest authenticated worker probe returned 503 BLOCKED_GOOGLE_API_KEY, model_calls=0, no timeout.
+- Unauthenticated POST returned 403 FORBIDDEN.
+- First real scheduled execution: 2026-10-13 15:45:00 UTC / 09:45:00 El Salvador, succeeded; correctly left model execution blocked by configuration.
+- GitHub contract run 38424407968: 30 tests, 30 passed, 0 failed.
+- All five workflows for the code commit succeeded. Draft PR #62 remains unmerged.
+- No Gemini inference, real email, payment or commercial certification occurred.
