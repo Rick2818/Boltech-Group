@@ -14,7 +14,7 @@ test('uncertain external operation requires reconciliation; never ACK',async()=>
 });
 test('duplicate tasks acknowledged without executing',async()=>{
  let invoked=false,ack=false;
- const out=await consumeOne({broker:{read:async()=>({id:'evt',message:m}),ack:async()=>{ack=true}},repository:{claim:async()=>({status:'COMPLETED'})},executor:async()=>{invoked=true}});
+ const out=await consumeOne({broker:{read:async()=>({id:'evt',message:m}),ack:async()=>{ack=true}},repository:{claim:async()=>({status:'COMPLETED'}),commit:async()=>{}},executor:async()=>{invoked=true}});
  assert.equal(out.status,'DUPLICATE_ACKED');assert.equal(ack,true);assert.equal(invoked,false);
 });
 test('transaction failure must not ACK',async()=>{
