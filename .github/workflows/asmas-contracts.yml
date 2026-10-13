@@ -1,0 +1,20 @@
+name: ASMAS full contract checks
+on:
+  push:
+    branches: [feature/asmas-v4-1-core]
+  pull_request:
+    paths:
+      - 'asmas/**'
+      - 'tests/test_asmas*.mjs'
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test tests/test_asmas_core.mjs tests/test_asmas_policy.mjs
+      - run: node asmas/runner.mjs
