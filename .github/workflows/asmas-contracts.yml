@@ -16,6 +16,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: node --test tests/test_asmas_core.mjs tests/test_asmas_policy.mjs tests/test_asmas_sdk_factory.mjs tests/test_asmas_fault_lab.mjs tests/test_asmas_worker_contract.mjs
+      - run: node --test tests/test_asmas_core.mjs tests/test_asmas_policy.mjs tests/test_asmas_sdk_factory.mjs tests/test_asmas_fault_lab.mjs tests/test_asmas_worker_contract.mjs tests/test_asmas_queue_worker.mjs
       - run: node asmas/runner.mjs
       - run: node asmas/fault-lab.mjs
