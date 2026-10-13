@@ -1,0 +1,23 @@
+name: ASMAS V4.1 synthetic core
+on:
+  push:
+    branches: [feature/asmas-v4-1-core]
+  pull_request:
+    paths:
+      - 'asmas/**'
+      - 'tests/test_asmas_core.mjs'
+      - '.github/workflows/asmas-core.yml'
+permissions:
+  contents: read
+jobs:
+  synthetic-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Synthetic E2E unit and contract tests
+        run: node --test tests/test_asmas_core.mjs
+      - name: Print synthetic report
+        run: node asmas/runner.mjs
