@@ -15,7 +15,9 @@ export function createGeminiRuntime({apiKey=process.env.GOOGLE_API_KEY,fetchImpl
    if(!spec)throw Error('UNKNOWN_ASMAS_AGENT');
    if(typeof input!=='string'||!input.trim())throw Error('INPUT_REQUIRED');
    const url=GEMINI_API_BASE+'/models/'+ASMAS_MODEL+':generateContent';
-   const response=await fetchImpl(url,{
+   let response;
+   for(let attempt=0;attempt<2;attempt++){
+     response=await fetchImpl(url,{
      method:'POST',
      headers:{'Content-Type':'application/json','x-goog-api-key':apiKey},
      body:JSON.stringify({
@@ -23,7 +25,11 @@ export function createGeminiRuntime({apiKey=process.env.GOOGLE_API_KEY,fetchImpl
        contents:[{role:'user',parts:[{text:input}]}],
        generationConfig:{temperature:0.2,maxOutputTokens:1024,thinkingConfig:{thinkingLevel:'low'}}
      }),signal
-   });
+     });
+     // Only retry transient provider 503, never 400/401/403/404 or uncertain storage actions.
+     if(response.status!==503||attempt===1)break;
+     await new Promise(resolve=>setTimeout(resolve,800));
+   }
    if(!response.ok)throw Error('GEMINI_PROVIDER_HTTP_'+response.status);
    const data=await response.json();
    const answer=(data.candidates?.[0]?.content?.parts||[]).filter(p=>typeof p.text==='string').map(p=>p.text).join('\n');
