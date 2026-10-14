@@ -24,3 +24,11 @@
 
 ## Estado
 **NO CERTIFICADO / TEST SINTÉTICO BLOQUEADO**. Este documento reemplaza descripciones antiguas de 'última versión'; debe actualizarse cuando cambie el runtime.
+
+## Diagnóstico confirmado — 2026-10-14 (fase 1)
+- Supabase `net._http_response` conserva detalles del ejecutor, no basta con revisar `function_logs`.
+- Solicitudes 11–15: `MODEL_TIMEOUT` (11,13), `GEMINI_PROVIDER_HTTP_503` (12,15), `INVALID_MODEL_RESULT` (14). La solicitud 10 devolvió `IDLE`, **cero tareas procesadas**: no equivale a inferencia aprobada.
+- Tarea A5 `SYN-E2E-001`: `NEEDS_REVIEW`, 3 intentos y `result=NULL`. No existe evidencia de éxito de A5 ni de los cinco agentes.
+- `asmas.simple_finish` valida estrictamente `gemini-3.8-flash`, agente, texto y `provider_verified`; evitar relajar esta validación o crear salidas simuladas. La causa particular de `INVALID_MODEL_RESULT` no está suficientemente determinada.
+- Modelo `gemini-3.8-flash` **sí tiene estándar Free Tier** según https://ai.google.dev/gemini-api/docs/pricing (sujeto al proyecto/clave y cuota). HTTP 503 indica indisponibilidad temporal del proveedor, no falta de permiso comprobada.
+- Siguiente corrección: registrar motivo exacto de fallo de validación, usar política de reintento acotada para 503/timeouts e iniciar nuevamente solamente el caso sintético con seguimiento verificable. Mantener `main`, correos y cobros intactos.
