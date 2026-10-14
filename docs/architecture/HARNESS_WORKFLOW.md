@@ -54,3 +54,18 @@ Al iniciar otra app, copiar este procedimiento y un AGENTS.md que lo referencie 
 **Aplicación del Harness (Regla de Oro 1):** definir el criterio de éxito, extraer evidencia SQL real, inyectar solo fallos sintéticos explícitos, comprobar cron sin llamadas directas a la función, validar idempotencia, reconciliar incidencias duplicadas, comprobar el resultado posterior y documentar exactamente los límites. Nunca anunciar autonomía comercial basada únicamente en pruebas sintéticas.
 
 **Próxima aceptación:** cerrar incidencias administrativas residuales, confirmar procesamiento posterior del caso de cron y correr pruebas CI contra el mismo commit; mantener permisos y límites de costo vigentes.
+
+
+### Cierre de evidencia RSI / Harness — 14 octubre 2026
+
+**Resultado verificado:** ASMAS es funcional para su caso de prueba sintético controlado. La tarea `d2d82a44-02f3-408a-a544-35accd1e5f75` fue reencolada por el cron `asmas-director-recover-5m` a las `2026-10-14 21:05 UTC` y posteriormente procesada mediante el ejecutor real de Gemini.
+
+**Comprobaciones en Supabase:**
+- Tarea A1: `status=SUCCEEDED`, `attempts=2`, `model=gemini-3.5-flash-lite`, `provider_verified=true`, `rsi_retry_count=1`.
+- Incidencia `PREFLIGHT_FAILED`: `RESOLVED`, un único reintento autorizado con decisión `AUTHORIZED_LEDGER_PREFLIGHT_ONLY`.
+- Incidencia administrativa adicional `TASK_NEEDS_REVIEW`: conciliada y marcada `RESOLVED` exclusivamente después de comprobar el resultado persistido; decisión `RECONCILED_TASK_SUCCEEDED`, `retry_authorized=false`. El historial permanece disponible.
+- El flujo de recuperación se disparó por cron sin invocar manualmente `director_rsi_auto_recover()` para esa tarea. La ejecución posterior de Gemini se solicitó mediante `asmas.simple_dispatch()` durante la comprobación, de modo que no se acredita un ciclo de ejecución completamente desatendido de principio a fin para esa tarea.
+
+**Pruebas automáticas:** commit del Harness `afd551c33d876d2a47641a6fb7f7fcf700675634`: cinco comprobaciones `success` — ASMAS full contract checks, ASMAS V4.1 synthetic core, Boltech Governance Validation, Followup Safety y Production health. No confundir estas pruebas con certificación de flujos comerciales reales.
+
+**Decisión del Harness:** comunicar «ASMAS funciona en modo sintético; está en desarrollo». Pendientes separados: pruebas comerciales reales con autorizaciones explícitas y validación de ejecución comercial extremo a extremo. No modificar Boltech `main` ni habilitar cobros o correos de venta por inferencia.
