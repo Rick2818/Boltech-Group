@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {directorPlan,validateDirectorHandoff} from '../asmas/director-orchestration.mjs';
+import {directorPlan,validateDirectorHandoff,directorNextTask} from '../asmas/director-orchestration.mjs';
 const runId='4203cbf7-d558-466a-825a-04085b43319f';
 test('A4 assigns A1 A2 A3 with explicit dependencies and zero external authorization',()=>{
  const plan=directorPlan({runId,marketAnalysis:'Synthetic A5 analysis'});
@@ -18,4 +18,22 @@ test('A4 policy rejects live flows, absent analysis, unknown routes and forged a
  const plan=directorPlan({runId,marketAnalysis:'ok'});
  assert.throws(()=>validateDirectorHandoff(plan,{destination:'A5',completedAgents:['A4']}),/ROUTE_INVALID/);
  assert.throws(()=>validateDirectorHandoff({...plan,external_actions_allowed:true},{destination:'A1',completedAgents:['A5']}),/POLICY_INVALID/);
+});
+
+test('A4 builds queue-ready instructions for A1 A2 A3 in dependency order without side effects',()=>{
+ const plan=directorPlan({runId,marketAnalysis:'Synthetic qualification'});
+ const a1=directorNextTask({plan,completedAgents:['A5'],outputs:{A5:'market analysis'}});
+ assert.equal(a1.agent,'A1');
+ assert.equal(a1.idempotency_key,runId+':A1');
+ assert.equal(a1.payload.orchestration.director,'A4');
+ assert.equal(a1.payload.orchestration.previous_output,'market analysis');
+ assert.equal(a1.payload.orchestration.external_actions_allowed,false);
+ assert.throws(()=>directorNextTask({plan,completedAgents:['A5','A1']}),/PREVIOUS_OUTPUT_REQUIRED/);
+ const a2=directorNextTask({plan,completedAgents:['A5','A1'],outputs:{A1:'validated synthetic lead'}});
+ assert.equal(a2.agent,'A2');
+ assert.equal(a2.payload.orchestration.previous_output,'validated synthetic lead');
+ const a3=directorNextTask({plan,completedAgents:['A5','A1','A2'],outputs:{A2:'draft quote'}});
+ assert.equal(a3.agent,'A3');
+ assert.equal(a3.payload.orchestration.previous_output,'draft quote');
+ assert.equal(directorNextTask({plan,completedAgents:['A5','A1','A2','A3']}),null);
 });
