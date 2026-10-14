@@ -24,7 +24,7 @@ export function createBatchHandler({repository,runModel,apiKeyPresent,now=Date.n
     try{
      const output=await runModel(task.agent,JSON.stringify(task.payload));
      if(output?.agent!==task.agent)throw Error('MODEL_AGENT_MISMATCH');
-     if(output?.model!==(task.agent==='A5'?'gemini-3.5-flash-lite':'gemini-3.8-flash'))throw Error('MODEL_NAME_MISMATCH');
+     if(output?.model!==(['A5','A1'].includes(task.agent)?'gemini-3.5-flash-lite':'gemini-3.8-flash'))throw Error('MODEL_NAME_MISMATCH');
      if(typeof output?.text!=='string'||!output.text.trim())throw Error('MODEL_TEXT_MISSING');
      let finished;
      try{finished=await repository.finish(task.id,task.lease_token,{...output,provider_verified:true});}
