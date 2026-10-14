@@ -14,7 +14,7 @@ export function createGeminiRuntime({apiKey=process.env.GOOGLE_API_KEY,fetchImpl
    const spec=AGENT_DEFINITIONS[agentId];
    if(!spec)throw Error('UNKNOWN_ASMAS_AGENT');
    if(typeof input!=='string'||!input.trim())throw Error('INPUT_REQUIRED');
-   const selectedModel=agentId==='A5'?'gemini-3.5-flash-lite':ASMAS_MODEL;
+   const selectedModel=['A5','A1'].includes(agentId)?'gemini-3.5-flash-lite':ASMAS_MODEL;
    const url=GEMINI_API_BASE+'/models/'+selectedModel+':generateContent';
    let response;
    for(let attempt=0;attempt<2;attempt++){
