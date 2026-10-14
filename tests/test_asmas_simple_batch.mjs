@@ -10,7 +10,7 @@ function fixture(){
 }
 test('one bounded host processes each of five roles in separate batches; no sale certification',async()=>{
  const f=fixture();let calls=0;
- const handler=createBatchHandler({repository:f.repository,apiKeyPresent:true,runModel:async(agent)=>{calls++;return{agent,model:['A5','A1'].includes(agent)?'gemini-3.5-flash-lite':'gemini-3.8-flash',text:'test-only response'}}});
+ const handler=createBatchHandler({repository:f.repository,apiKeyPresent:true,runModel:async(agent)=>{calls++;return{agent,model:'gemini-3.5-flash-lite',text:'test-only response'}}});
  for(let n=0;n<5;n++){
   const r=await handler(request());const body=await r.json();
   assert.equal(r.status,200);assert.equal(body.processed,1);
@@ -20,7 +20,7 @@ test('one bounded host processes each of five roles in separate batches; no sale
  assert.deepEqual(f.done.map(x=>x.agent),['A5','A1','A2','A3','A4']);
  assert.equal(f.done[0].model,'gemini-3.5-flash-lite');
  assert.equal(f.done[1].model,'gemini-3.5-flash-lite');
- assert.ok(f.done.slice(2).every(x=>x.model==='gemini-3.8-flash'));
+ assert.ok(f.done.every(x=>x.model==='gemini-3.5-flash-lite'));
 });
 test('missing credential or unverified free tier prevents task claim and inference',async()=>{
  for(const apiKeyPresent of [false,true]){
