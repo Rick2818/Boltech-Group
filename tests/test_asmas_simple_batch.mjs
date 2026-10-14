@@ -8,12 +8,18 @@ function fixture(){
  finish:async(id,lease,result)=>{done.push(result);return true},fail:async(id)=>failed.push(id)};
  return{repository,done,failed,statuses};
 }
-test('one bounded host runs five roles and records verified model results; no sale certification',async()=>{
+test('one bounded host processes each of five roles in separate batches; no sale certification',async()=>{
  const f=fixture();let calls=0;
- const handler=createBatchHandler({repository:f.repository,apiKeyPresent:true,runModel:async(agent)=>{calls++;return{agent,model:'gemini-3.8-flash',text:'test-only response'}}});
- const r=await handler(request());const body=await r.json();
- assert.equal(r.status,200);assert.equal(calls,5);assert.equal(body.processed,5);
- assert.equal(body.certified,false);assert.equal(body.payments,0);assert.deepEqual(f.done.map(x=>x.agent),['A5','A1','A2','A3','A4']);
+ const handler=createBatchHandler({repository:f.repository,apiKeyPresent:true,runModel:async(agent)=>{calls++;return{agent,model:agent==='A5'?'gemini-3.5-flash-lite':'gemini-3.8-flash',text:'test-only response'}}});
+ for(let n=0;n<5;n++){
+  const r=await handler(request());const body=await r.json();
+  assert.equal(r.status,200);assert.equal(body.processed,1);
+  assert.equal(body.certified,false);assert.equal(body.payments,0);
+ }
+ assert.equal(calls,5);
+ assert.deepEqual(f.done.map(x=>x.agent),['A5','A1','A2','A3','A4']);
+ assert.equal(f.done[0].model,'gemini-3.5-flash-lite');
+ assert.ok(f.done.slice(1).every(x=>x.model==='gemini-3.8-flash'));
 });
 test('missing credential or unverified free tier prevents task claim and inference',async()=>{
  for(const apiKeyPresent of [false,true]){
