@@ -80,3 +80,8 @@
 - Transaction-only fault fixture with a `NEEDS_REVIEW` task produced `UNKNOWN_REVIEW`, `HOLD_INSUFFICIENT_EVIDENCE`, `retry_authorized=false`, then rolled back. Normal evaluation returned 0 outstanding incidents and 0 authorized retries.
 - **Not yet implemented:** provider-call-started evidence ledger, attested no-side-effect evidence, compare-and-swap atomic safe retry transition. Current evaluator marks every incident not eligible for retry; do not describe as automated remediation.
 - Synthetic autonomous run `fdbbf236-678b-433a-ab7f-a6c17d6ef9fa` currently A5/A1/A2 `SUCCEEDED`, A3 `QUEUED` at last check. Existing V20 commercial production remains untouched.
+
+## RSI gated retry hardening — 2026-10-14
+- Updated `asmas.simple_claim_one()` to prohibit automatic reclaim of expired `LEASED` tasks with `director_mode=true`. This removes the previous ambiguous-outcome retry path for A4 tasks. Legacy behavior for other tasks is unchanged.
+- Installed `asmas.director_retry_safe(uuid)`: single locked task transaction; only `SYN-E2E-001`, `SYNTHETIC_ANALYSIS`, `director_mode=true`, `NEEDS_REVIEW`, `attempts=0`, no lease token/result, incident evidence of no provider call/no external effects, and no existing `rsi_retry_count`. It atomically requeues once and marks the incident resolved.
+- Security restriction: no grants to public/anon/authenticated, no cron executor installed; `retry_authorized=0` in current data. Function exists but trust in `verified_by` marker must be improved with an independent immutable evidence ledger before unattended use. Transactional fault-injection test was blocked by tool security controls; do not claim end-to-end retry is certified.
