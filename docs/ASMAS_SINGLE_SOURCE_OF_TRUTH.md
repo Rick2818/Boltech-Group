@@ -45,3 +45,11 @@
 - La clave está presente/aceptada para consultar el modelo, pero la inferencia no está disponible en esa prueba. El proveedor puede tener indisponibilidad/cuota; **no afirmar causa exacta del 503** sin cuerpo de error o métricas de cuota.
 - Circuito de base de datos sin IA: transacción de prueba revertida generó exactamente una tarea A1, un mensaje de traspaso y un evento outbox. Después del ROLLBACK, cero artefactos ficticios.
 - Consecuencia: congelar los reintentos ciegos de A5; revisar error estructurado de Gemini, capacidad y cuota, o introducir proveedor alternativo **solo después de confirmar plan gratuito**. Sin mails, cobros ni cambios a main.
+
+## A5 → A1 probado con inferencia real — 2026-10-14
+- Supabase `asmas-batch` v18 ACTIVE; A5 usa `gemini-3.5-flash-lite` para esta prueba y otros agentes mantienen `gemini-3.8-flash`.
+- Corrección decisiva del ejecutor: en `source/index.ts`, pasar `database().json(result)` a PostgreSQL en vez de `JSON.stringify(result)` para que la validación JSONB acepte el resultado real. SQL `asmas.simple_finish` permite Flash-Lite solo para A5.
+- `SYN-E2E-001`, run `c04f5584-03e5-4b8f-a5b7-6094d758de13`, solicitud HTTP interna 23, HTTP 200 y `BATCH_COMPLETED`, una tarea procesada.
+- Datos observados: A5 `SUCCEEDED`, modelo `gemini-3.5-flash-lite`; **exactamente 1 tarea A1 `QUEUED`, 1 mensaje A5→A1 y 1 evento de cola**. A1 aún NO ejecutado ni certificado.
+- Este es el primer traspaso A5→A1 comprobado con IA real. No equivaler a certificación de 5 agentes. Sin correos/cobros reales.
+- **Pendiente crucial:** conciliar los cambios de Supabase v18 con el código de la rama GitHub antes de un próximo redespliegue, para evitar reversión involuntaria.
