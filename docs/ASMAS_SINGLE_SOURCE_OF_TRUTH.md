@@ -38,3 +38,10 @@
 - GitHub Actions previas para ese commit: checks completados con éxito.
 - **No certificación de inferencia todavía**: A5 `NEEDS_REVIEW`, 3 intentos; `last_status=TASK_NEEDS_REVIEW`, último registro de ejecución previo a v14. No confundir el despliegue con una prueba exitosa.
 - Evitar reactivar automáticamente la tarea A5 agotada sin confirmar la causa `INVALID_MODEL_RESULT`/semántica de lease; ejecutar nuevo caso sintético controlado antes de certificar.
+
+## Prueba aislada de proveedor — 2026-10-14
+- Se desplegó una función diagnóstica separada `asmas-model-probe` v1 en el mismo proyecto Supabase ASMAS. Requiere token de trabajador ASMAS y no expone la clave ni habilita acciones comerciales.
+- Solicitud de diagnóstico `net._http_response.id=17`: HTTP 200 en consulta de metadatos (`models/gemini-3.8-flash`), soporte `generateContent=true`; generación mínima (`Reply only OK`) HTTP **503**, sin respuesta.
+- La clave está presente/aceptada para consultar el modelo, pero la inferencia no está disponible en esa prueba. El proveedor puede tener indisponibilidad/cuota; **no afirmar causa exacta del 503** sin cuerpo de error o métricas de cuota.
+- Circuito de base de datos sin IA: transacción de prueba revertida generó exactamente una tarea A1, un mensaje de traspaso y un evento outbox. Después del ROLLBACK, cero artefactos ficticios.
+- Consecuencia: congelar los reintentos ciegos de A5; revisar error estructurado de Gemini, capacidad y cuota, o introducir proveedor alternativo **solo después de confirmar plan gratuito**. Sin mails, cobros ni cambios a main.
