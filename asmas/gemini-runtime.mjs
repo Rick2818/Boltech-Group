@@ -14,7 +14,8 @@ export function createGeminiRuntime({apiKey=process.env.GOOGLE_API_KEY,fetchImpl
    const spec=AGENT_DEFINITIONS[agentId];
    if(!spec)throw Error('UNKNOWN_ASMAS_AGENT');
    if(typeof input!=='string'||!input.trim())throw Error('INPUT_REQUIRED');
-   const url=GEMINI_API_BASE+'/models/'+ASMAS_MODEL+':generateContent';
+   const selectedModel=agentId==='A5'?'gemini-3.5-flash-lite':ASMAS_MODEL;
+   const url=GEMINI_API_BASE+'/models/'+selectedModel+':generateContent';
    let response;
    for(let attempt=0;attempt<2;attempt++){
      response=await fetchImpl(url,{
@@ -34,7 +35,7 @@ export function createGeminiRuntime({apiKey=process.env.GOOGLE_API_KEY,fetchImpl
    const data=await response.json();
    const answer=(data.candidates?.[0]?.content?.parts||[]).filter(p=>typeof p.text==='string').map(p=>p.text).join('\n');
    if(!answer)throw Error('GEMINI_EMPTY_RESPONSE');
-   return {agent:agentId,model:ASMAS_MODEL,text:answer};
+   return {agent:agentId,model:selectedModel,text:answer};
   }
  };
 }
