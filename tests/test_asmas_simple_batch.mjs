@@ -51,3 +51,5 @@ test('public readiness exposes no task data and invokes no model',async()=>{
 
 // Include staged A4 director contract checks in the existing ASMAS CI suite.
 import './test_asmas_director_orchestration.mjs';
+
+import './test_asmas_sql_snapshots.mjs';
