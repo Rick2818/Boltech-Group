@@ -48,3 +48,6 @@ test('public readiness exposes no task data and invokes no model',async()=>{
  const r=await h(new Request('https://asmas.test'));const b=await r.json();
  assert.equal(r.status,503);assert.equal(b.status,'BLOCKED_GOOGLE_API_KEY');assert.equal(b.model_calls,0);assert.equal(f.done.length,0);
 });
+
+// Include staged A4 director contract checks in the existing ASMAS CI suite.
+import './test_asmas_director_orchestration.mjs';
