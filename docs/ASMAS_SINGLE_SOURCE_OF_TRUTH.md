@@ -53,3 +53,10 @@
 - Datos observados: A5 `SUCCEEDED`, modelo `gemini-3.5-flash-lite`; **exactamente 1 tarea A1 `QUEUED`, 1 mensaje A5→A1 y 1 evento de cola**. A1 aún NO ejecutado ni certificado.
 - Este es el primer traspaso A5→A1 comprobado con IA real. No equivaler a certificación de 5 agentes. Sin correos/cobros reales.
 - **Pendiente crucial:** conciliar los cambios de Supabase v18 con el código de la rama GitHub antes de un próximo redespliegue, para evitar reversión involuntaria.
+
+## A4 director persistent integration — 2026-10-14
+- Supabase `asmas.director_decisions` table and `asmas.director_assign(uuid,text)` SQL adapter created. `asmas.simple_finish` gates fixed transitions for tasks explicitly marked `director_mode=true`; the legacy unmarked synthetic workflow stays operational.
+- Live synthetic run `94730cff-263c-4f77-81bc-0b1ca345a118`: A5, A1, A2, A3, A4 each `SUCCEEDED` on first attempt with `gemini-3.5-flash-lite`. Synthetic run status `COMPLETED`, 5 agents completed; 0 emails, 0 payments, no commercial certification.
+- A4-to-A1, A2, A3 SQL adapter orders returned `ASSIGNED`; durable `director_decisions` holds three records. Repeating A2 returned `ALREADY_ASSIGNED`. A4 review/final stage completed.
+- LIMITATION: A4 assignment calls in this test were invoked explicitly, NOT autonomously by the A4 model. A4 orchestration remains operator-triggered; a protected autonomous coordinator, deeper supervision/RSI and full live commercial validation are still required.
+- Follow-up needed: place Supabase SQL changes under repository migrations (source-control parity), add integration tests to the CI suite, audit concurrency/idempotency transaction boundaries; do not alter Boltech `main`.
