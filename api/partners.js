@@ -164,8 +164,6 @@ export default async function partnersHandler(req, res) {
 
   try {
     const action = actionFromRequest(req);
-    // Migration gate: retain read-only diagnostics needed by banking and privacy checks.
-    if (req.method !== 'GET' || !['health','health-internal','metrics',''].includes(action)) return json(res,410,{success:false,code:'LEGACY_COMMERCIAL_RETIRED'});
     if(action==='marketing-maintenance') {
       if(!requireOperationalAuth(req,res))return;
       if(!['GET','POST'].includes(req.method))return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
