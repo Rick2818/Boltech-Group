@@ -1,0 +1,9 @@
+{
+  "name": "asmas-isolated-staging",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "engines": {
+    "node": "24.x"
+  }
+}

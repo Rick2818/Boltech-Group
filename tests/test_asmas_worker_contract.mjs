@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {taskTransition,processEnvelope} from '../asmas/worker-contract.mjs';
+test('lease fencing detects conflict',()=>{const t={status:'QUEUED',version:0};const n=taskTransition(t,'LEASED',{expectedVersion:0});assert.equal(n.version,1);assert.throws(()=>taskTransition(n,'EXECUTING',{expectedVersion:0}),/OPTIMISTIC/);});
+test('idempotency acknowledges duplicates',()=>{const seen=new Set(),e={idempotency_key:'k'};let count=0;const execute=()=>{count++;return {status:'SUCCEEDED'}};assert.equal(processEnvelope(e,{seen,execute}).ack,true);assert.equal(processEnvelope(e,{seen,execute}).status,'DUPLICATE');assert.equal(count,1);});
+test('unknown result stays pending',()=>{const v=processEnvelope({idempotency_key:'x'},{execute:()=>({status:'UNKNOWN_RESULT'})});assert.equal(v.reconcile,true);assert.equal(v.ack,false);});

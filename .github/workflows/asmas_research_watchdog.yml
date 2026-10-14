@@ -1,0 +1,27 @@
+name: ASMAS RSI-01 research watchdog tests
+on:
+  push:
+    branches: [feature/asmas-v4-1-core]
+    paths:
+      - 'lib/asmas_research_watchdog.js'
+      - 'lib/rsi_agent_executor.js'
+      - 'tests/test_asmas_research_watchdog.mjs'
+      - '.github/workflows/asmas_research_watchdog.yml'
+  pull_request:
+    paths:
+      - 'lib/asmas_research_watchdog.js'
+      - 'lib/rsi_agent_executor.js'
+      - 'tests/test_asmas_research_watchdog.mjs'
+permissions:
+  contents: read
+jobs:
+  watchdog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --check lib/asmas_research_watchdog.js && node --check lib/rsi_agent_executor.js
+      - run: node --test tests/test_asmas_research_watchdog.mjs

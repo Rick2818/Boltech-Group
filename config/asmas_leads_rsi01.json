@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "updatedAt": "2026-10-14",
+  "owner": "DIRECTORA",
+  "objective": "FIRST_VERIFIED_CUSTOMER_PAYMENT",
+  "budgetUsd": 0,
+  "mode": "CONFIGURED_NOT_ACTIVATED",
+  "prospecting": {
+    "role": "LEAD_DISCOVERY",
+    "implementation": "APOLLO_SAVED_CONTACTS_READ_ONLY",
+    "endpoint": "GET /api/partners?action=apollo-leads-saved",
+    "targetNewLeadsPerDay": 5,
+    "preferredMarket": "US",
+    "dedupeKeys": [
+      "companyDomain",
+      "contactEmail"
+    ],
+    "requireVerifiedBusiness": true,
+    "exclude": [
+      "QA",
+      "SYNTHETIC",
+      "DO_NOT_CONTACT",
+      "UNSUBSCRIBED",
+      "BOUNCED"
+    ],
+    "automaticSending": false
+  },
+  "handoff": {
+    "from": "LEAD_DISCOVERY",
+    "to": "RSI-01",
+    "requires": [
+      "sourceEvidence",
+      "dedupeCheck",
+      "exclusionCheck",
+      "persistedLead"
+    ],
+    "onUnknown": "RECONCILE_BEFORE_RETRY",
+    "recovery": "RSI_WITH_EVIDENCE_NO_BLIND_RESEND"
+  },
+  "sales": {
+    "firstContact": "RSI-01",
+    "diagnosis": "RSI-02",
+    "closing": "RSI-03",
+    "marketing": "MARKETING_ON_SALES_REQUEST_ONLY"
+  },
+  "guardrails": {
+    "wompi": "IMMUTABLE_NO_CHANGES",
+    "paidServices": false,
+    "sendOnUncertainStatus": false,
+    "createDuplicateAgent": false
+  },
+  "activationGates": [
+    "verify_real_lead_acquisition",
+    "verify_persisted_handoff",
+    "verify_cloud_schedule",
+    "verify_permissions_and_send_history",
+    "synthetic_end_to_end_test"
+  ]
+}
