@@ -22,7 +22,16 @@ export function createBatchHandler({repository,runModel,apiKeyPresent,now=Date.n
     const task=await repository.claim();if(!task)break;
     if(task.case_id!=='SYN-E2E-001'||task.action!=='SYNTHETIC_ANALYSIS'){await repository.fail(task.id,task.lease_token);throw Error('UNSAFE_TASK');}
     try{
+     if(task.payload?.director_mode===true){
+       if(task.payload?.rsi_fixture_preflight===true&&!task.payload?.rsi_retry_count){
+         if(!await repository.recordEvidence(task.id,task.lease_token,'PREFLIGHT_FAILED'))throw Error('EVIDENCE_WRITE_FAILED');
+         throw Error('SYNTHETIC_PREFLIGHT_FAILED');
+       }
+       if(!await repository.recordEvidence(task.id,task.lease_token,'PROVIDER_CALL_STARTED'))throw Error('EVIDENCE_WRITE_FAILED');
+     }
      const output=await runModel(task.agent,JSON.stringify(task.payload));
+     if(task.payload?.director_mode===true)
+       if(!await repository.recordEvidence(task.id,task.lease_token,'PROVIDER_RESPONSE_RECEIVED'))throw Error('EVIDENCE_WRITE_FAILED');
      if(output?.agent!==task.agent)throw Error('MODEL_AGENT_MISMATCH');
      if(output?.model!==('gemini-3.5-flash-lite'))throw Error('MODEL_NAME_MISMATCH');
      if(typeof output?.text!=='string'||!output.text.trim())throw Error('MODEL_TEXT_MISSING');
