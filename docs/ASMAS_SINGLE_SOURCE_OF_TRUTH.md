@@ -60,3 +60,10 @@
 - A4-to-A1, A2, A3 SQL adapter orders returned `ASSIGNED`; durable `director_decisions` holds three records. Repeating A2 returned `ALREADY_ASSIGNED`. A4 review/final stage completed.
 - LIMITATION: A4 assignment calls in this test were invoked explicitly, NOT autonomously by the A4 model. A4 orchestration remains operator-triggered; a protected autonomous coordinator, deeper supervision/RSI and full live commercial validation are still required.
 - Follow-up needed: place Supabase SQL changes under repository migrations (source-control parity), add integration tests to the CI suite, audit concurrency/idempotency transaction boundaries; do not alter Boltech `main`.
+
+## A4 RSI supervision update — 2026-10-14
+- `asmas.director_rsi_audit()` and `asmas.director_incidents` created in Supabase. Flags `NEEDS_REVIEW` and expired `LEASED` tasks for `SYN-E2E-001` with `director_mode=true`; idempotent unique `(task_id,reason)`, RLS enabled, no anon/authenticated access.
+- `asmas-director-rsi-5m` cron active every 5 minutes; `asmas-director-5m` and `asmas-batch-15m` also active.
+- SQL transaction-only fault injection verified one incident in transaction; rolled back test fixture. Persistent incidents=0; automatic retries authorized=0.
+- Limitation: does NOT auto-retry failed tasks or implement autonomous repair decisions. Stage 1 autonomous A4 cron configured, but still no observed pg_cron run history; current isolated run `fdbbf236-678b-433a-ab7f-a6c17d6ef9fa` has A5,A1,A2 `SUCCEEDED`, A3/A4 pending at last inspection.
+- Changes to Supabase RSI/cron are not yet versioned as executable migrations. Do not assert full autonomy or live commercial readiness.
