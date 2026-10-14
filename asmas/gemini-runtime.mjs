@@ -1,8 +1,8 @@
-// Exclusive model runtime for ASMAS, all five agents: Gemini 3.8 Flash.
+// Exclusive model runtime for ASMAS, all five agents: Gemini 3.5 Flash-Lite.
 // No fallback to any other model. Requires a separately verified GOOGLE_API_KEY.
 // No external actions (emails/payments) exposed here.
 import {AGENT_DEFINITIONS} from './agent-definitions.mjs';
-export const ASMAS_MODEL='gemini-3.8-flash';
+export const ASMAS_MODEL='gemini-3.5-flash-lite';
 export const GEMINI_API_BASE='https://generativelanguage.googleapis.com/v1beta';
 export function createGeminiRuntime({apiKey=process.env.GOOGLE_API_KEY,fetchImpl=globalThis.fetch}={}){
  if(!apiKey)throw Error('ASMAS_GOOGLE_API_KEY_REQUIRED');
@@ -14,7 +14,7 @@ export function createGeminiRuntime({apiKey=process.env.GOOGLE_API_KEY,fetchImpl
    const spec=AGENT_DEFINITIONS[agentId];
    if(!spec)throw Error('UNKNOWN_ASMAS_AGENT');
    if(typeof input!=='string'||!input.trim())throw Error('INPUT_REQUIRED');
-   const selectedModel=['A5','A1'].includes(agentId)?'gemini-3.5-flash-lite':ASMAS_MODEL;
+   const selectedModel=ASMAS_MODEL;
    const url=GEMINI_API_BASE+'/models/'+selectedModel+':generateContent';
    let response;
    for(let attempt=0;attempt<2;attempt++){
