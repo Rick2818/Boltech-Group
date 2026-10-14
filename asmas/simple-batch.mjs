@@ -6,7 +6,7 @@ export function createBatchHandler({repository,runModel,apiKeyPresent,now=Date.n
    try{
     const settings=await repository.settings();
     const status=!apiKeyPresent?'BLOCKED_GOOGLE_API_KEY':!settings.google_free_tier_verified?'BLOCKED_GOOGLE_FREE_TIER':'READY_FOR_SYNTHETIC_TASKS';
-    return reply(status.startsWith('BLOCKED')?503:200,{status,model:'gemini-3.8-flash',model_calls:0});
+    return reply(status.startsWith('BLOCKED')?503:200,{status,model:'gemini-3.5-flash-lite',model_calls:0});
    }catch{return reply(503,{status:'DATABASE_UNAVAILABLE'});}
   }
   if(req.method!=='POST')return reply(405,{error:'POST_REQUIRED'});
@@ -24,7 +24,7 @@ export function createBatchHandler({repository,runModel,apiKeyPresent,now=Date.n
     try{
      const output=await runModel(task.agent,JSON.stringify(task.payload));
      if(output?.agent!==task.agent)throw Error('MODEL_AGENT_MISMATCH');
-     if(output?.model!==(['A5','A1'].includes(task.agent)?'gemini-3.5-flash-lite':'gemini-3.8-flash'))throw Error('MODEL_NAME_MISMATCH');
+     if(output?.model!==('gemini-3.5-flash-lite'))throw Error('MODEL_NAME_MISMATCH');
      if(typeof output?.text!=='string'||!output.text.trim())throw Error('MODEL_TEXT_MISSING');
      let finished;
      try{finished=await repository.finish(task.id,task.lease_token,{...output,provider_verified:true});}
@@ -34,7 +34,7 @@ export function createBatchHandler({repository,runModel,apiKeyPresent,now=Date.n
     }catch(error){const reason=/^(GEMINI_PROVIDER_HTTP_[0-9]{3}|GEMINI_EMPTY_RESPONSE|INVALID_MODEL_RESULT|MODEL_AGENT_MISMATCH|MODEL_NAME_MISMATCH|MODEL_TEXT_MISSING|DATABASE_MODEL_RESULT_REJECTED|LEASE_CONFLICT)$/.test(error?.message||'')?error.message:(error?.name==='TimeoutError'||error?.name==='AbortError')?'MODEL_TIMEOUT':'MODEL_EXECUTION_FAILED';await repository.fail(task.id,task.lease_token);await repository.status('TASK_NEEDS_REVIEW');return reply(502,{status:'TASK_NEEDS_REVIEW',processed,reason});}
    }
    await repository.status(processed?'BATCH_COMPLETED':'IDLE');
-   return reply(200,{status:processed?'BATCH_COMPLETED':'IDLE',processed,model:'gemini-3.8-flash',execution_mode:'LIVE_SYNTHETIC_INFERENCE',emails_sent:0,payments:0});
+   return reply(200,{status:processed?'BATCH_COMPLETED':'IDLE',processed,model:'gemini-3.5-flash-lite',execution_mode:'LIVE_SYNTHETIC_INFERENCE',emails_sent:0,payments:0});
   }catch{return reply(503,{status:'DATABASE_OR_AUTH_UNAVAILABLE'});}
  };
 }
