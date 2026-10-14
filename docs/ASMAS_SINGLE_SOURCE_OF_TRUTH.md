@@ -32,3 +32,9 @@
 - `asmas.simple_finish` valida estrictamente `gemini-3.8-flash`, agente, texto y `provider_verified`; evitar relajar esta validación o crear salidas simuladas. La causa particular de `INVALID_MODEL_RESULT` no está suficientemente determinada.
 - Modelo `gemini-3.8-flash` **sí tiene estándar Free Tier** según https://ai.google.dev/gemini-api/docs/pricing (sujeto al proyecto/clave y cuota). HTTP 503 indica indisponibilidad temporal del proveedor, no falta de permiso comprobada.
 - Siguiente corrección: registrar motivo exacto de fallo de validación, usar política de reintento acotada para 503/timeouts e iniciar nuevamente solamente el caso sintético con seguimiento verificable. Mantener `main`, correos y cobros intactos.
+
+## Despliegue confirmado — 2026-10-14
+- Edge Function `asmas-batch` **v14 ACTIVE** en proyecto independiente ASMAS; conserva la lógica de v13 e incorpora la corrección GitHub `5d11c3043d47db0d073ac9dbde098ac125631685` (segundo intento únicamente tras HTTP 503).
+- GitHub Actions previas para ese commit: checks completados con éxito.
+- **No certificación de inferencia todavía**: A5 `NEEDS_REVIEW`, 3 intentos; `last_status=TASK_NEEDS_REVIEW`, último registro de ejecución previo a v14. No confundir el despliegue con una prueba exitosa.
+- Evitar reactivar automáticamente la tarea A5 agotada sin confirmar la causa `INVALID_MODEL_RESULT`/semántica de lease; ejecutar nuevo caso sintético controlado antes de certificar.
