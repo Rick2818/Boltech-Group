@@ -24,3 +24,20 @@ export function validateDirectorHandoff(plan,{destination,completedAgents=[]}={}
  if(!completedAgents.includes(next.depends_on))throw Error('DIRECTOR_DEPENDENCY_MISSING');
  return Object.freeze({director:'A4',destination_agent:destination,objective:next.objective,run_id:plan.run_id,synthetic:true,external_actions_allowed:false});
 }
+
+export function directorNextTask({plan,completedAgents=[],outputs={}}={}){
+ if(!plan||!Array.isArray(plan.assignments))throw Error('DIRECTOR_PLAN_REQUIRED');
+ const completed=new Set(completedAgents);
+ for(const assignment of plan.assignments){
+  if(completed.has(assignment.agent))continue;
+  const order=validateDirectorHandoff(plan,{destination:assignment.agent,completedAgents});
+  if(assignment.depends_on!=='A5'&&typeof outputs[assignment.depends_on]!=='string')throw Error('PREVIOUS_OUTPUT_REQUIRED');
+  return Object.freeze({case_id:'SYN-E2E-001',agent:assignment.agent,action:'SYNTHETIC_ANALYSIS',
+   idempotency_key:plan.run_id+':'+assignment.agent,
+   payload:Object.freeze({run_id:plan.run_id,is_synthetic:true,orchestration:Object.freeze({
+    ...order,depends_on:assignment.depends_on,approval_required:true,
+    instructions:assignment.objective,previous_output:outputs[assignment.depends_on]||null
+   })})});
+ }
+ return null;
+}
