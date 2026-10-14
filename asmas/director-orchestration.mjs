@@ -41,3 +41,16 @@ export function directorNextTask({plan,completedAgents=[],outputs={}}={}){
  }
  return null;
 }
+
+export async function directorDispatch({plan,completedAgents=[],outputs={},repository}={}){
+ if(!repository||typeof repository.enqueue!=='function'||typeof repository.recordDecision!=='function')
+  throw Error('DIRECTOR_DURABLE_REPOSITORY_REQUIRED');
+ const task=directorNextTask({plan,completedAgents,outputs});
+ if(!task)return Object.freeze({status:'DIRECTOR_COMPLETE',enqueued:0});
+ const accepted=await repository.enqueue(task); // Must enforce a unique idempotency_key.
+ await repository.recordDecision({run_id:plan.run_id,director:'A4',target:task.agent,
+  idempotency_key:task.idempotency_key,accepted:accepted===true,synthetic:true,
+  external_actions_allowed:false});
+ return Object.freeze({status:accepted===true?'ASSIGNED':'ALREADY_ASSIGNED',
+  target:task.agent,enqueued:accepted===true?1:0});
+}
