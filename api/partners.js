@@ -186,6 +186,19 @@ export default async function partnersHandler(req, res) {
         return json(res,200,{success:true,...result});
       }catch(error){return json(res,error.statusCode||503,{success:false,code:/^[A-Z_]+$/.test(error.code||'')?error.code:'INTERAGENT_UNCONFIRMED'});}
     }
+    if (action === 'asmas-leads-preview') {
+      if (!requireOperationalAuth(req, res)) return;
+      if (req.method !== 'GET') return json(res, 405, {success:false,code:'METHOD_NOT_ALLOWED'});
+      try {
+        const {planLeadHandoff} = await import('../lib/asmas_lead_handoff.js');
+        const {agentTableRequest} = await import('../lib/rsi_agent_executor.js');
+        const {paginationGuard} = await import('../lib/store_pagination.js');
+        const contacts = await createApolloClient().listSavedContacts({perPage:100,maxPages:20,budgetMs:20000});
+        const existing = [], next = paginationGuard(1000,20);let offset;
+        do {const page = await agentTableRequest('tblZaox2MX5uYA5PZ',{offset});existing.push(...page.records);offset=next(page)} while(offset);
+        return json(res,200,{success:true,...planLeadHandoff({contacts:contacts.contacts,existing})});
+      }catch(error){return json(res,503,{success:false,code:'ASMAS_LEAD_PREVIEW_UNAVAILABLE',sendingEnabled:false});}
+    }
     if (['apollo-leads-status', 'apollo-leads-saved'].includes(action)) {
       if (!requireOperationalAuth(req, res)) return;
       if (req.method !== 'GET') return json(res, 405, { success: false, code: 'METHOD_NOT_ALLOWED' });
