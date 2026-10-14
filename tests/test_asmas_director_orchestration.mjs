@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {directorPlan,validateDirectorHandoff,directorNextTask} from '../asmas/director-orchestration.mjs';
+import {directorPlan,validateDirectorHandoff,directorNextTask,directorDispatch} from '../asmas/director-orchestration.mjs';
 const runId='4203cbf7-d558-466a-825a-04085b43319f';
 test('A4 assigns A1 A2 A3 with explicit dependencies and zero external authorization',()=>{
  const plan=directorPlan({runId,marketAnalysis:'Synthetic A5 analysis'});
@@ -36,4 +36,18 @@ test('A4 builds queue-ready instructions for A1 A2 A3 in dependency order withou
  assert.equal(a3.agent,'A3');
  assert.equal(a3.payload.orchestration.previous_output,'draft quote');
  assert.equal(directorNextTask({plan,completedAgents:['A5','A1','A2','A3']}),null);
+});
+
+test('A4 adapter records durable queue assignment and deduplicates the same synthetic task',async()=>{
+ const plan=directorPlan({runId,marketAnalysis:'fixture'});
+ const seen=new Set(),decisions=[];
+ const repository={enqueue:async task=>{if(seen.has(task.idempotency_key))return false;seen.add(task.idempotency_key);return true;},
+  recordDecision:async decision=>{decisions.push(decision)}};
+ const args={plan,completedAgents:['A5'],outputs:{A5:'safe market data'},repository};
+ const one=await directorDispatch(args),again=await directorDispatch(args);
+ assert.equal(one.status,'ASSIGNED');assert.equal(one.enqueued,1);
+ assert.equal(again.status,'ALREADY_ASSIGNED');assert.equal(again.enqueued,0);
+ assert.equal(seen.size,1);assert.equal(decisions.length,2);
+ assert.ok(decisions.every(x=>x.director==='A4'&&x.external_actions_allowed===false));
+ await assert.rejects(directorDispatch({...args,repository:{enqueue:async()=>true}}),/DURABLE_REPOSITORY_REQUIRED/);
 });
