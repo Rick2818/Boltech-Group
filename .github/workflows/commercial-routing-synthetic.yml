@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - 'lib/commercial_intake_router.js'
+      - 'lib/rsi_handoff_store.js'
+      - 'tests/test_rsi_handoff.mjs'
       - 'tests/test_commercial_intake_router.mjs'
       - '.github/workflows/commercial-routing-synthetic.yml'
   workflow_dispatch:
@@ -17,4 +19,4 @@ jobs:
         with:
           node-version: '22'
       - name: Run offline synthetic routing tests
-        run: node --test tests/test_commercial_intake_router.mjs
+        run: node --test tests/test_commercial_intake_router.mjs tests/test_rsi_handoff.mjs
