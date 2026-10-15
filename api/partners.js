@@ -215,7 +215,7 @@ export default async function partnersHandler(req, res) {
         const {createSdrDispatch}=await import('../lib/sdr_dispatch.js');
         const sender=createSdrDispatch();
         const listLeads=async()=>{const rows=[];let offset;const next=paginationGuard(1000,20);do{const p=await agentTableRequest('tblZaox2MX5uYA5PZ',{offset});rows.push(...p.records);offset=next(p)}while(offset);return rows};
-        return json(res,200,{success:true,...await runApprovedCampaign({listLeads,send:c=>sender.run(c)})});
+        return json(res,200,{success:true,...await runApprovedCampaign({listLeads,send:c=>sender.run(c),reconcile:id=>sender.reconcile(id)})});
       }catch(error){return json(res,503,{success:false,code:'SDR_CAMPAIGN_UNCONFIRMED'});}
     }
     if (['sdr-status','sdr-verify','sdr-metrics','sdr-send','sdr-reconcile'].includes(action)) {
