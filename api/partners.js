@@ -205,6 +205,19 @@ export default async function partnersHandler(req, res) {
         return json(res, 503, { success: false, code: /^APOLLO_[A-Z_]+$/.test(code) ? code : 'APOLLO_REQUEST_UNCONFIRMED' });
       }
     }
+    if(action==='sdr-campaign') {
+      if(!requireOperationalAuth(req,res))return;
+      if(req.method!=='POST')return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
+      try {
+        const {runApprovedCampaign}=await import('../lib/sdr_campaign.js');
+        const {agentTableRequest}=await import('../lib/rsi_agent_executor.js');
+        const {paginationGuard}=await import('../lib/store_pagination.js');
+        const {createSdrDispatch}=await import('../lib/sdr_dispatch.js');
+        const sender=createSdrDispatch();
+        const listLeads=async()=>{const rows=[];let offset;const next=paginationGuard(1000,20);do{const p=await agentTableRequest('tblZaox2MX5uYA5PZ',{offset});rows.push(...p.records);offset=next(p)}while(offset);return rows};
+        return json(res,200,{success:true,...await runApprovedCampaign({listLeads,send:c=>sender.run(c)})});
+      }catch(error){return json(res,503,{success:false,code:'SDR_CAMPAIGN_UNCONFIRMED'});}
+    }
     if (['sdr-status','sdr-verify','sdr-metrics','sdr-send','sdr-reconcile'].includes(action)) {
       if (!requireOperationalAuth(req, res)) return;
       const worker = createSdrDispatch();
