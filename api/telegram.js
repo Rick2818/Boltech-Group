@@ -62,7 +62,7 @@ export default async function handler(req, res) {
           webhookConfigured: info.url === expectedUrl,
           assistantAiConfigured: isFreeGeminiEnabled(process.env),
           assistantMode: isFreeGeminiEnabled(process.env) ? 'FREE_COMMANDS_PLUS_FREE_GEMINI' : 'FREE_OPERATIONAL_COMMANDS',
-          configuredModel: 'gemini-2.5-flash',
+          configuredModel: 'gemini-3.8-flash',
           paidModelCallsEnabled: false,
           pendingUpdates: info.pending_update_count ?? null,
           lastError: info.last_error_message || null,
