@@ -18,5 +18,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Install project dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
       - name: Run offline synthetic routing tests
         run: node --test tests/test_commercial_intake_router.mjs tests/test_rsi_handoff.mjs
