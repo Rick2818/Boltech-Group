@@ -45,3 +45,8 @@ Aplicar también [`docs/architecture/HARNESS_CLIENT_DELIVERY_CERTIFICATION_20261
 ## Evidencia ASMAS A1→A2 (15 octubre 2026)
 
 Consultar [`docs/audits/ASMAS_SYNTHETIC_MAIL_RELAY_CERTIFICATION_20261015.md`](docs/audits/ASMAS_SYNTHETIC_MAIL_RELAY_CERTIFICATION_20261015.md): PR #78, GitHub Actions #38765754748 (15/15 PASS), exclusión del Cliente Sintético y traspaso de comprador simulado condicionado a aprobación. Verificar despliegue Vercel separadamente; estas pruebas no acreditan OAuth ni ventas reales.
+
+
+## Registro automático de cambios — Harness AutoDoc (2026-10-15)
+
+Aplicar [docs/architecture/HARNESS_AUTODOC.md](docs/architecture/HARNESS_AUTODOC.md): GitHub Actions registra automáticamente metadatos de cada commit (autor, fecha, archivos y estados de verificación) sin fingir certificaciones. Cada registro parte como NOT_VERIFIED / NOT_CERTIFIED. El check `harness-autodoc` debe ser requerido por la protección de main para impedir integraciones sin registro de auditoría; ese requisito no se da por activo sin comprobar la regla de GitHub. Los cambios externos a GitHub requieren adaptadores adicionales.
