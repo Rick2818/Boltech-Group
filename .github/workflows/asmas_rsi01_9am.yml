@@ -46,7 +46,8 @@ jobs:
           const res=await fetch("https://boltech-group.vercel.app/api/partners?action=sdr-campaign",{
             method:"POST",headers:{Authorization:"Bearer "+key},signal:AbortSignal.timeout(60000)});
           const body=await res.json();
-          console.log(JSON.stringify({status:res.status,reviewed:body.reviewed||0,eligible:body.eligible||0,results:body.results||[],code:body.code||null}));
+          const report={time:new Date().toISOString(),status:res.status,reviewed:body.reviewed||0,eligible:body.eligible||0,approvedTotal:body.approvedTotal||0,pendingApproval:body.pendingApproval||0,cycleStatus:body.cycleStatus||"UNCONFIRMED",results:body.results||[],code:body.code||null};
+          const fs=await import("node:fs");fs.mkdirSync("ops-output",{recursive:true});fs.writeFileSync("ops-output/rsi01-campaign.json",JSON.stringify(report,null,2));console.log(JSON.stringify(report));
           if(!res.ok||!body.success)process.exit(1);
           '
       - name: Preserve execution receipts
@@ -54,6 +55,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: asmas-rsi01-9am-${{ github.run_id }}
-          path: ops-output/rsi-agent-execution.json
+          path: |
+            ops-output/rsi-agent-execution.json
+            ops-output/rsi01-campaign.json
           if-no-files-found: warn
           retention-days: 30
