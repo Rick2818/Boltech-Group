@@ -7,6 +7,8 @@ on:
     paths:
       - 'lib/asmas_research_watchdog.js'
       - 'lib/rsi01_research_executor.js'
+      - 'lib/rsi01_public_research.js'
+      - 'tests/test_rsi01_public_research.mjs'
       - 'tests/test_rsi01_research_executor.mjs'
       - 'lib/rsi_agent_executor.js'
       - 'lib/sdr_campaign.js'
@@ -30,7 +32,7 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts
       - name: Verify research watchdog and SDR campaign
-        run: node --test tests/test_asmas_research_watchdog.mjs tests/test_rsi01_research_executor.mjs tests/test_sdr_campaign.mjs
+        run: node --test tests/test_asmas_research_watchdog.mjs tests/test_rsi01_research_executor.mjs tests/test_rsi01_public_research.mjs tests/test_sdr_campaign.mjs
       - name: Execute cloud RSI team (no local computer needed)
         if: github.event_name != 'pull_request'
         env:
