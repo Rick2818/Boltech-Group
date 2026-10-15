@@ -88,3 +88,24 @@ test('handoff API rejects unauthorized reads and mutations before storage access
   }
   assert.equal(calls, 0);
 });
+
+test('commercial channel origins can hand off to each RSI role with durable acknowledgment', async () => {
+  for (const from of ['WEB','APOLLO','GMAIL','A2A','UPWORK','WHATSAPP','OTHER']) {
+    for (const to of ['RSI-01','RSI-02','RSI-03']) {
+      const store=createHandoffStore(storage());
+      const item={handoffId:'synthetic-'+from+'-'+to,opportunityId:'synthetic-op',from,to,owner:to,reason:'Synthetic routing',evidenceRef:'synthetic-case'};
+      const first=await store.create(item);
+      assert.equal(first.created,true);
+      assert.equal((await store.create(item)).created,false);
+      const accepted=await store.transition({handoffId:item.handoffId,expectedVersion:1,state:'ACCEPTED',owner:to,evidenceRef:'synthetic-ack'});
+      assert.equal(accepted.state,'ACCEPTED');
+      assert.equal((await store.read(item.handoffId)).to,to);
+      await assert.rejects(store.create({...item,opportunityId:'different'}),{code:'RSI_IDEMPOTENCY_CONFLICT'});
+    }
+  }
+});
+test('disallowed channel and target fail closed', async () => {
+ const store=createHandoffStore(storage());
+ await assert.rejects(store.create({...input,from:'ATTACKER',to:'RSI-03'}),{code:'RSI_INVALID_ROUTE'});
+ await assert.rejects(store.create({...input,from:'WEB',to:'DIRECTOR'}),{code:'RSI_INVALID_ROUTE'});
+});
