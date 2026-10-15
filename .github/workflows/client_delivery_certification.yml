@@ -16,6 +16,8 @@ on:
     paths:
       - '.github/workflows/client_delivery_certification.yml'
       - 'scripts/ops/certify_client_delivery.mjs'
+      - 'lib/client_delivery_certification.js'
+      - 'tests/test_client_delivery_certification.mjs'
 permissions:
   contents: read
 concurrency:
