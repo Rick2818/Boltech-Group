@@ -36,3 +36,15 @@ WEB -> validación servidor y consentimiento -> CRM/Airtable existente (único o
 
 ## Límites
 Esta especificación no representa implementación, push a main, despliegue o certificación. No añadir APIs pagadas sin nueva autorización. Referencia: AGENTS.md y docs/architecture/COMMERCIAL_HARNESS.md.
+
+## Ejecutor obligatorio de traspaso WEB → RSI-01
+El traspaso NO termina al almacenar un lead. Añadir un **ejecutor técnico de handoff** en la infraestructura cloud existente (no es un nuevo agente comercial), con contrato y recibos durables:
+1. Tras consentimiento, validar datos y crear/reutilizar `opportunityId`; persistir un evento `WEB_LEAD_READY` con `eventId` e idempotencyKey.
+2. El ejecutor consume el evento desde una cola/outbox durable, adquiere lease y realiza entrega a la bandeja/cola operativa de **RSI-01**, identificando explícitamente `assignedTo=RSI-01`, `handoffId`, `payloadVersion` y `correlationId`.
+3. RSI-01 (o su adaptador de entrada existente) devuelve acuse durable `RSI01_ACCEPTED` que referencie `handoffId`, `opportunityId` y el registro destino. Solo ese acuse autoriza marcar `HANDOFF_COMPLETED`.
+4. En timeout, caída o resultado incierto, dejar `HANDOFF_UNKNOWN` y conciliar por idempotencyKey antes de reintentar. Reintentar solo fallos determinísticamente recuperables con backoff y máximo configurado; nada de duplicar oportunidades ni notificaciones.
+5. Si agota reintentos o aparece un bloqueo, registrar `HANDOFF_BLOCKED` con razón, responsable, timestamp y próxima acción; abrir diagnóstico RSI y alertar al operador en el canal existente, sin inventar un éxito.
+6. Poner bajo monitorización el tiempo desde `WEB_LEAD_READY` hasta `RSI01_ACCEPTED`, la cola pendiente y los bloqueados. No afirmar atención comercial efectiva solo por el acuse técnico: RSI-01 debe tener una acción real registrada por separado.
+7. La prueba de Cliente Sintético debe pasar entrada → outbox → ejecutor → RSI-01 → acuse → lectura del recibo; probar duplicado, fallo de red, reinicio, recuperación y exclusión del cliente ficticio de campañas y ventas.
+
+**Criterio de certificación:** sin evidencia del ejecutor y del acuse RSI-01 en la infraestructura real, esta etapa permanece NO CERTIFICADA. No habilitar envíos externos ni consumo de APIs pagadas automáticamente.
