@@ -35,3 +35,8 @@ Por instrucción de Ricardo del 7 octubre 2026, toda tarea de mercadeo debe resp
 RSI-03 es responsable del cierre. Informa primero a Dirección de Ventas y Mercadeo; Dirección verifica la evidencia e informa a Ricardo. Distinguir aceptación, pago confirmado y entrega. Aplicar docs/commercial/N8N_COMUNICACION_VENTAS_MERCADEO.md para solicitudes y alternativas acotadas; no contabilizar un aviso de cierre como ingreso.
 
 Ricardo exige reutilizar los tres agentes de ventas existentes RSI-01, RSI-02 y RSI-03. No crear agentes, automatizaciones, emisores ni calendarios duplicados. Revisar configuración, historial y bloqueos antes de reasignar funciones. Verificar si existe un agente de mercadeo antes de crear uno. Boltech vende solo agentes preelaborados y custom agents por cotización aprobada. No ofrecer llamadas, reuniones ni visitas: no hay personal para realizarlas. Ricardo dirige qué, cómo, cuándo y quién; los agentes realizan la operación autorizada. Ejecución técnica COMPLETED no equivale a prospección, respuesta, venta o pago. Objetivo comercial: primer pago real de cliente, excluyendo pruebas de cobro.
+
+
+## Extensión de certificación de entregas (2026-10-15)
+
+Aplicar también [`docs/architecture/HARNESS_CLIENT_DELIVERY_CERTIFICATION_20261015.md`](docs/architecture/HARNESS_CLIENT_DELIVERY_CERTIFICATION_20261015.md) para los roles E1–E4, GitHub Actions, Vercel, recuperación RSI y pruebas de aceptación. `INFRA_PASS` no es certificación del cliente; no afirmar ejecutores productivos ni trabajo entregado sin recibos reales.

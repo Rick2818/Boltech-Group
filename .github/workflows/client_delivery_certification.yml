@@ -18,6 +18,8 @@ on:
       - 'scripts/ops/certify_client_delivery.mjs'
       - 'lib/client_delivery_certification.js'
       - 'tests/test_client_delivery_certification.mjs'
+      - 'lib/client_delivery_rehearsal.js'
+      - 'tests/test_client_delivery_rehearsal.mjs'
 permissions:
   contents: read
 concurrency:
@@ -33,7 +35,7 @@ jobs:
         with:
           node-version: '24'
       - name: Run offline acceptance harness
-        run: node --test tests/test_client_delivery_certification.mjs
+        run: node --test tests/test_client_delivery_certification.mjs tests/test_client_delivery_rehearsal.mjs
       - name: Verify deployed Vercel service and create evidence
         env:
           ORDER_ID: ${{ inputs.order_id || 'SYN-PR-CHECK' }}

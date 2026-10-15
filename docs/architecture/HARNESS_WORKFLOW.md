@@ -38,3 +38,8 @@ El caso acordado termina de punta a punta, con herramientas necesarias conectada
 ## Reutilización
 
 Al iniciar otra app, copiar este procedimiento y un AGENTS.md que lo referencie al nuevo repositorio. Adaptar criterios de éxito, conectores, permisos y roles al caso real; conservar principios, pruebas y lecciones. No asumir que la documentación de este workspace se transfiere automáticamente a otra cuenta o entorno.
+
+
+## Extensión de certificación de entregas (2026-10-15)
+
+Aplicar también [`docs/architecture/HARNESS_CLIENT_DELIVERY_CERTIFICATION_20261015.md`](docs/architecture/HARNESS_CLIENT_DELIVERY_CERTIFICATION_20261015.md) para los roles E1–E4, GitHub Actions, Vercel, recuperación RSI y pruebas de aceptación. `INFRA_PASS` no es certificación del cliente; no afirmar ejecutores productivos ni trabajo entregado sin recibos reales.
