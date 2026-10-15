@@ -19,16 +19,16 @@ Convertir visitantes en oportunidades calificadas para primer pago real de clien
 - No solicitar información sensible ni credenciales. Restringir tamaño/retención de mensajes y sanitizar datos. Texto del visitante es contenido no confiable, no instrucciones del sistema.
 
 ## Datos mínimos del traspaso
-eventId, opportunityId, source=web, locale, conversationId, questionCount (0..5), pain, frequency, proposedUseCase, interest, channel(email|whatsapp|none), contact, consent(boolean), consentTimestamp, consentTextVersion, assignedTo=RSI-01, state, createdAt, nextAction, originEvidenceId. No persistir textos privados innecesarios; normalizar email/teléfono y validar canal. Deduplicación por contacto consentido y opportunityId, con recibo durable.
+eventId, opportunityId, source=web, locale, conversationId, questionCount (0..5), pain, frequency, proposedUseCase, interest, channel(email|whatsapp|none), contact, consent(boolean), consentTimestamp, consentTextVersion, assignedTo=(RSI-01|RSI-02|RSI-03), routingReason, quoteReadiness, approvalStatus, state, createdAt, nextAction, originEvidenceId. No persistir textos privados innecesarios; normalizar email/teléfono y validar canal. Deduplicación por contacto consentido y opportunityId, con recibo durable.
 
 ## Ruta
-WEB -> validación servidor y consentimiento -> CRM/Airtable existente (único opportunityId, no duplicados) -> RSI-01 -> RSI-02 (viabilidad) -> aprobación Dirección -> RSI-03 (cotización/aceptación) -> Wompi aprobado -> cobro confirmado -> ejecutor/QA. En fallo: durable PENDING/UNKNOWN + RSI diagnóstico; nunca enviar/reintentar contactos inciertos sin conciliación. La captura de un lead no autoriza envío automático nuevo.
+WEB -> validación servidor y consentimiento -> CRM/Airtable existente (único opportunityId, sin duplicados) -> ejecutor durable -> enrutamiento por intención a RSI-01, RSI-02 o RSI-03 -> aprobación de Dirección antes de precio vinculante -> RSI-03 (cotización/aceptación) -> Wompi aprobado -> cobro confirmado -> ejecutor/QA. En fallo: durable PENDING/UNKNOWN + RSI diagnóstico; nunca enviar/reintentar contactos inciertos sin conciliación. La captura de un lead no autoriza envío automático nuevo.
 
 ## Criterios de aceptación (prueba Cliente Sintético)
 1. ES y EN, cinco preguntas como máximo, incluso ante respuestas incompletas, objeciones y aclaraciones.
 2. Contacto WhatsApp y correo válidos; sin contacto; consentimiento afirmativo/negativo; contacto anticipado.
 3. Ejemplos pertinentes por industria, sin cifras o capacidades inventadas; variante fallback sin LLM facturable (presupuesto vigente USD0).
-4. Un evento idempotente en CRM y recibo de traspaso RSI-01, bajo reintentos/timeout, sin duplicados.
+4. Un evento idempotente en CRM y recibo de traspaso al RSI destinatario, bajo reintentos/timeout, sin duplicados.
 5. Ataque de prompt injection y datos sensibles no modifican políticas; protección anti-spam y límites.
 6. Pruebas unitarias + integración + CI GitHub Actions, validación en preview Vercel y después readback de producción del commit exacto.
 7. CLIENTE SINTÉTICO identificado y excluido de ventas, conversiones, ingresos y campañas.
@@ -48,3 +48,25 @@ El traspaso NO termina al almacenar un lead. Añadir un **ejecutor técnico de h
 7. La prueba de Cliente Sintético debe pasar entrada → outbox → ejecutor → RSI-01 → acuse → lectura del recibo; probar duplicado, fallo de red, reinicio, recuperación y exclusión del cliente ficticio de campañas y ventas.
 
 **Criterio de certificación:** sin evidencia del ejecutor y del acuse RSI-01 en la infraestructura real, esta etapa permanece NO CERTIFICADA. No habilitar envíos externos ni consumo de APIs pagadas automáticamente.
+
+## Enrutamiento por intención y certificación revisada (15 octubre 2026)
+**Corrección de diseño**: el ejecutor único no envía todo a RSI-01. Clasifica en el servidor y entrega a un solo responsable según reglas deterministas; conservar trazabilidad cuando RSI-03 pida diagnóstico a RSI-02.
+- Consulta general o contacto sin solución definida -> RSI-01 (calificación).
+- Necesidad técnica o agente custom sin diagnóstico aprobado -> RSI-02 (viabilidad; después RSI-03).
+- Solicitud de cotización de agente preelaborado con alcance suficientemente definido -> RSI-03 (preparación comercial; aprobación de Dirección para cotización vinculante).
+- Solicitud de compra con cotización previamente aprobada y referencia verificable -> RSI-03 (validar vigencia, aceptación, autorización y cobro).
+- Si intención es cotización custom, RSI-03 puede ser owner comercial visible, pero bloquear emisión y solicitar diagnóstico RSI-02; no saltar controles de viabilidad ni aprobaciones.
+- Contacto incompleto o consentimiento negativo -> no enviar comunicación saliente, no marcar entregado como lead contactable.
+- Cada entrega requiere `HANDOFF_ACCEPTED` con `targetRole` RSI-01/02/03, `handoffId`, `opportunityId`, recibo durable, readback y deduplicación. Un acuse técnico no prueba que RSI actuó.
+- Al retomar, conciliar `HANDOFF_UNKNOWN` antes de nuevo intento; sin ciclos RSI-02 ↔ RSI-03 infinitos (máximo configurable, caso bloqueado a Dirección).
+- Cobro solo con cotización aprobada; Wompi confirma en servidor; nunca registrar pago por mera redirección o correo.
+
+### Casos de prueba adicionales
+A. Visitante «¿cuánto cuesta un agente preelaborado para responder consultas?» con alcance suficiente -> RSI-03, sin inventar precio.
+B. Visitante «cotizame una automatización integrada con mi ERP» -> RSI-02, RSI-03 responsable posterior.
+C. «Solo quiero saber qué hacen» -> RSI-01.
+D. «Ya acepté la cotización Q-123» -> RSI-03 solo después de verificar que la referencia existe y está aprobada.
+E. Simular duplicados y fallo del destino para RSI-01, RSI-02 y RSI-03; comprobante único por handoff; retries con conciliación.
+
+### Estado de certificación
+Revisión documental de reglas: COMPLETADA; implementación del router, ejecutor, recibos y pruebas CI/Vercel: **NO VERIFICADA / NO CERTIFICADA**. No atribuir estos cambios documentales a una entrega funcional.
