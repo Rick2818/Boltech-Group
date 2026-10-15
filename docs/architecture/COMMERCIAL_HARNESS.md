@@ -65,3 +65,8 @@ Al iniciar: leer AGENTS.md, la Regla de Oro y este documento; recuperar el estad
 Para una decisión nueva, registrar: fecha, decisión, responsable, motivo, alcance, evidencia, alternativa descartada y criterio de aceptación. Un cambio rutinario y reversible dentro del alcance se puede resolver y documentar sin pedir permiso otra vez. Una nueva obligación comercial, gasto o acción externa fuera de lo autorizado requiere aprobación sobre un resultado concreto. Las instrucciones explícitas de Ricardo prevalecen sobre este esquema.
 
 Fallos observados en Boltech que esta base debe impedir: dependencias no instaladas; errores originales ocultos; un material que bloquea otros roles; preparación genérica sin necesidad específica; atribución de correos viejos a material nuevo; ciclos contra el despliegue anterior; respuesta de mantenimiento no verificable; confusión entre ejecución técnica y venta. Cada corrección necesita una prueba del fallo real y evidencia posterior a la publicación.
+
+
+## Extensión de certificación de entregas (2026-10-15)
+
+Aplicar también [`docs/architecture/HARNESS_CLIENT_DELIVERY_CERTIFICATION_20261015.md`](docs/architecture/HARNESS_CLIENT_DELIVERY_CERTIFICATION_20261015.md) para los roles E1–E4, GitHub Actions, Vercel, recuperación RSI y pruebas de aceptación. `INFRA_PASS` no es certificación del cliente; no afirmar ejecutores productivos ni trabajo entregado sin recibos reales.
