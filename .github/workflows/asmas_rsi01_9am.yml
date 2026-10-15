@@ -58,6 +58,18 @@ jobs:
           const fs=await import("node:fs");fs.mkdirSync("ops-output",{recursive:true});fs.writeFileSync("ops-output/rsi01-campaign.json",JSON.stringify(report,null,2));console.log(JSON.stringify(report));
           if(!res.ok||!body.success)process.exit(1);
           '
+      - name: Certify agent outcomes rather than workflow exit codes
+        if: github.event_name != 'pull_request' && always()
+        run: |
+          node --input-type=module <<'JS'
+          import { readFileSync } from 'node:fs';
+          let report;
+          try { report=JSON.parse(readFileSync('ops-output/rsi-agent-execution.json','utf8')); }
+          catch { throw Error('ASMAS_AGENT_RECEIPT_MISSING'); }
+          const blocked=(report.results||[]).filter(x=>!x.success || x.receipt?.outcome!=='COMPLETED');
+          console.log(JSON.stringify({status:report.status,blockedRoles:blocked.map(x=>x.rsi),blockerCodes:[...new Set(blocked.flatMap(x=>x.receipt?.blockers||[]))]}));
+          if(report.status!=='PASS' || blocked.length) throw Error('ASMAS_AGENT_CYCLE_NOT_CERTIFIED');
+          JS
       - name: Preserve execution receipts
         if: always()
         uses: actions/upload-artifact@v4
