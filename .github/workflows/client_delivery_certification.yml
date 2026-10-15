@@ -20,6 +20,7 @@ on:
       - 'tests/test_client_delivery_certification.mjs'
       - 'lib/client_delivery_rehearsal.js'
       - 'tests/test_client_delivery_rehearsal.mjs'
+      - 'scripts/ops/run_synthetic_e1_e4_receipts.mjs'
 permissions:
   contents: read
 concurrency:
@@ -36,6 +37,8 @@ jobs:
           node-version: '24'
       - name: Run offline acceptance harness
         run: node --test tests/test_client_delivery_certification.mjs tests/test_client_delivery_rehearsal.mjs
+      - name: Execute synthetic order and recover QA failure
+        run: node scripts/ops/run_synthetic_e1_e4_receipts.mjs
       - name: Verify deployed Vercel service and create evidence
         env:
           ORDER_ID: ${{ inputs.order_id || 'SYN-PR-CHECK' }}
@@ -47,6 +50,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: delivery-certification-${{ github.run_id }}
-          path: ops-output/client-delivery-certification.json
+          path: |
+            ops-output/client-delivery-certification.json
+            ops-output/synthetic-order-e1-e4-receipts.json
           if-no-files-found: error
           retention-days: 30
