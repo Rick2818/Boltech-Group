@@ -87,3 +87,10 @@ Consultar [`docs/audits/ASMAS_SYNTHETIC_MAIL_RELAY_CERTIFICATION_20261015.md`](d
 **Dictamen:** lógica sintética PASS; traspasos reales y recibos persistidos de RSI-01/02/03 **NO CERTIFICADOS**. Ni CI PASS ni Vercel READY prueban la ejecución de las entradas productivas, el ejecutor o la aceptación efectiva de los agentes.
 
 **Criterio de salida:** ejecutar CLIENTE_SINTETICO por destino con autenticación autorizada, validar persistencia real de `handoffId`, `opportunityId`, `eventId`, `targetRole` y `ACCEPTED`; efectuar readback, reconciliar fallos y demostrar que no hay duplicados ni mensajes/cobros reales. Adjuntar recibos al harness antes de cambiar el dictamen a CERTIFIED.
+
+
+### Reejecución Cliente Sintético — 15 octubre 2026
+
+Se solicitó repetir la prueba de traspasos entre agentes. GitHub Actions aceptó la reejecución del job de `Synthetic Commercial Intake Routing` asociado a [run #38819531671](https://github.com/Rick2818/Boltech-Group/actions/runs/38819531671). Job reejecutado: `116718139073`. Se consultó de nuevo y terminó con `status=completed`, `conclusion=success`.
+
+**Dictamen acotado:** PASS para pruebas sintéticas de enrutamiento y traspaso con almacenamiento simulado. El resultado no implica que WEB/APOLLO/GMAIL/A2A/UPWORK/WHATSAPP estén conectados de extremo a extremo al ejecutor productivo, ni acredita recibos persistidos de RSI-01, RSI-02 o RSI-03 en Redis real. La certificación de traspasos reales **permanece PENDIENTE**. Para pasarla a CERTIFIED se requieren `handoffId`, `opportunityId`, `targetRole`, acuse `ACCEPTED` leído desde el destino real, evidencia de persistencia tras reinicio y deduplicación. Mantener CLIENTE SINTÉTICO excluido de ventas y comunicaciones reales.
