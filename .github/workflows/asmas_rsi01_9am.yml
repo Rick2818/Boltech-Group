@@ -3,6 +3,10 @@ on:
   schedule:
     - cron: '0 15 * * *'
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/asmas_rsi01_9am.yml'
   pull_request:
     paths:
       - 'lib/asmas_research_watchdog.js'
