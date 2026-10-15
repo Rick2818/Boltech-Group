@@ -1,0 +1,39 @@
+name: Harness AutoDoc
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  harness-autodoc:
+    name: harness-autodoc
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          persist-credentials: ${{ github.event_name == 'push' }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Create deterministic harness record
+        run: node scripts/harness/autodoc.mjs
+      - name: Verify record integrity
+        run: node --test tests/test_harness_autodoc.mjs
+      - name: Upload change record for PR review
+        if: github.event_name != 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: harness-event-${{ github.sha }}
+          path: docs/harness/events/*.json
+      - name: Commit audit record to main
+        if: github.event_name == 'push'
+        run: |
+          if [ -z "$(git status --porcelain docs/harness/events)" ]; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/harness/events
+          git commit -m "docs(harness): record commit ${GITHUB_SHA:0:12} [skip ci]"
+          git push origin HEAD:main
