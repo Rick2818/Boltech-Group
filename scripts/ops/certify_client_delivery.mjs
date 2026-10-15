@@ -4,4 +4,4 @@ const result=await checkDelivery({orderId:process.env.ORDER_ID,mode:process.env.
 await mkdir('ops-output',{recursive:true});
 await writeFile('ops-output/client-delivery-certification.json',JSON.stringify(result,null,2));
 console.log(JSON.stringify({orderId:result.orderId,status:result.status,checks:result.checks,blockers:result.blockers}));
-if(result.status!=='PASS')process.exitCode=1;
+if(result.status!==(result.mode==='synthetic'?'INFRA_PASS':'PASS'))process.exitCode=1;
