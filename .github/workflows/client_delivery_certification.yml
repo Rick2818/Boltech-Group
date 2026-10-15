@@ -1,0 +1,48 @@
+name: Client delivery certification (GitHub + Vercel)
+on:
+  workflow_dispatch:
+    inputs:
+      order_id:
+        description: "Customer order identifier; use SYN-001 for rehearsal"
+        required: true
+        type: string
+      mode:
+        description: "Evidence level"
+        required: true
+        default: "synthetic"
+        type: choice
+        options: [synthetic, customer]
+  pull_request:
+    paths:
+      - '.github/workflows/client_delivery_certification.yml'
+      - 'scripts/ops/certify_client_delivery.mjs'
+permissions:
+  contents: read
+concurrency:
+  group: client-delivery-certification-${{ github.event.inputs.order_id || 'pull-request' }}
+  cancel-in-progress: false
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Run offline acceptance harness
+        run: node --test tests/test_client_delivery_certification.mjs
+      - name: Verify deployed Vercel service and create evidence
+        env:
+          ORDER_ID: ${{ inputs.order_id || 'SYN-PR-CHECK' }}
+          DELIVERY_MODE: ${{ inputs.mode || 'synthetic' }}
+          VERCEL_URL: https://boltech-group.vercel.app
+        run: node scripts/ops/certify_client_delivery.mjs
+      - name: Upload certification evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: delivery-certification-${{ github.run_id }}
+          path: ops-output/client-delivery-certification.json
+          if-no-files-found: error
+          retention-days: 30
