@@ -70,3 +70,8 @@ Fallos observados en Boltech que esta base debe impedir: dependencias no instala
 ## Extensión de certificación de entregas (2026-10-15)
 
 Aplicar también [`docs/architecture/HARNESS_CLIENT_DELIVERY_CERTIFICATION_20261015.md`](docs/architecture/HARNESS_CLIENT_DELIVERY_CERTIFICATION_20261015.md) para los roles E1–E4, GitHub Actions, Vercel, recuperación RSI y pruebas de aceptación. `INFRA_PASS` no es certificación del cliente; no afirmar ejecutores productivos ni trabajo entregado sin recibos reales.
+
+
+## Evidencia ASMAS A1→A2 (15 octubre 2026)
+
+Consultar [`docs/audits/ASMAS_SYNTHETIC_MAIL_RELAY_CERTIFICATION_20261015.md`](docs/audits/ASMAS_SYNTHETIC_MAIL_RELAY_CERTIFICATION_20261015.md): PR #78, GitHub Actions #38765754748 (15/15 PASS), exclusión del Cliente Sintético y traspaso de comprador simulado condicionado a aprobación. Verificar despliegue Vercel separadamente; estas pruebas no acreditan OAuth ni ventas reales.
