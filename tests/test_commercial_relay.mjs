@@ -27,3 +27,24 @@ test('RSI-02 consumes a scope clarification returned by RSI-03 without authorizi
  await f.options.command(['SADD','boltech:rsi:commercial:inbox:RSI-02',handoffId]);
  const result=await f.worker.run('RSI-02',f.ctx02);assert.equal(result.results[0].state,'WAITING_DIRECTOR_APPROVAL');assert.equal(f.registrations(),0);assert.match(f.work[0].fields.Evidence,/Customer|customerStatement/);
 });
+
+
+test('CLIENTE SINTÉTICO self-mail never creates A1-to-A2 handoff or closing',async()=>{
+ const f=fixture();
+ f.lead.fields.Name='Cliente Sintético — ASMAS internal self-mail';
+ f.lead.fields['Contact Email']='ricardo.boltechgroup@gmail.com';
+ Object.assign(f.message,{from:'ricardo.boltechgroup@gmail.com',to:'ricardo.boltechgroup@gmail.com',id:'1a1404b7a65c74c0',sent:true});
+ f.context.followup.results[0].evidenceRef='1a1404b7a65c74c0';
+ await assert.rejects(f.worker.run('RSI-01',f.context),/RELAY_CUSTOMER_EXCLUDED/);
+ assert.equal(f.data.size,0);
+ assert.equal(f.registrations(),0);
+});
+test('a real-looking verified reply in a test fixture creates only the A1-to-A2 handoff pending director approval',async()=>{
+ const f=fixture();
+ const first=await f.worker.run('RSI-01',f.context);
+ assert.equal(first.results.length,1);
+ assert.equal(first.results[0].to,'RSI-02');
+ const second=await f.worker.run('RSI-02',f.ctx02);
+ assert.equal(second.results[0].state,'WAITING_DIRECTOR_APPROVAL');
+ assert.equal(f.registrations(),0);
+});
