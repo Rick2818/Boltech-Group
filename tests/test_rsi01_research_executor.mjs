@@ -3,3 +3,5 @@ const lead={id:'rec1',fields:{'Contact Email':'buyer@example.com','Company URL':
 test('incomplete evidence never approved',()=>{const r=assessCase(work,lead);assert.equal(r.approvalGranted,false);assert.ok(r.reasons.includes('BUYER_ROLE_UNVERIFIED'))});
 test('complete documented case still requires commercial approval',()=>{const r=assessCase(work,{...lead,fields:{...lead.fields,'Buyer Role':'Owner','Source Evidence URL':'https://example.com/about','Problem Confirmed':true}});assert.equal(r.status,'COMMERCIAL_APPROVAL_REVIEW');assert.equal(r.sendingEnabled,false)});
 test('writes case-level evidence and no outbound',async()=>{let patch;const r=await executeResearch({work:[work],leads:[lead],request:async(_t,args)=>{patch=args.body.records[0];return {records:[{id:'work1'}]}}});assert.equal(r.assessed,1);assert.equal(r.sendingEnabled,false);assert.equal(patch.fields.Status,'RESEARCH_EVIDENCE_PENDING')});
+
+test('retry states cannot be reset by evidence assessment',()=>assert.equal(assessCase({...work,fields:{...work.fields,Status:'RESEARCH_RETRY_2'}},lead),null));
