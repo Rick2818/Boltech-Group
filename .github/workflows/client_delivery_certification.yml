@@ -20,6 +20,7 @@ on:
       - 'tests/test_client_delivery_certification.mjs'
       - 'lib/client_delivery_rehearsal.js'
       - 'tests/test_client_delivery_rehearsal.mjs'
+      - 'tests/test_commercial_relay.mjs'
       - 'scripts/ops/run_synthetic_e1_e4_receipts.mjs'
 permissions:
   contents: read
@@ -36,7 +37,7 @@ jobs:
         with:
           node-version: '24'
       - name: Run offline acceptance harness
-        run: node --test tests/test_client_delivery_certification.mjs tests/test_client_delivery_rehearsal.mjs
+        run: node --test tests/test_client_delivery_certification.mjs tests/test_client_delivery_rehearsal.mjs tests/test_commercial_relay.mjs
       - name: Execute synthetic order and recover QA failure
         run: node scripts/ops/run_synthetic_e1_e4_receipts.mjs
       - name: Verify deployed Vercel service and create evidence
