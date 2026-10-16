@@ -1,5 +1,7 @@
 # Estructura comercial de referencia y guía del harness
 
+**Estado automático de pruebas y Vercel:** [registro vivo #86](https://github.com/Rick2818/Boltech-Group/issues/86). [Funcionamiento y límites](HARNESS_AUTODOC.md). Los resultados operativos cambian automáticamente en el registro; esta guía versionada no se reescribe sola.
+
 Instrucción de Ricardo, 12 octubre 2026. Objetivo: reutilizar una base probada para que la próxima aplicación no repita los fallos de integración, coordinación y verificación de Boltech. Este documento define una estructura; no acredita que una aplicación futura, sus modelos o sus conectores estén implementados.
 
 ## Mapa del sistema

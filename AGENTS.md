@@ -1,5 +1,9 @@
 # Instrucciones de Ricardo
 
+## Registro automático vigente del harness
+
+Consultar [Harness AutoDoc](docs/architecture/HARNESS_AUTODOC.md) y el [registro vivo #86](https://github.com/Rick2818/Boltech-Group/issues/86) para resultados automáticos de main y Vercel. La tabla operativa se actualiza en la issue, no reescribiendo estas reglas. Las pruebas locales y los avances de una conversación requieren documentación explícita; los resultados automáticos no autorizan campañas, gasto, pagos, merges ni cambios de oferta.
+
 ## Regla de Oro 1 — Procedimiento lógico del harness
 
 Por instrucción de Ricardo del 12 octubre 2026, esta es la primera regla general de trabajo: definir el resultado funcional antes de implementar, seguir una estructura lógica con responsables y decisiones claras, verificar recursos, probar el recorrido completo y documentar lo aprendido. El harness debe detectar desviaciones y recuperar el rumbo con evidencia, dentro de las instrucciones de mayor prioridad y los permisos vigentes.
