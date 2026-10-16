@@ -1,0 +1,17 @@
+{
+  "name": "Boltech Group",
+  "short_name": "Boltech",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#05070E",
+  "theme_color": "#05070E",
+  "icons": [
+    {
+      "src": "/assets/boltech-institutional-logo.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
