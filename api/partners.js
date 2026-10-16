@@ -12,6 +12,7 @@ import { createApolloClient, getApolloApiKey } from '../lib/apollo_client.js';
 import {authenticateInteragent,createInteragentCoordinator} from '../lib/interagent_coordinator.js';
 import {createMarketingMaintenance} from '../lib/marketing_maintenance.js';
 import {createMarketingCrmExecutor} from '../lib/marketing_crm_executor.js';
+import {createDailyLeadExecutor} from '../lib/daily_lead_executor.js';
 import {marketingErrorCode,createRsiMarketingCycle} from '../lib/rsi_marketing_cycle.js';
 
 export const config = { maxDuration: 60 };
@@ -200,7 +201,11 @@ export default async function partnersHandler(req, res) {
         catch(error) { rsi02rsi03={success:false,code:error?.code||'RSI02_CYCLE_BLOCKED'}; }
         const salesCycle=await cycle('RSI-01');
         const marketingCycle=await cycle('MARKETING');
-        return json(res,200,{success:true,existingMarketingProcessed:true,salesCycle,marketingCycle,rsi02rsi03,
+        // Isolate prospect intake: upstream outages never block the existing commercial cycle.
+        let dailyLeads;
+        try { dailyLeads=await createDailyLeadExecutor().run(); }
+        catch(error) { dailyLeads={state:'BLOCKED',newResearchCandidates:0,blockers:['DAILY_LEADS_EXECUTION_UNCONFIRMED']}; }
+        return json(res,200,{success:true,existingMarketingProcessed:true,salesCycle,marketingCycle,rsi02rsi03,dailyLeads,
           autonomousSendingEnabled:false,commercialSaleInferred:false});
       }catch(e){return json(res,503,{success:false,code:marketingErrorCode(e)});}
     }
