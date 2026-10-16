@@ -1,0 +1,439 @@
+{
+  "schemaVersion": 1,
+  "kind": "ISOLATED_QA_ONLY",
+  "caseId": "QA-20261015-2125",
+  "status": "ISOLATED_TECHNICAL_CHAIN_PASS",
+  "productionCommercialCertification": false,
+  "mail": [
+    {
+      "messageId": "1a142b8b416b2fc3",
+      "threadId": "1a142b8b416b2fc3",
+      "from": "ricardo.boltechgroup@gmail.com",
+      "to": "ricardo.boltechgroup@gmail.com",
+      "labels": [
+        "UNREAD",
+        "SENT",
+        "INBOX"
+      ],
+      "sentAt": "2026-10-16T03:19:23.000Z"
+    },
+    {
+      "messageId": "1a142c104e52fa13",
+      "threadId": "1a142c104e52fa13",
+      "from": "ricardo.boltechgroup@gmail.com",
+      "to": "ricardo.boltechgroup@gmail.com",
+      "labels": [
+        "UNREAD",
+        "SENT",
+        "INBOX"
+      ],
+      "sentAt": "2026-10-16T03:28:28.000Z",
+      "roleReceiptDigest": "ce70d247c9d3814c50e2a9b979fcbb3e2fac98b86564475b1c0aebc9138c457c"
+    },
+    {
+      "messageId": "1a142c11111e3548",
+      "threadId": "1a142c11111e3548",
+      "from": "ricardo.boltechgroup@gmail.com",
+      "to": "ricardo.boltechgroup@gmail.com",
+      "labels": [
+        "UNREAD",
+        "SENT",
+        "INBOX"
+      ],
+      "sentAt": "2026-10-16T03:28:31.000Z",
+      "roleReceiptDigest": "09fbb358f10e4f61416606343c200b9e11965c9b94dfa2b4188a23344a93811c"
+    },
+    {
+      "messageId": "1a142c11ac3de6e1",
+      "threadId": "1a142c11ac3de6e1",
+      "from": "ricardo.boltechgroup@gmail.com",
+      "to": "ricardo.boltechgroup@gmail.com",
+      "labels": [
+        "UNREAD",
+        "SENT",
+        "INBOX"
+      ],
+      "sentAt": "2026-10-16T03:28:34.000Z",
+      "roleReceiptDigest": "0ea94bf3fcc21b50a7a62e17a168afe12af3d9afabdeef469176e32045199da3"
+    },
+    {
+      "messageId": "1a142c129a75c008",
+      "threadId": "1a142c129a75c008",
+      "from": "ricardo.boltechgroup@gmail.com",
+      "to": "ricardo.boltechgroup@gmail.com",
+      "labels": [
+        "UNREAD",
+        "SENT",
+        "INBOX"
+      ],
+      "sentAt": "2026-10-16T03:28:37.000Z",
+      "roleReceiptDigest": "7e65fd860821aecd93899f2314c24be1d1ef6e1964a0c9c9d08126bbe942ae18"
+    },
+    {
+      "messageId": "1a142c134b952b88",
+      "threadId": "1a142c134b952b88",
+      "from": "ricardo.boltechgroup@gmail.com",
+      "to": "ricardo.boltechgroup@gmail.com",
+      "labels": [
+        "UNREAD",
+        "SENT",
+        "INBOX"
+      ],
+      "sentAt": "2026-10-16T03:28:40.000Z",
+      "roleReceiptDigest": "eaea47a0ab07bf719bcc3be654bd4c47c0f3014d5e7c9b82e413fa2f58a27e34"
+    }
+  ],
+  "receipts": [
+    {
+      "caseId": "QA-20261015-2125",
+      "kind": "CLIENTE_SINTETICO",
+      "role": "RSI-01",
+      "at": "2026-10-16T03:28:02.425Z",
+      "inputMessageId": "1a142b8b416b2fc3",
+      "previousDigest": null,
+      "result": {
+        "execution": {
+          "receipt": {
+            "schemaVersion": 1,
+            "runId": "RSI-01:2026-10-16T03:28:02.412Z",
+            "rsi": "RSI-01",
+            "engine": "VERCEL_EXECUTOR",
+            "startedAt": "2026-10-16T03:28:02.412Z",
+            "finishedAt": "2026-10-16T03:28:02.420Z",
+            "outcome": "COMPLETED",
+            "tools": [
+              {
+                "name": "airtable_work_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:02.412Z"
+              },
+              {
+                "name": "airtable_leads_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:02.418Z"
+              },
+              {
+                "name": "marketing_material_sales_review",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:02.420Z"
+              },
+              {
+                "name": "rsi01_case_research_executor",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:02.420Z"
+              },
+              {
+                "name": "rsi01_work_refresh_after_research",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:02.420Z"
+              },
+              {
+                "name": "asmas_rsi01_research_watchdog",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:02.420Z"
+              },
+              {
+                "name": "rsi01_authorized_followup_dispatch",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:02.420Z"
+              },
+              {
+                "name": "rsi01_customer_reply_handoff",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:02.420Z"
+              }
+            ],
+            "actionCount": 8,
+            "blockers": [
+              "LIVE_APOLLO_GMAIL_HISTORY_REQUIRED"
+            ]
+          },
+          "reused": false,
+          "orchestration": {
+            "sdk": "@google/adk",
+            "mode": "CUSTOM_CODE",
+            "modelCalls": 0,
+            "agentId": "RSI-01"
+          }
+        },
+        "restartReadbackVerified": true
+      },
+      "digest": "ce70d247c9d3814c50e2a9b979fcbb3e2fac98b86564475b1c0aebc9138c457c"
+    },
+    {
+      "caseId": "QA-20261015-2125",
+      "kind": "CLIENTE_SINTETICO",
+      "role": "MARKETING",
+      "at": "2026-10-16T03:28:30.509Z",
+      "inputMessageId": "1a142c104e52fa13",
+      "previousDigest": "ce70d247c9d3814c50e2a9b979fcbb3e2fac98b86564475b1c0aebc9138c457c",
+      "result": {
+        "execution": {
+          "receipt": {
+            "schemaVersion": 1,
+            "runId": "MARKETING:2026-10-16T03:28:30.497Z",
+            "rsi": "MARKETING",
+            "engine": "VERCEL_EXECUTOR",
+            "startedAt": "2026-10-16T03:28:30.497Z",
+            "finishedAt": "2026-10-16T03:28:30.505Z",
+            "outcome": "COMPLETED",
+            "tools": [
+              {
+                "name": "airtable_work_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:30.497Z"
+              },
+              {
+                "name": "airtable_leads_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:30.499Z"
+              },
+              {
+                "name": "marketing_adoption_metrics",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:30.500Z"
+              }
+            ],
+            "actionCount": 1,
+            "blockers": []
+          },
+          "reused": false,
+          "orchestration": {
+            "sdk": "@google/adk",
+            "mode": "CUSTOM_CODE",
+            "modelCalls": 0,
+            "agentId": "MARKETING"
+          }
+        },
+        "restartReadbackVerified": true
+      },
+      "digest": "09fbb358f10e4f61416606343c200b9e11965c9b94dfa2b4188a23344a93811c"
+    },
+    {
+      "caseId": "QA-20261015-2125",
+      "kind": "CLIENTE_SINTETICO",
+      "role": "RSI-02",
+      "at": "2026-10-16T03:28:33.367Z",
+      "inputMessageId": "1a142c11111e3548",
+      "previousDigest": "09fbb358f10e4f61416606343c200b9e11965c9b94dfa2b4188a23344a93811c",
+      "result": {
+        "execution": {
+          "receipt": {
+            "schemaVersion": 1,
+            "runId": "RSI-02:2026-10-16T03:28:33.352Z",
+            "rsi": "RSI-02",
+            "engine": "VERCEL_EXECUTOR",
+            "startedAt": "2026-10-16T03:28:33.352Z",
+            "finishedAt": "2026-10-16T03:28:33.363Z",
+            "outcome": "COMPLETED",
+            "tools": [
+              {
+                "name": "airtable_work_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:33.353Z"
+              },
+              {
+                "name": "airtable_leads_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:33.360Z"
+              },
+              {
+                "name": "marketing_material_sales_review",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:33.362Z"
+              },
+              {
+                "name": "rsi02_incoming_case_consumer",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:33.362Z"
+              },
+              {
+                "name": "authorized_response_log_analysis",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:33.363Z"
+              }
+            ],
+            "actionCount": 5,
+            "blockers": []
+          },
+          "reused": false,
+          "orchestration": {
+            "sdk": "@google/adk",
+            "mode": "CUSTOM_CODE",
+            "modelCalls": 0,
+            "agentId": "RSI-02"
+          }
+        },
+        "restartReadbackVerified": true
+      },
+      "digest": "0ea94bf3fcc21b50a7a62e17a168afe12af3d9afabdeef469176e32045199da3"
+    },
+    {
+      "caseId": "QA-20261015-2125",
+      "kind": "CLIENTE_SINTETICO",
+      "role": "RSI-03",
+      "at": "2026-10-16T03:28:36.681Z",
+      "inputMessageId": "1a142c11ac3de6e1",
+      "previousDigest": "0ea94bf3fcc21b50a7a62e17a168afe12af3d9afabdeef469176e32045199da3",
+      "result": {
+        "execution": {
+          "receipt": {
+            "schemaVersion": 1,
+            "runId": "RSI-03:2026-10-16T03:28:36.659Z",
+            "rsi": "RSI-03",
+            "engine": "VERCEL_EXECUTOR",
+            "startedAt": "2026-10-16T03:28:36.659Z",
+            "finishedAt": "2026-10-16T03:28:36.664Z",
+            "outcome": "COMPLETED",
+            "tools": [
+              {
+                "name": "airtable_work_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:36.659Z"
+              },
+              {
+                "name": "airtable_leads_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:36.661Z"
+              },
+              {
+                "name": "marketing_material_sales_review",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:36.663Z"
+              },
+              {
+                "name": "airtable_partner_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:36.663Z"
+              },
+              {
+                "name": "airtable_referral_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:36.663Z"
+              },
+              {
+                "name": "cost_evidence_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:36.663Z"
+              },
+              {
+                "name": "provider_confirmed_payment_ledger_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:36.663Z"
+              },
+              {
+                "name": "rsi03_incoming_approved_case_consumer",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:36.664Z"
+              },
+              {
+                "name": "rsi03_approved_case_closing_cycle",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-16T03:28:36.664Z"
+              }
+            ],
+            "actionCount": 6,
+            "blockers": [
+              "WAITING_VERIFIED_PARTNER",
+              "COST_EVIDENCE_INCOMPLETE",
+              "WAITING_QUALIFIED_APPROVED_CASE"
+            ]
+          },
+          "reused": false,
+          "orchestration": {
+            "sdk": "@google/adk",
+            "mode": "CUSTOM_CODE",
+            "modelCalls": 0,
+            "agentId": "RSI-03"
+          }
+        },
+        "restartReadbackVerified": true
+      },
+      "digest": "7e65fd860821aecd93899f2314c24be1d1ef6e1964a0c9c9d08126bbe942ae18"
+    },
+    {
+      "caseId": "QA-20261015-2125",
+      "kind": "CLIENTE_SINTETICO",
+      "role": "DIRECTORA",
+      "at": "2026-10-16T03:28:39.667Z",
+      "inputMessageId": "1a142c129a75c008",
+      "previousDigest": "7e65fd860821aecd93899f2314c24be1d1ef6e1964a0c9c9d08126bbe942ae18",
+      "result": {
+        "rolesReviewed": [
+          "RSI-01",
+          "MARKETING",
+          "RSI-02",
+          "RSI-03"
+        ],
+        "receiptsReviewed": 4,
+        "queue": {
+          "success": true,
+          "actor": "DIRECTORA",
+          "pending": [],
+          "commercialSaleInferred": false
+        },
+        "syntheticClosureRejected": true,
+        "paymentCount": 0,
+        "commercialResult": "HOLD_SYNTHETIC_NOT_A_SALE"
+      },
+      "digest": "eaea47a0ab07bf719bcc3be654bd4c47c0f3014d5e7c9b82e413fa2f58a27e34"
+    },
+    {
+      "caseId": "QA-20261015-2125",
+      "kind": "CLIENTE_SINTETICO",
+      "role": "FINAL",
+      "at": "2026-10-16T03:28:42.669Z",
+      "inputMessageId": "1a142c134b952b88",
+      "previousDigest": "eaea47a0ab07bf719bcc3be654bd4c47c0f3014d5e7c9b82e413fa2f58a27e34",
+      "result": {
+        "status": "ISOLATED_TECHNICAL_CHAIN_PASS",
+        "roles": [
+          "RSI-01",
+          "MARKETING",
+          "RSI-02",
+          "RSI-03",
+          "DIRECTORA"
+        ],
+        "gmailMessagesRead": 6,
+        "productionAgentCycle": false,
+        "commercialHandoffCompleted": false,
+        "sale": false,
+        "payment": false,
+        "limits": "Real existing executor code and durable local QA adapters; Gmail transport via authenticated connector. Production commercial guards remain active; no buyer, quote approval or payment inferred."
+      },
+      "digest": "715ce81b9a8dc7d45fda237bd7174742aab69b9e3b9326e66e4bcb5f7ee7c10e"
+    }
+  ],
+  "digestChainVerified": true,
+  "noRepeatedExecutorWork": true,
+  "productionStorageUsed": false,
+  "paymentCalls": 0,
+  "salesCounted": 0,
+  "independentProcessRecovery": {
+    "verifiedAt": "2026-10-16T03:30:24.550Z",
+    "results": [
+      {
+        "rsi": "RSI-01",
+        "reused": true,
+        "outcome": "COMPLETED"
+      },
+      {
+        "rsi": "MARKETING",
+        "reused": true,
+        "outcome": "COMPLETED"
+      },
+      {
+        "rsi": "RSI-02",
+        "reused": true,
+        "outcome": "COMPLETED"
+      },
+      {
+        "rsi": "RSI-03",
+        "reused": true,
+        "outcome": "COMPLETED"
+      }
+    ],
+    "writes": 0,
+    "providerCalls": 0
+  }
+}
