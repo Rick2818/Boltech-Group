@@ -69,3 +69,12 @@ Consultar [`docs/audits/ASMAS_SYNTHETIC_MAIL_RELAY_CERTIFICATION_20261015.md`](d
 ## Contacto real Marstrand — 16 octubre 2026
 
 [Recibo comercial Gmail y Airtable](docs/audits/MARSTRAND_REAL_OUTREACH_20261016.md): mensaje corporativo enviado a sales@marstrand.us, Gmail messageId `1a14582fd3ee1eb0`, registro Airtable `rec1SpCPYLPFbhK8L` actualizado a Contacted. **CONFIRMED_ASSISTED_OUTREACH; AUTONOMY_NOT_CERTIFIED**: la ejecución fue asistida mediante herramientas, no se ha demostrado ciclo independiente desde Vercel. Respuesta, diagnóstico, propuesta y pago pendientes. Prohibido inferir venta, reenviar sin conciliación o anunciar autonomía certificada.
+
+
+## Regla obligatoria — captura y trazabilidad de todos los nuevos leads
+
+**NO_CRM_RECORD_NO_OUTREACH**: toda oportunidad nueva obtenida por Apollo, Lusha, Explee, Upwork, web o Gmail debe consultarse para evitar duplicados y crearse/verificarse en Airtable Boltech CRM antes de cualquier contacto o traspaso de etapa. Fuente y canal de origen, URL de evidencia, empresa, persona, email empresarial (si existe), país, responsable, estado, autorizaciones, exclusiones, próxima acción, fechas y comprobantes deben quedar registrados. No inventar email, consentimientos, presupuesto, necesidad ni plataforma de origen. Para Upwork, responder exclusivamente en el canal de la plataforma, conservando el ID/enlace del trabajo sin extraer contactos al correo externo.
+
+RSI-01 comprueba registro y exclusiones antes de enviar; Mercadeo prepara el material y su evidencia; RSI-02 solo procesa respuesta humana con necesidad identificada; RSI-03 solo propone y cierra con alcance y aceptación. Envíos ambiguos se concilian, nunca se reintentan ciegamente. Cualquier error de escritura/verificación en Airtable = **BLOCKED_CRM**, sin envío automático; se notifica para corrección. La categoría de fuente no autoriza por sí misma el envío. La captura del lead no equivale a contacto, interés, venta ni ingreso.
+
+**Implementación verificada existente**: `lib/sdr_dispatch.js` exige `candidate.recordId`, lee Airtable, valida correo y exclusiones, persiste `SEND_PENDING` en el CRM antes de Gmail y escribe recibo después. Esa protección aplica al despachador SDR existente; no declarar que todas las fuentes nuevas ya utilizan ese despachador hasta verificar cada integración con prueba operativa.
