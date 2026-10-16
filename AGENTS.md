@@ -50,3 +50,8 @@ Consultar [`docs/audits/ASMAS_SYNTHETIC_MAIL_RELAY_CERTIFICATION_20261015.md`](d
 ## Gmail OAuth productivo — 15 octubre 2026, 21:13 SV
 
 [Verificación de conexión y recuperación](docs/audits/GMAIL_OAUTH_CONNECTION_VERIFICATION_20261015.md): renovación OAuth y perfil de `ricardo.boltechgroup@gmail.com` verificados contra producción; `CONNECTION_VERIFIED`, trabajo Actions [116791556010](https://github.com/Rick2818/Boltech-Group/actions/runs/37798177082/job/116791556010), 13 pruebas aprobadas. Se actualizaron las tres variables OAuth y se redesplegó. Esta prueba no envió correos ni acredita campaña, traspaso comercial, entrega o venta. El indicador observado fue `automatedCampaignEnabled=false`. Reutilizar el workflow existente para futuras verificaciones y conservar los secretos solo en sus almacenes autorizados.
+
+
+## Cliente Sintético — prueba final Gmail y roles, 15 octubre 2026
+
+[Recibo y límites](docs/audits/SYNTHETIC_GMAIL_ALL_AGENTS_20261015.md): correo real enviado y recibido en Gmail Boltech, messageId `1a142b8b416b2fc3`; 108 pruebas locales de RSI-01/02/03, Mercadeo, Dirección y entrega aprobadas con proveedores simulados; CI de entrega 15/15 PASS y recuperación E4. No es un recorrido productivo único entre Gmail y todos los agentes. Mantener la exclusión sintética de oportunidades, cierres y pagos.
