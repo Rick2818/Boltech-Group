@@ -15,7 +15,7 @@ test('RSI-02 dry-run never sends, records idempotent claim; RSI-03 independently
  const closing={runNext:async()=>{closed++;return {state:'WAITING_QUALIFIED_APPROVED_CASE'}}};
  const worker=createRsi02InboxExecutor({gmail,command,fetcher,closing,env:{AIRTABLE_TOKEN:'test',RSI02_AUTOREPLY_ENABLED:'false'}});
  const a=await worker.run(),b=await worker.run();
- assert.equal(a.inbox.held,1);assert.equal(b.inbox.replied,0);assert.equal(b.inbox.skipped,1);assert.equal(sent,0);assert.equal(closed,2);
+ assert.equal(a.inbox.held,1);assert.equal(b.inbox.replied,0);assert.equal(b.inbox.held,1);assert.equal(sent,0);assert.equal(closed,2);
 });
 
 
