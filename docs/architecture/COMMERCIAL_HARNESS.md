@@ -85,3 +85,8 @@ Consultar [`docs/audits/ASMAS_SYNTHETIC_MAIL_RELAY_CERTIFICATION_20261015.md`](d
 ## Cliente Sintético — prueba final Gmail y roles, 15 octubre 2026
 
 [Recibo y límites](../audits/SYNTHETIC_GMAIL_ALL_AGENTS_20261015.md): correo real enviado y recibido en Gmail Boltech, messageId `1a142b8b416b2fc3`; 108 pruebas locales de RSI-01/02/03, Mercadeo, Dirección y entrega aprobadas con proveedores simulados; CI de entrega 15/15 PASS y recuperación E4. No es un recorrido productivo único entre Gmail y todos los agentes. Mantener la exclusión sintética de oportunidades, cierres y pagos.
+
+
+## Recorrido Gmail con ejecutores aislados — 15 octubre 2026
+
+[Recibos y alcance del caso QA-20261015-2125](../audits/ISOLATED_GMAIL_AGENT_CHAIN_20261015.md): ISOLATED_TECHNICAL_CHAIN_PASS con código existente RSI-01, MARKETING, RSI-02 y RSI-03; seis mensajes Gmail leídos, revisión de Dirección y recuperación independiente sin repetir trabajo. Transporte dirigido por operador y almacenamiento local QA. No acredita ciclo comercial autónomo en Vercel, aprobación de comprador ni pago; conservar los blockers observados.
