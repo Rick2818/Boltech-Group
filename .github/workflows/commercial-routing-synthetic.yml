@@ -1,0 +1,24 @@
+name: Synthetic Commercial Intake Routing
+on:
+  pull_request:
+    paths:
+      - 'lib/commercial_intake_router.js'
+      - 'lib/rsi_handoff_store.js'
+      - 'tests/test_rsi_handoff.mjs'
+      - 'tests/test_commercial_intake_router.mjs'
+      - '.github/workflows/commercial-routing-synthetic.yml'
+  workflow_dispatch:
+jobs:
+  synthetic-routing:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install project dependencies
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Run offline synthetic routing tests
+        run: node --test tests/test_commercial_intake_router.mjs tests/test_rsi_handoff.mjs
