@@ -194,12 +194,12 @@ export default async function partnersHandler(req, res) {
         // Reuse the existing commercial coordinator: progress authorised sales work,
         // reconcile prior Gmail receipts and deliver marketing support without bulk mail.
         const cycle=createRsiMarketingCycle(worker);
-        const salesCycle=await cycle('RSI-01');
-        const marketingCycle=await cycle('MARKETING');
-        // Daily cloud cycle reuses the existing authenticated Hobby cron.
+        // Isolate inbox processing so a marketing/Apollo outage cannot block customer replies.
         let rsi02rsi03;
         try { rsi02rsi03=await createRsi02InboxExecutor().run(); }
         catch(error) { rsi02rsi03={success:false,code:error?.code||'RSI02_CYCLE_BLOCKED'}; }
+        const salesCycle=await cycle('RSI-01');
+        const marketingCycle=await cycle('MARKETING');
         return json(res,200,{success:true,existingMarketingProcessed:true,salesCycle,marketingCycle,rsi02rsi03,
           autonomousSendingEnabled:false,commercialSaleInferred:false});
       }catch(e){return json(res,503,{success:false,code:marketingErrorCode(e)});}
