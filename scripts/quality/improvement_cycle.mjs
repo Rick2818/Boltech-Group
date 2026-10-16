@@ -9,7 +9,7 @@ const groups = [
   { name: 'RSI agent execution receipts', files: ['tests/test_rsi_agent_status.mjs', 'tests/test_rsi_agent_executor.mjs'] },
   { name: 'Durable CRM recovery', files: ['tests/test_crm_recovery.mjs'] },
   { name: 'Durable RSI handoffs', files: ['tests/test_rsi_handoff.mjs'] },
-  { name: 'Commercial RSI integration', files: ['tests/test_commercial_strategy.mjs', 'tests/test_commercial_progress.mjs', 'tests/test_traction_cycle.mjs', 'tests/test_store_pagination.mjs', 'tests/test_control_tower_resilience.mjs', 'tests/test_google_oauth_reason.mjs', 'tests/test_commercial_activation.mjs', 'tests/test_commercial_cron.mjs', 'tests/test_rsi_marketing_cycle.mjs', 'tests/test_marketing_maintenance.mjs', 'tests/test_interagent_coordinator.mjs'] },
+  { name: 'Commercial RSI integration', files: ['tests/test_commercial_strategy.mjs', 'tests/test_commercial_progress.mjs', 'tests/test_traction_cycle.mjs', 'tests/test_store_pagination.mjs', 'tests/test_control_tower_resilience.mjs', 'tests/test_google_oauth_reason.mjs', 'tests/test_commercial_activation.mjs', 'tests/test_commercial_cron.mjs', 'tests/test_marketing_crm_executor.mjs', 'tests/test_rsi_marketing_cycle.mjs', 'tests/test_marketing_maintenance.mjs', 'tests/test_interagent_coordinator.mjs'] },
   { name: 'A2A intake contracts', files: ['tests/test_a2a_intake.mjs'] },
   { name: 'Partner Network', files: ['tests/test_partner_network.mjs'] },
   { name: 'Operational truth', files: ['tests/test_operational_truth_guards.mjs', 'tests/test_operational_privacy.mjs', 'tests/test_production_watch.mjs'] },
