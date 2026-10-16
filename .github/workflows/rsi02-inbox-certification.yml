@@ -3,7 +3,7 @@ on:
   pull_request:
     paths:
       - 'lib/rsi02_inbox_executor.js'
-      - 'api/rsi02-inbox.js'
+      - 'api/partners.js'
       - 'tests/test_rsi02_inbox_executor.mjs'
       - 'vercel.json'
       - '.github/workflows/rsi02-inbox-certification.yml'
@@ -20,7 +20,7 @@ jobs:
       - name: Syntax verification
         run: |
           node --check lib/rsi02_inbox_executor.js
-          node --check api/rsi02-inbox.js
+          node --check api/partners.js
           node --check tests/test_rsi02_inbox_executor.mjs
       - name: Run synthetic inbox and RSI-03 handoff tests
         run: node --test tests/test_rsi02_inbox_executor.mjs
