@@ -12,6 +12,7 @@ import { createApolloClient, getApolloApiKey } from '../lib/apollo_client.js';
 import {authenticateInteragent,createInteragentCoordinator} from '../lib/interagent_coordinator.js';
 import {createMarketingMaintenance} from '../lib/marketing_maintenance.js';
 import {createMarketingCrmExecutor} from '../lib/marketing_crm_executor.js';
+import {createMultiSourceLeadImport} from '../lib/multi_source_lead_import.js';
 import {createDailyLeadExecutor} from '../lib/daily_lead_executor.js';
 import {marketingErrorCode,createRsiMarketingCycle} from '../lib/rsi_marketing_cycle.js';
 
@@ -167,6 +168,15 @@ export default async function partnersHandler(req, res) {
 
   try {
     const action = actionFromRequest(req);
+    if(action==='marketing-multi-source-import') {
+      if(!requireOperationalAuth(req,res))return;
+      if(req.method!=='POST')return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
+      try {
+        return json(res,200,await createMultiSourceLeadImport().run(req.body));
+      }catch(error) {
+        return json(res,400,{success:false,code:/^MARKETING_IMPORT_[A-Z_]+$/.test(error?.code||'')?error.code:'MARKETING_IMPORT_INVALID_BATCH'});
+      }
+    }
     if(action==='marketing-crm-intake') {
       if(!requireOperationalAuth(req,res))return;
       if(req.method!=='POST')return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
