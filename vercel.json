@@ -134,5 +134,11 @@
         }
       ]
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/partners?action=commercial-activation&run=1",
+      "schedule": "0 15 * * *"
+    }
   ]
 }
