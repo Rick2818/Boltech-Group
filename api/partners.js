@@ -188,6 +188,22 @@ export default async function partnersHandler(req, res) {
         return json(res,/INVALID_|UPWORK_/.test(e?.code||'')?400:503,{success:false,code:allowed.test(e?.code||'')?e.code:'MARKETING_CRM_UNCONFIRMED'});
       }
     }
+    if(action==='commercial-engine-status') {
+      // Read-only identity and existing coordinator status. No new worker or scheduler.
+      if(req.method!=='GET')return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
+      if(!requireOperationalAuth(req,res))return;
+      return json(res,200,{
+        success:true,
+        product:'Boltech Group',
+        engine:'Boltech Commercial Engine',
+        architecture:'single-existing-coordinator',
+        executionRoute:'/api/partners?action=commercial-activation',
+        roles:{MARKETING:'marketing', 'RSI-01':'qualification', 'RSI-02':'replies','RSI-03':'closing'},
+        legacyPartnerApiPreserved:true,
+        autonomousOutreachCertified:false,
+        endToEndPaymentCertified:false
+      });
+    }
     if(action==='commercial-activation') {
       // Vercel native cron uses a separate secret; no user-supplied query can bypass auth.
       const cronRun=req.method==='GET'&&String(req.query?.run||'')==='1';
