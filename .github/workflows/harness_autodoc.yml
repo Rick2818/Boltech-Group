@@ -1,0 +1,89 @@
+name: Harness AutoDoc
+on:
+  deployment_status:
+  workflow_run:
+    workflows:
+      - SDR connection verification (no outreach)
+      - Client delivery certification (GitHub + Vercel)
+      - Boltech Governance Validation
+      - ASMAS RSI-01 09:00 SV watchdog
+      - Boltech Production Health Watch
+      - Boltech CRM Recovery and Integrity
+      - RSI Traction Validation
+      - Followup Safety
+      - CRM Regression Tests
+      - Apollo Production Acceptance
+      - Audit production Apollo lead connector
+      - Boltech 05:30 PM Executive Report
+      - Telegram diagnose
+      - Telegram incident recovery 2026-10-06
+      - Wompi authorized verification recovery
+    types: [completed]
+    branches: [main]
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - '.github/workflows/harness_autodoc.yml'
+      - 'lib/harness_autodoc.js'
+      - 'scripts/ops/update_harness_autodoc.mjs'
+      - 'tests/test_harness_autodoc.mjs'
+      - 'lib/verify_deployed_revision.js'
+      - 'scripts/ops/probe_harness_vercel.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: boltech-harness-autodoc
+  cancel-in-progress: false
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test tests/test_harness_autodoc.mjs
+  publish:
+    if: github.event_name != 'pull_request'
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    permissions:
+      contents: read
+      actions: read
+      issues: write
+    steps:
+      # workflow_run never checks out, runs, or downloads untrusted producer code.
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify exact Vercel revision and Gmail (no outreach)
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success')
+        env:
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+        run: node scripts/ops/probe_harness_vercel.mjs
+      - name: Update live harness and verify persistence
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/ops/update_harness_autodoc.mjs
+      - name: Preserve generated status
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: harness-live-status-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ops-output/harness-live-status.json
+            ops-output/HARNESS_LIVE_STATUS.md
+            ops-output/harness-vercel-probe.json
+          if-no-files-found: error
+          retention-days: 30
