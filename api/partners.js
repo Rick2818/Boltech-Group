@@ -164,6 +164,18 @@ export default async function partnersHandler(req, res) {
 
   try {
     const action = actionFromRequest(req);
+    if(action==='commercial-activation') {
+      if(!requireOperationalAuth(req,res))return;
+      if(!['GET','POST'].includes(req.method))return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
+      try {
+        const worker=createInteragentCoordinator();
+        const [sales,marketing]=await Promise.all([worker.queue('RSI-01'),worker.queue('MARKETING')]);
+        if(req.method==='GET')return json(res,200,{success:true,roles:{'RSI-01':{pending:sales.pending.length},MARKETING:{pending:marketing.pending.length}},autonomousSendingEnabled:false});
+        const pending=await worker.marketing.managePending();
+        const metrics=await worker.marketing.metrics();
+        return json(res,200,{success:true,existingMarketingProcessed:true,pendingManagement:pending,metrics,autonomousSendingEnabled:false,commercialSaleInferred:false});
+      }catch(e){return json(res,503,{success:false,code:marketingErrorCode(e)});}
+    }
     if(action==='marketing-maintenance') {
       if(!requireOperationalAuth(req,res))return;
       if(!['GET','POST'].includes(req.method))return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
