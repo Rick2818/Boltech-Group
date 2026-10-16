@@ -165,12 +165,19 @@ export default async function partnersHandler(req, res) {
   try {
     const action = actionFromRequest(req);
     if(action==='commercial-activation') {
-      if(!requireOperationalAuth(req,res))return;
+      // Vercel native cron uses a separate secret; no user-supplied query can bypass auth.
+      const cronRun=req.method==='GET'&&String(req.query?.run||'')==='1';
+      if(cronRun){
+        const expected=String(process.env.CRON_SECRET||''),auth=String(req.headers?.authorization||'');
+        const actual=/^Bearer /i.test(auth)?auth.slice(7).trim():'';
+        const a=Buffer.from(actual),b=Buffer.from(expected);
+        if(!b.length||a.length!==b.length||!crypto.timingSafeEqual(a,b))return json(res,401,{success:false,code:'CRON_AUTH_REQUIRED'});
+      }else if(!requireOperationalAuth(req,res))return;
       if(!['GET','POST'].includes(req.method))return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
       try {
         const worker=createInteragentCoordinator();
         const [sales,marketing]=await Promise.all([worker.queue('RSI-01'),worker.queue('MARKETING')]);
-        if(req.method==='GET')return json(res,200,{success:true,roles:{'RSI-01':{pending:sales.pending.length},MARKETING:{pending:marketing.pending.length}},autonomousSendingEnabled:false});
+        if(req.method==='GET'&&!cronRun)return json(res,200,{success:true,roles:{'RSI-01':{pending:sales.pending.length},MARKETING:{pending:marketing.pending.length}},autonomousSendingEnabled:false});
         const pending=await worker.marketing.managePending();
         const metrics=await worker.marketing.metrics();
         return json(res,200,{success:true,existingMarketingProcessed:true,pendingManagement:pending,metrics,autonomousSendingEnabled:false,commercialSaleInferred:false});
