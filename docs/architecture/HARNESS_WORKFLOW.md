@@ -48,3 +48,8 @@ Aplicar también [`docs/architecture/HARNESS_CLIENT_DELIVERY_CERTIFICATION_20261
 ## Evidencia ASMAS A1→A2 (15 octubre 2026)
 
 Consultar [`docs/audits/ASMAS_SYNTHETIC_MAIL_RELAY_CERTIFICATION_20261015.md`](docs/audits/ASMAS_SYNTHETIC_MAIL_RELAY_CERTIFICATION_20261015.md): PR #78, GitHub Actions #38765754748 (15/15 PASS), exclusión del Cliente Sintético y traspaso de comprador simulado condicionado a aprobación. Verificar despliegue Vercel separadamente; estas pruebas no acreditan OAuth ni ventas reales.
+
+
+## Gmail OAuth productivo — 15 octubre 2026, 21:13 SV
+
+[Verificación de conexión y recuperación](../audits/GMAIL_OAUTH_CONNECTION_VERIFICATION_20261015.md): renovación OAuth y perfil de `ricardo.boltechgroup@gmail.com` verificados contra producción; `CONNECTION_VERIFIED`, trabajo Actions [116791556010](https://github.com/Rick2818/Boltech-Group/actions/runs/37798177082/job/116791556010), 13 pruebas aprobadas. Se actualizaron las tres variables OAuth y se redesplegó. Esta prueba no envió correos ni acredita campaña, traspaso comercial, entrega o venta. El indicador observado fue `automatedCampaignEnabled=false`. Reutilizar el workflow existente para futuras verificaciones y conservar los secretos solo en sus almacenes autorizados.
