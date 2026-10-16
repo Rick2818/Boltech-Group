@@ -10,7 +10,7 @@ import { createSdrDispatch } from '../lib/sdr_dispatch.js';
 import { createApolloClient, getApolloApiKey } from '../lib/apollo_client.js';
 import {authenticateInteragent,createInteragentCoordinator} from '../lib/interagent_coordinator.js';
 import {createMarketingMaintenance} from '../lib/marketing_maintenance.js';
-import {marketingErrorCode} from '../lib/rsi_marketing_cycle.js';
+import {marketingErrorCode,createRsiMarketingCycle} from '../lib/rsi_marketing_cycle.js';
 
 export const config = { maxDuration: 60 };
 import {
@@ -178,9 +178,13 @@ export default async function partnersHandler(req, res) {
         const worker=createInteragentCoordinator();
         const [sales,marketing]=await Promise.all([worker.queue('RSI-01'),worker.queue('MARKETING')]);
         if(req.method==='GET'&&!cronRun)return json(res,200,{success:true,roles:{'RSI-01':{pending:sales.pending.length},MARKETING:{pending:marketing.pending.length}},autonomousSendingEnabled:false});
-        const pending=await worker.marketing.managePending();
-        const metrics=await worker.marketing.metrics();
-        return json(res,200,{success:true,existingMarketingProcessed:true,pendingManagement:pending,metrics,autonomousSendingEnabled:false,commercialSaleInferred:false});
+        // Reuse the existing commercial coordinator: progress authorised sales work,
+        // reconcile prior Gmail receipts and deliver marketing support without bulk mail.
+        const cycle=createRsiMarketingCycle(worker);
+        const salesCycle=await cycle('RSI-01');
+        const marketingCycle=await cycle('MARKETING');
+        return json(res,200,{success:true,existingMarketingProcessed:true,salesCycle,marketingCycle,
+          autonomousSendingEnabled:false,commercialSaleInferred:false});
       }catch(e){return json(res,503,{success:false,code:marketingErrorCode(e)});}
     }
     if(action==='marketing-maintenance') {
