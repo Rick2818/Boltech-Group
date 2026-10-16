@@ -25,3 +25,16 @@
 2. Controlled synthetic inbound from a distinct sender to a previously sent corporate Gmail thread; make it eligible only for QA, honor exclusion rules.
 3. Invoke actual secured cron and verify original Gmail thread, one send only and CRM message IDs.
 4. Validate handoff to RSI-03 signed case, refusal handling and recovery logs, then update GitHub issue #103 and mark FULL PASS only if receipts exist.
+
+
+## Harness update — 2026-10-16 controlled synthetic test and blocker isolation
+- Production Vercel READY `ee720ae566a0d6dd930ce7d03351192bbcc80a91` after `RSI02_AUTOREPLY_ENABLED=true`; later production commit `62504e61ac0ea725c062fd9d2b192378bdf4ddb2` also READY (daily marketing executor PR #108).
+- Synthetic CRM customer labelled **CLIENTE SINTÉTICO RSI02-QA-20261016 — NO VENTA**, Airtable `recksRjZ4YA9wK5UM`, sender personal controlado `rick28191@gmail.com`. Not a real lead or revenue.
+- Corporate Gmail sent controlled first message `1a146fae2711bcf4`, thread `1a146fae2711bcf4`. Synthetic response from personal account recorded in corporate Inbox as `1a14701c9e01f19f`, in the same Gmail thread.
+- Corporate Gmail search of QA subject at time of this audit found just original corporate SENT + synthetic inbound; **no outbound RSI-02 autoreply receipt yet**. Thus cloud Gmail inbox processing remains **PENDING PROVIDER CERTIFICATION**; never mark FULL PASS.
+- Vercel runtime logs on Hobby return no matching logs for recent deployment / historical 2h query exceeds Hobby retention; absence of accessible logs is NOT proof of successful run.
+- Remaining dependency found: `api/partners.js` read RSI-01/MARKETING queue before invoking RSI-02. New PR #110 `fix/rsi02-first-in-cron-20261016` moves Gmail inbox execution **ahead of** those queue reads, under the same CRON_SECRET and existing 09:00 SV cron. On head `75b8df731d14fb859c9c9945fef9e8b26d150907`, RSI-02/03 synthetic certification, Followup Safety and Production health have reported PASS; Governance and ASMAS may still be in progress at the time of writing. DO NOT claim this PR merged or deployed until verified.
+- Existing daily Vercel Hobby cron is 15:00 UTC (=09:00 El Salvador); not on-demand or hourly. A task must actually invoke cloud flow and supply Gmail/Airtable/Redis receipts for final certification.
+- RSI-03 has implemented signed Director approval gate; no qualified signed synthetic closing artifact and no real payment receipt has been verified yet. No automatic quote/charge should bypass approval.
+
+**Next evidence:** merge PR #110 only after all required checks PASS; inspect Vercel exact SHA READY; execute an authenticated production cron under operator control or wait for the scheduled run; confirm exactly one automated Gmail reply to QA thread plus CRM receipt; then exercise separately a signed QA closing case for RSI-03. Close #103 only with provider-side evidence.
