@@ -40,3 +40,16 @@ test('unverified read-after-write receipt never reports success',async()=>{
  const fetcher=async(url,opts={})=>({ok:true,json:async()=>opts.method==='POST'?{id:'recABCDEFGHIJKLMNOP'.slice(0,17)}:new URL(url).pathname.endsWith('/recABCDEFGHIJKLMN')?{id:'recABCDEFGHIJKLMN',fields:{Name:'WRONG'}}:{records:[]}});
  await assert.rejects(()=>createMarketingCrmExecutor({fetcher,env:{AIRTABLE_TOKEN:'mock'}}).intake(lead),{code:'MARKETING_CRM_VERIFY_FAILED'});
 });
+
+test('Marstrand real CRM record resolves to original ID without new contact or resend',async()=>{
+ const id='rec1SpCPYLPFbhK8L',calls=[];
+ const fetcher=async(url,opts={})=>{
+   calls.push({url:String(url),method:opts.method||'GET'});
+   if(opts.method==='POST')throw Error('Duplicate write must never occur');
+   return {ok:true,json:async()=>({records:[{id,fields:{Name:'Marstrand Industries','Contact Email':'sales@marstrand.us'}}]})};
+ };
+ const r=await createMarketingCrmExecutor({fetcher,env:{AIRTABLE_TOKEN:'mock'}}).intake({company:'Marstrand Industries',email:'sales@marstrand.us',source:'Website',sourceUrl:'https://marstrand.us/contact/'});
+ assert.deepEqual({recordId:r.recordId,created:r.created,duplicate:r.duplicate,sendingAllowed:r.sendingAllowed},
+   {recordId:id,created:false,duplicate:true,sendingAllowed:false});
+ assert.equal(calls.length,1);
+});
