@@ -5,6 +5,7 @@ import { getAgentExecutionStatus } from '../lib/rsi_agent_status.js';
 import { RSI_EXECUTOR_VERSION } from '../lib/rsi_agent_executor.js';
 import { createGoogleAdkTeam } from '../lib/google_adk_agents.js';
 import {createRsi03Closing} from '../lib/rsi03_closing.js';
+import {createRsi02InboxExecutor} from '../lib/rsi02_inbox_executor.js';
 import {createDirectorNotifications} from '../lib/director_notifications.js';
 import { createSdrDispatch } from '../lib/sdr_dispatch.js';
 import { createApolloClient, getApolloApiKey } from '../lib/apollo_client.js';
@@ -195,7 +196,11 @@ export default async function partnersHandler(req, res) {
         const cycle=createRsiMarketingCycle(worker);
         const salesCycle=await cycle('RSI-01');
         const marketingCycle=await cycle('MARKETING');
-        return json(res,200,{success:true,existingMarketingProcessed:true,salesCycle,marketingCycle,
+        // Daily cloud cycle reuses the existing authenticated Hobby cron.
+        let rsi02rsi03;
+        try { rsi02rsi03=await createRsi02InboxExecutor().run(); }
+        catch(error) { rsi02rsi03={success:false,code:error?.code||'RSI02_CYCLE_BLOCKED'}; }
+        return json(res,200,{success:true,existingMarketingProcessed:true,salesCycle,marketingCycle,rsi02rsi03,
           autonomousSendingEnabled:false,commercialSaleInferred:false});
       }catch(e){return json(res,503,{success:false,code:marketingErrorCode(e)});}
     }
