@@ -74,3 +74,8 @@ Consultar [`docs/audits/ASMAS_SYNTHETIC_MAIL_RELAY_CERTIFICATION_20261015.md`](d
 ## Retiro comercial por dependencias — 16 octubre 2026
 
 Consultar [`docs/architecture/LEGACY_DISPATCH_RETIREMENT_20261016.md`](docs/architecture/LEGACY_DISPATCH_RETIREMENT_20261016.md) antes de continuar la limpieza o fusionar ASMAS. Los despachadores outbound enumerados se eliminan; `/api/dashboard/trigger-dispatch` devuelve 410. Conservar Wompi, pagos, históricos, recepción web y rutas operativas compartidas. La retirada completa sigue pendiente de migrar los consumidores identificados; no fusionar PR #64 sin revisar sus dependencias actuales.
+
+
+## Regla de Oro — Arquitectura simplificada obligatoria (16 octubre 2026)
+
+Antes de iniciar cualquier proyecto o ampliación, aplicar [la arquitectura simplificada](docs/architecture/ARQUITECTURA_SIMPLIFICADA_REGLA_PERMANENTE_20261016.md): flujo mínimo de negocio, una aplicación modular, coordinador central, fuente de verdad principal, CI y certificación automáticas proporcionales al riesgo, recuperación central e integraciones justificadas. Registrar excepciones antes de añadir complejidad. No duplicar ejecutores, no reiniciar Boltech ni alterar Wompi sin análisis y autorización. Esta regla no acredita cambios productivos por sí sola.
