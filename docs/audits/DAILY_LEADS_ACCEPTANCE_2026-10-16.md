@@ -12,3 +12,6 @@ The repo protects main and currently requires the exact status check `followup-s
 4. Apollo permissions and persisted Airtable upsert/re-read verified with true data, no synthetic counted.
 5. Lusha, Explee and Upwork remain blocked until documented real ingest.
 6. Five daily *qualified* leads are a business target, not guaranteed by candidate intake.
+
+## Branch sync
+2026-10-16: fast-forwarded PR branch to GitHub's conflict-free merge commit, including latest main; no branch protection bypass. CI must run on the refreshed branch head before merge.
