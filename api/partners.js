@@ -10,6 +10,7 @@ import { createSdrDispatch } from '../lib/sdr_dispatch.js';
 import { createApolloClient, getApolloApiKey } from '../lib/apollo_client.js';
 import {authenticateInteragent,createInteragentCoordinator} from '../lib/interagent_coordinator.js';
 import {createMarketingMaintenance} from '../lib/marketing_maintenance.js';
+import {createMarketingCrmExecutor} from '../lib/marketing_crm_executor.js';
 import {marketingErrorCode,createRsiMarketingCycle} from '../lib/rsi_marketing_cycle.js';
 
 export const config = { maxDuration: 60 };
@@ -164,6 +165,17 @@ export default async function partnersHandler(req, res) {
 
   try {
     const action = actionFromRequest(req);
+    if(action==='marketing-crm-intake') {
+      if(!requireOperationalAuth(req,res))return;
+      if(req.method!=='POST')return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
+      try {
+        const result=await createMarketingCrmExecutor().intake(req.body);
+        return json(res,result.created?201:200,result);
+      }catch(e){
+        const allowed=/^MARKETING_CRM_[A-Z_]+$/;
+        return json(res,/INVALID_|UPWORK_/.test(e?.code||'')?400:503,{success:false,code:allowed.test(e?.code||'')?e.code:'MARKETING_CRM_UNCONFIRMED'});
+      }
+    }
     if(action==='commercial-activation') {
       // Vercel native cron uses a separate secret; no user-supplied query can bypass auth.
       const cronRun=req.method==='GET'&&String(req.query?.run||'')==='1';
