@@ -29,7 +29,7 @@ test('Upwork lead requires platform-only channel, no off-platform email',async()
  await assert.rejects(()=>c.worker.intake({...lead,source:'Upwork'}),{code:'MARKETING_CRM_UPWORK_OFF_PLATFORM_BLOCKED'});
  const r=await c.worker.intake({...lead,source:'Upwork',email:''});
  assert.equal(r.created,true);assert.equal(c.calls.filter(x=>x.verb==='POST').length,1);
- assert.match(c.calls[0].url,/Source\+Evidence\+URL/);
+ assert.match(c.calls[0].url,/Source\+URL/);
 });
 test('missing credentials and invalid source fail closed',async()=>{
  await assert.rejects(()=>createMarketingCrmExecutor({env:{},fetcher:()=>{throw Error('must not')}}).intake(lead),{code:'MARKETING_CRM_NOT_CONFIGURED'});
