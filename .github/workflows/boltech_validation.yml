@@ -27,6 +27,8 @@ jobs:
         run: npm run build
       - name: Measure partner, truth, payment and MCP safeguards
         run: node scripts/quality/improvement_cycle.mjs
+      - name: Verify retired outbound cannot dispatch
+        run: node --test tests/test_legacy_dispatch_retirement.mjs
       - name: Validate commercial decision logic
         run: npm run test:commercial
       - name: Preserve improvement evidence

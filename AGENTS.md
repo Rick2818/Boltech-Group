@@ -69,3 +69,8 @@ Consultar [`docs/audits/ASMAS_SYNTHETIC_MAIL_RELAY_CERTIFICATION_20261015.md`](d
 ## Contacto real Marstrand — 16 octubre 2026
 
 [Recibo comercial Gmail y Airtable](docs/audits/MARSTRAND_REAL_OUTREACH_20261016.md): mensaje corporativo enviado a sales@marstrand.us, Gmail messageId `1a14582fd3ee1eb0`, registro Airtable `rec1SpCPYLPFbhK8L` actualizado a Contacted. **CONFIRMED_ASSISTED_OUTREACH; AUTONOMY_NOT_CERTIFIED**: la ejecución fue asistida mediante herramientas, no se ha demostrado ciclo independiente desde Vercel. Respuesta, diagnóstico, propuesta y pago pendientes. Prohibido inferir venta, reenviar sin conciliación o anunciar autonomía certificada.
+
+
+## Retiro comercial por dependencias — 16 octubre 2026
+
+Consultar [`docs/architecture/LEGACY_DISPATCH_RETIREMENT_20261016.md`](docs/architecture/LEGACY_DISPATCH_RETIREMENT_20261016.md) antes de continuar la limpieza o fusionar ASMAS. Los despachadores outbound enumerados se eliminan; `/api/dashboard/trigger-dispatch` devuelve 410. Conservar Wompi, pagos, históricos, recepción web y rutas operativas compartidas. La retirada completa sigue pendiente de migrar los consumidores identificados; no fusionar PR #64 sin revisar sus dependencias actuales.
