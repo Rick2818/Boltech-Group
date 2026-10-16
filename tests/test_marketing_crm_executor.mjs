@@ -4,10 +4,11 @@ import {createMarketingCrmExecutor} from '../lib/marketing_crm_executor.js';
 const lead={company:'Sample Manufacturer',email:'SALES@SAMPLE.EXAMPLE',source:'Apollo',sourceUrl:'https://example.com/a',contact:'Sales',country:'United States'};
 function client(mode='new'){
  let calls=[],id='recABCDEFGHIJKLMNOP'.slice(0,17);
+ let createdEmail='sales@sample.example';
  const fetcher=async(url,opts={})=>{
    const u=new URL(url),verb=opts.method||'GET';calls.push({url:String(url),verb,body:opts.body?JSON.parse(opts.body):null});
-   if(verb==='POST')return {ok:true,json:async()=>({id})};
-   if(u.pathname.endsWith('/'+id))return {ok:true,json:async()=>({id,fields:{Name:'Sample Manufacturer','Contact Email':'sales@sample.example'}})};
+   if(verb==='POST'){createdEmail=opts.body?JSON.parse(opts.body).fields.fldoJrBeutRTd85II||'':'';return {ok:true,json:async()=>({id})};}
+   if(u.pathname.endsWith('/'+id))return {ok:true,json:async()=>({id,fields:{Name:'Sample Manufacturer','Contact Email':createdEmail}})};
    return {ok:true,json:async()=>({records:mode==='duplicate'?[{id}]:[]})};
  };
  return {calls,worker:createMarketingCrmExecutor({fetcher,env:{AIRTABLE_TOKEN:'mock-only'}})};
