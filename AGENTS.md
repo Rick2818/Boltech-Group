@@ -64,3 +64,8 @@ Consultar [`docs/audits/ASMAS_SYNTHETIC_MAIL_RELAY_CERTIFICATION_20261015.md`](d
 ## Recorrido Gmail con ejecutores aislados — 15 octubre 2026
 
 [Recibos y alcance del caso QA-20261015-2125](docs/audits/ISOLATED_GMAIL_AGENT_CHAIN_20261015.md): ISOLATED_TECHNICAL_CHAIN_PASS con código existente RSI-01, MARKETING, RSI-02 y RSI-03; seis mensajes Gmail leídos, revisión de Dirección y recuperación independiente sin repetir trabajo. Transporte dirigido por operador y almacenamiento local QA. No acredita ciclo comercial autónomo en Vercel, aprobación de comprador ni pago; conservar los blockers observados.
+
+
+## Contacto real Marstrand — 16 octubre 2026
+
+[Recibo comercial Gmail y Airtable](docs/audits/MARSTRAND_REAL_OUTREACH_20261016.md): mensaje corporativo enviado a sales@marstrand.us, Gmail messageId `1a14582fd3ee1eb0`, registro Airtable `rec1SpCPYLPFbhK8L` actualizado a Contacted. **CONFIRMED_ASSISTED_OUTREACH; AUTONOMY_NOT_CERTIFIED**: la ejecución fue asistida mediante herramientas, no se ha demostrado ciclo independiente desde Vercel. Respuesta, diagnóstico, propuesta y pago pendientes. Prohibido inferir venta, reenviar sin conciliación o anunciar autonomía certificada.
