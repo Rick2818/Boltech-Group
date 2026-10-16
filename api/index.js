@@ -356,13 +356,13 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST' && (pathname === '/api/dashboard/trigger-dispatch' || pathname.endsWith('/dashboard/trigger-dispatch'))) {
-      try {
-        const { executeOutboundDispatch } = await import('../scripts/outbound/send_smtp_dispatch.mjs');
-        const result = await executeOutboundDispatch({ dryRun: req.body?.dryRun !== false });
-        return res.status(200).json({ success: true, result });
-      } catch (err) {
-        return res.status(500).json({ success: false, error: err.message });
-      }
+      // Retired legacy sender: never import a transport or mutate the old pipeline.
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(410).json({
+        success: false,
+        code: 'LEGACY_COMMERCIAL_RETIRED',
+        error: 'The legacy outbound dispatcher has been retired.'
+      });
     }
 
     return res.status(404).json({ error: 'Not Found', path: pathname });

@@ -20,3 +20,8 @@ Orden: sustituir íntegramente el flujo comercial legado de Boltech Group por la
 3. Crear commits de retiro por grupos con tests de compilación y no-regresión; primero desconectar disparadores para evitar dobles correos.
 4. Integrar flujo ASMAS con permisos controlados, escenarios sintéticos y rollback.
 5. Solo después de pasar CI, revisión de datos y respaldo, fusionar a main y comprobar Vercel. No decir que el flujo comercial nuevo vende sin prueba real.
+
+
+## Continuación del retiro — 16 octubre 2026
+
+Ver [inventario y verificación de despachadores retirados](LEGACY_DISPATCH_RETIREMENT_20261016.md). Se retiran ejecutores locales antiguos y su ruta HTTP; las rutas compartidas y ASMAS se conservan hasta su migración verificada. Esta continuación no fusiona ASMAS ni modifica Wompi.
