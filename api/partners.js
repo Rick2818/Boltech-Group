@@ -200,15 +200,19 @@ export default async function partnersHandler(req, res) {
       if(!['GET','POST'].includes(req.method))return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
       try {
         const worker=createInteragentCoordinator();
+        // Reconnect inbound Gmail before any independent marketing queue can fail.
+        let earlyInbox;
+        if(cronRun||req.method==='POST'){
+          try { earlyInbox=await createRsi02InboxExecutor().run(); }
+          catch(error) { earlyInbox={success:false,code:error?.code||'RSI02_CYCLE_BLOCKED'}; }
+        }
         const [sales,marketing]=await Promise.all([worker.queue('RSI-01'),worker.queue('MARKETING')]);
         if(req.method==='GET'&&!cronRun)return json(res,200,{success:true,roles:{'RSI-01':{pending:sales.pending.length},MARKETING:{pending:marketing.pending.length}},autonomousSendingEnabled:false});
         // Reuse the existing commercial coordinator: progress authorised sales work,
         // reconcile prior Gmail receipts and deliver marketing support without bulk mail.
         const cycle=createRsiMarketingCycle(worker);
         // Isolate inbox processing so a marketing/Apollo outage cannot block customer replies.
-        let rsi02rsi03;
-        try { rsi02rsi03=await createRsi02InboxExecutor().run(); }
-        catch(error) { rsi02rsi03={success:false,code:error?.code||'RSI02_CYCLE_BLOCKED'}; }
+        const rsi02rsi03=earlyInbox;
         const salesCycle=await cycle('RSI-01');
         const marketingCycle=await cycle('MARKETING');
         // Isolate prospect intake: upstream outages never block the existing commercial cycle.
