@@ -109,3 +109,8 @@ Consultar [`docs/audits/ASMAS_SYNTHETIC_MAIL_RELAY_CERTIFICATION_20261015.md`](d
 ## Verificación de agente web — 16 octubre 2026
 
 [Auditoría de cinco preguntas y traspaso a RSI-01](../audits/WEB_AGENT_VERIFICATION_20261016.md): **NO CERTIFICADO EN PRODUCCIÓN**. PR #82 describe contrato de 5 preguntas, contacto opcional y consentimiento, pero sus archivos de implementación y tests no están presentes en main al revisar. Se verificó interfaz previa del asistente; faltan evidencia de recorrido completo, CI y producción. No alterar Wompi ni declarar autonomía sin recibos.
+
+
+## Orden aceptada y entrega — 16 octubre 2026
+
+Aplicar [contrato de ejecución supervisada](CLIENT_ORDER_EXECUTION_20261016.md). RSI-03 registra orden durable tras aceptación; el workflow existente ejecuta build/QA sobre revisión aprobada. Pago, entrega y aceptación final son estados independientes con comprobantes. El harness publica bloqueos operativos en primer plano; no es un programador autónomo ni puede renovar consentimiento OAuth por sí solo.

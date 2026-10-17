@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 const root = resolve(import.meta.dirname, '../..');
 const output = resolve(root, 'artifacts/improvement-cycle');
 const groups = [
+  { name: 'Accepted order execution and independent delivery receipts', files: ['tests/test_client_order_execution.mjs', 'tests/test_client_order_build.mjs', 'tests/test_rsi03_closing.mjs'] },
   { name: 'Apollo reliable intake and CRM contracts', files: ['tests/test_apollo_integration.mjs'] },
   { name: 'RSI agent execution receipts', files: ['tests/test_rsi_agent_status.mjs', 'tests/test_rsi_agent_executor.mjs'] },
   { name: 'Durable CRM recovery', files: ['tests/test_crm_recovery.mjs'] },

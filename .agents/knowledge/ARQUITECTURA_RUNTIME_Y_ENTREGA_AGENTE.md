@@ -1,3 +1,5 @@
+> **Corrección operativa — 16 octubre 2026:** este documento conserva un diseño histórico, no una garantía comercial. No se promete entrega en 60 segundos ni autonomía sin intervención. Los agentes a medida requieren alcance aprobado, implementación, QA, entrega y aceptación verificadas. El contrato vigente está en `docs/architecture/CLIENT_ORDER_EXECUTION_20261016.md`.
+
 # Arquitectura de Ejecución, Ciclo de Vida y Despliegue del Agente
 
 > Documento técnico que responde: ¿En qué momento se entrega el agente? ¿Dónde vive? y ¿Cómo realiza la automatización del proceso solicitado con cero intervención humana?
@@ -6,7 +8,7 @@
 
 ## ⚡ 1. ¿En Qué Momento se Entrega el Agente?
 
-El agente se entrega **listo para operar en menos de 60 segundos** desde el momento en que el cliente escribe su dolor no resuelto:
+El plazo se fija en la cotización aprobada después de revisar alcance y accesos. El siguiente diagrama es histórico y no acredita el plazo ni la ejecución:
 
 ```mermaid
 sequenceDiagram
