@@ -76,14 +76,14 @@ test('uncertain close never accepts an unrelated sent message as its provider re
 });
 test('payment POST timeout leaves durable unknown and never generates a second link',async()=>{
  const f=fixture(),w=createRsi03Closing({...f.options,checkout:async()=>{throw Object.assign(Error('timeout'),{code:'CLOSE_CHECKOUT_UNKNOWN'});}});
- const record=await w.register(f.row);record.state='ACCEPTED';record.acceptanceMessageId='acceptance-id';f.data.set(`boltech:closing:case:${f.a.opportunityId}`,JSON.stringify(record));
+ const record=await w.register(f.row);record.state='ACCEPTED';record.acceptanceMessageId='acceptance-id';record.proposal={sentAt:now().toISOString()};f.replies.push({id:'acceptance-id',from:f.a.customerEmail,threadId:record.threadId,text:record.acceptanceToken,receivedAt:now().toISOString(),sent:false,automatic:false});f.data.set(`boltech:closing:case:${f.a.opportunityId}`,JSON.stringify(record));
  await assert.rejects(w.step(f.a.opportunityId),/timeout/);
  await assert.rejects(w.step(f.a.opportunityId),/CHECKOUT_RECONCILIATION_REQUIRED/);assert.equal(f.sent.length,0);
 });
 test('no qualified approved cases, unavailable gateway and fake payment do not become sales',async()=>{
  const f=fixture();assert.equal((await f.worker.runNext([])).state,'WAITING_QUALIFIED_APPROVED_CASE');
  await assert.rejects(createRsi03Closing({...f.options,gateway:async()=>({status:'FAILED'})}).register(f.row),/GATEWAY/);
- const record=await f.worker.register(f.row);record.state='WAITING_PAYMENT';record.acceptanceMessageId='acceptance-id';f.data.set(`boltech:closing:case:${f.a.opportunityId}`,JSON.stringify(record));f.invoice={status:'PAID'};
+ const record=await f.worker.register(f.row);record.state='WAITING_PAYMENT';record.acceptanceMessageId='acceptance-id';record.proposal={sentAt:now().toISOString()};f.replies.push({id:'acceptance-id',from:f.a.customerEmail,threadId:record.threadId,text:record.acceptanceToken,receivedAt:now().toISOString(),sent:false,automatic:false});f.data.set(`boltech:closing:case:${f.a.opportunityId}`,JSON.stringify(record));f.invoice={status:'PAID'};
  await assert.rejects(createRsi03Closing({...f.options,verifyPayment:async()=>false}).step(f.a.opportunityId),/PROVIDER_PAYMENT_UNVERIFIED/);assert.equal(f.notifications.length,0);
 });
 test('a recorded opt-out after approval blocks the existing closer before any email is sent',async()=>{
