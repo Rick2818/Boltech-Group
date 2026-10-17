@@ -84,3 +84,9 @@ test('partial and malformed queue rows cannot block other research',async()=>{
  const r=await executeResearch({work:[null,{id:'bad',fields:null},good],leads:[lead],investigate:async()=>({state:'SOURCE_UNVERIFIED'}),request:async(_,args)=>({records:[{id:args.body.records[0].id}]})});
  assert.equal(r.assessed,1);assert.equal(r.sendingEnabled,false);
 });
+
+test('operational work without linked Leads is not inspected as a research case',async()=>{
+ const row={id:'bootstrap',fields:{RSI:'RSI-01',Status:'PENDING_RSI01_RESEARCH',Evidence:'unlinked'}};
+ const r=await executeResearch({work:[row,work],leads:[lead],limit:5,investigate:async()=>({state:'SOURCE_UNVERIFIED'}),request:async(_,args)=>({records:[{id:args.body.records[0].id}]})});
+ assert.equal(r.assessed,1);assert.equal(r.failed,0);
+});
