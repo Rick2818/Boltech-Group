@@ -25,7 +25,7 @@ if(mode==='prepare'){
   if(r.status!==0)throw Error('DELIVERY_'+stage.toUpperCase()+'_FAILED');
  }
  // Export actual versioned source with its build/QA receipt; no generated placeholder agent.
- const archive=spawnSync('git',['archive','--format=tar.gz','--output=ops-output/implementation.tar.gz',plan.commit,'lib','api','config','tests','package.json','package-lock.json']);
+ const archive=spawnSync('git',['archive','--format=tar.gz','--output=ops-output/implementation.tar.gz',plan.commit]);
  if(archive.status!==0)throw Error('DELIVERY_ARTIFACT_FAILED');
 }else if(mode==='failed'){
  const r=await api();await api({operation:'block',orderId,expectedVersion:r.version,eventId:`blocked-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}`,reason:`Approved build/QA failed: https://github.com/Rick2818/Boltech-Group/actions/runs/${process.env.GITHUB_RUN_ID}`});

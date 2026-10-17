@@ -13,6 +13,7 @@ async function runFixture(broken=false){
   await writeFile(join(dir,'lib/agent.js'),"export function quotation(input){if(!input?.email)throw Error('EMAIL_REQUIRED');return {status:'REGISTERED',email:input.email};}\n");
   await writeFile(join(dir,'api/index.js'),"export {quotation} from '../lib/agent.js';\n");
   await writeFile(join(dir,'config/scope.json'),'{}');
+  await writeFile(join(dir,'CUSTOMER_MANUAL.md'),'Actual client implementation instructions');
   await writeFile(join(dir,'tests/acceptance.mjs'),`import {quotation} from '../lib/agent.js';import assert from 'node:assert/strict';assert.equal(quotation({email:'example@example.test'}).status,'${broken?'WRONG':'REGISTERED'}');assert.throws(()=>quotation({}),/EMAIL_REQUIRED/);`);
   await writeFile(join(dir,'package.json'),JSON.stringify({name:'delivery-fixture',version:'1.0.0',type:'module',scripts:{build:'node --check lib/agent.js'}}));
   await writeFile(join(dir,'package-lock.json'),JSON.stringify({name:'delivery-fixture',version:'1.0.0',lockfileVersion:3,requires:true,packages:{'':{name:'delivery-fixture',version:'1.0.0'}}}));
@@ -21,7 +22,7 @@ async function runFixture(broken=false){
   const plan=Buffer.from(JSON.stringify({orderId,plan:{commit,tests:['tests/acceptance.mjs'],criteria:['Registers quotation and rejects missing email']}})).toString('base64');
   const result=run(process.execPath,[runner,'build'],{ORDER_ID:orderId,APPROVED_PLAN:plan});
   const receipt=JSON.parse(await readFile(join(dir,'ops-output/client-order-build.json'),'utf8'));
-  if(broken){assert.notEqual(result.status,0,JSON.stringify({result,receipt}));assert.notEqual(receipt.receipts.at(-1).exitCode,0);}else{assert.equal(result.status,0,result.stderr);assert.equal(receipt.commit,commit);assert.equal(receipt.receipts.length,3);assert.ok((await readFile(join(dir,'ops-output/implementation.tar.gz'))).length>0);}
+  if(broken){assert.notEqual(result.status,0,JSON.stringify({result,receipt}));assert.notEqual(receipt.receipts.at(-1).exitCode,0);}else{assert.equal(result.status,0,result.stderr);assert.equal(receipt.commit,commit);assert.equal(receipt.receipts.length,3);assert.ok((await readFile(join(dir,'ops-output/implementation.tar.gz'))).length>0);assert.match(run('tar',['-tzf','ops-output/implementation.tar.gz']).stdout,/CUSTOMER_MANUAL.md/);}
  }finally{await rm(dir,{recursive:true,force:true});}
 }
 test('executor actually builds versioned quotation code, runs acceptance tests and packages source',()=>runFixture());
