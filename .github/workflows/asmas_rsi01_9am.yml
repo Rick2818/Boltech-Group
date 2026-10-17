@@ -7,6 +7,10 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/asmas_rsi01_9am.yml'
+      - 'lib/rsi01_research_executor.js'
+      - 'lib/rsi01_daily_campaign.js'
+      - 'scripts/ops/run_daily_campaign.mjs'
+      - 'lib/rsi_marketing_cycle.js'
   pull_request:
     paths:
       - 'lib/asmas_research_watchdog.js'
