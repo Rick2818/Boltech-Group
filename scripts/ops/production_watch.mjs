@@ -28,7 +28,7 @@ export function scheduleEvidence(runs, now = new Date()) {
   const weekday = local.getUTCDay() > 0 && local.getUTCDay() < 6;
   for (const [path, due, weekdays] of [
     ['.github/workflows/boltech_health_check.yml', 390, true],
-    ['.github/workflows/mit_commercial_9am.yml', 540, false]
+    ['.github/workflows/asmas_rsi01_9am.yml', 540, false]
   ]) {
     if (weekdays && !weekday) continue;
     if (localMinutes < due + 60) continue;
@@ -74,6 +74,19 @@ export async function runWatch({ fetcher = fetch, env = process.env, now = new D
   }
   const token = String(env.PARTNER_API_TOKEN || '').trim();
   const adminHeaders = { Authorization: `Bearer ${token}` };
+  await check('rsi01_daily_campaign', async () => {
+    // Allow startup grace; neither monitor nor backup starts another campaign.
+    const local = new Date(now.getTime()-6*3600000);
+    if(local.getUTCHours()*60+local.getUTCMinutes()<570)return {status:'PENDING',code:'DAILY_CAMPAIGN_NOT_DUE'};
+    if(!token)return {status:'FAILED',code:'ADMIN_MONITOR_CREDENTIAL_MISSING'};
+    const r=await request(BASE+'/api/partners?action=rsi01-daily',{headers:adminHeaders});
+    const d=r.data?.dailyCampaign;
+    if(r.status!==200||r.data?.success!==true||d?.day!==local.toISOString().slice(0,10))return {status:'FAILED',code:'DAILY_CAMPAIGN_RECEIPT_UNAVAILABLE'};
+    if(d.state==='NOT_STARTED')return {status:'FAILED',code:'DAILY_CAMPAIGN_NOT_STARTED'};
+    if(d.state!=='FINISHED')return {status:'FAILED',code:'DAILY_CAMPAIGN_RECONCILIATION_REQUIRED'};
+    if(d.status==='EXECUTED')return {status:'PASSED',code:'DAILY_CAMPAIGN_EXECUTED'};
+    return {status:'ATTENTION',code:'DAILY_CAMPAIGN_COMMERCIAL_BLOCKERS'};
+  });
   await check('gmail_oauth', async () => {
     if (!token) return { status: 'FAILED', code: 'ADMIN_MONITOR_CREDENTIAL_MISSING' };
     // A new production worker exchanges the refresh token and reads only the profile.
