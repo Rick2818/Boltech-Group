@@ -78,3 +78,9 @@ test('missing lead association and non-string evidence do not crash queue select
  const r=await executeResearch({work:rows,leads:[valid],investigate:async()=>({state:'SOURCE_UNVERIFIED'}),request:async(_,args)=>({records:[{id:args.body.records[0].id}]})});
  assert.equal(r.assessed,1);assert.equal(r.failed,0);
 });
+
+test('partial and malformed queue rows cannot block other research',async()=>{
+ const good={...work,id:'good-job',fields:{...work.fields,'Source Record ID':'rec1'}};
+ const r=await executeResearch({work:[null,{id:'bad',fields:null},good],leads:[lead],investigate:async()=>({state:'SOURCE_UNVERIFIED'}),request:async(_,args)=>({records:[{id:args.body.records[0].id}]})});
+ assert.equal(r.assessed,1);assert.equal(r.sendingEnabled,false);
+});
