@@ -88,3 +88,5 @@ test('handoff API rejects unauthorized reads and mutations before storage access
   }
   assert.equal(calls, 0);
 });
+
+test('Redis diagnostic preserves safe auth, quota and command errors without leaking provider detail or retrying writes',async()=>{const env={UPSTASH_REDIS_REST_URL:'https://redis.example.test',UPSTASH_REDIS_REST_TOKEN:'test-only'};for(const [status,error,code] of [[401,null,'AUTH_REJECTED'],[429,null,'RATE_LIMITED'],[400,null,'COMMAND_REJECTED'],[200,'NOPERM private detail','PERMISSION_DENIED']]){let calls=0;await assert.rejects(redisCommand(['SET','qa','value'],{env,fetcher:async()=>{calls++;return {ok:status===200,status,json:async()=>({error})};}}),{code:'RSI_STORAGE_'+code});assert.equal(calls,1);}});
