@@ -1,4 +1,4 @@
-import test from 'node:test';import assert from 'node:assert/strict';import {assessCase,executeResearch} from '../lib/rsi01_research_executor.js';
+import test from 'node:test';import assert from 'node:assert/strict';import {assessCase,executeResearch,discoverResearchCandidates,seedResearchQueue,buildCommercialReviewPacket} from '../lib/rsi01_research_executor.js';
 const lead={id:'rec1',fields:{'Contact Email':'buyer@example.com','Company URL':'https://example.com'}},work={id:'work1',fields:{RSI:'RSI-01',Status:'PENDING_RSI01_RESEARCH','Source Record ID':'rec1',Evidence:''}};
 test('incomplete evidence never approved',()=>{const r=assessCase(work,lead);assert.equal(r.approvalGranted,false);assert.ok(r.reasons.includes('BUYER_ROLE_UNVERIFIED'))});
 test('complete documented case still requires commercial approval',()=>{const r=assessCase(work,{...lead,fields:{...lead.fields,'Buyer Role':'Owner','Source Evidence URL':'https://example.com/about','Problem Confirmed':true}});assert.equal(r.status,'COMMERCIAL_APPROVAL_REVIEW');assert.equal(r.sendingEnabled,false)});
@@ -46,4 +46,13 @@ test('research does not revisit same cases twice within a day',async()=>{
  const same={...work,fields:{...work.fields,Evidence:'[RSI01_RESEARCH_ASSESSMENT_V1]{"at":"2026-10-17T12:00:00Z"}[/RSI01_RESEARCH_ASSESSMENT_V1]',Status:'RESEARCH_RETRY_2'}};
  const r=await executeResearch({work:[same],leads:[lead],now:()=> '2026-10-17T19:00:00Z',request:async()=>{throw Error('should not write')}});
  assert.equal(r.assessed,0);
+});
+
+test('autonomous discovery creates only genuine CRM website tasks and no approved prospect',async()=>{
+ const candidates=[{id:'recA',fields:{Name:'A',Country:'United States','Company URL':'https://example.com','Contact Email':'sales@example.com'}},{id:'recB',fields:{Name:'B','Contact Email':'b@x.com'}},{id:'recC',fields:{Name:'C','Company URL':'https://other.com','Contact Email':'sales@example.com'}}];
+ assert.deepEqual(discoverResearchCandidates(candidates,[],{limit:5}).map(x=>x.id),['recA']);
+ const result=await seedResearchQueue({leads:candidates,work:[],request:async(_t,args)=>{assert.equal(args.body.records[0].fields.Status,'PENDING_RSI01_RESEARCH');return {records:[{id:'workA'}]}}});
+ assert.equal(result.length,1);assert.equal(result[0].fields['Source Record ID'],'recA');
+ const packet=buildCommercialReviewPacket(candidates[0],{url:'https://example.com',operationalSignals:[{type:'QUOTE_INTAKE',sourceUrl:'https://example.com/quote',excerpt:'Request a quote'}]});
+ assert.equal(packet.status,'REVIEW_REQUIRED');assert.equal(packet.contactEligible,false);assert.equal(packet.customerNeedConfirmed,false);assert.equal(packet.salesReview.accepted,false);
 });
