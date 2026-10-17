@@ -28,3 +28,8 @@ test('rotates five-case research instead of reviewing the same five forever',asy
  assert.equal(first.sendingEnabled,false);
  assert.equal(second.sendingEnabled,false);
 });
+
+test('Agent 1 marks public operational signals as potential, never as confirmed need',async()=>{
+ let written; const result=await executeResearch({work:[work],leads:[lead],investigate:async()=>({state:'PUBLIC_WEBSITE_OBSERVED',url:'https://example.com/',operationalSignals:[{type:'QUOTE_INTAKE',excerpt:'Request a quote'}]}),request:async(_t,args)=>{written=args.body.records[0];return {records:[{id:'work1'}]}}});
+ assert.equal(result.decisions[0].commercialPhase,'POTENTIAL_NEED_SOURCE_OBSERVED');assert.equal(result.decisions[0].sendingEnabled,false);assert.match(written.fields.Evidence,/QUOTE_INTAKE/);assert.match(written.fields.Evidence,/approvalGranted":false/);assert.match(written.fields['Next Action'],/human confirmation/);
+});
