@@ -56,3 +56,12 @@ test('autonomous discovery creates only genuine CRM website tasks and no approve
  const packet=buildCommercialReviewPacket(candidates[0],{url:'https://example.com',operationalSignals:[{type:'QUOTE_INTAKE',sourceUrl:'https://example.com/quote',excerpt:'Request a quote'}]});
  assert.equal(packet.status,'REVIEW_REQUIRED');assert.equal(packet.contactEligible,false);assert.equal(packet.customerNeedConfirmed,false);assert.equal(packet.salesReview.accepted,false);
 });
+
+test('unresearchable records consume zero website investigation slots',async()=>{
+ const bad={...lead,id:'bad',fields:{'Contact Email':'a@gmail.com'}};
+ const good={...lead,id:'good'};
+ const jobs=[{...work,id:'badJob',fields:{...work.fields,'Source Record ID':'bad'}},{...work,id:'goodJob',fields:{...work.fields,'Source Record ID':'good'}}];
+ const called=[];
+ const result=await executeResearch({work:jobs,leads:[bad,good],limit:1,now:()=> '2026-10-17T20:00:00Z',investigate:async x=>{called.push(x.id);return {state:'PUBLIC_WEBSITE_OBSERVED',url:'https://example.com/',operationalSignals:[{type:'QUOTE_INTAKE',excerpt:'Request a quote'}]}},request:async(_,args)=>({records:[{id:args.body.records[0].id}]})});
+ assert.deepEqual(called,['good']);assert.equal(result.assessed,1);assert.equal(result.skippedUnresearchable,1);assert.equal(result.opportunitiesWithEvidence,1);
+});
