@@ -3,8 +3,11 @@ on:
   pull_request:
     paths:
       - 'lib/rsi02_inbox_executor.js'
+      - 'lib/rsi02_ai_reply.js'
       - 'api/partners.js'
       - 'tests/test_rsi02_inbox_executor.mjs'
+      - 'tests/test_commercial_cron.mjs'
+      - 'tests/test_rsi02_ai_reply.mjs'
       - 'vercel.json'
       - '.github/workflows/rsi02-inbox-certification.yml'
   workflow_dispatch:
@@ -23,4 +26,4 @@ jobs:
           node --check api/partners.js
           node --check tests/test_rsi02_inbox_executor.mjs
       - name: Run synthetic inbox and RSI-03 handoff tests
-        run: node --test tests/test_rsi02_inbox_executor.mjs
+        run: node --test tests/test_rsi02_inbox_executor.mjs tests/test_commercial_cron.mjs tests/test_rsi02_ai_reply.mjs
