@@ -33,3 +33,11 @@ test('Agent 1 marks public operational signals as potential, never as confirmed 
  let written; const result=await executeResearch({work:[work],leads:[lead],investigate:async()=>({state:'PUBLIC_WEBSITE_OBSERVED',url:'https://example.com/',operationalSignals:[{type:'QUOTE_INTAKE',excerpt:'Request a quote'}]}),request:async(_t,args)=>{written=args.body.records[0];return {records:[{id:'work1'}]}}});
  assert.equal(result.decisions[0].commercialPhase,'POTENTIAL_NEED_SOURCE_OBSERVED');assert.equal(result.decisions[0].sendingEnabled,false);assert.match(written.fields.Evidence,/QUOTE_INTAKE/);assert.match(written.fields.Evidence,/approvalGranted":false/);assert.match(written.fields['Next Action'],/human confirmation/);
 });
+
+test('research prioritizes real safe company websites ahead of missing or mismatched URLs',async()=>{
+ const works=['bad','mismatch','good'].map(id=>({id:'work'+id,fields:{...work.fields,'Source Record ID':'rec'+id}}));
+ const leads=[{id:'recbad',fields:{'Contact Email':'a@example.com'}},{id:'recmismatch',fields:{'Company URL':'https://other.com','Contact Email':'a@example.com'}},{id:'recgood',fields:{'Company URL':'https://example.com','Contact Email':'sales@example.com'}}];
+ const updated=[];
+ const r=await executeResearch({work:works,leads,limit:1,investigate:async()=>({state:'PUBLIC_WEBSITE_OBSERVED',operationalSignals:[{type:'QUOTE_INTAKE',sourceUrl:'https://example.com/quote'}]}),request:async(_,args)=>{updated.push(args.body.records[0].id);return {records:[{id:args.body.records[0].id}]}}});
+ assert.deepEqual(updated,['workgood']);assert.equal(r.decisions[0].commercialPhase,'POTENTIAL_NEED_SOURCE_OBSERVED');assert.equal(r.sendingEnabled,false);
+});
