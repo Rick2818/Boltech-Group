@@ -66,7 +66,7 @@ test('exact revision probe waits for the new commit before checking Gmail and ne
 test('old deployments, wrong sender and rejected OAuth cannot be certified',async()=>{
   const old=await verifyDeployedRevision({expectedCommit:sha,token:'test-only',attempts:1,fetcher:async()=>({ok:true,status:200,json:async()=>({success:true,deploymentCommit:'b'.repeat(40)})})});assert.equal(old.status,'FAILED');
   for(const payload of [{success:false,code:'GMAIL_OAUTH_AUTH_FAILED'},{success:true,verified:true,sender:'wrong@example.test'}]){
-    const r=await verifyDeployedRevision({expectedCommit:sha,token:'test-only',attempts:1,fetcher:async url=>({ok:true,status:200,json:async()=>url.includes('rsi-agents')?{success:true,deploymentCommit:sha}:payload})});assert.equal(r.status,'FAILED');assert.equal(r.gmailVerified,false);
+    const r=await verifyDeployedRevision({expectedCommit:sha,token:'test-only',attempts:1,fetcher:async url=>({ok:true,status:200,json:async()=>url.includes('rsi-agents')?{success:true,deploymentCommit:sha}:payload})});assert.equal(r.status,'FAILED');assert.equal(r.gmailVerified,false);assert.equal(r.sameCommit,true);
   }
 });
 test('unauthenticated deployment probe fails without contacting providers',async()=>{
