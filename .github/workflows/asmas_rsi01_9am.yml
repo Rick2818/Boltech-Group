@@ -57,6 +57,7 @@ jobs:
         if: ${{ !cancelled() && github.event_name != 'pull_request' }}
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+          RSI_EXPECT_DEPLOYMENT_SHA: ''
         run: node scripts/ops/run_daily_campaign.mjs
       # Research may continue on an independently receipt-tracked cycle even when
       # today's outbound campaign is FINISHED. Sending remains in daily ledger only.
