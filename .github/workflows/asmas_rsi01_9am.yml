@@ -40,16 +40,25 @@ jobs:
         run: npm ci --ignore-scripts
       - name: Verify research watchdog and SDR campaign
         run: node --test tests/test_asmas_research_watchdog.mjs tests/test_rsi01_research_executor.mjs tests/test_rsi01_public_research.mjs tests/test_sdr_campaign.mjs tests/test_rsi01_daily_campaign.mjs
-      - name: Execute daily RSI-01 campaign with shared durable receipt
+      # Intake must finish before RSI-01 checks the approved queue.
+      # Intake never grants approval or sends mail.
+      - name: Execute Marketing intake before RSI-01
         if: github.event_name != 'pull_request'
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
-        run: node scripts/ops/run_daily_campaign.mjs
-      - name: Execute independent RSI-02 RSI-03 and Marketing
+          RSI_EXECUTION_ROLES: 'MARKETING'
+          RSI_EXPECT_DEPLOYMENT_SHA: ''
+        run: node scripts/ops/run_rsi_agents.mjs
+      - name: Execute daily RSI-01 campaign with shared durable receipt
         if: ${{ !cancelled() && github.event_name != 'pull_request' }}
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
-          RSI_EXECUTION_ROLES: 'RSI-02,RSI-03,MARKETING'
+        run: node scripts/ops/run_daily_campaign.mjs
+      - name: Execute independent RSI-02 and RSI-03
+        if: ${{ !cancelled() && github.event_name != 'pull_request' }}
+        env:
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+          RSI_EXECUTION_ROLES: 'RSI-02,RSI-03'
           RSI_EXPECT_DEPLOYMENT_SHA: ''
         run: node scripts/ops/run_rsi_agents.mjs
       - name: Preserve execution receipts
