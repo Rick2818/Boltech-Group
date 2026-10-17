@@ -41,7 +41,7 @@ jobs:
       - name: Install locked dependencies
         run: npm ci --ignore-scripts
       - name: Validate monitoring and private diagnostics
-        run: node --test tests/test_telegram_repair.mjs tests/test_operational_privacy.mjs tests/test_production_watch.mjs
+        run: node --test tests/test_telegram_repair.mjs tests/test_operational_privacy.mjs tests/test_production_watch.mjs tests/test_google_oauth_reason.mjs
   health:
     if: github.event_name != 'pull_request'
     needs: contracts

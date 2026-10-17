@@ -2,6 +2,37 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {classifyPayments,scheduleEvidence,runWatch,triggerEvidence} from '../scripts/ops/production_watch.mjs';
 
+test('existing monitor renews Gmail and validates the corporate sender without sending',async()=>{
+ let calls=0;
+ const fetcher=async(url,options)=>{
+  if(url.includes('action=sdr-verify')){
+   calls++;assert.equal(options.method,'POST');assert.equal(options.headers.Authorization,'Bearer admin');
+   assert.equal(options.body,undefined);
+   return Response.json({success:true,verified:true,sender:'ricardo.boltechgroup@gmail.com'});
+  }
+  assert.ok(!url.includes('sdr-send')&&!url.includes('messages/send'));
+  return new Response('{}',{status:503});
+ };
+ const r=await runWatch({fetcher,env:{PARTNER_API_TOKEN:'admin'}});
+ assert.equal(calls,1);assert.deepEqual(r.checks.find(x=>x.name==='gmail_oauth'),{name:'gmail_oauth',status:'PASSED',code:'GMAIL_OAUTH_AND_SENDER_VERIFIED',http:200});
+});
+test('Gmail monitor fails on revoked, wrong sender, missing evidence and unsafe error text',async()=>{
+ for(const [status,body,code] of [
+  [503,{code:'GMAIL_OAUTH_INVALID_GRANT'},'GMAIL_OAUTH_INVALID_GRANT'],
+  [200,{success:true,verified:true,sender:'other@example.com'},'GMAIL_VERIFICATION_FAILED'],
+  [200,{success:true},'GMAIL_VERIFICATION_FAILED'],
+  [503,{code:'SECRET_CANARY',error_description:'SECRET_CANARY'},'GMAIL_VERIFICATION_FAILED']
+ ]){
+  const r=await runWatch({env:{PARTNER_API_TOKEN:'admin'},fetcher:async url=>url.includes('action=sdr-verify')?Response.json(body,{status}):new Response('{}',{status:503})});
+  const gmail=r.checks.find(x=>x.name==='gmail_oauth');assert.equal(gmail.status,'FAILED');assert.equal(gmail.code,code);
+  assert.doesNotMatch(JSON.stringify(r),/SECRET_CANARY|other@example.com|Bearer admin/);
+ }
+});
+test('Gmail monitor requires operational authorization before contacting the endpoint',async()=>{
+ const r=await runWatch({env:{},fetcher:async url=>{assert.ok(!url.includes('action=sdr-verify'));return new Response('{}',{status:503})}});
+ assert.equal(r.checks.find(x=>x.name==='gmail_oauth').code,'ADMIN_MONITOR_CREDENTIAL_MISSING');
+});
+
 test('configured payments remain pending verification, missing storage is failure',()=>{
   assert.equal(classifyPayments({success:true,environment:'production',store:{configured:true},fulfillment:{atomicClaimConfigured:true},wompi:{configured:true},strike:{configured:true}}),'PROVIDER_VERIFICATION_PENDING');
   assert.equal(classifyPayments({success:true,environment:'production',store:{configured:false}}),'FAILED');
