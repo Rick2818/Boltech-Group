@@ -1,3 +1,5 @@
+> Actualización 16 octubre: el contrato implementado de órdenes y ejecución supervisada está en [CLIENT_ORDER_EXECUTION_20261016.md](CLIENT_ORDER_EXECUTION_20261016.md). Las limitaciones históricas siguientes no acreditan ni sustituyen una entrega real.
+
 # Harness — Certificación operativa de entregas de clientes (15 de octubre de 2026)
 
 ## Objetivo y alcance

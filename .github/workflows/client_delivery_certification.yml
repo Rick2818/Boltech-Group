@@ -71,7 +71,7 @@ jobs:
           retention-days: 30
 
   prepare-approved-order:
-    if: github.event_name == 'workflow_dispatch' && inputs.mode == 'customer'
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.mode == 'customer'
     needs: certify
     runs-on: ubuntu-latest
     timeout-minutes: 3
