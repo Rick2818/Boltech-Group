@@ -17,3 +17,19 @@ Utiliza el workflow GitHub Actions existente y endpoint Vercel; registra `RSI01_
 
 ## Aceptación productiva
 Requiere workflow aprobado, Vercel READY con SHA correcto y un recibo real de Agent 1 mostrando fuentes obtenidas. Si no hay cinco oportunidades justificadas, reportar número real y razón. Wompi y envíos comerciales intactos.
+
+## Registro Harness — RFI UNC Greensboro, 17 octubre 2026
+
+**Airtable:** `recXGZ8gZCjvY2uHB`; `RSI01:PUBLIC_RFI:69-MFL0002`; estado `ORG_VERIFIED_RFI_ONLY`.
+
+- Organización: University of North Carolina Greensboro (Estados Unidos).
+- Solicitud pública registrada: `69-MFL0002` (RFI). Fuente: https://evp.nc.gov/solicitations//details/?id=19309bc4-65c9-f111-aaae-001dd80bcb64
+- Fechas registradas (pendientes de reconfirmar antes de responder): publicada 2026-10-16, cierre 2026-11-06.
+- Objeto: consulta institucional sobre chatbot de IA; necesidades de integración, privacidad y accesibilidad requieren lectura de pliego oficial.
+- Evidencia real: Airtable contiene el expediente con fuente, número, organización y tarea; el último ciclo RSI-01 probado terminó `COMPLETED`, `rsi01_case_research_executor=VERIFIED` y `failed=0`. **No es una certificación de investigación de este RFI particular**, ni implica elegibilidad, propuesta enviada o venta.
+- Sin confirmar: comprador y email corporativo, pliego completo, registro de proveedor, exigencias técnicas y cumplimiento de Boltech, valor de contrato, compromiso de compra.
+- Estado de contacto: `purchaseCommitted=false`, `approvedForOutreach=false`, `sendingEnabled=false`.
+- **Próxima tarea Agent 1:** validar portal y documentos, elegibilidad y plazo; matriz de requerimientos/capacidades/brechas/coste; determinar canal institucional oficial. Someter a aprobación humana antes de envío.
+- Las cinco publicaciones previas de foros solo proporcionan inteligencia de mercado: no son compradores verificados.
+
+**Certificación:** evidencia documental del expediente **sí**; elegibilidad técnica/comercial **pendiente**; contacto o venta **no**.
