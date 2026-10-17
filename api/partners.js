@@ -313,10 +313,11 @@ export default async function partnersHandler(req, res) {
       if(!requireOperationalAuth(req,res))return;
       if(!['GET','POST'].includes(req.method))return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
       try{
-        const {createClientOrderExecution}=await import('../lib/client_order_execution.js');
+        const {createClientOrderExecution,checkClientOrderStorage}=await import('../lib/client_order_execution.js');
         const worker=createClientOrderExecution();
         const body=typeof req.body==='string'?JSON.parse(req.body):(req.body||{});
         const url=new URL(req.url,'https://boltech-group.vercel.app');
+        if(req.method==='POST'&&body.operation==='storage-check')return json(res,200,{success:true,...await checkClientOrderStorage()});
         const record=req.method==='GET'?await worker.read(url.searchParams.get('orderId')):
           body.operation==='register'?await worker.fromOpportunity(body.opportunityId):await worker.act(body);
         if(!record)return json(res,404,{success:false,code:'DELIVERY_ORDER_NOT_FOUND'});

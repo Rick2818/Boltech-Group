@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createClientOrderExecution, githubDeliveryEvidence } from '../lib/client_order_execution.js';
+import { checkClientOrderStorage, createClientOrderExecution, githubDeliveryEvidence } from '../lib/client_order_execution.js';
 const at='2026-10-17T00:20:00.000Z',commit='a'.repeat(40);
 function fixture(){
  const data=new Map(),messages=new Map();
@@ -25,3 +25,5 @@ test('GitHub QA receipt checks trusted workflow, main branch, finished execution
 test('storage failure never returns a completed order',async()=>{const f=fixture();const worker=createClientOrderExecution({...f.options,command:async()=>{throw Error('REDIS_DOWN');}});await assert.rejects(worker.register(f.closing),/REDIS_DOWN/);});
 
 test('blocked implementation can be corrected with a new approved SHA while retaining prior plan and clearing old QA',async()=>{const f=fixture();await ready(f);await action(f,'block',{reason:'Customer criterion failed'});const r=await action(f,'approve-plan',{owner:'E1',commit:'b'.repeat(40),tests:['tests/test_client_order_execution.mjs']});assert.equal(r.previousPlans[0].commit,commit);assert.equal(r.qa,undefined);assert.equal(r.execution,'READY_FOR_BUILD_AND_QA');});
+
+test('production storage probe uses an isolated expiring namespace, checks CAS and always cleans it',async()=>{const data=new Map();const calls=[];const command=async a=>{calls.push(a);if(a[0]==='SET'){data.set(a[1],a[2]);return 'OK';}if(a[0]==='GET')return data.get(a[1]);if(a[0]==='DEL')return data.delete(a[1]);if(a[0]==='EVAL'){if(JSON.parse(data.get(a[3])).version!==Number(a[4]))return 'CONFLICT';data.set(a[3],a[5]);return 'OK';}};const r=await checkClientOrderStorage(command);assert.equal(r.status,'VERIFIED');assert.equal(r.customerDeliveryCertified,false);assert.equal(data.size,0);assert.ok(calls[0][1].startsWith('boltech:qa:delivery:'));assert.ok(calls[0].includes('EX'));});

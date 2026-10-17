@@ -27,3 +27,5 @@ El 16 octubre a las 18:02 SV la issue #86 ya se actualizaba automáticamente. Lo
 
 ## Certificación
 Pruebas de contratos, concurrencia, reinicio, fallos de proveedor y ejecución real de build/QA sobre un repositorio de prueba se realizan en CI. Un PASS técnico no acredita entrega de NUBO, aceptación humana, pago ni la semana supervisada de la Regla de Oro. La certificación de un cliente requiere su alcance, código específico, accesos y recibos reales. No existe todavía ese pedido.
+
+El probe del harness comprueba también almacenamiento real de órdenes: clave QA aleatoria con expiración, escritura/lectura, CAS y rechazo de versión anterior; después limpia la clave. No crea clientes, envíos, enlaces ni pagos. Publica el recibo separado en issue #86 incluso si OAuth está bloqueado. El workflow de entrega ahora se activa también por push pertinente en main para que el harness reciba evidencia técnica de entrega sin intervención manual.

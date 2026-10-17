@@ -6,5 +6,11 @@ if(process.env.GITHUB_EVENT_NAME==='deployment_status'&&(!['production','Product
 }
 const expectedCommit=process.env.GITHUB_EVENT_NAME==='deployment_status'?event.deployment.sha:process.env.GITHUB_SHA;
 const report=await verifyDeployedRevision({expectedCommit,token:process.env.PARTNER_API_TOKEN});
+if(report.sameCommit===true&&process.env.PARTNER_API_TOKEN){
+ try{
+  const r=await fetch('https://boltech-group.vercel.app/api/partners?action=client-order',{method:'POST',headers:{Authorization:`Bearer ${process.env.PARTNER_API_TOKEN}`,'Content-Type':'application/json'},body:JSON.stringify({operation:'storage-check'}),signal:AbortSignal.timeout(25000)});
+  const body=await r.json();report.clientOrderStorage=r.ok&&body.status==='VERIFIED'?body:{status:'FAILED',code:body.code||'DELIVERY_PROBE_REJECTED'};
+ }catch{report.clientOrderStorage={status:'FAILED',code:'DELIVERY_PROBE_UNAVAILABLE'};}
+}
 await mkdir('ops-output',{recursive:true});await writeFile('ops-output/harness-vercel-probe.json',JSON.stringify(report,null,2));
 console.log(JSON.stringify(report));if(report.status!=='VERIFIED_EXACT_REVISION_AND_GMAIL')process.exitCode=1;

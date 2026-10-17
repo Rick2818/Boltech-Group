@@ -1,5 +1,13 @@
 name: Client delivery certification (GitHub + Vercel)
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/client_order_execution.js'
+      - 'lib/rsi03_closing.js'
+      - 'scripts/ops/client_order_workflow.mjs'
+      - 'tests/test_client_order*.mjs'
+      - '.github/workflows/client_delivery_certification.yml'
   workflow_dispatch:
     inputs:
       order_id:
@@ -73,7 +81,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.sha }}
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
@@ -91,7 +99,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.sha }}
           path: control
           persist-credentials: false
       - uses: actions/checkout@v4
@@ -122,7 +130,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.sha }}
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
