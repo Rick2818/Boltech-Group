@@ -74,6 +74,19 @@ export async function runWatch({ fetcher = fetch, env = process.env, now = new D
   }
   const token = String(env.PARTNER_API_TOKEN || '').trim();
   const adminHeaders = { Authorization: `Bearer ${token}` };
+  await check('gmail_oauth', async () => {
+    if (!token) return { status: 'FAILED', code: 'ADMIN_MONITOR_CREDENTIAL_MISSING' };
+    // A new production worker exchanges the refresh token and reads only the profile.
+    const r = await request(BASE + '/api/partners?action=sdr-verify', { method: 'POST', headers: adminHeaders });
+    if (r.status === 200 && r.data?.success === true && r.data?.verified === true && r.data?.sender === 'ricardo.boltechgroup@gmail.com') {
+      return { status: 'PASSED', code: 'GMAIL_OAUTH_AND_SENDER_VERIFIED', http: r.status };
+    }
+    const known = ['GMAIL_OAUTH_NOT_CONFIGURED', 'GMAIL_OAUTH_REFRESH_TOKEN_IS_CLIENT_ID', 'GMAIL_OAUTH_NETWORK_ERROR',
+      'GMAIL_OAUTH_INVALID_GRANT', 'GMAIL_OAUTH_INVALID_CLIENT', 'GMAIL_OAUTH_UNAUTHORIZED_CLIENT', 'GMAIL_OAUTH_AUTH_FAILED',
+      'GMAIL_OAUTH_INVALID_RESPONSE', 'GMAIL_SENDER_MISMATCH', 'GMAIL_READ_UNAVAILABLE', 'GMAIL_RATE_LIMITED',
+      'GMAIL_API_REJECTED', 'GMAIL_INVALID_RESPONSE'];
+    return { status: 'FAILED', code: known.includes(r.data?.code) ? r.data.code : 'GMAIL_VERIFICATION_FAILED', http: r.status };
+  });
   await check('website', async () => {
     const r = await request(BASE);
     return { status: r.status === 200 && /Boltech/i.test(r.text) ? 'PASSED' : 'FAILED', http: r.status };

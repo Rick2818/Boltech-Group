@@ -3,6 +3,58 @@ import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
 import {createSdrGmail, googleOauthDiagnostic} from '../lib/sdr_gmail.js';
 const env={GMAIL_OAUTH_CLIENT_ID:'test-client',GMAIL_OAUTH_CLIENT_SECRET:'test-secret',GMAIL_OAUTH_REFRESH_TOKEN:'test-refresh'};
+test('simulated access-token expiry renews automatically with the original refresh token',async t=>{
+ let now=1000000; t.mock.method(Date,'now',()=>now);
+ const exchanges=[],bearers=[];
+ const gmail=createSdrGmail(async(url,options)=>{
+  if(url.includes('oauth2.googleapis.com')){
+   exchanges.push(Object.fromEntries(new URLSearchParams(options.body)));
+   return {ok:true,json:async()=>({access_token:'access-'+exchanges.length,expires_in:3600})};
+  }
+  assert.ok(url.endsWith('/profile'));assert.equal(options.method,undefined);
+  bearers.push(options.headers.Authorization);
+  return {ok:true,json:async()=>({emailAddress:'ricardo.boltechgroup@gmail.com'})};
+ },env);
+ await gmail.verify();await gmail.verify();
+ assert.equal(exchanges.length,1);
+ now+=3600000;await gmail.verify();
+ assert.equal(exchanges.length,2);
+ assert.deepEqual(bearers,['Bearer access-1','Bearer access-1','Bearer access-2']);
+ for(const body of exchanges)assert.deepEqual(body,{grant_type:'refresh_token',client_id:'test-client',client_secret:'test-secret',refresh_token:'test-refresh'});
+});
+test('revocation after simulated expiry fails closed and a corrected connection recovers',async t=>{
+ let now=1000000,exchanges=0,reads=0;t.mock.method(Date,'now',()=>now);t.mock.method(console,'error',()=>{});
+ const fetcher=async(url,options)=>{
+  if(url.includes('oauth2.googleapis.com')){
+   exchanges++;
+   if(exchanges===2)return {ok:false,status:400,json:async()=>({error:'invalid_grant'})};
+   return {ok:true,json:async()=>({access_token:'synthetic',expires_in:3600})};
+  }
+  assert.ok(url.endsWith('/profile'));assert.equal(options.method,undefined);reads++;
+  return {ok:true,json:async()=>({emailAddress:'ricardo.boltechgroup@gmail.com'})};
+ };
+ const gmail=createSdrGmail(fetcher,env);await gmail.verify();now+=3600000;
+ await assert.rejects(gmail.verify(),e=>e.code==='GMAIL_OAUTH_INVALID_GRANT');
+ assert.equal(exchanges,2);assert.equal(reads,1);
+ assert.equal((await createSdrGmail(fetcher,{...env,GMAIL_OAUTH_REFRESH_TOKEN:'corrected-refresh'}).verify()).verified,true);
+ assert.equal(reads,2);
+});
+test('Client ID pasted as refresh token is rejected before contacting Google',async()=>{
+ let calls=0;
+ await assert.rejects(createSdrGmail(async()=>{calls++},{...env,GMAIL_OAUTH_REFRESH_TOKEN:' client.apps.googleusercontent.com\n'}).verify(),e=>e.code==='GMAIL_OAUTH_REFRESH_TOKEN_IS_CLIENT_ID');
+ assert.equal(calls,0);
+});
+test('credential whitespace is normalized without restricting refresh-token prefixes',async()=>{
+ const padded=Object.fromEntries(Object.entries(env).map(([k,v])=>[k,' '+v+'\n']));
+ const gmail=createSdrGmail(async(url,options)=>{
+  if(url.includes('oauth2.googleapis.com')){
+   assert.deepEqual(Object.fromEntries(new URLSearchParams(options.body)),{grant_type:'refresh_token',client_id:'test-client',client_secret:'test-secret',refresh_token:'test-refresh'});
+   return {ok:true,json:async()=>({access_token:'synthetic',expires_in:3600})};
+  }
+  return {ok:true,json:async()=>({emailAddress:'ricardo.boltechgroup@gmail.com'})};
+ },padded);
+ assert.equal((await gmail.verify()).verified,true);
+});
 for(const [reason,expected] of [['invalid_grant','GMAIL_OAUTH_INVALID_GRANT'],['invalid_client','GMAIL_OAUTH_INVALID_CLIENT'],['unauthorized_client','GMAIL_OAUTH_UNAUTHORIZED_CLIENT'],['something_else','GMAIL_OAUTH_AUTH_FAILED']]){
  test('OAuth error '+reason+' classified without exposing request details',async()=>{
   const fetcher=async()=>({ok:false,status:400,json:async()=>({error:reason,error_description:'Sensitive provider description'})});

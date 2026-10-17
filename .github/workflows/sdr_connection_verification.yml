@@ -4,6 +4,7 @@ on:
     branches: [main]
     paths:
       - 'lib/sdr_gmail.js'
+      - 'tests/test_google_oauth_reason.mjs'
       - 'lib/sdr_dispatch.js'
       - 'lib/telegram_cloud_processor.js'
       - 'lib/telegram_free_operations.js'
