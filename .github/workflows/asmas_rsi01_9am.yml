@@ -82,5 +82,6 @@ jobs:
           path: |
             ops-output/rsi-agent-execution.json
             ops-output/rsi01-daily-campaign.json
+            ops-output/rsi01-research-execution.json
           if-no-files-found: warn
           retention-days: 30
