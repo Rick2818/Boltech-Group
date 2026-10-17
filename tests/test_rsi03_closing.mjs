@@ -16,7 +16,7 @@ function fixture(){
   throw Error('Unexpected Redis command');
  };
  const qualification={id:'qualification-id',from:a.customerEmail,to:'ricardo.boltechgroup@gmail.com',text:'Customer workflow request',threadId:'thread-fixture',rfcMessageId:'<qualification@example.test>',receivedAt:'2026-10-07T18:30:00Z',sent:false,automatic:false};
- const gmail={verify:async()=>({verified:true}),message:async id=>id==='qualification-id'?qualification:sent.find(s=>s.receipt.messageId===id)?.message,thread:async()=>replies,search:async q=>q.includes('rfc822msgid')?sent.filter(s=>q.includes(s.job.rfcMessageId)).map(s=>({id:s.receipt.messageId,threadId:'thread-fixture'})):[],send:async job=>{const receipt={messageId:`sent-${sent.length+1}`,threadId:'thread-fixture'};sent.push({job,receipt,message:{id:receipt.messageId,threadId:receipt.threadId,receivedAt:now().toISOString(),sent:true,from:'ricardo.boltechgroup@gmail.com',to:job.email,rfcMessageId:job.rfcMessageId,text:job.text}});return receipt;}};
+ const gmail={verify:async()=>({verified:true}),message:async id=>id==='qualification-id'?qualification:replies.find(m=>m.id===id)||sent.find(s=>s.receipt.messageId===id)?.message,thread:async()=>replies,search:async q=>q.includes('rfc822msgid')?sent.filter(s=>q.includes(s.job.rfcMessageId)).map(s=>({id:s.receipt.messageId,threadId:'thread-fixture'})):[],send:async job=>{const receipt={messageId:`sent-${sent.length+1}`,threadId:'thread-fixture'};sent.push({job,receipt,message:{id:receipt.messageId,threadId:receipt.threadId,receivedAt:now().toISOString(),sent:true,from:'ricardo.boltechgroup@gmail.com',to:job.email,rfcMessageId:job.rfcMessageId,text:job.text}});return receipt;}};
  const lead=async id=>({id,fields:{'Contact Email':a.customerEmail}});
  const checkout=async approval=>{checkoutCalls++;invoice={orderId:'quote-'+crypto.createHash('sha256').update(approval.quoteReference).digest('hex'),productId:a.productId,customerEmail:a.customerEmail,expectedAmountUsd:495,provider:'WOMPI_SV',environment:'production',status:'PENDING_PAYMENT',providerCheckoutUrl:'https://pay.wompi.sv/test-fixture'};return {success:true};};
  const options={command,gmail,lead,checkout,order:async()=>invoice,gateway:async()=>({status:'PASSED',productive:true}),verifyPayment:async()=>true,handoff:async input=>{handoffs.push(input);return {success:true};},coordinator:{submit:async event=>{notifications.push(event);return {success:true,eventId:event.eventId};}},env,now};
@@ -76,14 +76,14 @@ test('uncertain close never accepts an unrelated sent message as its provider re
 });
 test('payment POST timeout leaves durable unknown and never generates a second link',async()=>{
  const f=fixture(),w=createRsi03Closing({...f.options,checkout:async()=>{throw Object.assign(Error('timeout'),{code:'CLOSE_CHECKOUT_UNKNOWN'});}});
- const record=await w.register(f.row);record.state='ACCEPTED';record.acceptanceMessageId='acceptance-id';f.data.set(`boltech:closing:case:${f.a.opportunityId}`,JSON.stringify(record));
+ const record=await w.register(f.row);record.state='ACCEPTED';record.acceptanceMessageId='acceptance-id';record.proposal={sentAt:now().toISOString()};f.replies.push({id:'acceptance-id',from:f.a.customerEmail,threadId:record.threadId,text:record.acceptanceToken,receivedAt:now().toISOString(),sent:false,automatic:false});f.data.set(`boltech:closing:case:${f.a.opportunityId}`,JSON.stringify(record));
  await assert.rejects(w.step(f.a.opportunityId),/timeout/);
  await assert.rejects(w.step(f.a.opportunityId),/CHECKOUT_RECONCILIATION_REQUIRED/);assert.equal(f.sent.length,0);
 });
 test('no qualified approved cases, unavailable gateway and fake payment do not become sales',async()=>{
  const f=fixture();assert.equal((await f.worker.runNext([])).state,'WAITING_QUALIFIED_APPROVED_CASE');
  await assert.rejects(createRsi03Closing({...f.options,gateway:async()=>({status:'FAILED'})}).register(f.row),/GATEWAY/);
- const record=await f.worker.register(f.row);record.state='WAITING_PAYMENT';record.acceptanceMessageId='acceptance-id';f.data.set(`boltech:closing:case:${f.a.opportunityId}`,JSON.stringify(record));f.invoice={status:'PAID'};
+ const record=await f.worker.register(f.row);record.state='WAITING_PAYMENT';record.acceptanceMessageId='acceptance-id';record.proposal={sentAt:now().toISOString()};f.replies.push({id:'acceptance-id',from:f.a.customerEmail,threadId:record.threadId,text:record.acceptanceToken,receivedAt:now().toISOString(),sent:false,automatic:false});f.data.set(`boltech:closing:case:${f.a.opportunityId}`,JSON.stringify(record));f.invoice={status:'PAID'};
  await assert.rejects(createRsi03Closing({...f.options,verifyPayment:async()=>false}).step(f.a.opportunityId),/PROVIDER_PAYMENT_UNVERIFIED/);assert.equal(f.notifications.length,0);
 });
 test('a recorded opt-out after approval blocks the existing closer before any email is sent',async()=>{
@@ -91,3 +91,5 @@ test('a recorded opt-out after approval blocks the existing closer before any em
  const worker=createRsi03Closing({...f.options,lead:async id=>({id,fields:{'Contact Email':f.a.customerEmail,Notes:`[RSI01_FOLLOWUP:${'0'.repeat(64)}:SUPPRESSED]`}})});
  await assert.rejects(worker.step(f.a.opportunityId),/CONTACT_HOLD/);assert.equal(f.sent.length,0);
 });
+
+test('failed delivery registration after acceptance blocks checkout and link sends on every retry',async()=>{const f=fixture();const created=await f.worker.register(f.row);await f.worker.step(f.a.opportunityId);f.replies.push({id:'acceptance-id',from:f.a.customerEmail,threadId:'thread-fixture',text:created.acceptanceToken,receivedAt:now().toISOString(),sent:false,automatic:false});const original=f.options.command;f.worker=createRsi03Closing({...f.options,command:async a=>{if(a[0]==='SET'&&a[1].startsWith('boltech:delivery:order:'))throw Error('DELIVERY_STORAGE_DOWN');return original(a);}});await assert.rejects(f.worker.step(f.a.opportunityId),/DELIVERY_STORAGE_DOWN/);await assert.rejects(f.worker.step(f.a.opportunityId),/DELIVERY_STORAGE_DOWN/);assert.equal(f.checkoutCalls(),0);assert.equal(f.sent.length,1);});

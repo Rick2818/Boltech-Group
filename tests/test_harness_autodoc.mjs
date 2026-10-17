@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {MARKER,normalizeRun,readState,mergeRun,renderIssue,updateHarness} from '../lib/harness_autodoc.js';
+import {harnessOperationalSummary,MARKER,normalizeRun,readState,mergeRun,renderIssue,updateHarness} from '../lib/harness_autodoc.js';
 import {verifyDeployedRevision} from '../lib/verify_deployed_revision.js';
 const repo='Rick2818/Boltech-Group',sha='a'.repeat(40);
 const run=(overrides={})=>({id:123,run_attempt:1,path:'.github/workflows/sdr_connection_verification.yml',status:'completed',head_branch:'main',head_sha:sha,conclusion:'failure',updated_at:'2026-10-16T03:00:00Z',repository:{full_name:repo},head_repository:{full_name:repo},...overrides});
@@ -66,7 +66,7 @@ test('exact revision probe waits for the new commit before checking Gmail and ne
 test('old deployments, wrong sender and rejected OAuth cannot be certified',async()=>{
   const old=await verifyDeployedRevision({expectedCommit:sha,token:'test-only',attempts:1,fetcher:async()=>({ok:true,status:200,json:async()=>({success:true,deploymentCommit:'b'.repeat(40)})})});assert.equal(old.status,'FAILED');
   for(const payload of [{success:false,code:'GMAIL_OAUTH_AUTH_FAILED'},{success:true,verified:true,sender:'wrong@example.test'}]){
-    const r=await verifyDeployedRevision({expectedCommit:sha,token:'test-only',attempts:1,fetcher:async url=>({ok:true,status:200,json:async()=>url.includes('rsi-agents')?{success:true,deploymentCommit:sha}:payload})});assert.equal(r.status,'FAILED');assert.equal(r.gmailVerified,false);
+    const r=await verifyDeployedRevision({expectedCommit:sha,token:'test-only',attempts:1,fetcher:async url=>({ok:true,status:200,json:async()=>url.includes('rsi-agents')?{success:true,deploymentCommit:sha}:payload})});assert.equal(r.status,'FAILED');assert.equal(r.gmailVerified,false);assert.equal(r.sameCommit,true);
   }
 });
 test('unauthenticated deployment probe fails without contacting providers',async()=>{
@@ -80,3 +80,5 @@ test('deployment probe is published separately from ordinary workflow success',a
 test('preview deployment status is ignored without any write',async()=>{
   const f=fixture(),r=await updateHarness({api:f.api,repository:repo,eventName:'deployment_status',event:{repository:{full_name:repo},deployment:{environment:'Preview'}}});assert.match(r.status,/IGNORED/);assert.equal(f.calls.length,0);
 });
+
+test('successful reporting exposes the real OAuth blocker and never claims autonomous code repair',()=>{const s={latest:{},deployment:{status:'FAILED',code:'GMAIL_OAUTH_INVALID_GRANT'}};const r=harnessOperationalSummary(s);assert.equal(r.status,'ATTENTION_REQUIRED');assert.equal(r.blockers[0].code,'GMAIL_OAUTH_INVALID_GRANT');assert.equal(r.autonomousCodeRepair,false);assert.match(renderIssue(s,'2026-10-17T00:00:00Z'),/GMAIL_OAUTH_INVALID_GRANT/);});

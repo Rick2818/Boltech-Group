@@ -309,6 +309,21 @@ export default async function partnersHandler(req, res) {
       try{return json(res,200,{success:true,...await createDirectorNotifications().run()});}
       catch(error){return json(res,409,{success:false,code:error.code||'DIRECTOR_NOTICE_UNCONFIRMED'});}
     }
+    if(action==='client-order'){
+      if(!requireOperationalAuth(req,res))return;
+      if(!['GET','POST'].includes(req.method))return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
+      try{
+        const {createClientOrderExecution,checkClientOrderStorage}=await import('../lib/client_order_execution.js');
+        const worker=createClientOrderExecution();
+        const body=typeof req.body==='string'?JSON.parse(req.body):(req.body||{});
+        const url=new URL(req.url,'https://boltech-group.vercel.app');
+        if(req.method==='POST'&&body.operation==='storage-check')return json(res,200,{success:true,...await checkClientOrderStorage()});
+        const record=req.method==='GET'?await worker.read(url.searchParams.get('orderId')):
+          body.operation==='register'?await worker.fromOpportunity(body.opportunityId):await worker.act(body);
+        if(!record)return json(res,404,{success:false,code:'DELIVERY_ORDER_NOT_FOUND'});
+        return json(res,200,{success:true,record});
+      }catch(error){return json(res,error.statusCode||503,{success:false,code:/^DELIVERY_[A-Z_]+$/.test(error.code||'')?error.code:'DELIVERY_OPERATION_UNCONFIRMED'});}
+    }
     if(action==='rsi03-readiness'){
       if(!requireOperationalAuth(req,res))return;
       if(req.method!=='GET')return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});

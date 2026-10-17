@@ -1,5 +1,13 @@
 name: Client delivery certification (GitHub + Vercel)
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/client_order_execution.js'
+      - 'lib/rsi03_closing.js'
+      - 'scripts/ops/client_order_workflow.mjs'
+      - 'tests/test_client_order*.mjs'
+      - '.github/workflows/client_delivery_certification.yml'
   workflow_dispatch:
     inputs:
       order_id:
@@ -17,6 +25,10 @@ on:
       - '.github/workflows/client_delivery_certification.yml'
       - 'scripts/ops/certify_client_delivery.mjs'
       - 'lib/client_delivery_certification.js'
+      - 'lib/client_order_execution.js'
+      - 'scripts/ops/client_order_workflow.mjs'
+      - 'tests/test_client_order_execution.mjs'
+      - 'tests/test_client_order_build.mjs'
       - 'tests/test_client_delivery_certification.mjs'
       - 'lib/client_delivery_rehearsal.js'
       - 'tests/test_client_delivery_rehearsal.mjs'
@@ -37,10 +49,11 @@ jobs:
         with:
           node-version: '24'
       - name: Run offline acceptance harness
-        run: node --test tests/test_client_delivery_certification.mjs tests/test_client_delivery_rehearsal.mjs tests/test_commercial_relay.mjs
+        run: node --test tests/test_client_delivery_certification.mjs tests/test_client_delivery_rehearsal.mjs tests/test_commercial_relay.mjs tests/test_client_order_execution.mjs tests/test_client_order_build.mjs
       - name: Execute synthetic order and recover QA failure
         run: node scripts/ops/run_synthetic_e1_e4_receipts.mjs
       - name: Verify deployed Vercel service and create evidence
+        if: github.event_name != 'workflow_dispatch' || inputs.mode != 'customer'
         env:
           ORDER_ID: ${{ inputs.order_id || 'SYN-PR-CHECK' }}
           DELIVERY_MODE: ${{ inputs.mode || 'synthetic' }}
@@ -56,3 +69,81 @@ jobs:
             ops-output/synthetic-order-e1-e4-receipts.json
           if-no-files-found: error
           retention-days: 30
+
+  prepare-approved-order:
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.mode == 'customer'
+    needs: certify
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      commit: ${{ steps.plan.outputs.commit }}
+      plan: ${{ steps.plan.outputs.plan }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - id: plan
+        env:
+          ORDER_ID: ${{ inputs.order_id }}
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+        run: node scripts/ops/client_order_workflow.mjs prepare
+  execute-approved-order:
+    name: execute-approved-order
+    needs: prepare-approved-order
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: control
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare-approved-order.outputs.commit }}
+          path: implementation
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Build approved implementation and test every acceptance criterion
+        working-directory: implementation
+        env:
+          ORDER_ID: ${{ inputs.order_id }}
+          APPROVED_PLAN: ${{ needs.prepare-approved-order.outputs.plan }}
+        run: node ../control/scripts/ops/client_order_workflow.mjs build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: client-delivery-${{ inputs.order_id }}-${{ needs.prepare-approved-order.outputs.commit }}
+          path: implementation/ops-output/
+          if-no-files-found: error
+          retention-days: 30
+  record-approved-order:
+    if: always() && needs.prepare-approved-order.result == 'success'
+    needs: [prepare-approved-order, execute-approved-order]
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify GitHub evidence and persist QA receipt in existing order
+        if: needs.execute-approved-order.result == 'success'
+        env:
+          ORDER_ID: ${{ inputs.order_id }}
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+        run: node scripts/ops/client_order_workflow.mjs finish
+      - name: Persist build or QA failure for recovery
+        if: needs.execute-approved-order.result != 'success'
+        env:
+          ORDER_ID: ${{ inputs.order_id }}
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+        run: node scripts/ops/client_order_workflow.mjs failed

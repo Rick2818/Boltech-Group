@@ -16,6 +16,7 @@ const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, '..');
 
 const SUITES = [
+  { name: 'Accepted order execution and delivery', cmd: 'node', args: ['--test', 'tests/test_client_order_execution.mjs', 'tests/test_client_order_build.mjs', 'tests/test_rsi03_closing.mjs'], category: 'Client delivery' },
   { name: 'A2A intake contracts', cmd: 'node', args: ['--test', 'tests/test_a2a_intake.mjs'], category: 'A2A privacy and retry safety' },
   {
     name: '1. Garantías Enterprise & Aislamiento Multi-Tenant',
