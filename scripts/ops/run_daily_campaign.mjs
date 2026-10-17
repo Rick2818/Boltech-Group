@@ -1,6 +1,7 @@
 import {mkdir,writeFile,appendFile} from 'node:fs/promises';
 const base='https://boltech-group.vercel.app/api/partners?action=rsi01-daily';
 const token=String(process.env.PARTNER_API_TOKEN||'').trim();
+const expectedSha=(process.env.RSI_EXPECT_DEPLOYMENT_SHA ?? (process.env.GITHUB_EVENT_NAME==='push'?process.env.GITHUB_SHA:'')).trim();
 let report={status:'FAILED',code:'DAILY_CAMPAIGN_UNCONFIRMED'};
 try{
  if(!token)throw Error('Missing monitor credential');
@@ -10,7 +11,7 @@ try{
    const state=await fetch(base,{headers:{Authorization:'Bearer '+token},signal:AbortSignal.timeout(10000)});
    const body=await state.json();
    if(state.ok&&body.success===true&&body.dailyCampaign&&
-    (process.env.GITHUB_EVENT_NAME!=='push'||body.deploymentCommit===process.env.GITHUB_SHA)){ready=true;break;}
+    (!expectedSha||body.deploymentCommit===expectedSha)){ready=true;break;}
   }catch{}
   await new Promise(r=>setTimeout(r,5000));
  }

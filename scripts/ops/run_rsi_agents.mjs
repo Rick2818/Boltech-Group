@@ -2,7 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { runIndependentRsiCycle } from '../../lib/rsi_cycle_runner.js';
 const base='https://boltech-group.vercel.app/api/partners';
 const token=process.env.PARTNER_API_TOKEN;
-const expectedSha=(process.env.RSI_EXPECT_DEPLOYMENT_SHA||(process.env.GITHUB_EVENT_NAME==='push'?process.env.GITHUB_SHA:'')||'').trim();
+const expectedSha=(process.env.RSI_EXPECT_DEPLOYMENT_SHA ?? (process.env.GITHUB_EVENT_NAME==='push'?process.env.GITHUB_SHA:'')).trim();
 const report={timestamp:new Date().toISOString(),commit:process.env.GITHUB_SHA||null,results:[],status:'FAIL'};
 const cycleId=`workflow-${process.env.GITHUB_RUN_ID||Date.now()}-attempt-${process.env.GITHUB_RUN_ATTEMPT||1}`;
 try{
