@@ -65,3 +65,10 @@ test('unresearchable records consume zero website investigation slots',async()=>
  const result=await executeResearch({work:jobs,leads:[bad,good],limit:1,now:()=> '2026-10-17T20:00:00Z',investigate:async x=>{called.push(x.id);return {state:'PUBLIC_WEBSITE_OBSERVED',url:'https://example.com/',operationalSignals:[{type:'QUOTE_INTAKE',excerpt:'Request a quote'}]}},request:async(_,args)=>({records:[{id:args.body.records[0].id}]})});
  assert.deepEqual(called,['good']);assert.equal(result.assessed,1);assert.equal(result.skippedUnresearchable,1);assert.equal(result.opportunitiesWithEvidence,1);
 });
+
+test('an individual research failure does not abort remaining cases',async()=>{
+ const rows=['a','b'].map(id=>({id:'work'+id,fields:{...work.fields,'Source Record ID':'rec'+id}}));
+ const people=['a','b'].map(id=>({id:'rec'+id,fields:{...lead.fields}}));
+ const r=await executeResearch({work:rows,leads:people,limit:5,investigate:async x=>{if(x.id==='reca')throw Error('network');return {state:'PUBLIC_WEBSITE_OBSERVED'};},request:async(_,args)=>({records:[{id:args.body.records[0].id}]})});
+ assert.equal(r.assessed,1);assert.equal(r.failed,1);assert.equal(r.failures[0].code,'PUBLIC_RESEARCH_FETCH_FAILED');assert.equal(r.sendingEnabled,false);
+});
