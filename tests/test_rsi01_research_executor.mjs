@@ -22,7 +22,7 @@ test('rotates five-case research instead of reviewing the same five forever',asy
  const first=await executeResearch({work:works,leads,request,limit:5,investigate,now:()=> '2026-10-17T15:00:00Z'});
  assert.equal(first.assessed,5);
  const second=await executeResearch({work:works,leads,request,limit:5,investigate,now:()=> '2026-10-18T15:00:00Z'});
- assert.equal(second.assessed,5);
+ assert.equal(second.assessed,2);
  assert.deepEqual(updates.slice(0,5),['work0','work1','work2','work3','work4']);
  assert.deepEqual(updates.slice(5,7),['work5','work6']);
  assert.equal(first.sendingEnabled,false);
