@@ -14,7 +14,9 @@ try{
     await new Promise(r=>setTimeout(r,5000));
   }
   if(!ready)throw new Error('Production agent executor not ready');
-  report.results=await runIndependentRsiCycle({execute:async rsi=>{
+  const roles=process.env.RSI_EXECUTION_ROLES?.split(',');
+  if(roles&&(!roles.length||new Set(roles).size!==roles.length||roles.some(r=>!['RSI-01','RSI-02','RSI-03','MARKETING'].includes(r))))throw new Error('Invalid role selection');
+  report.results=await runIndependentRsiCycle({...(roles?{roles}:{}),execute:async rsi=>{
     const res=await fetch(`${base}?action=rsi-execute`,{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json'},body:JSON.stringify({rsi,cycleId}),signal:AbortSignal.timeout(60000)});
     const data=await res.json();
     if(!res.ok||data.success!==true||!data.receipt)throw Object.assign(new Error('Execution unconfirmed'),{code:data.code});

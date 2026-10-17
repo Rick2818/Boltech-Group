@@ -50,6 +50,17 @@ function json(res, status, payload) {
   return res.status(status).json(payload);
 }
 
+async function createRsi01DailyWorker() {
+  const [{createDailyCampaign},{redisCommand},{runApprovedCampaign},{agentTableRequest},{paginationGuard}] = await Promise.all([
+    import('../lib/rsi01_daily_campaign.js'),import('../lib/rsi_handoff_store.js'),import('../lib/sdr_campaign.js'),
+    import('../lib/rsi_agent_executor.js'),import('../lib/store_pagination.js')
+  ]);
+  const sender=createSdrDispatch();
+  const listLeads=async()=>{const rows=[];let offset;const next=paginationGuard(1000,20);do{const p=await agentTableRequest('tblZaox2MX5uYA5PZ',{offset});rows.push(...p.records);offset=next(p)}while(offset);return rows};
+  return createDailyCampaign({command:redisCommand,execute:input=>createGoogleAdkTeam().run(input),
+    campaign:()=>runApprovedCampaign({listLeads,send:c=>sender.run(c),reconcile:id=>sender.reconcile(id)})});
+}
+
 function cleanText(value, maxLength = 5000) {
   if (value === undefined || value === null) return '';
   return String(value).trim().slice(0, maxLength);
@@ -204,6 +215,14 @@ export default async function partnersHandler(req, res) {
         endToEndPaymentCertified:false
       });
     }
+    if(action==='rsi01-daily') {
+      if(!requireOperationalAuth(req,res))return;
+      if(!['GET','POST'].includes(req.method))return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
+      try {
+        const daily=await createRsi01DailyWorker();
+        return json(res,200,{success:true,deploymentCommit:process.env.VERCEL_GIT_COMMIT_SHA||null,dailyCampaign:await(req.method==='GET'?daily.status():daily.run())});
+      }catch{return json(res,503,{success:false,code:'RSI01_DAILY_RECONCILIATION_REQUIRED'});}
+    }
     if(action==='commercial-activation') {
       // Vercel native cron uses a separate secret; no user-supplied query can bypass auth.
       const cronRun=req.method==='GET'&&String(req.query?.run||'')==='1';
@@ -215,6 +234,14 @@ export default async function partnersHandler(req, res) {
       }else if(!requireOperationalAuth(req,res))return;
       if(!['GET','POST'].includes(req.method))return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
       try {
+        // Vercel's existing 09:00 cron is the primary trigger. GitHub invokes
+        // this same durable executor as backup, never a separate send loop.
+        let dailyCampaign;
+        if(cronRun){
+          try { dailyCampaign=await(await createRsi01DailyWorker()).run(); }
+          catch { dailyCampaign={status:'FAILED',code:'RSI01_DAILY_RECONCILIATION_REQUIRED'}; }
+          console.info('[RSI01_DAILY_CAMPAIGN]',JSON.stringify(dailyCampaign));
+        }
         const worker=createInteragentCoordinator();
         const [sales,marketing]=await Promise.all([worker.queue('RSI-01'),worker.queue('MARKETING')]);
         if(req.method==='GET'&&!cronRun)return json(res,200,{success:true,roles:{'RSI-01':{pending:sales.pending.length},MARKETING:{pending:marketing.pending.length}},autonomousSendingEnabled:false});
@@ -231,7 +258,7 @@ export default async function partnersHandler(req, res) {
         let dailyLeads;
         try { dailyLeads=await createDailyLeadExecutor().run(); }
         catch(error) { dailyLeads={state:'BLOCKED',newResearchCandidates:0,blockers:['DAILY_LEADS_EXECUTION_UNCONFIRMED']}; }
-        return json(res,200,{success:true,existingMarketingProcessed:true,salesCycle,marketingCycle,rsi02rsi03,dailyLeads,
+        return json(res,200,{success:true,existingMarketingProcessed:true,salesCycle,marketingCycle,rsi02rsi03,dailyLeads,dailyCampaign,
           autonomousSendingEnabled:false,commercialSaleInferred:false});
       }catch(e){return json(res,503,{success:false,code:marketingErrorCode(e)});}
     }
