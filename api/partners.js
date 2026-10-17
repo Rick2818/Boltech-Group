@@ -216,8 +216,10 @@ export default async function partnersHandler(req, res) {
       if(!['GET','POST'].includes(req.method))return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
       try {
         const worker=createInteragentCoordinator();
-        const [sales,marketing]=await Promise.all([worker.queue('RSI-01'),worker.queue('MARKETING')]);
-        if(req.method==='GET'&&!cronRun)return json(res,200,{success:true,roles:{'RSI-01':{pending:sales.pending.length},MARKETING:{pending:marketing.pending.length}},autonomousSendingEnabled:false});
+        if(req.method==='GET'&&!cronRun){
+          const [sales,marketing]=await Promise.all([worker.queue('RSI-01'),worker.queue('MARKETING')]);
+          return json(res,200,{success:true,roles:{'RSI-01':{pending:sales.pending.length},MARKETING:{pending:marketing.pending.length}},autonomousSendingEnabled:false});
+        }
         // Reuse the existing commercial coordinator: progress authorised sales work,
         // reconcile prior Gmail receipts and deliver marketing support without bulk mail.
         const cycle=createRsiMarketingCycle(worker);
