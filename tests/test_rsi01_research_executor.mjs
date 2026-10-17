@@ -72,3 +72,9 @@ test('an individual research failure does not abort remaining cases',async()=>{
  const r=await executeResearch({work:rows,leads:people,limit:5,investigate:async x=>{if(x.id==='reca')throw Error('network');return {state:'PUBLIC_WEBSITE_OBSERVED'};},request:async(_,args)=>({records:[{id:args.body.records[0].id}]})});
  assert.equal(r.assessed,1);assert.equal(r.failed,1);assert.equal(r.failures[0].code,'PUBLIC_RESEARCH_FETCH_FAILED');assert.equal(r.sendingEnabled,false);
 });
+
+test('missing lead association and non-string evidence do not crash queue selection',async()=>{
+ const valid={...lead,id:'recvalid'};const rows=[{id:'orphan',fields:{...work.fields,'Source Record ID':'unavailable'}},{id:'ok',fields:{...work.fields,'Source Record ID':'recvalid',Evidence:123}}];
+ const r=await executeResearch({work:rows,leads:[valid],investigate:async()=>({state:'SOURCE_UNVERIFIED'}),request:async(_,args)=>({records:[{id:args.body.records[0].id}]})});
+ assert.equal(r.assessed,1);assert.equal(r.failed,0);
+});
