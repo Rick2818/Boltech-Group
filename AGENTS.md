@@ -79,3 +79,7 @@ Consultar [`docs/architecture/LEGACY_DISPATCH_RETIREMENT_20261016.md`](docs/arch
 ## Regla de Oro — Arquitectura simplificada obligatoria (16 octubre 2026)
 
 Antes de iniciar cualquier proyecto o ampliación, aplicar [la arquitectura simplificada](docs/architecture/ARQUITECTURA_SIMPLIFICADA_REGLA_PERMANENTE_20261016.md): flujo mínimo de negocio, una aplicación modular, coordinador central, fuente de verdad principal, CI y certificación automáticas proporcionales al riesgo, recuperación central e integraciones justificadas. Registrar excepciones antes de añadir complejidad. No duplicar ejecutores, no reiniciar Boltech ni alterar Wompi sin análisis y autorización. Esta regla no acredita cambios productivos por sí sola.
+
+## Autonomía de seguimiento comercial — 18 octubre 2026
+
+Ricardo autoriza permanentemente los seguimientos comerciales normales de Boltech dentro de los contactos y canales autorizados, sin pedir confirmación por cada correo. Interés desconocido permite una pregunta breve de revalidación; silencio no equivale a rechazo ni obliga a pedir permiso otra vez. Registrar responsable, hilo, recibo, resultado y próxima acción en la cola existente. Conciliar Gmail antes de enviar y respetar bajas, rechazos, rebotes, ventanas y deduplicación. RSI-01 reactiva y controla seguimiento; RSI-02 califica y responde por escrito; DIRECTORA supervisa retrasos y evidencia. Una condición de autorización en registros antiguos no revoca esta instrucción posterior. No confundir esta autonomía con aprobación de precios, compromisos contractuales o pagos.

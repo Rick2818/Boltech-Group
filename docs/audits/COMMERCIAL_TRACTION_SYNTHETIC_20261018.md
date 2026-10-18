@@ -35,10 +35,25 @@ Estado: **ISOLATED_SYNTHETIC_FOLLOWUP_QUALIFICATION_PASS**. Gmail, Redis y Airta
 
 RSI-01 conserva la reactivación de conversaciones; RSI-02 califica respuestas humanas; DIRECTORA supervisa bloqueos. Las próximas acciones de los cinco registros se actualizaron en Airtable. Cuatro revisiones indicadas para el 19 de octubre a las 09:00 SV, con referencia a borrador e hilo; ZVEPOW para el 21 de octubre, sin repetir el seguimiento del día 16. Esas fechas en CRM no prueban que el ejecutor las haya procesado.
 
-Para los cuatro prospectos sigue pendiente permiso de recontacto sin interés previamente confirmado: la instrucción anterior de Ricardo condicionaba el envío al interés. No convertir borradores en enviados ni ampliar ese permiso automáticamente. Si se autoriza, usar un solo emisor y releer Gmail antes y después; no enviar los borradores manualmente y el plan automático a la vez.
+La condición inicial de permiso quedó sustituida por la autorización permanente de Ricardo del 18 de octubre de 2026: seguimientos comerciales normales sin confirmación por correo, con conciliación de historial, bajas, rebotes y deduplicación. Ver recibos de envío real abajo.
 
 ## Regresión de integración corregida
 
 La primera validación general detectó MARKETING_FOLLOWUP_ACCOUNT_UNVERIFIED al recorrer los cuatro contactos preparados como si autorizaran trabajo adicional. Se corrige el coordinador existente para preservar la preparación sin ejecutar soporte nuevo y admitir cohortes n8n cuando tengan autorización. Se ejecutaron también las 15 pruebas existentes del coordinador: 46/46 pruebas locales aprobadas en total. La validación completa de GitHub debe pasar antes de integrar.
 
 La revisión detectó además que conservar bloqueos ausentes sin un mecanismo de cierre podía producir alertas permanentes. Se añade retiro explícito mediante `receipt.resolutions` de un ciclo COMPLETED del rol originador: mismo código, `verified:true`, referencia de evidencia y fecha válida. No se retira un bloqueo todavía activo ni uno con prueba incompleta, ajena o futura. Dos regresiones adicionales aprobadas: **48/48 pruebas locales**. Los roles deben emitir esa evidencia; desaparecer de la lista no equivale a resolver.
+
+## Seguimientos reales y autorización permanente
+
+El 18 de octubre de 2026 Ricardo autorizó los envíos y pidió autonomía para los seguimientos normales. Se enviaron los cuatro borradores por el conector Gmail de ChatGPT (ejecución asistida), después de revisar los hilos. La lectura posterior confirmó cada mensaje con etiqueta SENT dentro del hilo original:
+
+| Cuenta | Mensaje enviado | Hilo | Hora UTC |
+| --- | --- | --- | --- |
+| LeadFlow AI | 1a150cb56ae8330e | 1a1229a7f82a5c6b | 20:54:25 |
+| KB DIGITAL | 1a150cb580d4a00d | 1a1281d10c54cc94 | 20:54:26 |
+| Raj AI Automation | 1a150cb5d5e9b439 | 1a1281ebccfe36d1 | 20:54:27 |
+| Yusuf Maged | 1a150cb5f4ae9b38 | 1a1282685cdc10e8 | 20:54:27 |
+
+Los cuatro Leads y sus trabajos RSI conservan recibo, próxima acción y estado WAITING_RESPONSE. ZVEPOW no se reenvió: tenía seguimiento del 16 de octubre. El plan incorpora los recibos, elimina referencias a borradores consumidos y registra la autorización permanente. El coordinador omite preparar soporte para un seguimiento ya confirmado. RSI-01 sigue conciliando el historial real antes de cualquier acción; RSI-02 califica respuestas humanas. No se acredita todavía respuesta, interés, venta ni ejecución autónoma productiva de estos envíos. Las 48 pruebas locales de seguimiento, coordinador, inbox y supervisión aprobaron después de esta actualización.
+
+Upwork y n8n siguen sin credenciales de integración en producción: la inspección de nombres de variables de Vercel sin descifrar no encontró UPWORK ni N8N. La sesión de Upwork y el registro de n8n Community no acreditan adaptadores ni acceso API del agente 1.
