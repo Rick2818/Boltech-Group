@@ -36,6 +36,20 @@ Ricardo aclaró que Upwork y n8n se usarán para descubrir trabajo freelance par
 - **Verificación**: 8/8 pruebas del flujo de Agent 1 aprobaron usando solamente `config/qa_case.json`; se actualizaron fixtures heredados para dejar de crear identidades ficticias. Sintaxis Node válida. La lectura en vivo del tablero n8n fue GET pública, sin credenciales ni efectos externos. [Tablero oficial de empleos de la comunidad n8n](https://community.n8n.io/c/jobs/13).
 - **n8n Cloud** sigue siendo distinto del foro: la API local conserva el resultado 401 al leer workflows/credentials. No se desplegó ni habilitó un workflow cloud, pues la aclaración define n8n como fuente de oportunidades freelance.
 - **Supabase**: el destino `iocwkuvkjeyonqosetvj` permanece `INACTIVE`; no se migraron registros y no se pausó otro proyecto. El cambio de esta actualización se limitó a la fuente de oportunidades.
-- **Git**: la copia principal `main` no se modificó. La actualización se preparó en `codex/upwork-n8n-supabase-20261018`; se publicará esa rama después de completar las verificaciones locales.
+- **Git**: la copia principal `main` no se modificó. La actualización quedó publicada en `origin/codex/upwork-n8n-supabase-20261018` después de las verificaciones locales.
 
 Siguiente acción indispensable de cuenta: completar la autorización del MCP oficial de Upwork dentro del runtime que ejecutará Agent 1, limitada a búsqueda/lectura; mantener bloqueadas las herramientas de propuesta, mensajes y contratos. No compartir secretos por chat. El n8n Community Jobs feed sí queda listo con lectura pública.
+
+## Actualización Flova MCP — 2026-10-18
+
+Se verificó la documentación oficial de [Flova MCP](https://www.flova.ai/en/docs/features/integrations/mcp/) y la integración del agente existente `marketing-director`. La identidad y las reglas de revisión de storyboard, consumo de créditos y publicación ya están documentadas en `.agents/agents/marketing-director.md` y `docs/marketing/FLOVA_AGENT_HARNESS_2026-10-18.md`.
+
+- La sesión de Codex no tiene una herramienta ni un conector Flova habilitado; la búsqueda del directorio de plugins tampoco encontró un conector instalable. `.agents/mcp_config.json` no contiene Flova. La documentación oficial indica que la primera conexión debe iniciarse desde los ajustes MCP del cliente y completar autorización de cuenta.
+- No se inventó ni añadió una URL de servidor: la documentación pública instruye a usar la información de conexión proporcionada por Flova en el cliente. No se generó ni subió contenido y no se consumieron créditos.
+- El navegador local de esta sesión permanece deshabilitado, así que el flujo de inicio de sesión/autorización no se pudo completar desde aquí. La cuenta debe habilitar el conector oficial de Flova MCP en Codex y completar su autorización; luego se podrá comprobar la lectura real de un proyecto con el agente de mercadeo.
+
+## Estado de datos y sincronización
+
+- La lectura actual de esquema Airtable volvió a confirmar las nueve tablas de Boltech CRM. No se exportaron filas privadas al repositorio.
+- Supabase volvió a reportar el único proyecto `iocwkuvkjeyonqosetvj` como `INACTIVE`. La restauración anterior había sido rechazada por el límite de proyectos Free activos; no se pausó otro proyecto ni se eligió un destino distinto, y no se copió ningún registro.
+- El commit `b4e664225a4d3012951fa11b603b90ddfe6eecef` está publicado en la rama aislada `origin/codex/upwork-n8n-supabase-20261018`; `origin/main` sigue en `014e961fc7ce65ebe2d9ff755b127d8c25fea601`.
