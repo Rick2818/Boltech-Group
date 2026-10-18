@@ -13,3 +13,6 @@ The GitHub read-only executor now accepts either APOLLO_API_KEY or the legacy Bo
 
 ## Access adapters — 2026-10-18
 Lusha: bounded official prospecting contact search, requires GitHub Actions LUSHA_API_KEY and plan/API access. Tavily: bounded HTTPS public web search, requires TAVILY_API_KEY. These are read-only and their discovered records remain UNQUALIFIED; no invented buyer identity. Neither secret exists in verified Vercel environment listing; GitHub secret status and actual provider success remain unverified. n8n MCP and Upwork OAuth are not configured: explicitly blocked to prevent unauthorized access or scraping. A successful CI unit test does not certify a provider connection, five validated leads, or handoff.
+
+## Synthetic five-source QA — 2026-10-18
+QA simulates one lead each labeled APOLLO/LUSHA/UPWORK/N8N/INTERNET with reserved example.test mailboxes and explicit synthetic=true markers. Runs the shared qualification gate in qaMode, checks a simulated Agent 2 handoff *decision only*, rejects unknown Marsyrand with one replacement, and blocks incomplete source evidence. Normal production mode rejects all synthetic=true records (SYNTHETIC_NOT_ALLOWED). This is not a live API auth test, live handoff transport, or sale. Re-run workflow tests/test_agent1_synthetic_platform_journey.mjs for reproducible evidence.
