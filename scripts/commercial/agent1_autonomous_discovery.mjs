@@ -8,7 +8,8 @@ async function source(name,enabled,fn){
  try{const found=await fn();sources[name]={status:'OBSERVED',candidates:found.length};candidates.push(...found);}
  catch(e){sources[name]={status:'BLOCKED',reason:String(e?.code||'PROVIDER_REQUEST_FAILED').slice(0,80)};}
 }
-await source('apollo',Boolean(process.env.APOLLO_API_KEY),async()=>{
+const apolloConfigured=Boolean(process.env.APOLLO_API_KEY || process.env.BoltechVercelCRM);
+await source('apollo',apolloConfigured,async()=>{
  const data=await createApolloClient().listSavedContacts({perPage:50,maxPages:2,budgetMs:25000});
  return data.contacts.map(x=>({...x,sourceVerified:true}));
 });
