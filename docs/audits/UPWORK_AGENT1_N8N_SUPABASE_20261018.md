@@ -1,0 +1,41 @@
+# Upwork → Agent 1, n8n y Supabase — verificación
+
+Fecha: 2026-10-18 16:13 America/El_Salvador
+Worktree: `codex/upwork-n8n-supabase-20261018`
+Commit base sincronizado: `014e961fc7ce65ebe2d9ff755b127d8c25fea601`
+
+## Resultado comprobado
+
+- Git se avanzó por fast-forward hasta `origin/main` en el worktree aislado. La carpeta principal y su rama `main` no se modificaron.
+- El callback público `https://boltech-group.vercel.app/api/upwork/callback` responde `UPWORK_CALLBACK_READY`, pero comunica `credentialsConfigured=false` y `agent1Connected=false`.
+- La batería existente `tests/test_upwork_oauth.mjs` terminó con 13/13 pruebas aprobadas. Verifica autorización, estado/replay, intercambio simulado y cifrado del token; no verifica conexión OAuth real.
+- El ejecutor existente de Agent 1 conserva Upwork y n8n desactivados y no implementa sus adaptadores. No se realizó scraping, propuesta, contacto ni escritura comercial.
+- La instancia local n8n respondió HTTP 200 en `/healthz` y `/rest/settings`; `/rest/credentials` y `/rest/workflows` respondieron 401. No se pudo verificar desde esa API la configuración activa ni vincular credenciales.
+- Airtable respondió; Boltech CRM contiene 9 tablas y 545 registros en el snapshot consultado. El proyecto Supabase `iocwkuvkjeyonqosetvj` está `INACTIVE`; su restauración fue rechazada por el límite de proyectos Free activos. No se cambiaron tablas ni datos.
+- No se mostraron, copiaron ni escribieron secretos, ni se alteró una configuración de pago.
+
+## Puertas del diagnóstico inicial (histórico; alcance actualizado abajo)
+
+- Upwork: el uso comercial de su API requiere permiso escrito previo para un partner seleccionado. La API documenta la búsqueda pública de postings con el permiso `Read public marketplace Job Postings`; la clave OAuth y el permiso deben existir antes de activar el adaptador de Agent 1. Fuente: https://support.upwork.com/hc/en-us/articles/17995890765459--Commercial-API-use y https://www.upwork.com/developer/documentation/graphql/api/docs/index.html.
+- n8n: para el ejecutor cloud se requiere un endpoint HTTPS autenticado y accesible desde GitHub Actions. El servicio local `127.0.0.1:5678` no satisface esa ruta; no se abrió túnel ni se creó hosting.
+- Supabase: la migración de datos requiere que el proyecto de destino esté activo. No se pausó ningún otro proyecto ni se seleccionó un proyecto distinto sin autorización del propietario.
+
+La conclusión inicial de Upwork API y de n8n Cloud fue reemplazada por la aclaración posterior: ambas fuentes se destinan a trabajo freelance. El flujo actual es Upwork MCP oficial más el tablero público n8n Community Jobs; el proyecto Supabase sigue siendo un asunto separado.
+
+## Siguiente acción del diagnóstico inicial (histórica; sustituida abajo)
+
+Ricardo confirma el permiso/API key comercial de Upwork y deja `UPWORK_CLIENT_ID` y `UPWORK_CLIENT_SECRET` en el almacén seguro de Vercel; los tokens OAuth permanecen en Redis cifrado. Después se añade y verifica el adaptador de lectura de postings para Agent 1. Para n8n y Supabase se usa únicamente un endpoint/proyecto activo ya autorizado, sin agregar costos ni pausar proyectos desconocidos.
+
+## Actualización por alcance freelance — 2026-10-18 16:33 America/El_Salvador
+
+Ricardo aclaró que Upwork y n8n se usarán para descubrir trabajo freelance para Boltech, no para captar compradores del piloto comercial. Las oportunidades quedan separadas de `Leads`, de la calificación de compradores y de RSI-02/03. La revisión, selección y cualquier propuesta siguen siendo pasos humanos dentro de cada plataforma.
+
+- **n8n Community Jobs**: habilitado como fuente pública de solo lectura en Agent 1 mediante `GET https://community.n8n.io/c/jobs/13.json?page=0`. La lectura comprobó categoría 13 y 30 temas; 15 tuvieron señal de contratación y 5 incluyeron señal explícita de freelance/contrato. Siete candidatos se marcaron antiguos y todos requieren revisar vigencia y encaje; no se presentan como vacantes activas sin esa revisión. No usa credenciales de n8n Cloud y no modifica foro, CRM ni workflow.
+- **Guardas de acción**: el recibo de Agent 1 separa `freelanceOpportunities` de buyer leads e indica `proposalsSubmitted=false`, `externalMessagesSent=false` y `connectsUsed=0`. No se envió mensaje ni propuesta.
+- **Upwork**: para esta finalidad se usará el MCP oficial [`https://mcp.upwork.com/mcp`](https://www.upwork.com/ai/mcp) con OAuth 2.1, no scraping ni la API comercial. La página oficial confirma compatibilidad con Codex y búsqueda de trabajos. El runtime de Agent 1 aún no tiene una autorización MCP OAuth activa ni un adaptador conectado. La autorización interactiva no se pudo realizar en esta sesión porque el navegador local está deshabilitado; no se solicitó ni expuso contraseña o token.
+- **Verificación**: 8/8 pruebas del flujo de Agent 1 aprobaron usando solamente `config/qa_case.json`; se actualizaron fixtures heredados para dejar de crear identidades ficticias. Sintaxis Node válida. La lectura en vivo del tablero n8n fue GET pública, sin credenciales ni efectos externos. [Tablero oficial de empleos de la comunidad n8n](https://community.n8n.io/c/jobs/13).
+- **n8n Cloud** sigue siendo distinto del foro: la API local conserva el resultado 401 al leer workflows/credentials. No se desplegó ni habilitó un workflow cloud, pues la aclaración define n8n como fuente de oportunidades freelance.
+- **Supabase**: el destino `iocwkuvkjeyonqosetvj` permanece `INACTIVE`; no se migraron registros y no se pausó otro proyecto. El cambio de esta actualización se limitó a la fuente de oportunidades.
+- **Git**: la copia principal `main` no se modificó. La actualización se preparó en `codex/upwork-n8n-supabase-20261018`; se publicará esa rama después de completar las verificaciones locales.
+
+Siguiente acción indispensable de cuenta: completar la autorización del MCP oficial de Upwork dentro del runtime que ejecutará Agent 1, limitada a búsqueda/lectura; mantener bloqueadas las herramientas de propuesta, mensajes y contratos. No compartir secretos por chat. El n8n Community Jobs feed sí queda listo con lectura pública.

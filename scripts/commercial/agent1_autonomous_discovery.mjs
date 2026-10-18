@@ -1,10 +1,12 @@
-import { writeFile, mkdir } from 'node:fs/promises';
+import { writeFile, mkdir, readFile } from 'node:fs/promises';
 import { createApolloClient } from '../../lib/apollo_client.js';
 import { selectFiveLeads } from './agent1_lead_gate.mjs';
-// Read-only prospect discovery. Provider names are not substitutes for access or verified buyers.
-const sources={};const candidates=[];
-async function source(name,enabled,fn){
- if(!enabled){sources[name]={status:'BLOCKED',reason:'CREDENTIALS_OR_APPROVED_CONNECTOR_MISSING'};return;}
+import { fetchN8nFreelanceOpportunities } from './agent1_n8n_community_jobs.mjs';
+// Buyer contacts and freelance-work opportunities are separate read-only records.
+const sources={};const candidates=[];const freelanceOpportunities=[];
+const qaCase=JSON.parse(await readFile(new URL('../../config/qa_case.json',import.meta.url),'utf8'));
+async function source(name,enabled,fn,disabledReason='CREDENTIALS_OR_APPROVED_CONNECTOR_MISSING'){
+ if(!enabled){sources[name]={status:'BLOCKED',reason:disabledReason};return;}
  try{const found=await fn();sources[name]={status:'OBSERVED',candidates:found.length};candidates.push(...found);}
  catch(e){sources[name]={status:'BLOCKED',reason:String(e?.code||'PROVIDER_REQUEST_FAILED').slice(0,80)};}
 }
@@ -27,8 +29,15 @@ await source('lusha',Boolean(process.env.LUSHA_API_KEY),async()=>{
     company:x.company?.name||x.companyName||'',name:x.name||'',title:x.title||'',contactEmail:x.email||'',
     domain:x.company?.domain||'',businessNeed:'',emailValidation:{mailboxConfirmed:false}}));
 });
-await source('upwork',false,async()=>[]); // Requires approved account/API; never scrape private pages
-await source('n8n',false,async()=>[]); // Integration requires approved authenticated workflow contract
+await source('upwork',false,async()=>[], 'OFFICIAL_UPWORK_MCP_OAUTH_NOT_CONNECTED');
+try {
+  const result=await fetchN8nFreelanceOpportunities({qaCaseId:qaCase.id});
+  sources.n8nCommunityJobs={status:'OBSERVED',source:'PUBLIC_N8N_COMMUNITY_JOBS',auth:'PUBLIC_READ_ONLY',
+    fetchedTopics:result.fetchedTopics,candidates:result.opportunities.length};
+  freelanceOpportunities.push(...result.opportunities);
+} catch(e) {
+  sources.n8nCommunityJobs={status:'BLOCKED',reason:String(e?.code||'N8N_COMMUNITY_REQUEST_FAILED').slice(0,80)};
+}
 await source('internet',Boolean(process.env.TAVILY_API_KEY),async()=>{
   const response=await fetch('https://api.tavily.com/search',{
     method:'POST',redirect:'error',signal:AbortSignal.timeout(12000),
@@ -44,10 +53,13 @@ await source('internet',Boolean(process.env.TAVILY_API_KEY),async()=>{
   }));
 });
 const gate=selectFiveLeads(candidates);
-const receipt={schema:'boltech.agent1.discovery.v1',timestamp:new Date().toISOString(),mode:'READ_ONLY',
+const receipt={schema:'boltech.agent1.discovery.v2',timestamp:new Date().toISOString(),mode:'READ_ONLY',
  sources,observed:candidates.length,qualified:gate.accepted.length,missing:gate.missing,
  rejected:gate.rejected.length,nextAction:gate.nextAction,handoffPerformed:false,
- productionCertified:false,notice:'No send, enrichment purchase, or agent 2 handoff; unconfirmed buyer needs remain blocked.'};
+ freelanceOpportunitySources:{n8nCommunityJobs:{status:sources.n8nCommunityJobs?.status||'NOT_OBSERVED'},upwork:{status:'WAITING_FOR_OFFICIAL_MCP_OAUTH'}},
+ freelanceOpportunities:freelanceOpportunities,
+ proposalsSubmitted:false,externalMessagesSent:false,connectsUsed:0,
+ productionCertified:false,notice:'Freelance opportunities are separate from buyer leads. No messages, proposals, purchases, Connects, or agent 2 handoff.'};
 await mkdir('ops-output',{recursive:true});
 await writeFile('ops-output/agent1-discovery.json',JSON.stringify(receipt,null,2)+'\n');
 console.log(JSON.stringify(receipt));

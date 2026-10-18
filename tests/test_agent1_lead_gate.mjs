@@ -1,10 +1,40 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {assessLead,selectFiveLeads} from '../scripts/commercial/agent1_lead_gate.mjs';
-const valid=i=>({leadId:'id'+i,company:'Test Company '+i,name:'Test Buyer',title:'Purchasing Lead',domain:'example.org',businessNeed:'Manual quotations require automation',contactEmail:'buyer'+i+'@example.org',emailValidation:{mailboxConfirmed:true},buyerVerified:true,needVerified:true,sourceVerified:true});
-test('Marsyrand without identification is rejected',()=>assert.equal(assessLead({company:'Marsyrand'}).eligible,false));
-test('five complete leads satisfy the gate',()=>{const r=selectFiveLeads(Array.from({length:5},(_,i)=>valid(i))); assert.equal(r.complete,true);assert.equal(r.accepted.length,5);});
-test('invalid lead triggers replacement even with five candidates',()=>{const r=selectFiveLeads([valid(0),{company:'Marsyrand'},valid(1),valid(2),valid(3)]);assert.equal(r.complete,false);assert.equal(r.missing,1);assert.equal(r.nextAction,'RESEARCH_REPLACEMENTS');});
-test('replacement sixth candidate closes a cohort of five',()=>{const r=selectFiveLeads([valid(0),{company:'Marsyrand'},valid(1),valid(2),valid(3),valid(4)]);assert.equal(r.complete,true);});
-test('previously contacted lead is not reused',()=>{const r=selectFiveLeads([valid(0),valid(1),valid(2),valid(3),valid(4)],['buyer0@example.org']);assert.equal(r.missing,1);});
-test('unconfirmed mailbox never qualifies',()=>{const lead=valid(0);lead.emailValidation.mailboxConfirmed=false;assert.equal(assessLead(lead).eligible,false);});
+import { readFileSync } from 'node:fs';
+import { assessLead, selectFiveLeads } from '../scripts/commercial/agent1_lead_gate.mjs';
+
+const qaCase = JSON.parse(readFileSync('config/qa_case.json', 'utf8'));
+const qaLead = {
+  leadId: qaCase.id,
+  company: '',
+  name: '',
+  title: '',
+  domain: '',
+  businessNeed: qaCase.answers[1],
+  contactEmail: qaCase.answers[8],
+  emailValidation: { mailboxConfirmed: false },
+  buyerVerified: false,
+  needVerified: false,
+  sourceVerified: false,
+  synthetic: true
+};
+
+test('the only QA case is rejected as a commercial buyer', () => {
+  const result = assessLead(qaLead);
+  assert.equal(result.eligible, false);
+  assert.ok(result.problems.includes('SYNTHETIC_NOT_ALLOWED'));
+  assert.ok(result.problems.includes('BUYER_UNVERIFIED'));
+});
+
+test('QA mode does not convert the QA case into a verified buyer', () => {
+  const result = assessLead(qaLead, { qaMode: true });
+  assert.equal(result.eligible, false);
+  assert.ok(result.problems.includes('NEED_UNVERIFIED'));
+});
+
+test('the single QA case cannot fill a five-buyer cohort', () => {
+  const result = selectFiveLeads([qaLead], [], { qaMode: true });
+  assert.equal(result.complete, false);
+  assert.equal(result.accepted.length, 0);
+  assert.equal(result.missing, 5);
+});

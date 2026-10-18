@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test tests/test_agent1_lead_gate.mjs tests/test_agent1_discovery.mjs
+      - run: node --test tests/test_agent1_lead_gate.mjs tests/test_agent1_discovery.mjs tests/test_agent1_n8n_jobs_source.mjs
       - name: Safe credential preflight
         run: node scripts/commercial/agent1_auth_preflight.mjs
         env:
@@ -27,11 +27,6 @@ jobs:
           BoltechVercelCRM: ${{ secrets.BoltechVercelCRM }}
           LUSHA_API_KEY: ${{ secrets.LUSHA_API_KEY }}
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
-          UPWORK_CLIENT_ID: ${{ secrets.UPWORK_CLIENT_ID }}
-          UPWORK_CLIENT_SECRET: ${{ secrets.UPWORK_CLIENT_SECRET }}
-          UPWORK_REFRESH_TOKEN: ${{ secrets.UPWORK_REFRESH_TOKEN }}
-          N8N_MCP_URL: ${{ vars.N8N_MCP_URL }}
-          N8N_MCP_TOKEN: ${{ secrets.N8N_MCP_TOKEN }}
       - run: node scripts/commercial/agent1_autonomous_discovery.mjs
         env:
           APOLLO_API_KEY: ${{ secrets.APOLLO_API_KEY }}
