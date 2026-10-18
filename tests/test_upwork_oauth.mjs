@@ -19,9 +19,9 @@ function fixture(options={}) {
   }
   return {records,calls,redis,config,invoke,start};
 }
-test('public callback readiness does not claim agent connection or require secrets',async()=>{
+test('public callback labels the legacy developer API flow and does not claim MCP connection',async()=>{
  const f=fixture({env:()=>({})}),r=await f.invoke();
- assert.equal(r.statusCode,200);assert.equal(r.body.code,'UPWORK_CALLBACK_READY');assert.equal(r.body.credentialsConfigured,false);assert.equal(r.body.agent1Connected,false);assert.equal(f.calls.length,0);assert.equal(r.headers['Referrer-Policy'],'no-referrer');
+ assert.equal(r.statusCode,200);assert.equal(r.body.code,'UPWORK_API_OAUTH_CALLBACK_READY');assert.equal(r.body.integration,'UPWORK_DEVELOPER_API_OAUTH_NOT_MCP');assert.equal(r.body.credentialsConfigured,false);assert.equal(r.body.agent1McpConnected,false);assert.equal(r.body.mcpEndpoint,'https://mcp.upwork.com/mcp');assert.equal(f.calls.length,0);assert.equal(r.headers['Referrer-Policy'],'no-referrer');
 });
 test('start requires POST and existing operational auth before any state is written',async()=>{
  const f=fixture();assert.equal((await f.invoke('start')).statusCode,405);assert.equal((await f.invoke('start','/api/upwork/authorize','POST')).statusCode,401);assert.equal(f.records.size,0);

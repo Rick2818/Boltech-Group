@@ -19,6 +19,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          cache: npm
+      - run: npm ci
       - run: node --test tests/test_agent1_lead_gate.mjs tests/test_agent1_discovery.mjs tests/test_agent1_n8n_jobs_source.mjs
       - name: Safe credential preflight
         run: node scripts/commercial/agent1_auth_preflight.mjs
@@ -27,12 +29,18 @@ jobs:
           BoltechVercelCRM: ${{ secrets.BoltechVercelCRM }}
           LUSHA_API_KEY: ${{ secrets.LUSHA_API_KEY }}
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          UPWORK_MCP_VAULT_KEY: ${{ secrets.UPWORK_MCP_VAULT_KEY }}
       - run: node scripts/commercial/agent1_autonomous_discovery.mjs
         env:
           APOLLO_API_KEY: ${{ secrets.APOLLO_API_KEY }}
           BoltechVercelCRM: ${{ secrets.BoltechVercelCRM }}
           LUSHA_API_KEY: ${{ secrets.LUSHA_API_KEY }}
           TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+          UPWORK_MCP_VAULT_KEY: ${{ secrets.UPWORK_MCP_VAULT_KEY }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:

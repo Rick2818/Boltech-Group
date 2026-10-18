@@ -53,3 +53,20 @@ Se verificó la documentación oficial de [Flova MCP](https://www.flova.ai/en/do
 - La lectura actual de esquema Airtable volvió a confirmar las nueve tablas de Boltech CRM. No se exportaron filas privadas al repositorio.
 - Supabase volvió a reportar el único proyecto `iocwkuvkjeyonqosetvj` como `INACTIVE`. La restauración anterior había sido rechazada por el límite de proyectos Free activos; no se pausó otro proyecto ni se eligió un destino distinto, y no se copió ningún registro.
 - El commit `b4e664225a4d3012951fa11b603b90ddfe6eecef` está publicado en la rama aislada `origin/codex/upwork-n8n-supabase-20261018`; `origin/main` sigue en `014e961fc7ce65ebe2d9ff755b127d8c25fea601`.
+
+## Corrección solicitada de Agent 1 — 2026-10-18
+
+- Se reemplazó el `source('upwork', false, ...)` por un adaptador MCP remoto al endpoint oficial `https://mcp.upwork.com/mcp`, usando el SDK MCP del proyecto y su flujo OAuth 2.1 con registro dinámico, PKCE y renovación del SDK.
+- El workflow de Agent 1 ahora recibe `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` y `UPWORK_MCP_VAULT_KEY`; el runtime guarda información OAuth, verificador PKCE, estado de descubrimiento y tokens en Upstash Redis cifrados con AES-GCM. No se usa el callback de API de Upwork para autorizar el MCP.
+- `scripts/commercial/upwork_mcp_authorize.mjs` permite iniciar la autorización desde el runtime local autorizado, devolver al callback loopback y validar un handshake real antes de persistir la sesión compartida que consumirá GitHub Actions. El enlace OAuth es de uso único y debe ser aprobado por Ricardo en Upwork.
+- Agent 1 solo invoca herramientas MCP que se declaran `readOnlyHint=true`, no destructivas, con nombre de búsqueda/lectura de postings y esquema de consulta compatible. Oportunidades quedan separadas de leads compradores; no envía propuestas, mensajes, contratos ni consume Connects.
+- El callback público anterior queda identificado como `UPWORK_DEVELOPER_API_OAUTH_NOT_MCP` y comunica `agent1McpConnected=false`; los valores vacíos de Client ID/Secret de la API dejaron de confundirse con la autorización del servidor MCP.
+- La corrección todavía no certifica el runtime productivo: hace falta que los tres secretos de workflow estén configurados en GitHub Actions y completar una vez `node scripts/commercial/upwork_mcp_authorize.mjs` con el navegador/cuenta Upwork de Ricardo. Después, ejecutar el workflow existente y verificar en su artefacto `sources.upwork.status=OBSERVED`, `toolName`, y oportunidades reales de postings; si el token expira, la renovación se conserva en Redis.
+- Validaciones sintéticas y de contrato usan exclusivamente `config/qa_case.json`. La ejecución en vivo de autorización no se ha realizado y no se afirma OAuth conectado hasta verificar handshake y relectura desde Actions.
+
+Verificación de la corrección técnica — 2026-10-18 17:13 America/El_Salvador:
+- Se validaron los imports reales de MCP SDK 1.30.1 (`@modelcontextprotocol/sdk/client` y `.../client/streamableHttp.js`); el transporte HTTP quedó probado contra el paquete instalado.
+- Las pruebas específicas de Agent 1, OAuth y guardas aprobaron 27/27.
+- El preflight consulta el vault cifrado de Upstash y distingue secretos presentes de una autorización MCP persistida. En este runtime reporta `RUNTIME_SECRETS_MISSING`, `authorizationStored=false` y `allProvidersReady=false`; no se presenta como conectado.
+- La comprobación pública no debe interpretarse como estado del MCP: el callback confirma únicamente que existe la ruta del OAuth Developer API y devuelve explícitamente `UPWORK_DEVELOPER_API_OAUTH_NOT_MCP`.
+- La autorización OAuth y la relectura MCP desde GitHub Actions quedan pendientes de la cuenta del operador y de los secretos de repositorio. Hasta completar esa acción, Agent 1 reporta `BLOCKED` para Upwork y el feed público de empleos n8n sigue siendo independiente.
