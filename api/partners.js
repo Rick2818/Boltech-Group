@@ -67,14 +67,14 @@ async function createRsi01PreparationWorker() {
 }
 
 async function createRsi01DailyWorker() {
-  const [{createDailyCampaign},{redisCommand},{runApprovedCampaign},{agentTableRequest},{paginationGuard}] = await Promise.all([
+  const [{createDailyCampaign},{redisCommand},{runApprovedCampaign,runExactlyFiveCampaign},{agentTableRequest},{paginationGuard}] = await Promise.all([
     import('../lib/rsi01_daily_campaign.js'),import('../lib/rsi_handoff_store.js'),import('../lib/sdr_campaign.js'),
     import('../lib/rsi_agent_executor.js'),import('../lib/store_pagination.js')
   ]);
   const sender=createSdrDispatch();
   const listLeads=async()=>{const rows=[];let offset;const next=paginationGuard(1000,20);do{const p=await agentTableRequest('tblZaox2MX5uYA5PZ',{offset});rows.push(...p.records);offset=next(p)}while(offset);return rows};
   return createDailyCampaign({command:redisCommand,execute:input=>createGoogleAdkTeam().run(input),
-    campaign:async()=>{const prepared=await(await createRsi01PreparationWorker()).status();if(prepared.state!=='READY'||prepared.selected.length!==5)return {reviewed:0,approvedTotal:prepared.selected.length,eligible:0,cycleStatus:'NO_APPROVED_LEADS',results:[]};const ids=new Set(prepared.selected.map(l=>l.recordId));return runApprovedCampaign({listLeads:async()=>(await listLeads()).filter(l=>ids.has(l.id)),send:c=>sender.run(c),reconcile:id=>sender.reconcile(id)});}});
+    campaign:async()=>{const prepared=await(await createRsi01PreparationWorker()).status();if(prepared.state!=='READY'||prepared.selected.length!==5)return {reviewed:0,approvedTotal:prepared.selected.length,eligible:0,cycleStatus:'NO_APPROVED_LEADS',results:[]};const {validateSdrCandidate}=await import('../lib/sdr_dispatch.js');return runExactlyFiveCampaign({selected:prepared.selected,listLeads,validate:validateSdrCandidate,send:c=>sender.run(c),reconcile:id=>sender.reconcile(id)});}});
 }
 
 function cleanText(value, maxLength = 5000) {
