@@ -1,0 +1,435 @@
+{
+  "caseId": "QA-RELAY-20261018-0853",
+  "status": "ISOLATED_AGENT_RELAY_CHAIN_PASS",
+  "scope": "ISOLATED_SYNTHETIC_RELAY_ONLY",
+  "verifiedSeparateProcessRecovery": true,
+  "receipts": [
+    {
+      "caseId": "QA-RELAY-20261018-0853",
+      "stage": "RSI-01",
+      "scope": "ISOLATED_SYNTHETIC_RELAY",
+      "at": "2026-10-18T14:53:22.536Z",
+      "previous": null,
+      "result": {
+        "execution": {
+          "receipt": {
+            "schemaVersion": 1,
+            "runId": "RSI-01:2026-10-18T14:53:22.520Z",
+            "rsi": "RSI-01",
+            "engine": "VERCEL_EXECUTOR",
+            "startedAt": "2026-10-18T14:53:22.520Z",
+            "finishedAt": "2026-10-18T14:53:22.533Z",
+            "outcome": "COMPLETED",
+            "tools": [
+              {
+                "name": "airtable_work_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:22.520Z"
+              },
+              {
+                "name": "airtable_leads_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:22.526Z"
+              },
+              {
+                "name": "marketing_material_sales_review",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:22.528Z"
+              },
+              {
+                "name": "rsi01_existing_company_discovery",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:22.530Z"
+              },
+              {
+                "name": "rsi01_case_research_executor",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:22.530Z"
+              },
+              {
+                "name": "rsi01_work_refresh_after_research",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:22.530Z"
+              },
+              {
+                "name": "asmas_rsi01_research_watchdog",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:22.530Z"
+              },
+              {
+                "name": "rsi01_authorized_followup_dispatch",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:22.530Z"
+              },
+              {
+                "name": "rsi01_customer_reply_handoff",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:22.533Z"
+              }
+            ],
+            "actionCount": 11,
+            "blockers": [
+              "LIVE_APOLLO_GMAIL_HISTORY_REQUIRED"
+            ]
+          },
+          "reused": false,
+          "orchestration": {
+            "sdk": "@google/adk",
+            "mode": "CUSTOM_CODE",
+            "modelCalls": 0,
+            "agentId": "RSI-01"
+          }
+        },
+        "handoff": {
+          "handoffId": "relay-8c0e4222d89f84b41e73eda15129107100298a7e0186fb96f84a16ddc034a17b",
+          "opportunityId": "rec00000000000002",
+          "from": "RSI-01",
+          "to": "RSI-02",
+          "owner": "RSI-02",
+          "reason": "Verified written customer case for the next existing sales agent",
+          "evidenceRef": "synthetic-reply",
+          "fingerprint": "c4b52b8231a233897d1bfe4b31142b0952e15468c21ccc53b3ecde793a60c3e6",
+          "state": "PENDING",
+          "version": 1,
+          "updatedAt": "2026-10-18T14:53:22.532Z",
+          "events": [
+            {
+              "state": "PENDING",
+              "owner": "RSI-02",
+              "evidenceRef": "synthetic-reply",
+              "timestamp": "2026-10-18T14:53:22.532Z"
+            }
+          ]
+        },
+        "originalSyntheticGuardPreserved": true,
+        "projection": "QA_ISOLATED_PROJECTION",
+        "transport": "SIMULATED_LOCAL"
+      },
+      "digest": "0776481f535cef791b8860e75490b5ea62679600b6556bcd72c54acffa65bd43"
+    },
+    {
+      "caseId": "QA-RELAY-20261018-0853",
+      "stage": "RSI-02-HOLD",
+      "scope": "ISOLATED_SYNTHETIC_RELAY",
+      "at": "2026-10-18T14:53:24.125Z",
+      "previous": "0776481f535cef791b8860e75490b5ea62679600b6556bcd72c54acffa65bd43",
+      "result": {
+        "execution": {
+          "receipt": {
+            "schemaVersion": 1,
+            "runId": "RSI-02:2026-10-18T14:53:24.117Z",
+            "rsi": "RSI-02",
+            "engine": "VERCEL_EXECUTOR",
+            "startedAt": "2026-10-18T14:53:24.117Z",
+            "finishedAt": "2026-10-18T14:53:24.123Z",
+            "outcome": "COMPLETED",
+            "tools": [
+              {
+                "name": "airtable_work_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:24.118Z"
+              },
+              {
+                "name": "airtable_leads_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:24.119Z"
+              },
+              {
+                "name": "marketing_material_sales_review",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:24.121Z"
+              },
+              {
+                "name": "rsi02_incoming_case_consumer",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:24.123Z"
+              }
+            ],
+            "actionCount": 5,
+            "blockers": [
+              "WAITING_DIRECTOR_SCOPE_APPROVAL"
+            ]
+          },
+          "reused": false,
+          "orchestration": {
+            "sdk": "@google/adk",
+            "mode": "CUSTOM_CODE",
+            "modelCalls": 0,
+            "agentId": "RSI-02"
+          }
+        },
+        "handoff": {
+          "handoffId": "relay-8c0e4222d89f84b41e73eda15129107100298a7e0186fb96f84a16ddc034a17b",
+          "opportunityId": "rec00000000000002",
+          "from": "RSI-01",
+          "to": "RSI-02",
+          "owner": "RSI-02",
+          "reason": "Verified written customer case for the next existing sales agent",
+          "evidenceRef": "synthetic-reply",
+          "fingerprint": "c4b52b8231a233897d1bfe4b31142b0952e15468c21ccc53b3ecde793a60c3e6",
+          "state": "ACCEPTED",
+          "version": 2,
+          "updatedAt": "2026-10-18T14:53:24.122Z",
+          "events": [
+            {
+              "state": "PENDING",
+              "owner": "RSI-02",
+              "evidenceRef": "synthetic-reply",
+              "timestamp": "2026-10-18T14:53:22.532Z"
+            },
+            {
+              "state": "ACCEPTED",
+              "owner": "RSI-02",
+              "evidenceRef": "synthetic-reply",
+              "timestamp": "2026-10-18T14:53:24.122Z"
+            }
+          ]
+        },
+        "originalSyntheticGuardPreserved": true,
+        "projection": "QA_ISOLATED_PROJECTION",
+        "transport": "SIMULATED_LOCAL"
+      },
+      "digest": "eb531f4a80394962d56f60530768925cbf4647d61adf9b199349fce7e1ab834e"
+    },
+    {
+      "caseId": "QA-RELAY-20261018-0853",
+      "stage": "DIRECTORA",
+      "scope": "ISOLATED_SYNTHETIC_RELAY",
+      "at": "2026-10-18T14:53:25.695Z",
+      "previous": "eb531f4a80394962d56f60530768925cbf4647d61adf9b199349fce7e1ab834e",
+      "result": {
+        "approvalRecordId": "rec00000000000001",
+        "signedQaApproval": true,
+        "tamperedSignatureRejected": true,
+        "productionApproval": false
+      },
+      "digest": "e73493dd8aace18c8232451450a60a0237b88f58fad1bde27e872907a22b4896"
+    },
+    {
+      "caseId": "QA-RELAY-20261018-0853",
+      "stage": "RSI-02-TRANSFER",
+      "scope": "ISOLATED_SYNTHETIC_RELAY",
+      "at": "2026-10-18T14:53:27.323Z",
+      "previous": "e73493dd8aace18c8232451450a60a0237b88f58fad1bde27e872907a22b4896",
+      "result": {
+        "execution": {
+          "receipt": {
+            "schemaVersion": 1,
+            "runId": "RSI-02:2026-10-18T14:53:27.307Z",
+            "rsi": "RSI-02",
+            "engine": "VERCEL_EXECUTOR",
+            "startedAt": "2026-10-18T14:53:27.307Z",
+            "finishedAt": "2026-10-18T14:53:27.320Z",
+            "outcome": "COMPLETED",
+            "tools": [
+              {
+                "name": "airtable_work_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:27.308Z"
+              },
+              {
+                "name": "airtable_leads_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:27.314Z"
+              },
+              {
+                "name": "marketing_material_sales_review",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:27.315Z"
+              },
+              {
+                "name": "rsi02_incoming_case_consumer",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:27.320Z"
+              }
+            ],
+            "actionCount": 5,
+            "blockers": []
+          },
+          "reused": false,
+          "orchestration": {
+            "sdk": "@google/adk",
+            "mode": "CUSTOM_CODE",
+            "modelCalls": 0,
+            "agentId": "RSI-02"
+          }
+        },
+        "handoff": {
+          "handoffId": "relay-8c0e4222d89f84b41e73eda15129107100298a7e0186fb96f84a16ddc034a17b",
+          "opportunityId": "rec00000000000002",
+          "from": "RSI-01",
+          "to": "RSI-02",
+          "owner": "RSI-02",
+          "reason": "Verified written customer case for the next existing sales agent",
+          "evidenceRef": "synthetic-reply",
+          "fingerprint": "c4b52b8231a233897d1bfe4b31142b0952e15468c21ccc53b3ecde793a60c3e6",
+          "state": "COMPLETED",
+          "version": 3,
+          "updatedAt": "2026-10-18T14:53:27.319Z",
+          "events": [
+            {
+              "state": "PENDING",
+              "owner": "RSI-02",
+              "evidenceRef": "synthetic-reply",
+              "timestamp": "2026-10-18T14:53:22.532Z"
+            },
+            {
+              "state": "ACCEPTED",
+              "owner": "RSI-02",
+              "evidenceRef": "synthetic-reply",
+              "timestamp": "2026-10-18T14:53:24.122Z"
+            },
+            {
+              "state": "COMPLETED",
+              "owner": "RSI-02",
+              "evidenceRef": "rec00000000000001",
+              "timestamp": "2026-10-18T14:53:27.319Z"
+            }
+          ]
+        },
+        "originalSyntheticGuardPreserved": true,
+        "projection": "QA_ISOLATED_PROJECTION",
+        "transport": "SIMULATED_LOCAL"
+      },
+      "digest": "50d29e70978a026f213e0223abfadfb52a6bf32923ee5e366e3c35952e44213a"
+    },
+    {
+      "caseId": "QA-RELAY-20261018-0853",
+      "stage": "RSI-03",
+      "scope": "ISOLATED_SYNTHETIC_RELAY",
+      "at": "2026-10-18T14:53:28.882Z",
+      "previous": "50d29e70978a026f213e0223abfadfb52a6bf32923ee5e366e3c35952e44213a",
+      "result": {
+        "execution": {
+          "receipt": {
+            "schemaVersion": 1,
+            "runId": "RSI-03:2026-10-18T14:53:28.866Z",
+            "rsi": "RSI-03",
+            "engine": "VERCEL_EXECUTOR",
+            "startedAt": "2026-10-18T14:53:28.866Z",
+            "finishedAt": "2026-10-18T14:53:28.878Z",
+            "outcome": "COMPLETED",
+            "tools": [
+              {
+                "name": "airtable_work_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:28.867Z"
+              },
+              {
+                "name": "airtable_leads_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:28.870Z"
+              },
+              {
+                "name": "marketing_material_sales_review",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:28.872Z"
+              },
+              {
+                "name": "airtable_partner_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:28.872Z"
+              },
+              {
+                "name": "airtable_referral_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:28.872Z"
+              },
+              {
+                "name": "cost_evidence_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:28.872Z"
+              },
+              {
+                "name": "provider_confirmed_payment_ledger_read",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:28.872Z"
+              },
+              {
+                "name": "rsi03_incoming_approved_case_consumer",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:28.878Z"
+              },
+              {
+                "name": "rsi03_approved_case_closing_cycle",
+                "status": "VERIFIED",
+                "observedAt": "2026-10-18T14:53:28.878Z"
+              }
+            ],
+            "actionCount": 6,
+            "blockers": [
+              "WAITING_VERIFIED_PARTNER",
+              "COST_EVIDENCE_INCOMPLETE"
+            ]
+          },
+          "reused": false,
+          "orchestration": {
+            "sdk": "@google/adk",
+            "mode": "CUSTOM_CODE",
+            "modelCalls": 0,
+            "agentId": "RSI-03"
+          }
+        },
+        "handoff": {
+          "handoffId": "relay-0e83db9d020ab40391bcdd57eef1ae893c0d6f7483212fb860449d7b454e5459",
+          "opportunityId": "rec00000000000002",
+          "from": "RSI-02",
+          "to": "RSI-03",
+          "owner": "RSI-03",
+          "reason": "Verified written customer case for the next existing sales agent",
+          "evidenceRef": "rec00000000000001",
+          "fingerprint": "0aad9da8ff54fc55359a71cd3bb81e4d13838a7e3af09d0632e85bba695a77ca",
+          "state": "COMPLETED",
+          "version": 3,
+          "updatedAt": "2026-10-18T14:53:28.877Z",
+          "events": [
+            {
+              "state": "PENDING",
+              "owner": "RSI-03",
+              "evidenceRef": "rec00000000000001",
+              "timestamp": "2026-10-18T14:53:27.318Z"
+            },
+            {
+              "state": "ACCEPTED",
+              "owner": "RSI-03",
+              "evidenceRef": "rec00000000000001",
+              "timestamp": "2026-10-18T14:53:28.875Z"
+            },
+            {
+              "state": "COMPLETED",
+              "owner": "RSI-03",
+              "evidenceRef": "rec00000000000001",
+              "timestamp": "2026-10-18T14:53:28.877Z"
+            }
+          ]
+        },
+        "originalSyntheticGuardPreserved": true,
+        "projection": "QA_ISOLATED_PROJECTION",
+        "transport": "SIMULATED_LOCAL"
+      },
+      "digest": "486800efd5453ba2f0aacb3c48c0868b940bfba7a9b7781d49c8bf469ff5bc97"
+    },
+    {
+      "caseId": "QA-RELAY-20261018-0853",
+      "stage": "VERIFY",
+      "scope": "ISOLATED_SYNTHETIC_RELAY",
+      "at": "2026-10-18T14:53:30.501Z",
+      "previous": "486800efd5453ba2f0aacb3c48c0868b940bfba7a9b7781d49c8bf469ff5bc97",
+      "result": {
+        "status": "ISOLATED_AGENT_RELAY_CHAIN_PASS",
+        "handoffs": 2,
+        "completedHandoffs": 2,
+        "actualExecutorCycles": 4,
+        "closingCases": 1,
+        "mailTransport": "SIMULATED_LOCAL",
+        "simulatedGateway": true,
+        "productionWrites": 0,
+        "realEmails": 0,
+        "payments": 0,
+        "productionAutonomyCertified": false
+      },
+      "digest": "34cdacbe0ad3fcdd121269e16e8ed1f9e93d3d47e9083eef6631087d3d93a776"
+    }
+  ],
+  "limits": "Local durable adapters, simulated Gmail and gateway, synthetic contract projection; not production handoff, buyer response, payment or autonomous commercial certification."
+}
