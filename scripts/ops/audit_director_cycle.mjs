@@ -1,9 +1,5 @@
 import {readFile,mkdir,writeFile,appendFile} from 'node:fs/promises';
-export const remediationFor=code=>({
- WAITING_VERIFIED_PARTNER:{owner:'MARKETING',action:'Verify partner identity, consent and collaboration evidence; do not invent referrals.'},
- COST_EVIDENCE_INCOMPLETE:{owner:'RSI-03',action:'Reconcile actual service delivery and provider cost records; do not infer missing amounts.'},
- WAITING_QUALIFIED_APPROVED_CASE:{owner:'RSI-02',action:'Inspect validated customer replies and request qualified customer scope; do not fabricate interest.'}
-}[code]||{owner:'DIRECTORA',action:'Investigate evidence and escalate unresolved blocker.'});
+import {remediationFor} from '../../lib/director_remediation.js';
 let report={status:'FAILED',checkedAt:new Date().toISOString(),reason:'DIRECTOR_CYCLE_RECEIPT_MISSING'};
 try {
  const raw=JSON.parse(await readFile('ops-output/rsi-agent-execution.json','utf8'));
