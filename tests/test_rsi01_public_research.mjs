@@ -12,3 +12,7 @@ test('autonomous discovery stays on official host and records source without inf
  assert.ok(seen.every(x=>x.startsWith('https://example.com/')));assert.equal(out.needConfirmed,false);assert.equal(out.approvalGranted,false);
  assert.deepEqual(discoverCompanyPages(links,'https://example.com/'),['https://example.com/contact','https://example.com/get-a-quote/']);
 });
+test('large builder metadata does not hide the official title and published contact',async()=>{
+ const out=await investigatePublicSite({fields:{'Company URL':'https://example.com','Contact Email':'sales@example.com'}},{fetcher:async()=>({ok:true,headers:{get:()=> 'text/html'},text:async()=>'<script>'+('x'.repeat(110000))+'</script><title>Company</title>Request a quote <a href="mailto:sales@example.com">Sales</a>'})});
+ assert.equal(out.state,'PUBLIC_WEBSITE_OBSERVED');assert.equal(out.contactEvidence.length,1);assert.equal(out.operationalSignals[0].type,'QUOTE_INTAKE');
+});
