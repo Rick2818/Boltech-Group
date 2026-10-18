@@ -1,0 +1,22 @@
+name: Agent 1 lead gate QA
+on:
+  push:
+    paths:
+      - 'scripts/commercial/agent1_lead_gate.mjs'
+      - 'tests/test_agent1_lead_gate.mjs'
+      - '.github/workflows/agent1_lead_gate_qa.yml'
+  pull_request:
+    paths:
+      - 'scripts/commercial/agent1_lead_gate.mjs'
+      - 'tests/test_agent1_lead_gate.mjs'
+      - '.github/workflows/agent1_lead_gate_qa.yml'
+  workflow_dispatch:
+jobs:
+  verify-agent1:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/test_agent1_lead_gate.mjs
