@@ -23,7 +23,14 @@ jobs:
         with:
           node-version: '24'
       - name: Test Director blocker ownership
-        run: node --test tests/test_director_ownership.mjs
+        run: node --test tests/test_director_ownership.mjs tests/test_director_tracking.mjs
+      - name: Restore previous blocker history
+        uses: actions/cache/restore@v4
+        with:
+          path: ops-output/director-blockers-history.json
+          key: director-history-${{ github.run_id }}
+          restore-keys: |
+            director-history-
       - name: Run commercial consumers and Director payment notification cycle
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
@@ -33,6 +40,12 @@ jobs:
       - name: Audit Director oversight receipt
         if: always()
         run: node scripts/ops/audit_director_cycle.mjs
+      - name: Save updated blocker history
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ops-output/director-blockers-history.json
+          key: director-history-${{ github.run_id }}
       - name: Preserve Director evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -41,5 +54,6 @@ jobs:
           path: |
             ops-output/rsi-agent-execution.json
             ops-output/director-hourly-audit.json
+            ops-output/director-blockers-history.json
           if-no-files-found: warn
           retention-days: 30
