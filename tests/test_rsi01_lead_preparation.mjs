@@ -17,3 +17,12 @@ test('READY package drops revoked approval and refreshes stale history instead o
  const next=await f.worker.run();assert.notEqual(next.reused,true);assert.equal(f.count(),6);
  f.options.now=()=> '2026-10-18T16:00:00Z';const refreshed=await createLeadPreparation(f.options).run();assert.notEqual(refreshed.reused,true);assert.ok(refreshed.selected.length<5);
 });
+
+ test('subjects reflect researched signal and never present unverified needs as facts',async()=>{
+ const {outreachTopic}=await import('../lib/rsi01_lead_preparation.js');
+ assert.notEqual(outreachTopic({type:'QUOTE_INTAKE'})[0],outreachTopic({type:'SUPPORT_REQUEST'})[0]);
+ assert.match(outreachTopic({type:'QUOTE_INTAKE'})[0],/quote/i);
+ assert.match(outreachTopic({type:'SUPPORT_REQUEST'})[0],/support/i);
+ assert.match(outreachTopic({type:'APPOINTMENT_BOOKING'})[0],/appointment/i);
+ assert.match(outreachTopic({type:'UNKNOWN'})[0],/inquiry/i);
+ });
