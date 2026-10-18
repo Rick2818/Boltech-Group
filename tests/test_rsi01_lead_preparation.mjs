@@ -12,3 +12,8 @@ test('external access failure remains blocked, never clear or complete',async()=
 test('exhausted inventory is explicit and cannot fulfill five with fewer records',async()=>{const f=fixture(2);await f.worker.run();await f.worker.run();const s=await f.worker.run();assert.equal(s.state,'BLOCKED');assert.equal(s.code,'SOURCE_EXHAUSTED_BEFORE_FIVE');assert.equal(s.selected.length,2);});
 test('readback failure and mailbox history cannot produce approved leads',async()=>{for(const kind of ['readback','history']){const f=fixture();if(kind==='readback')f.options.readLead=async()=>({fields:{Notes:''}});else f.options.gmail.search=async()=>[{id:'prior'}];const s=await createLeadPreparation(f.options).run();assert.equal(s.selected.length,0);assert.equal(s.rejected.length,1);}});
 test('QA and excluded market never reach investigation',async()=>{const f=fixture(2);f.leads[0].fields['Data Quality']='QA';f.leads[1].fields.Country='El Salvador';assert.equal((await f.worker.run()).code,'SOURCE_EXHAUSTED_BEFORE_FIVE');assert.equal(f.count(),0);});
+test('READY package drops revoked approval and refreshes stale history instead of reusing',async()=>{
+ const f=fixture();for(let i=0;i<5;i++)await f.worker.run();f.leads[0].fields.Notes='Approval revoked';
+ const next=await f.worker.run();assert.notEqual(next.reused,true);assert.equal(f.count(),6);
+ f.options.now=()=> '2026-10-18T16:00:00Z';const refreshed=await createLeadPreparation(f.options).run();assert.notEqual(refreshed.reused,true);assert.ok(refreshed.selected.length<5);
+});
