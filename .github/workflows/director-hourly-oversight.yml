@@ -8,6 +8,8 @@ on:
     paths:
       - '.github/workflows/director-hourly-oversight.yml'
       - 'scripts/ops/audit_director_cycle.mjs'
+      - 'lib/marketing_autonomy.js'
+      - 'tests/test_marketing_autonomy.mjs'
 permissions:
   contents: read
 concurrency:
@@ -23,7 +25,7 @@ jobs:
         with:
           node-version: '24'
       - name: Test Director blocker ownership
-        run: node --test tests/test_director_ownership.mjs tests/test_director_tracking.mjs
+        run: node --test tests/test_director_ownership.mjs tests/test_director_tracking.mjs tests/test_marketing_autonomy.mjs
       - name: Restore previous blocker history
         uses: actions/cache/restore@v4
         with:
@@ -31,6 +33,12 @@ jobs:
           key: director-history-${{ github.run_id }}
           restore-keys: |
             director-history-
+      - name: Run independent autonomous Marketing enablement
+        env:
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+          RSI_EXECUTION_ROLES: 'MARKETING'
+          RSI_EXPECT_DEPLOYMENT_SHA: ''
+        run: node scripts/ops/run_rsi_agents.mjs
       - name: Run commercial consumers and Director payment notification cycle
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
@@ -52,6 +60,7 @@ jobs:
         with:
           name: director-hourly-${{ github.run_id }}
           path: |
+            ops-output/marketing-autonomy-execution.json
             ops-output/rsi-agent-execution.json
             ops-output/director-hourly-audit.json
             ops-output/director-blockers-history.json

@@ -31,4 +31,4 @@ try{
   report.status=report.results.some(r=>!r.success||r.receipt?.outcome!=='COMPLETED')?'ATTENTION':'PASS';
   if(report.results.some(r=>!r.success))process.exitCode=1;
 }catch(error){report.error=String(error.message).slice(0,300);process.exitCode=1;}
-finally{await mkdir('ops-output',{recursive:true});await writeFile(process.env.RSI_EXECUTION_ROLES==='RSI-01'?'ops-output/rsi01-research-execution.json':'ops-output/rsi-agent-execution.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report));}
+finally{await mkdir('ops-output',{recursive:true});await writeFile(process.env.RSI_EXECUTION_ROLES==='RSI-01'?'ops-output/rsi01-research-execution.json':process.env.RSI_EXECUTION_ROLES==='MARKETING'?'ops-output/marketing-autonomy-execution.json':'ops-output/rsi-agent-execution.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report));}
