@@ -36,3 +36,7 @@ Estado: **ISOLATED_SYNTHETIC_FOLLOWUP_QUALIFICATION_PASS**. Gmail, Redis y Airta
 RSI-01 conserva la reactivación de conversaciones; RSI-02 califica respuestas humanas; DIRECTORA supervisa bloqueos. Las próximas acciones de los cinco registros se actualizaron en Airtable. Cuatro revisiones indicadas para el 19 de octubre a las 09:00 SV, con referencia a borrador e hilo; ZVEPOW para el 21 de octubre, sin repetir el seguimiento del día 16. Esas fechas en CRM no prueban que el ejecutor las haya procesado.
 
 Para los cuatro prospectos sigue pendiente permiso de recontacto sin interés previamente confirmado: la instrucción anterior de Ricardo condicionaba el envío al interés. No convertir borradores en enviados ni ampliar ese permiso automáticamente. Si se autoriza, usar un solo emisor y releer Gmail antes y después; no enviar los borradores manualmente y el plan automático a la vez.
+
+## Regresión de integración corregida
+
+La primera validación general detectó MARKETING_FOLLOWUP_ACCOUNT_UNVERIFIED al recorrer los cuatro contactos preparados como si autorizaran trabajo adicional. Se corrige el coordinador existente para preservar la preparación sin ejecutar soporte nuevo y admitir cohortes n8n cuando tengan autorización. Se ejecutaron también las 15 pruebas existentes del coordinador: 46/46 pruebas locales aprobadas en total. La validación completa de GitHub debe pasar antes de integrar.
