@@ -10,8 +10,15 @@ test('uncertain result remains attention if provider cannot confirm',async()=>{c
 test('none approved is not reported as dispatch success',async()=>{const r=await runApprovedCampaign({listLeads:async()=>[{...row,fields:{...row.fields,Notes:''}}],send:async()=>{throw Error('should never send')}});assert.equal(r.cycleStatus,'NO_APPROVED_LEADS')});
 test('exact-five preflight prevents partial dispatch when an approved record disappears',async()=>{
  const {runExactlyFiveCampaign}=await import('../lib/sdr_campaign.js');let sends=0;
- const rows=Array.from({length:5},(_,i)=>{const candidate={...c,recordId:'rec'+i,email:`sales@company${i}.com`};return {id:candidate.recordId,fields:{'Experiment Cohort':'RSI-01','Contact Email':candidate.email,Notes:'[SDR_CANDIDATE_V1]'+JSON.stringify(candidate)+'[/SDR_CANDIDATE_V1]'}}});
- const args={selected:rows.map(r=>({recordId:r.id})),listLeads:async()=>rows.slice(1),validate:()=>{},send:async()=>{sends++;return {job:{state:'SENT'}}}};
+ const rows=Array.from({length:5},(_,i)=>{const candidate={...c,recordId:'rec'+i,email:`sales@company${i}.com`,commercialResearch:{...c.commercialResearch,accountKey:`company${i}.com`}};return {id:candidate.recordId,fields:{'Experiment Cohort':'RSI-01','Contact Email':candidate.email,Notes:'[SDR_CANDIDATE_V1]'+JSON.stringify(candidate)+'[/SDR_CANDIDATE_V1]'}}});
+ const args={selected:rows.map((r,i)=>({recordId:r.id,email:`sales@company${i}.com`,domain:`company${i}.com`})),listLeads:async()=>rows.slice(1),validate:()=>{},send:async()=>{sends++;return {job:{state:'SENT'}}}};
  assert.equal((await runExactlyFiveCampaign(args)).cycleStatus,'NO_APPROVED_LEADS');assert.equal(sends,0);
  args.listLeads=async()=>rows;args.validate=()=>{throw Error('stale')};assert.equal((await runExactlyFiveCampaign(args)).eligible,0);assert.equal(sends,0);
+});
+
+test('a valid replacement email and domain cannot take over a prepared identity',async()=>{
+ const {runExactlyFiveCampaign}=await import('../lib/sdr_campaign.js');let sends=0;
+ const selected=Array.from({length:5},(_,i)=>({recordId:'rec'+i,email:`sales@company${i}.com`,domain:`company${i}.com`}));
+ const rows=selected.map((s,i)=>{const email=i===0?'other@different.com':s.email;const candidate={...c,recordId:s.recordId,email,commercialResearch:{...c.commercialResearch,accountKey:i===0?'different.com':s.domain}};return {id:s.recordId,fields:{'Experiment Cohort':'RSI-01','Contact Email':email,Notes:'[SDR_CANDIDATE_V1]'+JSON.stringify(candidate)+'[/SDR_CANDIDATE_V1]'}}});
+ const result=await runExactlyFiveCampaign({selected,listLeads:async()=>rows,validate:()=>{},send:async()=>{sends++;return {job:{state:'SENT'}}}});assert.equal(result.cycleStatus,'NO_APPROVED_LEADS');assert.equal(sends,0);
 });

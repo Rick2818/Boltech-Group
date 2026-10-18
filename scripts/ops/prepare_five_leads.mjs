@@ -12,7 +12,7 @@ try{
   await new Promise(r=>setTimeout(r,10000));
  }
  if(!ready)throw Error('PREPARATION_DEPLOYMENT_UNAVAILABLE');
- for(let attempt=0;attempt<150&&Date.now()<deadline&&report.state!=='READY';attempt++){
+ for(let attempt=0;attempt<150&&Date.now()<deadline&&(attempt===0||report.state!=='READY');attempt++){
   const res=await fetch(base,{method:'POST',headers,signal:AbortSignal.timeout(60000)}),data=await res.json();
   if(!res.ok||!data.success||!data.preparation)throw Error('PREPARATION_HTTP_UNCONFIRMED');
   report=data.preparation;
