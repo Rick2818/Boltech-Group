@@ -52,3 +52,22 @@ test('zero-attempt finished diagnosis can resume after preparing the queue; unce
  assert.equal((await f.worker.run()).status,'ATTENTION');approved=true;
  const next=await f.worker.run();assert.equal(next.campaign.sent,5);assert.equal(next.status,'EXECUTED');assert.equal(executions,2);assert.equal((await f.worker.run()).reused,true);
 });
+
+test('recovery resumes two confirmed-unsent items without reopening uncertain dispatch',async()=>{
+ let calls=0;
+ const f=fixture({campaign:async()=>{calls++;
+  return calls===1?{cycleStatus:'ATTENTION',reviewed:5,approvedTotal:5,eligible:5,results:[
+   ...Array.from({length:3},()=>({status:'SENT',attempted:true})),
+   ...Array.from({length:2},()=>({status:'NOT_ATTEMPTED',attempted:false}))]}:
+   {cycleStatus:'EXECUTED',reviewed:5,approvedTotal:5,eligible:5,results:Array.from({length:5},()=>({status:'SENT',attempted:true}))};
+ }});
+ const first=await f.worker.run();assert.equal(first.campaign.sent,3);assert.equal(first.status,'ATTENTION');
+ const recovered=await f.worker.run();assert.equal(recovered.status,'EXECUTED');assert.equal(recovered.campaign.sent,5);
+ assert.equal((await f.worker.run()).reused,true);assert.equal(calls,2);
+});
+test('partial result with unknown attempt cannot auto-retry',async()=>{
+ let calls=0;const f=fixture({campaign:async()=>{calls++;return {cycleStatus:'ATTENTION',eligible:5,results:[
+  ...Array.from({length:3},()=>({status:'SENT',attempted:true})),{status:'UNKNOWN',attempted:true},{status:'NOT_ATTEMPTED',attempted:false}]};}});
+ const first=await f.worker.run();assert.equal(first.campaign.uncertain,1);
+ assert.equal((await f.worker.run()).reused,true);assert.equal(calls,1);
+});
