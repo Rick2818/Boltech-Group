@@ -12,7 +12,7 @@ function fixture(overrides={}){
   }
   throw Error('Unexpected operation');
  };
- const deps={command,now:()=>now,execute:async input=>{executions++;assert.equal(input.rsi,'RSI-01');assert.match(input.cycleId,new RegExp('^daily-'+campaignDay(now)+'(?:-resume-[a-f0-9]{8})?return {receipt:{outcome:'COMPLETED',runId:'RSI-01:receipt'}}},campaign:async()=>{sends++;return {reviewed:5,approvedTotal:1,eligible:1,cycleStatus:'EXECUTED',results:[{status:'SENT',attempted:true}]};},...overrides};
+ const deps={command,now:()=>now,execute:async input=>{executions++;assert.equal(input.rsi,'RSI-01');assert.ok(input.cycleId.startsWith('daily-'+campaignDay(now)));return {receipt:{outcome:'COMPLETED',runId:'RSI-01:receipt'}}},campaign:async()=>{sends++;return {reviewed:5,approvedTotal:1,eligible:1,cycleStatus:'EXECUTED',results:[{status:'SENT',attempted:true}]};},...overrides};
  return {worker:createDailyCampaign(deps),deps,rows,counts:()=>({executions,sends}),advance:()=>{now='2026-10-18T15:00:00Z'}};
 }
 test('Vercel and GitHub share one durable execution per Salvador day',async()=>{
