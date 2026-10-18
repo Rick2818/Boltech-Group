@@ -1,13 +1,55 @@
 {
   "enabled": true,
   "authorization": "Ricardo: RSI-01 proactive authorized follow-up; corrected on 2026-10-08",
-  "maxPerCycle": 1,
-  "accounts": [{
-    "recordId": "rec9X5olyq0nieU0K",
-    "email": "ajal@aylinmobiliaria.com",
-    "originalMessageId": "1a111c53c5218506",
-    "dueAt": "2026-10-09T20:00:00Z",
-    "expiresAt": "2026-10-16T23:00:00Z",
-    "text": "Hola, equipo de A y L. Retomo mi correo sobre el seguimiento de consultas por código de propiedad. ¿Hay algún paso que todavía deban registrar o asignar manualmente, o ya lo tienen resuelto? Puede responder por este mismo correo e indicar quién coordina ese proceso. Revisaremos el encaje antes de proponer una solución.\n\nRicardo | Boltech Group\nricardo.boltechgroup@gmail.com\nSi prefiere no recibir seguimiento, responda «no»."
-  }]
+  "maxPerCycle": 5,
+  "accounts": [
+    {
+      "recordId": "rec9X5olyq0nieU0K",
+      "email": "ajal@aylinmobiliaria.com",
+      "originalMessageId": "1a111c53c5218506",
+      "dueAt": "2026-10-09T20:00:00Z",
+      "expiresAt": "2026-10-16T23:00:00Z",
+      "text": "Hola, equipo de A y L. Retomo mi correo sobre el seguimiento de consultas por código de propiedad. ¿Hay algún paso que todavía deban registrar o asignar manualmente, o ya lo tienen resuelto? Puede responder por este mismo correo e indicar quién coordina ese proceso. Revisaremos el encaje antes de proponer una solución.\n\nRicardo | Boltech Group\nricardo.boltechgroup@gmail.com\nSi prefiere no recibir seguimiento, responda «no»."
+    },
+    {
+      "recordId": "recwRh4cvq9Xon63G",
+      "email": "martoudoh1@gmail.com",
+      "originalMessageId": "1a1229a7f82a5c6b",
+      "dueAt": "2026-10-19T15:00:00Z",
+      "expiresAt": "2026-10-26T23:00:00Z",
+      "sendAuthorized": false,
+      "draftId": "r2827527798375698357",
+      "text": "Hi Martin,\n\nI’m following up on my October 9 email about project-based automation work with LeadFlow AI. Are you still looking for support with lead capture or follow-up workflows?\n\nIf so, please share one current task, the tools involved and the result you need. We can review it in writing and propose a clearly scoped first milestone before committing to price or delivery.\n\nIf you have already filled the need or prefer no further follow-up, please let me know.\n\nBest regards,\nRicardo Bolaños\nBoltech Group"
+    },
+    {
+      "recordId": "recN7MaYBsclDG7mW",
+      "email": "info@kbgroup.es",
+      "originalMessageId": "1a1281d10c54cc94",
+      "dueAt": "2026-10-19T15:00:00Z",
+      "expiresAt": "2026-10-26T23:00:00Z",
+      "sendAuthorized": false,
+      "draftId": "r-130025653283019791",
+      "text": "Hola Fabiola y equipo de KB DIGITAL:\n\nRetomo mi correo del 10 de octubre sobre vuestra búsqueda de colaboradores para proyectos de IA, automatización e integración. ¿Continúa abierta la selección?\n\nSi tenéis un caso actual, podéis compartir por escrito el proceso que queréis mejorar, los sistemas implicados y el resultado esperado. Con esa información podremos evaluar un primer hito acotado y presentar una propuesta, sin comprometer precio ni plazo antes de revisar el alcance.\n\nSi ya cubristeis la necesidad o preferís no recibir más seguimiento, indicádmelo.\n\nSaludos,\nRicardo Bolaños\nBoltech Group"
+    },
+    {
+      "recordId": "reccnTBCDp9riKEey",
+      "email": "zapixai2@gmail.com",
+      "originalMessageId": "1a1281ebccfe36d1",
+      "dueAt": "2026-10-19T15:00:00Z",
+      "expiresAt": "2026-10-26T23:00:00Z",
+      "sendAuthorized": false,
+      "draftId": "r5520277885905638705",
+      "text": "Hello Lakhesh / Raj AI Automation team,\n\nI’m following up on my October 10 email about your manufacturing automation pilot. Is there still a small workflow or API issue you need help with?\n\nIf so, please share a sample input and expected output, the systems involved and your current budget. We would first check whether a useful, testable task fits the scope and budget before proposing a milestone.\n\nIf the pilot is already filled or you prefer no further follow-up, please let me know.\n\nBest regards,\nRicardo Bolaños\nBoltech Group"
+    },
+    {
+      "recordId": "recfbO6OnWyDrUYN4",
+      "email": "yusuf.maged2006@gmail.com",
+      "originalMessageId": "1a1282685cdc10e8",
+      "dueAt": "2026-10-19T15:00:00Z",
+      "expiresAt": "2026-10-26T23:00:00Z",
+      "sendAuthorized": false,
+      "draftId": "r-2890429814736710710",
+      "text": "Hello Yousef,\n\nI’m following up on my October 10 email about project-based AI automation collaboration. Since the original community post is older, could you confirm whether you are currently considering technical collaborators?\n\nIf so, please share one current business workflow, the tools involved and the outcome you want to improve. We can evaluate the fit in writing before proposing any scope, price or timeline.\n\nIf you are no longer looking or prefer no further follow-up, please let me know.\n\nBest regards,\nRicardo Bolaños\nBoltech Group"
+    }
+  ]
 }
