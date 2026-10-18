@@ -1,6 +1,6 @@
 # Upwork OAuth setup — 18 October 2026
 
-Objective: supply a real callback URL for Ricardo's API application, then connect approved OAuth credentials to the existing RSI-01. The account was verified with 0 API keys before the application. The form is prepared for a private read-only web application. Ricardo explicitly confirmed acceptance of the Upwork API Terms and application submission on 18 October 2026 at 15:16 SV. A browser submission attempt is in progress; no submission receipt has been confirmed. Do not request the same approval again or retry submission without reconciliation.
+Objective: supply a real callback URL for Ricardo's API application, then connect approved OAuth credentials to the existing RSI-01. The account was verified with 0 API keys before the application. The form is prepared for a private read-only web application. Ricardo explicitly confirmed acceptance of the Upwork API Terms and application submission on 18 October 2026 at 15:16 SV. Terms were selected and Submit was clicked. Upwork then required an additional Re-enter password verification; no submission receipt has been confirmed. Do not request the same approval again or retry submission without reconciliation.
 
 Minimum flow: Ricardo requests a key → Upwork reviews it → authenticated operator starts OAuth in Boltech → one-use browser-bound state → provider token exchange → encrypted Redis storage. Owner: RSI-01; secrets stay server-side. No new agent, scheduler, paid service, proposals, payments or external lead export.
 
@@ -23,7 +23,7 @@ Sources: https://www.upwork.com/developer/documentation/graphql/api/docs/index.h
 
 | Source | Confirmed state | Next action |
 | --- | --- | --- |
-| Upwork | Callback and OAuth receiver deployed; API application authorized; submission receipt not yet confirmed | Reconcile the pending browser result once, record the actual application status, then obtain provider approval and complete server-side credentials plus read-only discovery integration |
+| Upwork | Callback and OAuth receiver deployed; API application authorized; Submit reached Upwork password re-verification; no confirmed submission receipt | Complete the existing Upwork password verification in the browser, reconcile the actual application status before retrying Submit, then obtain provider approval and complete server-side credentials plus read-only discovery integration |
 | n8n Community | Existing account login rejected the prefilled credentials; no authenticated access or agent connector verified | Ricardo signs in to the community account in the open browser; distinguish the jobs community from a separate n8n automation instance |
 
 The current Upwork OAuth receiver is not a discovery adapter or a working agent 1 connection. The earlier provider preflight and discovery still report the pending integration. Do not call these platforms connected based on the callback, a browser session, the application form or synthetic tests. Secrets, codes, refresh tokens and passwords must never enter Git, README, audit documents or screenshots.
