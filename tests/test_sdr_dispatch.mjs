@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { createSdrDispatch, validateSdrCandidate, sdrWindow } from '../lib/sdr_dispatch.js';
+import { createSdrDispatch, validateSdrCandidate, sdrWindow, dailyCampaignSendDays } from '../lib/sdr_dispatch.js';
 import { createSdrGmail } from '../lib/sdr_gmail.js';
 const instant = new Date('2026-10-07T15:05:00Z');
 const candidate = () => ({status:'READY_FOR_CONTACT',contactEligible:true,recordId:'recVerified123',email:'business@example.com',subject:'A specific process question',commercialResearch:{accountKey:'example.com',channelVerified:true,observation:'A public intake form',hypothesis:'Routing may be manual',sources:['https://example.com/contact'],individualMessage:'Who owns this process? Reply no to stop.',salesReview:{accepted:true,reviewedBy:'Sales',reviewedAt:instant.toISOString()},history:{checkedAt:instant.toISOString(),gmail:'CLEAR',apollo:'CLEAR',crm:'CLEAR',suppression:'CLEAR'}}});
@@ -37,4 +37,10 @@ test('daily campaign calendar admits Sunday at 09:00 SV while preserving time an
  assert.equal(sdrWindow(new Date('2026-10-18T14:59:59Z'),daily).allowed,false);
  assert.equal(sdrWindow(new Date('2026-10-18T23:00:00Z'),daily).allowed,false);
  assert.equal(sdrWindow(new Date('2026-10-18T15:00:00Z')).allowed,false);
+});
+
+test('weekend exception expires after the specifically authorized Salvador date',()=>{
+ for(const iso of ['2026-10-24T15:00:00Z','2026-10-25T15:00:00Z'])assert.equal(sdrWindow(new Date(iso),dailyCampaignSendDays(new Date(iso))).allowed,false);
+ const date=new Date('2026-10-18T15:00:00Z');assert.equal(sdrWindow(date,dailyCampaignSendDays(date)).allowed,true);
+ const weekday=new Date('2026-10-19T15:00:00Z');assert.equal(sdrWindow(weekday,dailyCampaignSendDays(weekday)).allowed,true);
 });
