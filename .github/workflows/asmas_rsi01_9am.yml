@@ -49,7 +49,7 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts
       - name: Verify research watchdog and SDR campaign
-        run: node --test tests/test_asmas_research_watchdog.mjs tests/test_rsi01_research_executor.mjs tests/test_rsi01_public_research.mjs tests/test_sdr_campaign.mjs tests/test_rsi01_daily_campaign.mjs tests/test_rsi01_lead_preparation.mjs tests/test_rsi01_external_discovery.mjs
+        run: node --test tests/test_asmas_research_watchdog.mjs tests/test_rsi01_research_executor.mjs tests/test_rsi01_public_research.mjs tests/test_sdr_campaign.mjs tests/test_rsi01_daily_campaign.mjs tests/test_rsi01_lead_preparation.mjs tests/test_rsi01_external_discovery.mjs tests/test_prepare_five_entrypoint.mjs
       # Intake must finish before RSI-01 checks the approved queue.
       # Intake never grants approval or sends mail.
       - name: Execute Marketing intake before RSI-01
