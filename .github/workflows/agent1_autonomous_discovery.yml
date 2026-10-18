@@ -24,6 +24,8 @@ jobs:
         env:
           APOLLO_API_KEY: ${{ secrets.APOLLO_API_KEY }}
           BoltechVercelCRM: ${{ secrets.BoltechVercelCRM }}
+          LUSHA_API_KEY: ${{ secrets.LUSHA_API_KEY }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
