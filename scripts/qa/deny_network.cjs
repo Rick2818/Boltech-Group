@@ -2,6 +2,7 @@
 const safeEnv=new Set(['PATH','LANG','LC_ALL','TZ','TMPDIR','TMP','TEMP']);
 for(const key of Object.keys(process.env))if(!safeEnv.has(key))delete process.env[key];
 const deny = () => { throw Object.assign(new Error('QA_NETWORK_DENIED'), {code:'QA_NETWORK_DENIED'}); };
+globalThis.__BOLTECH_QA_NETWORK_DENIED = true;
 globalThis.fetch = async () => deny();
 for (const name of ['node:http','node:https']) { const m=require(name);m.request=deny;m.get=deny; }
 const net=require('node:net');net.connect=deny;net.createConnection=deny;net.Socket.prototype.connect=deny;
