@@ -6,6 +6,7 @@ test('RSI-02 determines optout before interest and holds automatic mail',()=>{
  assert.equal(classifyRsi02Reply({text:'Could we discuss a quote for a pilot?'}),'INTERESTED');
  assert.equal(classifyRsi02Reply({text:'Thanks for the note'}),'ACKNOWLEDGE');
  assert.equal(classifyRsi02Reply({text:'out of office',automatic:true}),'AUTOMATIC_HOLD');
+ assert.equal(classifyRsi02Reply({text:'No nos interesa el workflow, gracias'}),'OPT_OUT');
 });
 test('RSI-02 dry-run never sends, records idempotent claim; RSI-03 independently runs',async()=>{
  const mem=new Map(),lead={id:'rec12345678901234',fields:{'Contact Email':'buyer@example.com',Notes:'',Name:'Synthetic customer'}},messages=[{id:'msg1',threadId:'thread1',from:'buyer@example.com',to:'ricardo.boltechgroup@gmail.com',subject:'Re: workflow',text:'Please quote an intake workflow',receivedAt:'2026-10-16T20:00:00Z',rfcMessageId:'<foo@bar>'}];let sent=0,closed=0;

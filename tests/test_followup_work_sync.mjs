@@ -31,3 +31,8 @@ test('ambiguous or advanced-role tasks cannot be mutated',async()=>{
 test('write without matching readback remains unconfirmed',async()=>{
  const f=fixture();await assert.rejects(syncFollowupWork(f.job,{request:async q=>q.id?structuredClone(f.row):{records:[f.row]}}),/SYNC_UNCONFIRMED/);
 });
+test('n8n contacted task receives a verified send receipt without changing owner',async()=>{
+ const f=fixture('CONTACTED_AWAITING_REPLY');
+ assert.equal((await syncFollowupWork(f.job,f)).state,'VERIFIED');
+ assert.equal(f.row.fields.Status,'WAITING_RESPONSE');assert.equal(f.row.fields.Owner,qa.answers[7]);
+});
