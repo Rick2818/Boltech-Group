@@ -1,4 +1,5 @@
 import { createApolloClient } from '../../lib/apollo_client.js';
+import { selectFiveLeads } from './agent1_lead_gate.mjs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { CAMPAIGN_ID, normalizeCampaign, decideTraction } from './traction_cycle.mjs';
 import { evaluateCommercialProgress, buildMitAgenda } from './zero_to_first_sale.mjs';
@@ -76,6 +77,10 @@ async function checkApollo() {
     report.apollo.pagesRead = batch.pagesRead;
     report.apollo.rejected = batch.rejected;
     report.apollo.complete = batch.complete;
+    // Saved Apollo contacts are not automatically verified buyers. Fail closed.
+    const gate = selectFiveLeads(batch.contacts);
+    report.apollo.agent1 = { qualified: gate.accepted.length, missing: gate.missing,
+      rejected: gate.rejected.length, nextAction: gate.nextAction, source: 'APOLLO_SAVED_CONTACTS_UNCONFIRMED' };
   } catch (err) {
     report.apollo.note = err.code || 'APOLLO_REQUEST_FAILED';
   }
@@ -142,6 +147,7 @@ function buildMessage() {
     `📲 Telegram webhook: ${tg.webhookConfigured === true ? 'CONFIGURADO' : 'PENDIENTE/REVISAR'}`,
     `🔥 Explee hot leads visibles: ${report.explee.hotLeads ?? 'N/D'}`,
     `🎯 Apollo contactos guardados visibles: ${report.apollo.savedContacts ?? 'N/D'}`,
+    `Agente 1: validados ${report.apollo.agent1?.qualified ?? 'N/D'}/5 | siguiente: ${report.apollo.agent1?.nextAction ?? 'SOURCE_UNAVAILABLE'}`,
     `💵 Cobros verificados en checkout de producción: ${progress.cashCollectedUsd === null ? 'N/D' : '$' + progress.cashCollectedUsd.toFixed(2)}`,
     `📄 Órdenes pagadas verificadas: ${progress.paidOrders ?? 'N/D'}`,
     `🏢 Empresas en investigación RSI-01: ${progress.cohort?.stageCounts?.Researching ?? 'N/D'}`,
