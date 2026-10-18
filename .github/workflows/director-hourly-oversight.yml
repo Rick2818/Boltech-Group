@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: '24'
       - name: Test Director blocker ownership
-        run: node --test tests/test_director_ownership.mjs
+        run: node --test tests/test_director_ownership.mjs tests/test_director_tracking.mjs
       - name: Restore previous blocker history
         uses: actions/cache/restore@v4
         with:
