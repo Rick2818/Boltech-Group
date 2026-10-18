@@ -31,3 +31,10 @@ test('wrong Google account cannot send as commercial sender',async()=>{
   const gmail=createSdrGmail(async u=>({ok:true,json:async()=>u.includes('oauth2')?{access_token:'test',expires_in:3600}:{emailAddress:'other@example.com'}}),env);
   await assert.rejects(gmail.verify(),/SENDER_MISMATCH/);
 });
+test('daily campaign calendar admits Sunday at 09:00 SV while preserving time and legacy weekday boundaries',()=>{
+ const daily=[0,1,2,3,4,5,6];
+ assert.equal(sdrWindow(new Date('2026-10-18T15:00:00Z'),daily).allowed,true);
+ assert.equal(sdrWindow(new Date('2026-10-18T14:59:59Z'),daily).allowed,false);
+ assert.equal(sdrWindow(new Date('2026-10-18T23:00:00Z'),daily).allowed,false);
+ assert.equal(sdrWindow(new Date('2026-10-18T15:00:00Z')).allowed,false);
+});

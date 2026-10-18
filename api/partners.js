@@ -71,7 +71,9 @@ async function createRsi01DailyWorker() {
     import('../lib/rsi01_daily_campaign.js'),import('../lib/rsi_handoff_store.js'),import('../lib/sdr_campaign.js'),
     import('../lib/rsi_agent_executor.js'),import('../lib/store_pagination.js')
   ]);
-  const sender=createSdrDispatch();
+  // Ricardo requested today's daily 09:00 campaign, including Sunday 18 October.
+  // Scope the daily calendar to this five-contact worker; other senders retain weekdays.
+  const sender=createSdrDispatch({sendDays:[0,1,2,3,4,5,6]});
   const listLeads=async()=>{const rows=[];let offset;const next=paginationGuard(1000,20);do{const p=await agentTableRequest('tblZaox2MX5uYA5PZ',{offset});rows.push(...p.records);offset=next(p)}while(offset);return rows};
   return createDailyCampaign({command:redisCommand,execute:input=>createGoogleAdkTeam().run(input),
     campaign:async()=>{const prepared=await(await createRsi01PreparationWorker()).status();if(prepared.state!=='READY'||prepared.selected.length!==5)return {reviewed:0,approvedTotal:prepared.selected.length,eligible:0,cycleStatus:'NO_APPROVED_LEADS',results:[]};const {validateSdrCandidate}=await import('../lib/sdr_dispatch.js');return runExactlyFiveCampaign({selected:prepared.selected,listLeads,validate:validateSdrCandidate,send:c=>sender.run(c),reconcile:id=>sender.reconcile(id)});}});
