@@ -7,11 +7,11 @@ import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
 
 const script=fileURLToPath(new URL('../scripts/ops/audit_director_cycle.mjs',import.meta.url));
-async function audit({blockers=[],prior=[],absent=[],missingRole=false}={}) {
+async function audit({blockers=[],prior=[],absent=[],missingRole=false,resolutions=[]}={}) {
  const dir=await mkdtemp(join(tmpdir(),'boltech-director-'));
  try {
   await mkdir(join(dir,'ops-output'));
-  const results=['RSI-02','RSI-03'].filter(r=>!missingRole||r!=='RSI-02').map(r=>({rsi:r,success:true,receipt:{outcome:'COMPLETED',blockers:r==='RSI-03'?blockers:[]}}));
+  const results=['RSI-02','RSI-03'].filter(r=>!missingRole||r!=='RSI-02').map(r=>({rsi:r,success:true,receipt:{outcome:'COMPLETED',blockers:r==='RSI-03'?blockers:[],resolutions:r==='RSI-03'?resolutions:[]}}));
   await writeFile(join(dir,'ops-output/rsi-agent-execution.json'),JSON.stringify({results,directorNotification:{success:true,status:'NO_VERIFIED_CLOSURE_PENDING'}}));
   await writeFile(join(dir,'ops-output/marketing-autonomy-execution.json'),JSON.stringify({results:[{rsi:'MARKETING',success:true,receipt:{outcome:'COMPLETED',actionCount:2}}]}));
   await writeFile(join(dir,'ops-output/director-blockers-history.json'),JSON.stringify({active:prior,absent}));
@@ -44,4 +44,8 @@ test('unresolved absent blocker survives later hourly cycles',async()=>{
 test('missing agent receipt remains a technical failure',async()=>{
  const {code,report}=await audit({missingRole:true});assert.equal(code,1);
  assert.equal(report.status,'FAILED');assert.equal(report.technicalCycleVerified,false);
+});
+test('verified resolution receipt retires an absent blocker without deleting history manually',async()=>{
+ const {report,code}=await audit({absent:[{role:'RSI-03',code:'COST_EVIDENCE_INCOMPLETE',checks:2}],resolutions:[{code:'COST_EVIDENCE_INCOMPLETE',verified:true,evidenceRef:'cost-ledger-receipt-1',resolvedAt:'2026-10-18T18:00:00Z'}]});
+ assert.equal(code,0);assert.equal(report.status,'VERIFIED');assert.equal(report.tracking.absent.length,0);assert.equal(report.tracking.resolved.length,1);
 });

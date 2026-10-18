@@ -11,7 +11,9 @@ try {
  const noticeOk=notification?.success===true&&typeof notification.status==='string';
  const blockers=results.flatMap(r=>(r.receipt?.blockers||[]).map(code=>({role:r.rsi,code,...remediationFor(code)})));
  let prior=[];try{const history=JSON.parse(await readFile('ops-output/director-blockers-history.json','utf8'));prior=[...new Map([...(history.absent||[]),...(history.active||[])].map(b=>[b.role+':'+b.code,b])).values()];}catch{}
- const tracking=reviewBlockers(prior,blockers,new Date().toISOString());
+ // Only the originating role's current receipt can retire its historical blocker.
+ const resolutions=results.flatMap(r=>(r.success===true&&r.receipt?.outcome==='COMPLETED'&&Array.isArray(r.receipt.resolutions)?r.receipt.resolutions:[]).map(proof=>({...proof,role:r.rsi})));
+ const tracking=reviewBlockers(prior,blockers,new Date().toISOString(),resolutions);
  await writeFile('ops-output/director-blockers-history.json',JSON.stringify(tracking,null,2));
  let marketing={verified:false,code:'MARKETING_RECEIPT_MISSING'};
  try {const m=JSON.parse(await readFile('ops-output/marketing-autonomy-execution.json','utf8'));const row=(m.results||[]).find(x=>x.rsi==='MARKETING');marketing={verified:row?.success===true&&row.receipt?.outcome==='COMPLETED'&&Number(row.receipt?.actionCount)>=2,runId:row?.receipt?.runId||null};if(!marketing.verified)marketing.code='MARKETING_EXECUTION_UNCONFIRMED';}catch{}

@@ -40,3 +40,5 @@ Para los cuatro prospectos sigue pendiente permiso de recontacto sin interés pr
 ## Regresión de integración corregida
 
 La primera validación general detectó MARKETING_FOLLOWUP_ACCOUNT_UNVERIFIED al recorrer los cuatro contactos preparados como si autorizaran trabajo adicional. Se corrige el coordinador existente para preservar la preparación sin ejecutar soporte nuevo y admitir cohortes n8n cuando tengan autorización. Se ejecutaron también las 15 pruebas existentes del coordinador: 46/46 pruebas locales aprobadas en total. La validación completa de GitHub debe pasar antes de integrar.
+
+La revisión detectó además que conservar bloqueos ausentes sin un mecanismo de cierre podía producir alertas permanentes. Se añade retiro explícito mediante `receipt.resolutions` de un ciclo COMPLETED del rol originador: mismo código, `verified:true`, referencia de evidencia y fecha válida. No se retira un bloqueo todavía activo ni uno con prueba incompleta, ajena o futura. Dos regresiones adicionales aprobadas: **48/48 pruebas locales**. Los roles deben emitir esa evidencia; desaparecer de la lista no equivale a resolver.
