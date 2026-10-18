@@ -27,6 +27,7 @@ Los nombres no prueban que los IDs, permisos, colas, estados ni historiales sean
 - `origin/main` en `014e961`: contiene el flujo comercial reciente de Agent 1, RSI-02/03 y Agent 4, además de las mejoras de marketing integradas en ese punto.
 - Tres commits posteriores de `origin/codex/upwork-n8n-supabase-20261018`: `b4e6642` (fuente pública de trabajos n8n), `a18e719` (estado de Flova) y `f8e945a` (cliente MCP oficial de Upwork para Agent 1). Están en la historia de esta rama.
 - Ocho archivos de `origin/migration/asmas-commercial-single-system-20261015`: definiciones A1–A5, runtime y lote ASMAS de staging, adaptador Supabase, documentos de migración, dirección, auditoría y acciones Upwork/Lusha.
+- La rama ASMAS remota está conservada sin modificar; sus ocho commits únicos no se borraron ni se reescribieron.
 
 El branch ASMAS termina el 15 de octubre y no contiene los commits del 17–18 de octubre. La versión local de `main` está atrasada respecto de `origin/main` y tiene modificaciones locales; no actualizarla ni limpiarla como parte de esta integración.
 
@@ -39,6 +40,7 @@ El branch ASMAS termina el 15 de octubre y no contiene los commits del 17–18 d
 5. La fuente pública de empleos n8n es de solo lectura; no acredita una credencial n8n Cloud ni un workflow autorizado.
 6. La documentación de Flova exige habilitar el conector oficial y completar autorización en Codex; el estado de código no demuestra acceso del agente de mercadeo.
 7. Falta prueba E2E de reemplazo para los cinco roles, persistencia/lectura de tareas, reintentos seguros, permisos, recibos y un ciclo completo sobre el único caso QA. No se certifica autonomía ni conexión productiva.
+8. Hay ramas remotas paralelas del 17–18 de octubre que aún no se archivaron: `origin/feat/a4-orchestration-skills-20261018`, `origin/agent1-source-access-validation`, `origin/fix/agent1-auth-preflight-20261018` y las ramas de preparación/verificación de cinco leads, además de correcciones RSI/Director/Mercadeo. Algunas duplican funciones que ya llegaron a `origin/main`; otras agregan roles E1–E4 o QA multiproveedor. Se deben reconciliar archivo por archivo antes de decidir que están reemplazadas. No se importaron ni archivaron a ciegas.
 
 ## Regla de archivado
 
@@ -47,5 +49,6 @@ No archivar worktrees, ramas, agentes ni workflows RSI/BLIA/Marketing existentes
 ## Verificación hecha en esta consolidación
 
 - `node --check` pasó para los tres módulos ASMAS copiados y los módulos principales recientes de Agent 1 (descubrimiento n8n, integración y autorización Upwork).
+- 39 pruebas seleccionadas de Agent 1, Upwork MCP/OAuth, Director, Mercadeo, RSI-02 y sincronización pasaron tras adaptar `tests/test_rsi02_inbox_executor.mjs` para usar solo `config/qa_case.json` y comprobar que no hay mutaciones para QA.
 - No se ejecutó una prueba de runtime ASMAS porque el branch no incluye esquema/migraciones y su ID QA histórico no cumple la regla vigente.
 - No se ejecutaron mensajes, postulaciones, envíos, cobros, despliegues ni escrituras a CRM/Supabase.
