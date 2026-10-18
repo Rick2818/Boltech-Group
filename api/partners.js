@@ -50,6 +50,22 @@ function json(res, status, payload) {
   return res.status(status).json(payload);
 }
 
+async function createRsi01PreparationWorker() {
+ const [{createLeadPreparation},{redisCommand},{agentTableRequest},{paginationGuard},{investigatePublicSite},{validateApolloEmail},{createSdrGmail}] = await Promise.all([
+  import('../lib/rsi01_lead_preparation.js'),import('../lib/rsi_handoff_store.js'),import('../lib/rsi_agent_executor.js'),import('../lib/store_pagination.js'),import('../lib/rsi01_public_research.js'),import('../lib/apollo_client.js'),import('../lib/sdr_gmail.js')]);
+ const listLeads=async()=>{const rows=[];let offset;const next=paginationGuard(1000,20);do{const p=await agentTableRequest('tblZaox2MX5uYA5PZ',{offset});rows.push(...p.records);offset=next(p)}while(offset);return rows};
+ return createLeadPreparation({command:redisCommand,listLeads,readLead:async id=>(await listLeads()).find(l=>l.id===id),
+  writeLead:(id,fields)=>agentTableRequest('tblZaox2MX5uYA5PZ',{method:'PATCH',body:{records:[{id,fields}]}}),
+  investigate:investigatePublicSite,validateEmail:validateApolloEmail,gmail:createSdrGmail(),
+  apollo:async()=>{
+   const key='boltech:rsi01:apollo-inventory';const raw=await redisCommand(['GET',key]);
+   if(raw){const cached=JSON.parse(raw);if(Date.now()-Date.parse(cached.observedAt)>=0&&Date.now()-Date.parse(cached.observedAt)<600000)return cached;}
+   const batch=await createApolloClient().listSavedContacts({perPage:100,maxPages:20,budgetMs:15000});
+   const snapshot={complete:batch.complete,contacts:batch.contacts.map(c=>({domain:c.domain})),observedAt:batch.observedAt};
+   await redisCommand(['SET',key,JSON.stringify(snapshot)]);return snapshot;
+  }});
+}
+
 async function createRsi01DailyWorker() {
   const [{createDailyCampaign},{redisCommand},{runApprovedCampaign},{agentTableRequest},{paginationGuard}] = await Promise.all([
     import('../lib/rsi01_daily_campaign.js'),import('../lib/rsi_handoff_store.js'),import('../lib/sdr_campaign.js'),
@@ -58,7 +74,7 @@ async function createRsi01DailyWorker() {
   const sender=createSdrDispatch();
   const listLeads=async()=>{const rows=[];let offset;const next=paginationGuard(1000,20);do{const p=await agentTableRequest('tblZaox2MX5uYA5PZ',{offset});rows.push(...p.records);offset=next(p)}while(offset);return rows};
   return createDailyCampaign({command:redisCommand,execute:input=>createGoogleAdkTeam().run(input),
-    campaign:()=>runApprovedCampaign({listLeads,send:c=>sender.run(c),reconcile:id=>sender.reconcile(id)})});
+    campaign:async()=>{const prepared=await(await createRsi01PreparationWorker()).status();if(prepared.state!=='READY'||prepared.selected.length!==5)return {reviewed:0,approvedTotal:prepared.selected.length,eligible:0,cycleStatus:'NO_APPROVED_LEADS',results:[]};const ids=new Set(prepared.selected.map(l=>l.recordId));return runApprovedCampaign({listLeads:async()=>(await listLeads()).filter(l=>ids.has(l.id)),send:c=>sender.run(c),reconcile:id=>sender.reconcile(id)});}});
 }
 
 function cleanText(value, maxLength = 5000) {
@@ -214,6 +230,12 @@ export default async function partnersHandler(req, res) {
         autonomousOutreachCertified:false,
         endToEndPaymentCertified:false
       });
+    }
+    if(action==='rsi01-prepare') {
+      if(!requireOperationalAuth(req,res))return;
+      if(!['GET','POST'].includes(req.method))return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
+      try{const worker=await createRsi01PreparationWorker();return json(res,200,{success:true,deploymentCommit:process.env.VERCEL_GIT_COMMIT_SHA||null,preparation:await(req.method==='GET'?worker.status():worker.run())});}
+      catch(error){return json(res,503,{success:false,code:/^[A-Z0-9_]+$/.test(error.code||'')?error.code:'PREPARATION_UNCONFIRMED'});}
     }
     if(action==='rsi01-daily') {
       if(!requireOperationalAuth(req,res))return;

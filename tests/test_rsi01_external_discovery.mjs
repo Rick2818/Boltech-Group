@@ -11,3 +11,5 @@ test('reject job searches and product-launch false positives',()=>{
  ]};
  const r=extractPublicSignals(payload,{cutoff:t-100});assert.deepEqual(r.map(x=>x.sourceId),['50129709']);
 });
+
+test('word boundaries admit real expressed request without matching self promotion',()=>{const rows=extractPublicSignals({hits:[{objectID:'123456',title:'Looking for automation for customer support workflow',created_at_i:1792300000},{objectID:'123457',title:'I built my automation tool for customer support',created_at_i:1792300000}]});assert.equal(rows.length,1);assert.equal(rows[0].contactEligible,false);});

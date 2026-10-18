@@ -46,3 +46,9 @@ test('Salvador midnight defines the day; status reads do not execute',async()=>{
  assert.equal(campaignDay('2026-10-18T05:59:59Z'),'2026-10-17');assert.equal(campaignDay('2026-10-18T06:00:00Z'),'2026-10-18');
  const f=fixture();assert.equal((await f.worker.status()).state,'NOT_STARTED');assert.deepEqual(f.counts(),{executions:0,sends:0});
 });
+test('zero-attempt finished diagnosis can resume after preparing the queue; uncertain sends stay held',async()=>{
+ let approved=false,executions=0;
+ const f=fixture({execute:async()=>{executions++;return {receipt:{outcome:'COMPLETED'}}},campaign:async()=>approved?{cycleStatus:'EXECUTED',reviewed:5,approvedTotal:5,eligible:5,results:Array.from({length:5},()=>({status:'SENT',attempted:true}))}:{cycleStatus:'NO_APPROVED_LEADS',reviewed:0,approvedTotal:0,eligible:0,results:[]}});
+ assert.equal((await f.worker.run()).status,'ATTENTION');approved=true;
+ const next=await f.worker.run();assert.equal(next.campaign.sent,5);assert.equal(next.status,'EXECUTED');assert.equal(executions,2);assert.equal((await f.worker.run()).reused,true);
+});

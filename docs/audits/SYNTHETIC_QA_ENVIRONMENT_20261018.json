@@ -1,0 +1,183 @@
+{
+  "status": "ISOLATED_QA_PASS",
+  "virtualMessages": 1,
+  "realEmails": 0,
+  "productionWrites": 0,
+  "payments": 0,
+  "transport": "LOCAL_SIMULATED",
+  "agent2AutonomyCertified": false,
+  "gmailVercelCertified": false,
+  "caseId": "QA-20261018-0900-v2",
+  "reused": false,
+  "agentBlockers": [
+    "LIVE_APOLLO_GMAIL_HISTORY_REQUIRED"
+  ],
+  "receipts": [
+    {
+      "caseId": "QA-20261018-0900-v2",
+      "stage": "AGENT_1",
+      "scope": "ISOLATED_SYNTHETIC_QA",
+      "at": "2026-10-18T14:11:01.261Z",
+      "previous": null,
+      "result": {
+        "schemaVersion": 1,
+        "runId": "RSI-01:2026-10-18T14:11:01.251Z",
+        "rsi": "RSI-01",
+        "engine": "VERCEL_EXECUTOR",
+        "startedAt": "2026-10-18T14:11:01.251Z",
+        "finishedAt": "2026-10-18T14:11:01.257Z",
+        "outcome": "COMPLETED",
+        "tools": [
+          {
+            "name": "airtable_work_read",
+            "status": "VERIFIED",
+            "observedAt": "2026-10-18T14:11:01.252Z"
+          },
+          {
+            "name": "airtable_leads_read",
+            "status": "VERIFIED",
+            "observedAt": "2026-10-18T14:11:01.253Z"
+          },
+          {
+            "name": "marketing_material_sales_review",
+            "status": "VERIFIED",
+            "observedAt": "2026-10-18T14:11:01.254Z"
+          },
+          {
+            "name": "rsi01_existing_company_discovery",
+            "status": "VERIFIED",
+            "observedAt": "2026-10-18T14:11:01.256Z"
+          },
+          {
+            "name": "rsi01_case_research_executor",
+            "status": "VERIFIED",
+            "observedAt": "2026-10-18T14:11:01.256Z"
+          },
+          {
+            "name": "rsi01_work_refresh_after_research",
+            "status": "VERIFIED",
+            "observedAt": "2026-10-18T14:11:01.256Z"
+          },
+          {
+            "name": "asmas_rsi01_research_watchdog",
+            "status": "VERIFIED",
+            "observedAt": "2026-10-18T14:11:01.257Z"
+          },
+          {
+            "name": "rsi01_authorized_followup_dispatch",
+            "status": "VERIFIED",
+            "observedAt": "2026-10-18T14:11:01.257Z"
+          },
+          {
+            "name": "rsi01_customer_reply_handoff",
+            "status": "VERIFIED",
+            "observedAt": "2026-10-18T14:11:01.257Z"
+          }
+        ],
+        "actionCount": 10,
+        "blockers": [
+          "LIVE_APOLLO_GMAIL_HISTORY_REQUIRED"
+        ]
+      },
+      "digest": "b959da41cc516374873827e29e03f3a6c6eec844eec5a2149363da009ebabade"
+    },
+    {
+      "caseId": "QA-20261018-0900-v2",
+      "stage": "QA_MAIL",
+      "scope": "ISOLATED_SYNTHETIC_QA",
+      "at": "2026-10-18T14:11:01.262Z",
+      "previous": "b959da41cc516374873827e29e03f3a6c6eec844eec5a2149363da009ebabade",
+      "result": {
+        "message": {
+          "id": "QA-20261018-0900-v2-mail",
+          "to": "cliente@boltech.invalid",
+          "from": "agente1@boltech.invalid",
+          "subject": "CLIENTE SINTÉTICO",
+          "transport": "LOCAL_SIMULATED",
+          "providerMessageId": null
+        },
+        "campaign": {
+          "schemaVersion": 1,
+          "day": "2026-10-18",
+          "state": "FINISHED",
+          "startedAt": "2026-10-18T14:11:01.250Z",
+          "status": "EXECUTED",
+          "agentOutcome": "COMPLETED",
+          "agentRunId": "RSI-01:2026-10-18T14:11:01.251Z",
+          "campaign": {
+            "reviewed": 1,
+            "approvedTotal": 1,
+            "eligible": 1,
+            "attempted": 1,
+            "sent": 1,
+            "uncertain": 0,
+            "blocked": 0,
+            "status": "EXECUTED"
+          },
+          "finishedAt": "2026-10-18T14:11:01.260Z",
+          "reused": false
+        }
+      },
+      "digest": "85a01f2f2984283f1872cd867259122a8ed9341d957d8a9fbc6edb55887c78ec"
+    },
+    {
+      "caseId": "QA-20261018-0900-v2",
+      "stage": "QA_HANDOFF",
+      "scope": "ISOLATED_SYNTHETIC_QA",
+      "at": "2026-10-18T14:11:01.264Z",
+      "previous": "85a01f2f2984283f1872cd867259122a8ed9341d957d8a9fbc6edb55887c78ec",
+      "result": {
+        "handoffId": "QA-20261018-0900-v2-A1-A2",
+        "opportunityId": "QA-20261018-0900-v2",
+        "from": "RSI-01",
+        "to": "RSI-02",
+        "owner": "RSI-02",
+        "reason": "Cliente Sintético: QA harness handoff; not a buyer reply",
+        "evidenceRef": "QA-20261018-0900-v2-mail",
+        "fingerprint": "95252204822101fc776ce5f0c958a1e4eade21aee7777c59cfb3f855ccbb2214",
+        "state": "COMPLETED",
+        "version": 3,
+        "updatedAt": "2026-10-18T14:11:01.264Z",
+        "events": [
+          {
+            "state": "PENDING",
+            "owner": "RSI-02",
+            "evidenceRef": "QA-20261018-0900-v2-mail",
+            "timestamp": "2026-10-18T14:11:01.263Z"
+          },
+          {
+            "state": "ACCEPTED",
+            "owner": "RSI-02",
+            "evidenceRef": "QA-20261018-0900-v2-mail",
+            "timestamp": "2026-10-18T14:11:01.264Z"
+          },
+          {
+            "state": "COMPLETED",
+            "owner": "RSI-02",
+            "evidenceRef": "QA-20261018-0900-v2-mail",
+            "timestamp": "2026-10-18T14:11:01.264Z"
+          }
+        ]
+      },
+      "digest": "69c64942b65f0c7aa80209da11cc9b20fd624c5b4576d2d69cf4ddec34402017"
+    },
+    {
+      "caseId": "QA-20261018-0900-v2",
+      "stage": "SUMMARY",
+      "scope": "ISOLATED_SYNTHETIC_QA",
+      "at": "2026-10-18T14:11:01.265Z",
+      "previous": "69c64942b65f0c7aa80209da11cc9b20fd624c5b4576d2d69cf4ddec34402017",
+      "result": {
+        "status": "ISOLATED_QA_PASS",
+        "virtualMessages": 1,
+        "realEmails": 0,
+        "productionWrites": 0,
+        "payments": 0,
+        "transport": "LOCAL_SIMULATED",
+        "agent2AutonomyCertified": false,
+        "gmailVercelCertified": false
+      },
+      "digest": "cc768b678d6c973ae40d7b480647c10bbf49c91d900468243733c75db0f93ffe"
+    }
+  ]
+}
