@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {planMarketingActions,MARKETING_SKILLS} from '../lib/marketing_autonomy.js';
+test('Marketing prioritizes actual replies and safely excludes suppressions and QA',()=>{
+ const leads=[{id:'rec1',fields:{Name:'Cold', 'Contact Email':'cold@example.org'}},{id:'rec2',fields:{Name:'Reply','Commercial Stage':'Replied','Contact Email':'reply@example.org'}},{id:'rec3',fields:{Name:'Block','Do Not Contact':true}},{id:'rec4',fields:{Name:'QA','Data Quality':'QA'}}];
+ const p=planMarketingActions(leads);assert.equal(p.observed,2);assert.equal(p.selected[0].leadId,'rec2');assert.equal(p.selected[0].owner,'RSI-02');assert.equal(p.sendingPerformed,false);assert.equal(p.customerInterestInferred,false);assert.ok(MARKETING_SKILLS.includes('MESSAGE_PERSONALIZATION'));
+});

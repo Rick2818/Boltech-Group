@@ -13,8 +13,10 @@ try {
  let prior=[];try{prior=JSON.parse(await readFile('ops-output/director-blockers-history.json','utf8')).active||[];}catch{}
  const tracking=reviewBlockers(prior,blockers,new Date().toISOString());
  await writeFile('ops-output/director-blockers-history.json',JSON.stringify(tracking,null,2));
+ let marketing={verified:false,code:'MARKETING_RECEIPT_MISSING'};
+ try {const m=JSON.parse(await readFile('ops-output/marketing-autonomy-execution.json','utf8'));const row=(m.results||[]).find(x=>x.rsi==='MARKETING');marketing={verified:row?.success===true&&row.receipt?.outcome==='COMPLETED'&&Number(row.receipt?.actionCount)>0,runId:row?.receipt?.runId||null};if(!marketing.verified)marketing.code='MARKETING_EXECUTION_UNCONFIRMED';}catch{}
  const urgent=blockers.length>0;
- report={checkedAt:new Date().toISOString(),status:validated&&noticeOk?'VERIFIED':'FAILED',agents:roles.map(role=>({role,verified:results.some(r=>r.rsi===role&&r.success===true&&r.receipt?.outcome==='COMPLETED')})),notification:notification?.status||'UNCONFIRMED',blockers,tracking,requiresCommercialAttention:urgent,followupRequired:urgent,nextAction:urgent?'Agent 4 must track these owner-assigned blockers in the next hourly cycle.':'Continue hourly oversight.',reason:validated&&noticeOk?null:'AGENT_OR_DIRECTOR_RECEIPT_UNCONFIRMED',saleInferred:false};
+ report={checkedAt:new Date().toISOString(),status:validated&&noticeOk&&marketing.verified?'VERIFIED':'FAILED',agents:roles.map(role=>({role,verified:results.some(r=>r.rsi===role&&r.success===true&&r.receipt?.outcome==='COMPLETED')})),notification:notification?.status||'UNCONFIRMED',marketing,blockers,tracking,requiresCommercialAttention:urgent,followupRequired:urgent,nextAction:urgent?'Agent 4 must track these owner-assigned blockers in the next hourly cycle.':'Continue hourly oversight.',reason:validated&&noticeOk&&marketing.verified?null:'AGENT_MARKETING_OR_DIRECTOR_RECEIPT_UNCONFIRMED',saleInferred:false};
 }catch(e){report.errorCode='MISSING_OR_INVALID_RECEIPT';}
 await mkdir('ops-output',{recursive:true});
 await writeFile('ops-output/director-hourly-audit.json',JSON.stringify(report,null,2));
