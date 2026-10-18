@@ -6,6 +6,7 @@ on:
       - 'tests/test_agent1_lead_gate.mjs'
       - 'tests/test_agent1_discovery.mjs'
       - 'scripts/commercial/agent1_autonomous_discovery.mjs'
+      - '.github/workflows/agent1_autonomous_discovery.yml'
       - '.github/workflows/agent1_lead_gate_qa.yml'
   pull_request:
     paths:
@@ -21,4 +22,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - run: node --check scripts/commercial/agent1_autonomous_discovery.mjs
       - run: node --test tests/test_agent1_lead_gate.mjs tests/test_agent1_discovery.mjs
