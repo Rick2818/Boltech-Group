@@ -10,6 +10,8 @@ on:
       - 'scripts/ops/audit_director_cycle.mjs'
       - 'lib/marketing_autonomy.js'
       - 'tests/test_marketing_autonomy.mjs'
+      - 'lib/marketing_autonomy.js'
+      - 'tests/test_marketing_autonomy.mjs'
 permissions:
   contents: read
 concurrency:
