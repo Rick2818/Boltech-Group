@@ -4,6 +4,8 @@ on:
     paths:
       - 'scripts/commercial/agent1_lead_gate.mjs'
       - 'tests/test_agent1_lead_gate.mjs'
+      - 'tests/test_agent1_discovery.mjs'
+      - 'scripts/commercial/agent1_autonomous_discovery.mjs'
       - '.github/workflows/agent1_lead_gate_qa.yml'
   pull_request:
     paths:
@@ -19,4 +21,4 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test tests/test_agent1_lead_gate.mjs
+      - run: node --test tests/test_agent1_lead_gate.mjs tests/test_agent1_discovery.mjs
