@@ -48,6 +48,10 @@ import intelHandler from './intel.js';
 import leadHandler from './lead.js';
 import scanHandler from './scan.js';
 import partnersHandler from './partners.js';
+import { createUpworkOAuthHandler } from '../lib/upwork_oauth.js';
+import { getRedisClient } from '../lib/distributed_cache.js';
+import { requireOperationalAuth } from '../lib/operational_auth.js';
+const upworkOAuthHandler = createUpworkOAuthHandler({ getRedis:getRedisClient, requireAuth:requireOperationalAuth });
 
 export default async function handler(req, res) {
   applyStrictBankingHeaders(res);
@@ -68,6 +72,12 @@ export default async function handler(req, res) {
   try {
     const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
     const pathname = url.pathname;
+
+    const upworkOAuthAction = pathname === '/api/upwork/callback' ? 'callback' :
+      pathname === '/api/upwork/authorize' ? 'start' : url.searchParams.get('upwork_oauth');
+    if (['callback','start'].includes(upworkOAuthAction)) {
+      return await upworkOAuthHandler(req,res,upworkOAuthAction);
+    }
 
     // MCP remoto consolidado en api/index para respetar el límite de funciones de Vercel Hobby.
     if (url.searchParams.get('mcp') === '1' || pathname === '/api/mcp' || pathname.endsWith('/mcp')) {
@@ -372,3 +382,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+

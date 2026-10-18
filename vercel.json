@@ -4,6 +4,14 @@
   "trailingSlash": false,
   "rewrites": [
     {
+      "source": "/api/upwork/callback",
+      "destination": "/api/index?upwork_oauth=callback"
+    },
+    {
+      "source": "/api/upwork/authorize",
+      "destination": "/api/index?upwork_oauth=start"
+    },
+    {
       "source": "/api/mcp",
       "destination": "/api/index?mcp=1"
     },
@@ -142,3 +150,4 @@
     }
   ]
 }
+

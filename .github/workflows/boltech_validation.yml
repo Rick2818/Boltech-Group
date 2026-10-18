@@ -37,6 +37,8 @@ jobs:
           if-no-files-found: warn
       - name: Check server module syntax
         run: npm run build
+      - name: Verify Upwork OAuth callback safety
+        run: node --test tests/test_upwork_oauth.mjs
       - name: Measure partner, truth, payment and MCP safeguards
         run: node scripts/quality/improvement_cycle.mjs
       - name: Verify retired outbound cannot dispatch
@@ -51,3 +53,4 @@ jobs:
           path: artifacts/improvement-cycle/
           if-no-files-found: warn
           retention-days: 30
+
