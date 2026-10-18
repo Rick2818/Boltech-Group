@@ -3,6 +3,8 @@ on:
   schedule:
     - cron: '30,45 14 * * *'
     - cron: '0 15 * * *'
+    - cron: '15,30,45 15 * * *'
+    - cron: '0 16 * * *'
   workflow_dispatch:
   push:
     branches: [main]
