@@ -1,6 +1,7 @@
 name: ASMAS RSI-01 09:00 SV watchdog
 on:
   schedule:
+    - cron: '30,45 14 * * *'
     - cron: '0 15 * * *'
   workflow_dispatch:
   push:
@@ -10,6 +11,8 @@ on:
       - 'lib/rsi01_research_executor.js'
       - 'lib/rsi01_public_research.js'
       - 'lib/rsi01_daily_campaign.js'
+      - 'lib/rsi01_lead_preparation.js'
+      - 'scripts/ops/prepare_five_leads.mjs'
       - 'scripts/ops/run_daily_campaign.mjs'
       - 'lib/rsi_marketing_cycle.js'
   pull_request:
@@ -22,6 +25,8 @@ on:
       - 'lib/rsi_agent_executor.js'
       - 'lib/sdr_campaign.js'
       - 'lib/rsi01_daily_campaign.js'
+      - 'lib/rsi01_lead_preparation.js'
+      - 'scripts/ops/prepare_five_leads.mjs'
       - 'scripts/ops/run_daily_campaign.mjs'
       - 'tests/test_rsi01_daily_campaign.mjs'
       - 'api/partners.js'
@@ -35,7 +40,7 @@ concurrency:
 jobs:
   watchdog:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -44,7 +49,7 @@ jobs:
       - name: Install dependencies
         run: npm ci --ignore-scripts
       - name: Verify research watchdog and SDR campaign
-        run: node --test tests/test_asmas_research_watchdog.mjs tests/test_rsi01_research_executor.mjs tests/test_rsi01_public_research.mjs tests/test_sdr_campaign.mjs tests/test_rsi01_daily_campaign.mjs
+        run: node --test tests/test_asmas_research_watchdog.mjs tests/test_rsi01_research_executor.mjs tests/test_rsi01_public_research.mjs tests/test_sdr_campaign.mjs tests/test_rsi01_daily_campaign.mjs tests/test_rsi01_lead_preparation.mjs tests/test_rsi01_external_discovery.mjs
       # Intake must finish before RSI-01 checks the approved queue.
       # Intake never grants approval or sends mail.
       - name: Execute Marketing intake before RSI-01
@@ -54,8 +59,13 @@ jobs:
           RSI_EXECUTION_ROLES: 'MARKETING'
           RSI_EXPECT_DEPLOYMENT_SHA: ''
         run: node scripts/ops/run_rsi_agents.mjs
-      - name: Execute daily RSI-01 campaign with shared durable receipt
+      - name: Prepare exactly five complete leads before dispatch
         if: ${{ !cancelled() && github.event_name != 'pull_request' }}
+        env:
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+        run: node scripts/ops/prepare_five_leads.mjs
+      - name: Execute daily RSI-01 campaign with shared durable receipt
+        if: ${{ success() && github.event_name != 'pull_request' && github.event_name != 'push' && github.event.schedule != '30,45 14 * * *' }}
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
           RSI_EXPECT_DEPLOYMENT_SHA: ''
@@ -83,6 +93,7 @@ jobs:
         with:
           name: asmas-rsi01-9am-${{ github.run_id }}
           path: |
+            ops-output/rsi01-five-preparation.json
             ops-output/rsi-agent-execution.json
             ops-output/rsi01-daily-campaign.json
             ops-output/rsi01-research-execution.json
