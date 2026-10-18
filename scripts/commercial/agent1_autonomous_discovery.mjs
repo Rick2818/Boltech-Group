@@ -13,10 +13,36 @@ await source('apollo',apolloConfigured,async()=>{
  const data=await createApolloClient().listSavedContacts({perPage:50,maxPages:2,budgetMs:25000});
  return data.contacts.map(x=>({...x,sourceVerified:true}));
 });
-await source('lusha',false,async()=>[]); // No supported authenticated search adapter yet
+await source('lusha',Boolean(process.env.LUSHA_API_KEY),async()=>{
+  // Read-only, bounded search; returned records remain unqualified pending independent verification.
+  const response=await fetch('https://api.lusha.com/prospecting/contact/search',{
+    method:'POST',redirect:'error',signal:AbortSignal.timeout(12000),
+    headers:{api_key:process.env.LUSHA_API_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify({pages:{page:0,size:5},filters:{contacts:{include:{departments:['Operations']}}}})
+  });
+  if(!response.ok) throw Object.assign(new Error('LUSHA_HTTP_ERROR'),{code:'LUSHA_HTTP_'+response.status});
+  const data=await response.json();
+  const rows=Array.isArray(data.contacts)?data.contacts:Array.isArray(data.results)?data.results:[];
+  return rows.slice(0,5).map(x=>({source:'LUSHA',sourceVerified:false,
+    company:x.company?.name||x.companyName||'',name:x.name||'',title:x.title||'',contactEmail:x.email||'',
+    domain:x.company?.domain||'',businessNeed:'',emailValidation:{mailboxConfirmed:false}}));
+});
 await source('upwork',false,async()=>[]); // Requires approved account/API; never scrape private pages
 await source('n8n',false,async()=>[]); // Integration requires approved authenticated workflow contract
-await source('internet',false,async()=>[]); // No evidence-bearing contact discovery feed configured
+await source('internet',Boolean(process.env.TAVILY_API_KEY),async()=>{
+  const response=await fetch('https://api.tavily.com/search',{
+    method:'POST',redirect:'error',signal:AbortSignal.timeout(12000),
+    headers:{Authorization:'Bearer '+process.env.TAVILY_API_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify({query:'US B2B manufacturers manual quotation process automation',search_depth:'basic',max_results:5,include_answer:false})
+  });
+  if(!response.ok) throw Object.assign(new Error('WEB_SEARCH_HTTP_ERROR'),{code:'WEB_SEARCH_HTTP_'+response.status});
+  const data=await response.json();
+  // Search results are evidence leads to research, not contact or buyer records.
+  return (Array.isArray(data.results)?data.results:[]).slice(0,5).map(x=>({
+    source:'TAVILY_WEB',sourceUrl:x.url||'',company:'',name:'',title:'',contactEmail:'',
+    domain:'',businessNeed:'',sourceVerified:false,emailValidation:{mailboxConfirmed:false}
+  }));
+});
 const gate=selectFiveLeads(candidates);
 const receipt={schema:'boltech.agent1.discovery.v1',timestamp:new Date().toISOString(),mode:'READ_ONLY',
  sources,observed:candidates.length,qualified:gate.accepted.length,missing:gate.missing,
