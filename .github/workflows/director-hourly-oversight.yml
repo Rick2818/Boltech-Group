@@ -22,6 +22,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - name: Test Director blocker ownership
+        run: node --test tests/test_director_ownership.mjs
       - name: Run commercial consumers and Director payment notification cycle
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
