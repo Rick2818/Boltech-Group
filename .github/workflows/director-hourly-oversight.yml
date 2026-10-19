@@ -3,13 +3,6 @@ on:
   schedule:
     - cron: '10 * * * *'
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/director-hourly-oversight.yml'
-      - 'scripts/ops/audit_director_cycle.mjs'
-      - 'lib/marketing_autonomy.js'
-      - 'tests/test_marketing_autonomy.mjs'
 permissions:
   contents: read
 concurrency:
