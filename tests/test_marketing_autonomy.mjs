@@ -1,3 +1,4 @@
+import './test_marketing_distribution.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import {planMarketingActions,buildMarketingBrief,marketingBriefForRole,MARKETING_SKILLS} from '../lib/marketing_autonomy.js';
 test('Marketing prioritizes actual replies and safely excludes suppressions and QA',()=>{
  const leads=[{id:'rec1',fields:{Name:'Cold', 'Contact Email':'cold@example.org'}},{id:'rec2',fields:{Name:'Reply','Commercial Stage':'Replied','Contact Email':'reply@example.org'}},{id:'rec3',fields:{Name:'Block','Do Not Contact':true}},{id:'rec4',fields:{Name:'QA','Data Quality':'QA'}}];
