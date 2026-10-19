@@ -34,3 +34,19 @@ test('Campaign deliverable is retrieved by all three sales executors without aut
  }
  assert.equal(marketingBriefForRole([], 'RSI-01').status,'NOT_PUBLISHED');
 });
+
+test('Synthetic commercial handoff: Marketing -> A1 -> A2 -> A3, with safe holds',()=>{
+ const lead={id:'recSyntheticIsolated',fields:{Name:'Synthetic customer',Country:'United States','Commercial Stage':'Replied','Contact Email':'qa@example.invalid'}};
+ const p=buildMarketingBrief(planMarketingActions([lead]));
+ const published=[{fields:{'Work ID':'BOOTSTRAP:MARKETING',Evidence:'[MARKETING_TEAM_SUPPORT_V1]'+JSON.stringify({marketingBrief:p})+'[/MARKETING_TEAM_SUPPORT_V1]'}}];
+ const a1=marketingBriefForRole(published,'RSI-01');
+ const a2=marketingBriefForRole(published,'RSI-02');
+ const a3=marketingBriefForRole(published,'RSI-03');
+ assert.equal(a1.status,'AVAILABLE_FOR_REVIEW');
+ assert.equal(a2.status,'AVAILABLE_FOR_REVIEW');
+ assert.equal(a3.status,'AVAILABLE_FOR_REVIEW');
+ assert.equal(a2.brief.recommendations.length,0); // synthetic records are excluded from targeting
+ for(const role of [a1,a2,a3])assert.equal(role.brief.sendingAuthorized,false);
+ assert.equal(p.director.status,'REVIEW_REQUIRED');
+ assert.equal(p.campaigns.every(c=>c.metrics.sent===null&&c.metrics.paid===null),true);
+});
