@@ -1,4 +1,4 @@
-import test from 'node:test';import assert from 'node:assert/strict';import {planMarketingActions,buildMarketingBrief,MARKETING_SKILLS} from '../lib/marketing_autonomy.js';
+import test from 'node:test';import assert from 'node:assert/strict';import {planMarketingActions,buildMarketingBrief,marketingBriefForRole,MARKETING_SKILLS} from '../lib/marketing_autonomy.js';
 test('Marketing prioritizes actual replies and safely excludes suppressions and QA',()=>{
  const leads=[{id:'rec1',fields:{Name:'Cold', 'Contact Email':'cold@example.org'}},{id:'rec2',fields:{Name:'Reply','Commercial Stage':'Replied','Contact Email':'reply@example.org'}},{id:'rec3',fields:{Name:'Block','Do Not Contact':true}},{id:'rec4',fields:{Name:'QA','Data Quality':'QA'}}];
  const p=planMarketingActions(leads);assert.equal(p.observed,2);assert.equal(p.selected[0].leadId,'rec2');assert.equal(p.selected[0].owner,'RSI-02');assert.equal(p.sendingPerformed,false);assert.equal(p.customerInterestInferred,false);assert.ok(MARKETING_SKILLS.includes('MESSAGE_PERSONALIZATION'));
@@ -14,11 +14,23 @@ test('Marketing excludes internal QA and El Salvador while prioritizing US follo
 test('Marketing produces two campaign briefs with 8 skills, without prospecting or sending',()=>{
  const plan=planMarketingActions([{id:'rec-qa',fields:{Name:'Sample US Company',Country:'United States','Commercial Stage':'Replied','Contact Email':'buyer@example.org'}}]);
  const brief=buildMarketingBrief(plan);
- assert.equal(brief.skillsExecuted.length,8);
+ assert.equal(brief.skillsPackaged.length,8);
  assert.equal(brief.campaigns.length,2);
  assert.equal(brief.enablement[0].recipient,'RSI-02');
  assert.equal(brief.leadSourcingPerformed,false);
  assert.equal(brief.sendingPerformed,false);
  assert.equal(brief.campaigns[0].metrics.paid,null);
  assert.equal(brief.director.status,'REVIEW_REQUIRED');
+});
+
+test('Campaign deliverable is retrieved by all three sales executors without authorizing send',()=>{
+ const p=buildMarketingBrief(planMarketingActions([{id:'recBuyer',fields:{Name:'Buyer','Commercial Stage':'Replied','Contact Email':'buyer@example.org'}}]));
+ const row={fields:{'Work ID':'BOOTSTRAP:MARKETING',Evidence:'[MARKETING_TEAM_SUPPORT_V1]\n'+JSON.stringify({marketingBrief:p})+'\n[/MARKETING_TEAM_SUPPORT_V1]'}};
+ for(const role of ['RSI-01','RSI-02','RSI-03']){
+  const result=marketingBriefForRole([row],role);
+  assert.equal(result.status,'AVAILABLE_FOR_REVIEW');
+  assert.equal(result.brief.sendingAuthorized,false);
+  assert.equal(result.brief.campaigns.length,2);
+ }
+ assert.equal(marketingBriefForRole([], 'RSI-01').status,'NOT_PUBLISHED');
 });
