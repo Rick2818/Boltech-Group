@@ -20,7 +20,7 @@ function fixture(extra = []) {
     return {records:table==='tblHVqUMifOFjlGvj'?structuredClone(rows):[{id:'recLead',fields:{Name:'Actual fixture','Experiment Cohort':'RSI-01','Data Quality':'INCOMPLETE'}}]};
   };
   let tick=0;
-  const options={command,request,now:()=>new Date(Date.parse('2026-10-03T20:05:00Z')+tick++*100).toISOString(),
+  const options={command,request,platformDiscovery:async()=>({sources:[],found:[]}),now:()=>new Date(Date.parse('2026-10-03T20:05:00Z')+tick++*100).toISOString(),
     relay:async()=>({results:[]}),followups:async()=>({enabled:true,results:[{state:'NOT_DUE'}]}),costs:async()=>({complete:false,totalCostUsd:null}),sales:async()=>({paidOrders:0,cashCollectedUsd:0}),partners:async()=>[],referrals:async()=>[],closing:async()=>({state:'WAITING_QUALIFIED_APPROVED_CASE',processed:0}),marketingCycle:async rsi=>rsi==='MARKETING'?{requested:3,accepted:3,used:0,resultsVerified:0}:{reviewed:1,usedBySales:false}};
   return {data,rows,options,request,writes:()=>writes};
 }
@@ -151,4 +151,5 @@ test('API rejects unauthenticated execution and invalid inputs without contactin
   const response=()=>({setHeader(){},status(n){this.code=n;return this;},json(v){this.body=v;return this;}});
   const a=response();await handler({url:'/api/partners?action=rsi-execute',method:'POST',headers:{},body:{}},a);assert.equal(a.code,401);
   const b=response();await handler({url:'/api/partners?action=rsi-execute',method:'POST',headers:{authorization:'Bearer local-test'},body:{rsi:'bad',cycleId:'x'}},b);assert.equal(b.code,400);
+  for(const method of ['GET','POST']){const c=response();await handler({url:'/api/partners?action=rsi01-platform-sources',method,headers:{},body:{subject:{type:'user',id:'attacker'}}},c);assert.equal(c.code,401);}
 });

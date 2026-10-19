@@ -1,6 +1,7 @@
 import { writeFile, mkdir } from 'node:fs/promises';
 import { createApolloClient } from '../../lib/apollo_client.js';
 import { selectFiveLeads } from './agent1_lead_gate.mjs';
+import {discoverN8nJobs,discoverUpworkJobs} from '../../lib/rsi01_platform_sources.js';
 // Read-only prospect discovery. Provider names are not substitutes for access or verified buyers.
 const sources={};const candidates=[];
 async function source(name,enabled,fn){
@@ -27,8 +28,11 @@ await source('lusha',Boolean(process.env.LUSHA_API_KEY),async()=>{
     company:x.company?.name||x.companyName||'',name:x.name||'',title:x.title||'',contactEmail:x.email||'',
     domain:x.company?.domain||'',businessNeed:'',emailValidation:{mailboxConfirmed:false}}));
 });
-await source('upwork',false,async()=>[]); // Requires approved account/API; never scrape private pages
-await source('n8n',false,async()=>[]); // Integration requires approved authenticated workflow contract
+// Public n8n Jobs and official Upwork MCP are independent of Apollo credentials.
+for(const [name,discover] of [['upwork',discoverUpworkJobs],['n8n',discoverN8nJobs]]) {
+ try { const result=await discover(); sources[name]={status:result.status,candidates:result.found.length,reason:result.code||null}; }
+ catch { sources[name]={status:'BLOCKED',reason:'PLATFORM_SOURCE_UNAVAILABLE'}; }
+}
 await source('internet',Boolean(process.env.TAVILY_API_KEY),async()=>{
   const response=await fetch('https://api.tavily.com/search',{
     method:'POST',redirect:'error',signal:AbortSignal.timeout(12000),
