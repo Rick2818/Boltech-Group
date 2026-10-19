@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {discoverN8nJobs,discoverUpworkJobs,discoverPlatformSources,storePlatformResearch} from '../lib/rsi01_platform_sources.js';
+import {discoverN8nJobs,discoverUpworkJobs,discoverPlatformSources,storePlatformResearch,reviewPlatformResearch,getUpworkToken,startUpworkAuthorization} from '../lib/rsi01_platform_sources.js';
 const now='2026-10-19T14:38:00Z';
 const topic=(id,title,extra={})=>({id,title,created_at:'2026-10-18T12:00:00Z',category_id:13,closed:false,...extra});
 const demand=topic(322466,'Looking for n8n automation for customer inquiries');
@@ -37,4 +37,38 @@ test('daily research cap survives a fresh process and does not accumulate five o
  const work=Array.from({length:5},(_,i)=>({fields:{'Work ID':'RSI01:PLATFORM_SIGNAL:N8N_COMMUNITY-'+i,Evidence:JSON.stringify({observedAt:now})}}));
  const r=await storePlatformResearch({work,now,discover:async()=>{throw Error('limit reached')},request:async()=>{throw Error('must not write')}});
  assert.equal(r.dailyLimitReached,true);assert.equal(r.stored,0);
+});
+const connectEnv={UPWORK_CONNECTOR_UID:'mcp.upwork.com/boltech-group',UPWORK_CONNECT_USER_ID:'trusted-owner',VERCEL_OIDC_TOKEN:'private-project-identity'};
+test('managed credentials use fixed Vercel host and trusted server identity, with no redirect',async()=>{
+ let calls=0;
+ const token=await getUpworkToken({env:connectEnv,fetcher:async(url,options)=>{
+  calls++;assert.equal(url,'https://api.vercel.com/v1/connect/token/mcp.upwork.com%2Fboltech-group');assert.equal(options.redirect,'error');
+  assert.equal(options.headers.Authorization,'Bearer private-project-identity');assert.deepEqual(JSON.parse(options.body).subject,{type:'user',id:'trusted-owner'});
+  return {ok:true,json:async()=>({token:'private-provider-token'})};
+ }});assert.equal(calls,1);assert.equal(token,'private-provider-token');
+});
+test('missing runtime identity fails closed instead of falling back to another credential',async()=>{
+ await assert.rejects(getUpworkToken({env:{UPWORK_CONNECTOR_UID:connectEnv.UPWORK_CONNECTOR_UID,UPWORK_MCP_ACCESS_TOKEN:'other-token'},fetcher:()=>{throw Error('must not fetch')}}),/UPWORK_CONNECT_RUNTIME_IDENTITY_REQUIRED/);
+});
+test('provider error details and secrets never reach a discovery receipt',async()=>{
+ const result=await discoverUpworkJobs({env:connectEnv,fetcher:async()=>({ok:false,json:async()=>({error:{code:'user_authorization_required',message:'secret private-project-identity'}})})});
+ assert.equal(result.code,'UPWORK_CONNECT_AUTHORIZATION_REQUIRED');assert.doesNotMatch(JSON.stringify(result),/private-project-identity|secret/);
+});
+test('authorization URLs are restricted to the official Connect origin',async()=>{
+ const options={env:connectEnv,fetcher:async()=>({ok:true,json:async()=>({url:'https://connect.vercel.com/authorize/sca_test'})})};
+ assert.equal((await startUpworkAuthorization(options)).authorizationCompleted,false);
+ await assert.rejects(startUpworkAuthorization({...options,fetcher:async()=>({ok:true,json:async()=>({url:'https://other.example/authorize/test'})})}),/UPWORK_CONNECT_AUTH_URL_INVALID/);
+});
+test('platform research without a Lead ID is consumed exactly once into a durable review packet',async()=>{
+ const item=(await discoverN8nJobs({fetcher:fetcher(),now})).found[0];
+ const work=[{id:'recPlatform',fields:{'Work ID':'RSI01:PLATFORM_SIGNAL:'+item.sourceId,RSI:'RSI-01',Status:'PENDING_RSI01_RESEARCH',Evidence:JSON.stringify(item)}}];
+ const request=async(table,{body})=>{const update=body.records[0];Object.assign(work[0].fields,update.fields);return {records:[work[0]]};};
+ const first=await reviewPlatformResearch({work,request,now});const second=await reviewPlatformResearch({work,request,now});
+ assert.equal(first.assessed,1);assert.equal(second.assessed,0);assert.equal(work[0].fields.Status,'PLATFORM_CONTACT_REVIEW_REQUIRED');
+ const reviewed=JSON.parse(work[0].fields.Evidence);assert.equal(reviewed.review.owner,'RSI-01');assert.equal(reviewed.review.sendingEnabled,false);assert.equal(work[0].fields['Source Record ID'],undefined);assert.equal(reviewed.email,undefined);
+});
+test('malformed platform evidence is terminally rejected and unconfirmed writes are failures',async()=>{
+ const work=[{id:'recBad',fields:{'Work ID':'RSI01:PLATFORM_SIGNAL:UPWORK-2112190523624029251',RSI:'RSI-01',Status:'PENDING_RSI01_RESEARCH',Evidence:'not JSON'}}];
+ const result=await reviewPlatformResearch({work,now,request:async(table,{body})=>{assert.equal(body.records[0].fields.Status,'PLATFORM_RESEARCH_INVALID');return {records:[{id:'recBad',fields:{}}]};}});
+ assert.equal(result.assessed,0);assert.equal(result.failed,1);
 });

@@ -95,6 +95,13 @@ jobs:
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
         run: node scripts/ops/prepare_five_leads.mjs
+      - name: Verify Upwork authentication from the production server
+        if: ${{ !cancelled() && github.event_name != 'pull_request' }}
+        continue-on-error: true
+        env:
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+          UPWORK_START_AUTHORIZATION: ${{ github.event_name == 'push' && '1' || '0' }}
+        run: node scripts/ops/check_platform_sources.mjs
       - name: Execute daily RSI-01 campaign with shared durable receipt
         if: ${{ success() && github.event_name != 'pull_request' && github.event_name != 'push' && github.event.schedule != '0,15,30,45 14 * * 1-5' }}
         env:
@@ -119,5 +126,6 @@ jobs:
             ops-output/rsi-agent-execution.json
             ops-output/rsi01-daily-campaign.json
             ops-output/rsi01-research-execution.json
+            ops-output/platform-source-readiness.json
           if-no-files-found: warn
           retention-days: 30

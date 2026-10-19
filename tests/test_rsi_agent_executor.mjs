@@ -151,4 +151,5 @@ test('API rejects unauthenticated execution and invalid inputs without contactin
   const response=()=>({setHeader(){},status(n){this.code=n;return this;},json(v){this.body=v;return this;}});
   const a=response();await handler({url:'/api/partners?action=rsi-execute',method:'POST',headers:{},body:{}},a);assert.equal(a.code,401);
   const b=response();await handler({url:'/api/partners?action=rsi-execute',method:'POST',headers:{authorization:'Bearer local-test'},body:{rsi:'bad',cycleId:'x'}},b);assert.equal(b.code,400);
+  for(const method of ['GET','POST']){const c=response();await handler({url:'/api/partners?action=rsi01-platform-sources',method,headers:{},body:{subject:{type:'user',id:'attacker'}}},c);assert.equal(c.code,401);}
 });

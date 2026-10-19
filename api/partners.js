@@ -197,6 +197,19 @@ export default async function partnersHandler(req, res) {
 
   try {
     const action = actionFromRequest(req);
+    if(action==='rsi01-platform-sources') {
+      if(!requireOperationalAuth(req,res))return;
+      if(!['GET','POST'].includes(req.method))return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
+      try {
+        const {discoverUpworkJobs,startUpworkAuthorization}=await import('../lib/rsi01_platform_sources.js');
+        if(req.method==='POST')return json(res,200,{success:true,authorization:await startUpworkAuthorization()});
+        const result=await discoverUpworkJobs();
+        return json(res,200,{success:true,deploymentCommit:process.env.VERCEL_GIT_COMMIT_SHA||null,
+          upwork:{source:result.source,status:result.status,...(result.code?{code:result.code}:{}),observed:result.found.length,
+            accountVerified:result.accountVerified===true,managedConnectionConfigured:Boolean(process.env.UPWORK_CONNECTOR_UID),
+            runtimeIdentityPresent:Boolean(process.env.VERCEL_OIDC_TOKEN),sendingEnabled:false}});
+      } catch(error) {return json(res,503,{success:false,code:/^UPWORK_[A-Z0-9_]+$/.test(error.code||'')?error.code:'UPWORK_CONNECTION_UNCONFIRMED'});}
+    }
     if(action==='marketing-multi-source-import') {
       if(!requireOperationalAuth(req,res))return;
       if(req.method!=='POST')return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
