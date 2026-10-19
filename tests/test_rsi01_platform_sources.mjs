@@ -50,6 +50,12 @@ test('managed credentials use fixed Vercel host and trusted server identity, wit
 test('missing runtime identity fails closed instead of falling back to another credential',async()=>{
  await assert.rejects(getUpworkToken({env:{UPWORK_CONNECTOR_UID:connectEnv.UPWORK_CONNECTOR_UID,UPWORK_MCP_ACCESS_TOKEN:'other-token'},fetcher:()=>{throw Error('must not fetch')}}),/UPWORK_CONNECT_RUNTIME_IDENTITY_REQUIRED/);
 });
+test('managed connection reads trusted function context when there is no OIDC environment variable',async()=>{
+ const env={UPWORK_CONNECTOR_UID:connectEnv.UPWORK_CONNECTOR_UID,UPWORK_CONNECT_USER_ID:'trusted-owner'};
+ const token=await getUpworkToken({env,readRuntimeIdentity:()=> 'private-function-context',fetcher:async(url,options)=>{
+  assert.equal(options.headers.Authorization,'Bearer private-function-context');return {ok:true,json:async()=>({token:'provider-token'})};
+ }});assert.equal(token,'provider-token');
+});
 test('provider error details and secrets never reach a discovery receipt',async()=>{
  const result=await discoverUpworkJobs({env:connectEnv,fetcher:async()=>({ok:false,json:async()=>({error:{code:'user_authorization_required',message:'secret private-project-identity'}})})});
  assert.equal(result.code,'UPWORK_CONNECT_AUTHORIZATION_REQUIRED');assert.doesNotMatch(JSON.stringify(result),/private-project-identity|secret/);
