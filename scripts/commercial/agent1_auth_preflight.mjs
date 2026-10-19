@@ -7,7 +7,7 @@ const checks={
  apollo:{configured:has('APOLLO_API_KEY','BoltechVercelCRM'),adapter:'READ_ONLY'},
  lusha:{configured:has('LUSHA_API_KEY'),adapter:'READ_ONLY'},
  internet:{configured:has('TAVILY_API_KEY'),adapter:'READ_ONLY'},
- upwork:{configured:has('UPWORK_MCP_ACCESS_TOKEN'),adapter:'OFFICIAL_MCP_READ_ONLY',legacyApiCredentialsPresent:has('UPWORK_CLIENT_ID')&&has('UPWORK_CLIENT_SECRET')},
+ upwork:{configured:has('UPWORK_MCP_ACCESS_TOKEN')||(has('UPWORK_CONNECTOR_UID')&&has('UPWORK_CONNECT_USER_ID')&&has('VERCEL_OIDC_TOKEN')),adapter:'OFFICIAL_MCP_READ_ONLY',scope:'CURRENT_PROCESS_ONLY',productionDiagnostic:'/api/partners?action=rsi01-platform-sources',legacyApiCredentialsPresent:has('UPWORK_CLIENT_ID')&&has('UPWORK_CLIENT_SECRET')},
  n8n:{configured:true,adapter:'PUBLIC_JOBS_READ_ONLY',instanceMcpConfigured:has('N8N_MCP_URL')&&has('N8N_MCP_TOKEN')&&validHttps(process.env.N8N_MCP_URL)}
 };
 const receipt={type:'AGENT1_AUTH_PREFLIGHT_V1',timestamp:new Date().toISOString(),checks,
