@@ -10,6 +10,8 @@ import {orientReception,receptionSteps} from './reception-guidance.js';
   document.body.append(root);
   const panel=root.querySelector('section'),launch=root.querySelector('.reception-launch'),form=root.querySelector('form'),answer=root.querySelector('#reception-answer'),question=root.querySelector('.reception-question'),log=root.querySelector('.reception-log'),status=root.querySelector('.reception-status'),consent=root.querySelector('.reception-consent'),submit=form.querySelector('button');
   const steps=receptionSteps;
+  const campaignParams=new URLSearchParams(window.location.search);
+  const campaignAttribution={utm_source:campaignParams.get('utm_source'),utm_medium:campaignParams.get('utm_medium'),utm_campaign:campaignParams.get('utm_campaign')};
   let step=0,busy=false;const values={};
   function say(text,who='Boltech'){const p=document.createElement('p');p.textContent=`${who}: ${text}`;log.append(p);log.scrollTop=log.scrollHeight;}
   function render(){const s=steps[step];question.textContent=s[1];answer.type=s[2];answer.maxLength=s[3];answer.value=values[s[0]]||'';consent.hidden=step!==steps.length-1;submit.textContent=step===steps.length-1?'Registrar mi solicitud →':'Continuar →';}
@@ -21,7 +23,7 @@ import {orientReception,receptionSteps} from './reception-guidance.js';
     if(step<steps.length-1){say(value,'Tú');if(step===0)say(orientReception(value));if(step===6)say('Con estas respuestas podemos evaluar el alcance y las integraciones. RSI-01 revisará el caso y RSI-02 validará la solución; aún no hay precio ni viabilidad aprobados para este proceso.');step++;render();answer.focus();return;}
     if(!consent.querySelector('input').checked){status.textContent='Autoriza el contacto para registrar tu solicitud.';return;}
     busy=true;submit.disabled=true;status.textContent='Guardando tu solicitud…';
-    try{const response=await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...values,source:'RSI01_WEB',consent:true})});const data=await response.json();
+    try{const response=await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...values,...campaignAttribution,source:'RSI01_WEB',consent:true})});const data=await response.json();
       if(!response.ok || data.success!==true || data.registration?.status!=='RECORDED' || data.assignment?.owner!=='RSI-01')throw Error(data.error||'No se confirmó el registro.');
       form.hidden=true;status.textContent=`Solicitud registrada. Referencia: ${data.registration.requestId}. RSI-01 revisará tu necesidad para continuar por correo. El seguimiento está pendiente; este registro no confirma una cotización ni un pago.`;
     }catch(error){status.textContent=error.message+' Puedes reintentar con los mismos datos.';}finally{busy=false;submit.disabled=false;}
