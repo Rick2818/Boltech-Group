@@ -1,6 +1,7 @@
 import {readFile,mkdir,writeFile,appendFile} from 'node:fs/promises';
 import {remediationFor} from '../../lib/director_remediation.js';
 import {reviewBlockers} from '../../lib/director_blocker_tracking.js';
+const displayRole=role=>({'RSI-01':'A1','RSI-02':'A2','RSI-03':'A3','MARKETING':'MKT','DIRECTORA':'A4'}[role]||role);
 let report={status:'FAILED',checkedAt:new Date().toISOString(),reason:'DIRECTOR_CYCLE_RECEIPT_MISSING'};
 try {
  const raw=JSON.parse(await readFile('ops-output/rsi-agent-execution.json','utf8'));
@@ -9,20 +10,24 @@ try {
  const validated=roles.every(role=>results.some(r=>r.rsi===role&&r.success===true&&r.receipt?.outcome==='COMPLETED'));
  const notification=raw.directorNotification;
  const noticeOk=notification?.success===true&&typeof notification.status==='string';
- const blockers=results.flatMap(r=>(r.receipt?.blockers||[]).map(code=>({role:r.rsi,code,...remediationFor(code)})));
+ const blockers=results.flatMap(r=>(r.receipt?.blockers||[]).map(code=>({role:r.rsi,agent:displayRole(r.rsi),code,...remediationFor(code)})));
  let prior=[];try{const history=JSON.parse(await readFile('ops-output/director-blockers-history.json','utf8'));prior=[...new Map([...(history.absent||[]),...(history.active||[])].map(b=>[b.role+':'+b.code,b])).values()];}catch{}
  // Only the originating role's current receipt can retire its historical blocker.
  const resolutions=results.flatMap(r=>(r.success===true&&r.receipt?.outcome==='COMPLETED'&&Array.isArray(r.receipt.resolutions)?r.receipt.resolutions:[]).map(proof=>({...proof,role:r.rsi})));
  const tracking=reviewBlockers(prior,blockers,new Date().toISOString(),resolutions);
  await writeFile('ops-output/director-blockers-history.json',JSON.stringify(tracking,null,2));
  let marketing={verified:false,code:'MARKETING_RECEIPT_MISSING'};
- try {const m=JSON.parse(await readFile('ops-output/marketing-autonomy-execution.json','utf8'));const row=(m.results||[]).find(x=>x.rsi==='MARKETING');marketing={verified:row?.success===true&&row.receipt?.outcome==='COMPLETED'&&Number(row.receipt?.actionCount)>=2,runId:row?.receipt?.runId||null};if(!marketing.verified)marketing.code='MARKETING_EXECUTION_UNCONFIRMED';}catch{}
+ try {const m=JSON.parse(await readFile('ops-output/marketing-autonomy-execution.json','utf8'));const row=(m.results||[]).find(x=>x.rsi==='MARKETING');marketing={verified:row?.success===true&&row.receipt?.outcome==='COMPLETED'&&Number(row.receipt?.actionCount)>=2,runId:row?.receipt?.runId||null};if(!marketing.verified)marketing.code=row?.code||m.error||'MARKETING_EXECUTION_UNCONFIRMED';}catch{}
+ // Distribution is only evidenced by independent provider receipts, not brief counts. 
+ const marketingDistributionVerified=false; // No provider delivery receipts are included in this hourly audit. 
  // A completed technical cycle cannot close unresolved commercial blockers.
  // Disappearance from one receipt is not evidence that a blocker was resolved.
  const unresolved=tracking.absent||[];
- const urgent=blockers.length>0||unresolved.length>0;
+ const urgent=blockers.length>0||unresolved.length>0||!marketingDistributionVerified;
+ const roleFailures=roles.filter(role=>!results.some(r=>r.rsi===role&&r.success===true&&r.receipt?.outcome==='COMPLETED')).map(role=>({role,agent:displayRole(role),code:results.find(r=>r.rsi===role)?.code||'ROLE_RECEIPT_MISSING'}));
+ if(!marketing.verified)roleFailures.push({role:'MARKETING',agent:'MKT',code:marketing.code});
  const technicalCycleVerified=validated&&noticeOk&&marketing.verified;
- report={checkedAt:new Date().toISOString(),status:!technicalCycleVerified?'FAILED':urgent?'ATTENTION_REQUIRED':'VERIFIED',scope:'TECHNICAL_OVERSIGHT_ONLY',technicalCycleVerified,customerFollowupVerified:false,agents:roles.map(role=>({role,verified:results.some(r=>r.rsi===role&&r.success===true&&r.receipt?.outcome==='COMPLETED')})),notification:notification?.status||'UNCONFIRMED',marketing,blockers,tracking,requiresCommercialAttention:urgent,followupRequired:urgent,nextAction:urgent?'Agent 4 must obtain owner action and resolution evidence for active or absent blockers in the next hourly cycle. A completed cycle is not a sent customer follow-up.':'Continue hourly oversight; verify customer sends separately through provider receipts.',reason:!technicalCycleVerified?'AGENT_MARKETING_OR_DIRECTOR_RECEIPT_UNCONFIRMED':urgent?'COMMERCIAL_BLOCKERS_UNRESOLVED':null,saleInferred:false};
+ report={checkedAt:new Date().toISOString(),status:!technicalCycleVerified?'FAILED':urgent?'ATTENTION_REQUIRED':'VERIFIED',scope:'TECHNICAL_OVERSIGHT_ONLY',supervisor:'A4',technicalCycleVerified,customerFollowupVerified:false,agents:roles.map(role=>({role,agent:displayRole(role),verified:results.some(r=>r.rsi===role&&r.success===true&&r.receipt?.outcome==='COMPLETED')})),notification:notification?.status||'UNCONFIRMED',marketing,marketingDistributionVerified,roleFailures,blockers,tracking,requiresCommercialAttention:urgent,followupRequired:urgent,nextAction:urgent?'Agent 4 must obtain owner action and resolution evidence for active or absent blockers in the next hourly cycle. A completed cycle is not a sent customer follow-up.':'Continue hourly oversight; verify customer sends separately through provider receipts.',reason:!technicalCycleVerified?'AGENT_MARKETING_OR_DIRECTOR_RECEIPT_UNCONFIRMED':!marketingDistributionVerified?'MARKETING_DISTRIBUTION_RECEIPTS_MISSING':urgent?'COMMERCIAL_BLOCKERS_UNRESOLVED':null,saleInferred:false};
 }catch(e){report.errorCode='MISSING_OR_INVALID_RECEIPT';}
 await mkdir('ops-output',{recursive:true});
 await writeFile('ops-output/director-hourly-audit.json',JSON.stringify(report,null,2));

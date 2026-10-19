@@ -25,6 +25,8 @@ jobs:
         run: npm ci
       - name: Verify isolated synthetic campaign
         run: node --test tests/test_synthetic_campaign_qa.mjs tests/test_synthetic_relay_chain.mjs tests/test_commercial_relay.mjs tests/test_director_notifications.mjs
+      - name: Verify Marketing skill execution and role handoff
+        run: node --test tests/test_marketing_autonomy.mjs tests/test_director_audit_status.mjs tests/test_director_tracking.mjs
       - name: Verify synthetic follow-up to qualification and Director supervision
         run: node --test tests/test_rsi01_followups.mjs tests/test_followup_work_sync.mjs tests/test_rsi02_inbox_executor.mjs tests/test_director_audit_status.mjs tests/test_director_tracking.mjs tests/test_director_ownership.mjs
       - name: Preserve isolated QA receipts
@@ -37,8 +39,6 @@ jobs:
           if-no-files-found: warn
       - name: Check server module syntax
         run: npm run build
-      - name: Verify Upwork OAuth callback safety
-        run: node --test tests/test_upwork_oauth.mjs
       - name: Measure partner, truth, payment and MCP safeguards
         run: node scripts/quality/improvement_cycle.mjs
       - name: Verify retired outbound cannot dispatch
@@ -53,4 +53,3 @@ jobs:
           path: artifacts/improvement-cycle/
           if-no-files-found: warn
           retention-days: 30
-

@@ -10,8 +10,6 @@ on:
       - 'scripts/ops/audit_director_cycle.mjs'
       - 'lib/marketing_autonomy.js'
       - 'tests/test_marketing_autonomy.mjs'
-      - 'lib/marketing_autonomy.js'
-      - 'tests/test_marketing_autonomy.mjs'
 permissions:
   contents: read
 concurrency:
@@ -42,6 +40,8 @@ jobs:
           RSI_EXPECT_DEPLOYMENT_SHA: ${{ github.sha }}
         run: node scripts/ops/run_rsi_agents.mjs
       - name: Run commercial consumers and Director payment notification cycle
+        # Independent work must run even if Marketing fails; record both failures.
+        if: ${{ always() && !cancelled() }}
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
           RSI_EXECUTION_ROLES: 'RSI-02,RSI-03'
