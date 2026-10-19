@@ -18,7 +18,9 @@ try {
  await writeFile('ops-output/director-blockers-history.json',JSON.stringify(tracking,null,2));
  let marketing={verified:false,code:'MARKETING_RECEIPT_MISSING'};
  try {const m=JSON.parse(await readFile('ops-output/marketing-autonomy-execution.json','utf8'));const row=(m.results||[]).find(x=>x.rsi==='MARKETING');marketing={verified:row?.success===true&&row.receipt?.outcome==='COMPLETED'&&Number(row.receipt?.actionCount)>=2,runId:row?.receipt?.runId||null};if(!marketing.verified)marketing.code=row?.code||m.error||'MARKETING_EXECUTION_UNCONFIRMED';}catch{}
- // Distribution is only evidenced by independent provider receipts, not brief counts.\n const marketingDistributionVerified=false; // No provider delivery receipts are included in this hourly audit.\n // A completed technical cycle cannot close unresolved commercial blockers.
+ // Distribution is only evidenced by independent provider receipts, not brief counts. 
+ const marketingDistributionVerified=false; // No provider delivery receipts are included in this hourly audit. 
+ // A completed technical cycle cannot close unresolved commercial blockers.
  // Disappearance from one receipt is not evidence that a blocker was resolved.
  const unresolved=tracking.absent||[];
  const urgent=blockers.length>0||unresolved.length>0||!marketingDistributionVerified;
