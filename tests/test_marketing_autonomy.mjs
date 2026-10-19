@@ -1,3 +1,4 @@
+import './test_marketing_outreach_channels.mjs';
 import './test_marketing_distribution.mjs';
 import test from 'node:test';import assert from 'node:assert/strict';import {planMarketingActions,buildMarketingBrief,marketingBriefForRole,MARKETING_SKILLS} from '../lib/marketing_autonomy.js';
 test('Marketing prioritizes actual replies and safely excludes suppressions and QA',()=>{
