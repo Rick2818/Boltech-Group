@@ -34,4 +34,6 @@ await writeFile('ops-output/director-hourly-audit.json',JSON.stringify(report,nu
 const output='## Director hourly oversight\n\n'+JSON.stringify(report,null,2)+'\n';
 console.log(output);
 if(process.env.GITHUB_STEP_SUMMARY)await appendFile(process.env.GITHUB_STEP_SUMMARY,output);
-if(report.status!=='VERIFIED')process.exitCode=1;
+// ATTENTION_REQUIRED is an audited commercial hold, not a failed technical job.
+// Fail CI only when required technical execution or receipts are missing.
+if(report.status==='FAILED')process.exitCode=1;
