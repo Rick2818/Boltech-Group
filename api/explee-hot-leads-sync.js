@@ -1,6 +1,6 @@
 // Read-only Explee hot leads -> Supabase. No outreach, paid searches or CRM status promotion.
 const projectId=51973;
-const j=async(r,where)=>{if(!r.ok)throw Error(where+'_HTTP_'+r.status);return r.json()};
+const j=async(r,where)=>{if(!r.ok)throw Error(where+'_HTTP_'+r.status);return r.status===204?null:r.json()};
 export async function syncHotLeads({env=process.env,fetcher=fetch}={}){
  const {EXPLEE_API_KEY,SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY}=env;
  if(!EXPLEE_API_KEY||!SUPABASE_URL||!SUPABASE_SERVICE_ROLE_KEY)throw Error('EXPLEE_SYNC_SECRETS_MISSING');
@@ -14,10 +14,10 @@ export async function syncHotLeads({env=process.env,fetcher=fetch}={}){
   const url=new URL('https://api.explee.com/public/api/v1/autogtm/hot-leads');
   url.searchParams.set('since',since);url.searchParams.set('limit','200');url.searchParams.set('offset',String(offset));
   const reply=await j(await fetcher(url,{headers:{'X-API-Key':EXPLEE_API_KEY}}),'EXPLEE_READ');
-  if(!Array.isArray(reply.hot_leads))throw Error('EXPLEE_UNEXPECTED_RESPONSE_SHAPE');
-  items.push(...reply.hot_leads);
-  if(reply.hot_leads.length<200)break;
-  offset+=200;
+  if(!Array.isArray(reply.leads))throw Error('EXPLEE_UNEXPECTED_RESPONSE_SHAPE');
+  items.push(...reply.leads);
+  if(!reply.has_more)break;
+  offset=reply.next_offset??(offset+reply.leads.length);
   if(offset>=10000)throw Error('EXPLEE_SYNC_PAGE_CAP_REACHED_NO_CURSOR_ADVANCE');
  }
  const ready=items.filter(x=>String(x.project_id??projectId)===String(projectId));
