@@ -4,6 +4,10 @@
   "trailingSlash": false,
   "rewrites": [
     {
+      "source": "/api/marketing-sales-cycle",
+      "destination": "/api/index?marketing_sales_cycle=1"
+    },
+    {
       "source": "/api/explee-hot-leads-sync",
       "destination": "/api/index?explee_hot_leads_sync=1"
     },
