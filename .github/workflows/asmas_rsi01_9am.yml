@@ -1,11 +1,5 @@
 name: ASMAS RSI-01 09:00 SV watchdog
 on:
-  schedule:
-    # 08:00–08:45 SV: research/preparation; 09:00 onward: guarded send.
-    - cron: '0,15,30,45 14 * * 1-5'
-    - cron: '0 15 * * 1-5'
-    - cron: '15,30,45 15 * * 1-5'
-    - cron: '0 16 * * 1-5'
   workflow_dispatch:
   push:
     branches: [main]
