@@ -43,6 +43,7 @@ import telegramHandler from './telegram.js';
 import cronHandler from './cron/master-dispatcher.js';
 import expleeHotLeadsHandler from '../lib/explee_hot_leads_sync.js';
 import marketingCycleHandler from '../lib/marketing_sales_cycle_v2.js';
+import salesCycleHandler from '../lib/agent1_continuous_cycle.js';
 import aiHandler from './ai.js';
 import crmHandler from './crm.js';
 import whatsappHandler from './whatsapp.js';
@@ -84,6 +85,8 @@ export default async function handler(req, res) {
     if (url.searchParams.get('explee_hot_leads_sync') === '1' || pathname === '/api/explee-hot-leads-sync' || pathname.endsWith('/explee-hot-leads-sync')) return await expleeHotLeadsHandler(req,res);
 
     if (pathname === '/api/marketing-sales-cycle' || url.searchParams.get('marketing_sales_cycle') === '1') return await marketingCycleHandler(req,res);
+
+    if (pathname === '/api/agent1-continuous-cycle' || url.searchParams.get('agent1_cycle') === '1') return await salesCycleHandler(req,res);
 
     // MCP remoto consolidado en api/index para respetar el límite de funciones de Vercel Hobby.
     if (url.searchParams.get('mcp') === '1' || pathname === '/api/mcp' || pathname.endsWith('/mcp')) {
