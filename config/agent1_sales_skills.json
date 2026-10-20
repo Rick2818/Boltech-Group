@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "agent": "RSI-01",
+  "executor": "lib/agent1_sales_skills.js",
+  "mode": "DETERMINISTIC_RULES",
+  "modelCalls": 0,
+  "skills": [
+    {
+      "id": "agent1-icp-targeting",
+      "path": ".agents/skills/agent1-icp-targeting/SKILL.md",
+      "method": "planSearch / prepare"
+    },
+    {
+      "id": "agent1-buying-signal-research",
+      "path": ".agents/skills/agent1-buying-signal-research/SKILL.md",
+      "method": "planSearch / prepare"
+    },
+    {
+      "id": "agent1-bant-qualification",
+      "path": ".agents/skills/agent1-bant-qualification/SKILL.md",
+      "method": "prepare"
+    },
+    {
+      "id": "agent1-personalized-outreach",
+      "path": ".agents/skills/agent1-personalized-outreach/SKILL.md",
+      "method": "prepare"
+    },
+    {
+      "id": "agent1-followup-handoff",
+      "path": ".agents/skills/agent1-followup-handoff/SKILL.md",
+      "method": "reviewFollowup"
+    }
+  ]
+}

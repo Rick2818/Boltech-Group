@@ -1,0 +1,6 @@
+interface:
+  display_name: "Cliente ideal y búsqueda"
+  short_description: "Prospección de Boltech con evidencia verificable"
+  default_prompt: "Use $agent1-icp-targeting in the existing Agent 1 workflow."
+policy:
+  allow_implicit_invocation: true

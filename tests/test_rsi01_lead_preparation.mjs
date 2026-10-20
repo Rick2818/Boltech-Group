@@ -6,7 +6,7 @@ function fixture(count=7){
  const options={command,listLeads:async()=>structuredClone(leads),readLead:async id=>structuredClone(leads.find(l=>l.id===id)),writeLead:async(id,fields)=>Object.assign(leads.find(l=>l.id===id).fields,fields),investigate:async lead=>{investigations++;return {state:'PUBLIC_WEBSITE_OBSERVED',operationalSignals:[{type:'QUOTE_INTAKE',sourceUrl:lead.fields['Company URL']}],contactEvidence:[{email:lead.fields['Contact Email'],url:lead.fields['Company URL'],basis:'OFFICIAL_PUBLICATION'}]};},validateEmail:async()=>({mx:true}),gmail:{verify:async()=>({verified:true}),search:async()=>[]},apollo:async()=>({complete:true,contacts:[]}),now:()=> '2026-10-18T14:30:00Z'};
  return {options,leads,kv,worker:createLeadPreparation(options),count:()=>investigations};
 }
-test('stops at exactly five complete distinct companies; fresh instance reuses ledger',async()=>{const f=fixture();for(let i=0;i<5;i++)await f.worker.run();const s=await f.worker.status();assert.equal(s.state,'READY');assert.equal(s.selected.length,5);const n=f.count();assert.equal((await createLeadPreparation(f.options).run()).reused,true);assert.equal(f.count(),n);assert.equal(new Set(s.selected.map(l=>l.domain)).size,5);const packet=JSON.parse(f.leads[0].fields.Notes.match(/\[SDR_CANDIDATE_V1\](.*?)\[\/SDR_CANDIDATE_V1\]/s)[1]);assert.equal(packet.commercialResearch.needConfirmed,false);assert.equal(packet.commercialResearch.salesReview.humanIndividualApproval,false);});
+test('stops at exactly five complete distinct companies; fresh instance reuses ledger',async()=>{const f=fixture();for(let i=0;i<5;i++)await f.worker.run();const s=await f.worker.status();assert.equal(s.state,'READY');assert.equal(s.selected.length,5);const n=f.count();assert.equal((await createLeadPreparation(f.options).run()).reused,true);assert.equal(f.count(),n);assert.equal(new Set(s.selected.map(l=>l.domain)).size,5);const packet=JSON.parse(f.leads[0].fields.Notes.match(/\[SDR_CANDIDATE_V1\](.*?)\[\/SDR_CANDIDATE_V1\]/s)[1]);assert.equal(packet.commercialResearch.needConfirmed,false);assert.equal(packet.commercialResearch.skills.appliedSkills.length,4);assert.equal(packet.commercialResearch.qualification.budget,'UNKNOWN');assert.equal(packet.commercialResearch.qualification.qualified,false);assert.equal(packet.commercialResearch.salesReview.humanIndividualApproval,false);});
 test('rejects missing evidence and replaces candidate instead of counting reviewed inventory',async()=>{const f=fixture();const original=f.options.investigate;f.options.investigate=async l=>l.id==='recLead0'?{state:'SOURCE_UNVERIFIED'}:original(l);const worker=createLeadPreparation(f.options);for(let i=0;i<6;i++)await worker.run();const s=await worker.status();assert.equal(s.state,'READY');assert.equal(s.rejected.length,1);assert.ok(!s.selected.some(l=>l.recordId==='recLead0'));});
 test('external access failure remains blocked, never clear or complete',async()=>{const f=fixture();f.options.apollo=async()=>{throw Object.assign(Error(),{code:'APOLLO_ACCESS_DENIED'})};const s=await createLeadPreparation(f.options).run();assert.equal(s.state,'BLOCKED');assert.equal(s.code,'APOLLO_ACCESS_DENIED');assert.equal(s.selected.length,0);});
 test('transient site failure can recover after cooldown without erasing permanent history',async()=>{
@@ -37,3 +37,13 @@ test('READY package drops revoked approval and refreshes stale history instead o
  assert.match(outreachTopic({type:'APPOINTMENT_BOOKING'})[0],/appointment/i);
  assert.match(outreachTopic({type:'UNKNOWN'})[0],/inquiry/i);
  });
+
+// BANT UNKNOWN is research uncertainty, not a suppression status.
+test('five BANT-unknown candidates refresh stale history back to READY without new inventory',async()=>{
+ const f=fixture(5);for(let i=0;i<5;i++)await f.worker.run();
+ assert.equal((await f.worker.status()).state,'READY');
+ f.options.now=()=> '2026-10-18T15:11:00Z';
+ const resumed=createLeadPreparation(f.options);
+ for(let i=0;i<5;i++)await resumed.run();
+ const refreshed=await resumed.status();assert.equal(refreshed.state,'READY');assert.equal(refreshed.selected.length,5);assert.equal(f.count(),10);
+});
