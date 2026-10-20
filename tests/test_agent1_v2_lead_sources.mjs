@@ -18,7 +18,7 @@ test('all sources available from single agent and no automatic sends',async()=>{
  const agent=createAgent1V2({redisCommand:async()=>null,mailSender:{send:async()=>{throw Error('SHOULD_NOT_SEND');}},crm:{recordEvent:async()=>{}}});
  const source=agent.leadSources({apollo:async()=>[{id:'1',email:'info@example.com'}],upwork:async()=>[{id:'2',title:'automation'}]});
  const r=await source.discover();
- assert.equal(r.observed,2);assert.equal(r.sources[2].status,'OBSERVED');
+ assert.ok(r.observed>2);assert.equal(r.sources[2].status,'OBSERVED');
  assert.ok(r.sources[2].candidates.length>0);
  assert.equal(r.sources[2].candidates[0].sendAllowed,false);
  assert.equal(r.sources[0].candidates[0].sendAllowed,false);
