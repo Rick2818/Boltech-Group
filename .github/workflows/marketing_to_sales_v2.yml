@@ -1,0 +1,22 @@
+name: Marketing to Sales v2
+on:
+  schedule:
+    - cron: '20 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: marketing-to-sales-v2
+  cancel-in-progress: false
+jobs:
+  marketing-to-sales:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Execute marketing and handoff with CRM proof
+        env:
+          BOLTECH_CRON_SECRET: ${{ secrets.BOLTECH_CRON_SECRET }}
+        run: |
+          test -n "$BOLTECH_CRON_SECRET" || { echo "Secret missing"; exit 1; }
+          curl -fsS --max-time 180 -X POST "https://boltech-group.vercel.app/api/marketing-sales-cycle" -H "Authorization: Bearer $BOLTECH_CRON_SECRET"
