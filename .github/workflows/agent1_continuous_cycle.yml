@@ -1,0 +1,22 @@
+name: Agent 1 continuous commercial cycle
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: agent1-continuous-commercial
+  cancel-in-progress: false
+jobs:
+  cycle:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Observe sales pipeline and persist receipt with retry
+        env:
+          BOLTECH_CRON_SECRET: ${{ secrets.BOLTECH_CRON_SECRET }}
+        run: |
+          test -n "$BOLTECH_CRON_SECRET" || { echo "Missing BOLTECH_CRON_SECRET"; exit 1; }
+          curl --retry 2 --retry-all-errors --retry-delay 3 --fail-with-body -sS --max-time 180 -X POST 'https://boltech-group.vercel.app/api/agent1-continuous-cycle' -H "Authorization: Bearer $BOLTECH_CRON_SECRET"
