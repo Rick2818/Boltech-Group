@@ -30,3 +30,21 @@ La autonomía implementada es técnica y acotada: búsqueda, verificaciones, gua
 `node --test tests/test_sdr_dispatch.mjs tests/test_agent1_sales_skills.mjs tests/test_rsi01_lead_preparation.mjs tests/test_rsi01_external_discovery.mjs tests/test_rsi01_platform_sources.mjs tests/test_rsi01_followups.mjs tests/test_rsi_agent_executor.mjs tests/test_rsi01_daily_campaign.mjs tests/test_campaign_workflow_sequence.mjs tests/test_followup_work_sync.mjs`
 
 Las pruebas cubren enlaces, fuentes alternativas tras error, calificación desconocida, evidencia oficial, MX, bajas, rebotes, mensajes personalizados, cinco distintos, reanudación y protección frente a reenvíos. Confirmar despliegue y recibos de proveedores por separado antes de declarar autonomía productiva certificada.
+
+
+## Condiciones autorizadas — 19 octubre 2026
+Ricardo solicita incorporar las condiciones al Agente 1 en main. Reutilizar el ejecutor existente y `config/commercial_pilot.json`; no crear otro agente, temporizador o emisor. `planSearch` y `prepare` incluyen `commercialTerms`; `commercialTerms({discountPercent})` calcula importes para una propuesta, sin enviar ni cobrar.
+
+Precio piloto vigente: USD990; con 10% de descuento: USD891, anticipo USD445.50 y saldo USD445.50. Sin descuento: USD495 + USD495. Descuento máximo autorizado: 10%, no acumulable. Pago: 50% antes de comenzar y 50% al terminar contra criterios de entrega verificados. El plazo comienza con aceptación, anticipo confirmado y accesos disponibles. Las cotizaciones ya aceptadas no cambian. Otros agentes preelaborados y a medida requieren su precio aprobado; USD990 no es una tarifa universal.
+
+Alcance significa qué compra el cliente: resultado, funciones, plataformas, entregables, plazo, criterios de aceptación y exclusiones. El piloto existente incluye una empresa, un flujo web y una integración sencilla: registro, referencia, asignación de responsable y próxima acción; documentación y transferencia de uso. Excluye herramientas/consumo, mantenimiento e integraciones adicionales. Confirmar viabilidad por caso antes de comprometerse; ampliar alcance requiere nueva cotización. No ofrecer llamadas ni reuniones.
+
+Flujo mínimo: configuración aprobada → Agente 1 consulta condiciones → prepara información y entrega al responsable vigente → propuesta individual → aceptación y cobro por canales existentes. Responsable técnico: ejecutor central; presupuesto adicional USD0. Verificar cálculo, límite de descuento y consumo desde Agente 1; conservar pruebas de cierre existentes. No modificar Wompi ni órdenes. Revertir este commit restaura únicamente la política y guía nuevas, sin alterar cotizaciones aceptadas.
+
+Verificación de portada publicada (19 octubre): USD990 figura como implementación de pago único; no se observa tarifa mensual. `recurringAmount:null` significa pendiente de cotización, no mensualidad gratuita. Separar las mensualidades de la implementación y no extenderles descuento/50-50 sin condiciones aprobadas. No reutilizar planes retirados.
+
+Validación local: 31 pruebas aprobadas en términos comerciales, skills de Agente 1, rutas, apoyo de mercadeo y cierre simulado. No acredita despliegue ni cobro real.
+
+Aclaración expresa de Ricardo (19 octubre): las mensualidades se pagan completas, sin dividir. La regla 50/50 se aplica únicamente a implementación.
+
+Última instrucción de Ricardo (19 octubre): trabajar únicamente con el piloto USD990 y el descuento autorizado hasta 10%; no ofrecer mensualidades ni otros precios. Prevalece sobre la búsqueda de otras tarifas.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Ventas Boltech"
+  short_description: "Prospección, seguimiento y cierre comercial"
+  default_prompt: "Usa $boltech-sales para conseguir cinco leads completos y avanzar las oportunidades de Boltech."
