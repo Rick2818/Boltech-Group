@@ -1,6 +1,12 @@
 name: Agent 1 V2 RSI Operations
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - 'lib/agent1_v2_recursive_improvement.js'
+      - 'scripts/ops/run_agent1_v2_rsi.mjs'
+      - 'tests/test_agent1_v2_rsi_operations.mjs'
+      - '.github/workflows/agent1_v2_rsi_operations.yml'
   schedule:
     - cron: '30 15 * * 1-5'
 permissions:
@@ -10,6 +16,15 @@ concurrency:
   group: agent1-v2-rsi-operations
   cancel-in-progress: false
 jobs:
+  test:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test tests/test_agent1_v2_rsi_operations.mjs
   inspect:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
