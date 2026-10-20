@@ -80,7 +80,7 @@ export default async function handler(req, res) {
       return await upworkOAuthHandler(req,res,upworkOAuthAction);
     }
 
-    if (pathname === '/api/explee-hot-leads-sync' || pathname.endsWith('/explee-hot-leads-sync')) return await expleeHotLeadsHandler(req,res);
+    if (url.searchParams.get('explee_hot_leads_sync') === '1' || pathname === '/api/explee-hot-leads-sync' || pathname.endsWith('/explee-hot-leads-sync')) return await expleeHotLeadsHandler(req,res);
 
     // MCP remoto consolidado en api/index para respetar el límite de funciones de Vercel Hobby.
     if (url.searchParams.get('mcp') === '1' || pathname === '/api/mcp' || pathname.endsWith('/mcp')) {
