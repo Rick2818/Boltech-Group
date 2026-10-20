@@ -45,3 +45,14 @@ test('date and dedupe key are deterministic',()=>{
  assert.equal(campaignDate('2026-10-20T04:00:00Z'),'2026-10-19');
  assert.equal(prospectKey('2026-10-20','A@B.COM'),prospectKey('2026-10-20','a@b.com'));
 });
+
+test('same recipient held across different campaign dates',async()=>{
+ let now='2026-10-20T15:00:00Z',sent=0;
+ const agent=createSalesAgentV2({ledger:memoryLedger(),clock:()=>now,sender:{send:async()=>({messageId:String(++sent)})}});
+ assert.equal((await agent.dispatch(args)).state,'SENT');
+ now='2026-10-21T15:00:00Z';
+ const repeat=await agent.dispatch(args);
+ assert.equal(repeat.state,'BLOCKED');
+ assert.equal(repeat.reason,'CROSS_DAY_HISTORY_RECONCILIATION_REQUIRED');
+ assert.equal(sent,1);
+});
