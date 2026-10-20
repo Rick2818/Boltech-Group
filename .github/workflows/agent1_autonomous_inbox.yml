@@ -1,0 +1,22 @@
+name: Agent 1 Gmail autonomous inbound sales
+on:
+  schedule:
+    - cron: '5,20,35,50 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: agent1-gmail-inbound
+  cancel-in-progress: false
+jobs:
+  inbound:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Process verified customer replies with idempotent receipt
+        env:
+          BOLTECH_CRON_SECRET: ${{ secrets.BOLTECH_CRON_SECRET }}
+        run: |
+          test -n "$BOLTECH_CRON_SECRET" || { echo "Missing BOLTECH_CRON_SECRET"; exit 1; }
+          curl --fail-with-body -sS --max-time 180 -X POST 'https://boltech-group.vercel.app/api/agent1-autonomous-inbox' -H "Authorization: Bearer $BOLTECH_CRON_SECRET"
