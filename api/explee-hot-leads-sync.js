@@ -1,6 +1,6 @@
 // Read-only Explee hot leads -> Supabase. No outreach, paid searches or CRM status promotion.
 const projectId=51973;
-const j=async(r,where)=>{if(!r.ok)throw Error(where+'_HTTP_'+r.status);return r.status===204?null:r.json()};
+const j=async(r,where)=>{if(!r.ok)throw Error(where+'_HTTP_'+r.status);return r.status===204?null:(await r.text().then(t=>t?JSON.parse(t):null))};
 export async function syncHotLeads({env=process.env,fetcher=fetch}={}){
  const {EXPLEE_API_KEY,SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY}=env;
  if(!EXPLEE_API_KEY||!SUPABASE_URL||!SUPABASE_SERVICE_ROLE_KEY)throw Error('EXPLEE_SYNC_SECRETS_MISSING');
@@ -9,6 +9,9 @@ export async function syncHotLeads({env=process.env,fetcher=fetch}={}){
  const base=root+'/explee_hot_leads_cursor?project_id=eq.'+projectId+'&select=newest_hot_at';
  const cursorRows=await j(await fetcher(base,{headers}), 'CURSOR_READ');
  const since=cursorRows[0]?.newest_hot_at||'1970-01-01T00:00:00Z';
+ const campaigns=await j(await fetcher('https://api.explee.com/public/api/v1/autogtm/campaigns?project_id='+projectId,{headers:{'X-API-Key':EXPLEE_API_KEY}}),'EXPLEE_CAMPAIGNS');
+ if(!Array.isArray(campaigns.campaigns))throw Error('EXPLEE_CAMPAIGNS_SHAPE');
+ const allowedCampaignIds=new Set(campaigns.campaigns.map(x=>String(x.id)));
  let items=[],offset=0;
  while(true){
   const url=new URL('https://api.explee.com/public/api/v1/autogtm/hot-leads');
@@ -20,8 +23,8 @@ export async function syncHotLeads({env=process.env,fetcher=fetch}={}){
   offset=reply.next_offset??(offset+reply.leads.length);
   if(offset>=10000)throw Error('EXPLEE_SYNC_PAGE_CAP_REACHED_NO_CURSOR_ADVANCE');
  }
- const ready=items.filter(x=>String(x.project_id??projectId)===String(projectId));
- if(ready.length!==items.length)throw Error('EXPLEE_PROJECT_MISMATCH');
+ const ready=items.filter(x=>allowedCampaignIds.has(String(x.campaign_id)));
+ if(ready.length!==items.length)throw Error('EXPLEE_OTHER_PROJECT_LEADS_PRESENT_REQUIRES_SCOPE');
  const records=ready.map(x=>({
   project_id:projectId,campaign_id:String(x.campaign_id||''),person_id:String(x.person_id||''),
   name:x.name||null,email:x.email||null,job_title:x.job_title||null,company_name:x.company_name||null,
