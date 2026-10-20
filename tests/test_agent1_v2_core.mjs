@@ -18,7 +18,6 @@ function memoryLedger(){
   rows.set(key,{day,state:'RESERVED',recipient});
   return {reserved:true};
  }
- }
  };
 }
 const args={prospect:lead,history,message:{subject:'Relevant inquiry',body:'Hello team'}};
