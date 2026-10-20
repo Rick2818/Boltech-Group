@@ -7,12 +7,14 @@ const workflow='agent1_v2_market_skills_qa.yml';
 export async function runAgent1Rsi({fetcher=fetch,env=process.env}={}){
  if(!/^[-\w.]+\/[-\w.]+$/.test(String(env.GITHUB_REPOSITORY||'')))throw Error('RSI_REPO_REQUIRED');
  if(!env.GITHUB_TOKEN)throw Error('RSI_READ_TOKEN_REQUIRED');
- const url='https://api.github.com/repos/'+env.GITHUB_REPOSITORY+'/actions/workflows/'+workflow+'/runs?per_page=15&branch=agent1-rebuild-20261020';
+ const url='https://api.github.com/repos/'+env.GITHUB_REPOSITORY+'/actions/runs?per_page=100&branch=agent1-rebuild-20261020';
  const response=await fetcher(url,{headers:{Authorization:'Bearer '+env.GITHUB_TOKEN,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},redirect:'error',signal:AbortSignal.timeout(10000)});
  if(!response.ok)throw Error('RSI_GITHUB_READ_'+response.status);
  const data=await response.json();
  if(!Array.isArray(data.workflow_runs))throw Error('RSI_TELEMETRY_INVALID');
- const completed=data.workflow_runs.filter(r=>r.status==='completed');
+ const matching=data.workflow_runs.filter(r=>r.name==='Agent 1 V2 Market Skills QA'||String(r.path||'').endsWith('/'+workflow));
+ if(!matching.length)throw Error('RSI_AGENT1_QA_RUNS_UNAVAILABLE');
+ const completed=matching.filter(r=>r.status==='completed');
  const failures=completed.filter(r=>r.conclusion==='failure').length;
  const observations=failures?[{issueCode:'CI_REGRESSION',count:failures}]:[];
  const rsi=agent1RecursiveImprovement({agent:'AGENT1_V2',observations});
