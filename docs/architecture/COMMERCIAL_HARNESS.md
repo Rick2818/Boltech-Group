@@ -3,13 +3,12 @@
 **Versión:** Agente 1 V2, 2026-10-20. **Estado:** código en rama `agent1-rebuild-20261020`; QA aprobado, producción no certificada.
 
 ## Alcance actual
-- **Agente 1:** investigación B2B, verificación de empresa y contacto, personalización comercial, deduplicación y reserva antes de cualquier envío.
+- **Agente 1 — Ventas:** investigación B2B, verificación de prospectos, contacto personalizado, respuestas, cotización, seguimiento y cierre comercial con autorización humana cuando corresponda.
 - **Fuentes:** Apollo (lectura de cuenta verificada), Upwork (oportunidades dentro de la plataforma), Explee (archivo histórico y adaptadores API/MCP; autenticación en vivo pendiente).
-- **Agente 2:** respuestas, cotización y seguimiento (integración productiva pendiente de certificar).
-- **Agente 3:** cierre comercial (integración productiva pendiente de certificar).
-- **Agente 4:** orquestación, supervisión y recibos.
-- **Agente 5:** Mercadeo. Su implementación no forma parte de esta reconstrucción.
+- **Agente de Mercadeo:** señales de mercado, estrategia, generación de demanda y coordinación bidireccional con Ventas. No es un agente de cotización o seguimiento.
 - **RSI:** Recursive Self-Improvement, limitado a Agente 1, con propuestas revisables; no despliega ni envía automáticamente. **No confundir con las antiguas denominaciones RSI-01/02/03.**
+
+**Arquitectura vigente: exactamente dos agentes comerciales, Ventas y Mercadeo.** Las numeraciones y traspasos de la arquitectura anterior son exclusivamente históricos.
 
 ## Regla comercial obligatoria
 Se entregará un lote **solo si hay exactamente cinco leads completos y verificados**. Investigar cinco empresas, registrar una oferta de Upwork o contar correos históricos no acredita cinco leads.
