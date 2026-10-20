@@ -14,7 +14,7 @@ export async function runAgent1Rsi({fetcher=fetch,env=process.env}={}){
  if(!Array.isArray(data.workflow_runs))throw Error('RSI_TELEMETRY_INVALID');
  const completed=data.workflow_runs.filter(r=>r.status==='completed');
  const failures=completed.filter(r=>r.conclusion==='failure').length;
- const observations=failures?[{issueCode:'REPLY_CLASSIFICATION_REVIEW',count:failures}]:[];
+ const observations=failures?[{issueCode:'CI_REGRESSION',count:failures}]:[];
  const rsi=agent1RecursiveImprovement({agent:'AGENT1_V2',observations});
  return {schema:'boltech.agent1.v2.rsi.telemetry.v1',scope:'AGENT1_V2',checked:completed.length,
    failed:failures,source:'GITHUB_ACTIONS_READ_ONLY',rsi,productiveActions:false};
