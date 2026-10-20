@@ -1,0 +1,22 @@
+name: Explee hot leads to Supabase
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: explee-hot-leads-crm
+  cancel-in-progress: false
+jobs:
+  sync:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Sync interested contacts
+        env:
+          BOLTECH_CRON_SECRET: ${{ secrets.BOLTECH_CRON_SECRET }}
+        run: |
+          if [ -z "$BOLTECH_CRON_SECRET" ]; then echo "BOLTECH_CRON_SECRET is not configured"; exit 1; fi
+          curl --fail-with-body --max-time 180 -sS -X POST 'https://boltech-group.vercel.app/api/explee-hot-leads-sync' -H "Authorization: Bearer $BOLTECH_CRON_SECRET"
