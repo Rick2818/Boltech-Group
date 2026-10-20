@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "agent": "RSI-01",
   "executor": "lib/agent1_sales_skills.js",
   "mode": "DETERMINISTIC_RULES",
@@ -30,5 +30,8 @@
       "path": ".agents/skills/agent1-followup-handoff/SKILL.md",
       "method": "reviewFollowup"
     }
-  ]
+  ],
+  "salesEnablementSkill": ".agents/skills/boltech-sales/SKILL.md",
+  "commercialTermsMethod": "commercialTerms",
+  "commercialTermsSource": "config/commercial_pilot.json"
 }

@@ -1,6 +1,6 @@
 {
   "id": "quotation_intake_pilot",
-  "offerVersion": "2026-10-06",
+  "offerVersion": "2026-10-19",
   "name": "Registro, asignación y seguimiento de solicitudes",
   "targetSegment": "Inmobiliarias con equipos de asesores y solicitudes frecuentes",
   "outcomes": [
@@ -56,5 +56,21 @@
   "approvedOn": "2026-10-01",
   "brandPromise": "Obtén paz mental en tu negocio",
   "businessAudience": "Empresas de distintos sectores con cuellos de botella en sus procesos",
-  "positioningNote": "El segmento inicial orienta la prospección; no limita los sectores atendidos. Este piloto es un caso de implementación, no el alcance completo de Boltech. Otros procesos requieren alcance y cotización individuales."
+  "positioningNote": "El segmento inicial orienta la prospección; no limita los sectores atendidos. Este piloto es un caso de implementación, no el alcance completo de Boltech. Otros procesos requieren alcance y cotización individuales.",
+  "commercialPolicy": {
+    "authorizedBy": "Ricardo",
+    "authorizedOn": "2026-10-19",
+    "maxDiscountPercent": 10,
+    "discountBasis": "Approved implementation price; no stacking",
+    "upfrontPercent": 50,
+    "completionPercent": 50,
+    "upfrontCondition": "Before work begins, after scope acceptance and required access verification",
+    "completionCondition": "On completion, after agreed delivery acceptance criteria are verified",
+    "scopeChangesRequireNewQuote": true,
+    "existingAcceptedQuotesUnchanged": true,
+    "monthlyInstallmentsAllowed": false,
+    "monthlyPaymentRule": "Monthly fees are paid in full; the 50/50 split applies only to implementation",
+    "activePriceScope": "Only the USD990 pilot; no monthly prices or other product prices",
+    "otherOffersPricingEnabled": false
+  }
 }
