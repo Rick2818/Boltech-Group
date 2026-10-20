@@ -4,9 +4,10 @@ import {triageAgent1Candidates} from '../lib/agent1_v2_triage.js';
 import {createAgent1V2} from '../lib/agent1_v2_executor.js';
 test('US automation signal remains review only',()=>{
  const r=triageAgent1Candidates([{source:'UPWORK',candidates:[{sourceId:'1',country:'United States',title:'Automate support workflow'}]}]);
- assert.equal(r.selected.length,1);
- assert.equal(r.selected[0].channel,'UPWORK_PROPOSAL');
- assert.equal(r.selected[0].sendAllowed,false);
+ assert.equal(r.selected.length,0);
+ assert.equal(r.ready,false);
+ assert.equal(r.status,'INCOMPLETE');
+ assert.equal(r.sent,0);
  assert.equal(r.qualifiedForOutbound,0);
 });
 test('reject non-US, unsafe and unrelated requests',()=>{
