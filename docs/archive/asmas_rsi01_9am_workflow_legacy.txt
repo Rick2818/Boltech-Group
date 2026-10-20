@@ -1,0 +1,140 @@
+# ARCHIVADO. Histórico de ASMAS — NO EJECUTAR EN BOLTECH.
+# Conservado únicamente para auditoría. Arquitectura vigente: Agente 1 Ventas + Agente Mercadeo.
+
+name: ASMAS RSI-01 09:00 SV watchdog
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/asmas_rsi01_9am.yml'
+      - 'lib/rsi01_research_executor.js'
+      - 'lib/rsi01_public_research.js'
+      - 'lib/rsi01_daily_campaign.js'
+      - 'lib/rsi01_lead_preparation.js'
+      - 'lib/agent1_sales_skills.js'
+      - 'lib/sdr_dispatch.js'
+      - 'tests/test_sdr_dispatch.mjs'
+      - 'config/agent1_sales_skills.json'
+      - '.agents/skills/agent1-*/**'
+      - 'tests/test_agent1_sales_skills.mjs'
+      - 'lib/rsi01_platform_sources.js'
+      - 'tests/test_rsi01_platform_sources.mjs'
+      - 'tests/test_campaign_workflow_sequence.mjs'
+      - 'scripts/commercial/agent1_auth_preflight.mjs'
+      - '.github/workflows/agent1_autonomous_discovery.yml'
+      - 'scripts/ops/prepare_five_leads.mjs'
+      - 'scripts/ops/run_daily_campaign.mjs'
+      - 'lib/rsi_marketing_cycle.js'
+  pull_request:
+    paths:
+      - 'lib/asmas_research_watchdog.js'
+      - 'lib/rsi01_research_executor.js'
+      - 'lib/rsi01_public_research.js'
+      - 'tests/test_rsi01_public_research.mjs'
+      - 'tests/test_rsi01_research_executor.mjs'
+      - 'lib/rsi_agent_executor.js'
+      - 'lib/sdr_campaign.js'
+      - 'lib/rsi01_daily_campaign.js'
+      - 'lib/rsi01_lead_preparation.js'
+      - 'lib/agent1_sales_skills.js'
+      - 'lib/sdr_dispatch.js'
+      - 'tests/test_sdr_dispatch.mjs'
+      - 'config/agent1_sales_skills.json'
+      - '.agents/skills/agent1-*/**'
+      - 'tests/test_agent1_sales_skills.mjs'
+      - 'lib/rsi01_platform_sources.js'
+      - 'tests/test_rsi01_platform_sources.mjs'
+      - 'tests/test_campaign_workflow_sequence.mjs'
+      - 'scripts/commercial/agent1_auth_preflight.mjs'
+      - '.github/workflows/agent1_autonomous_discovery.yml'
+      - 'scripts/ops/prepare_five_leads.mjs'
+      - 'scripts/ops/run_daily_campaign.mjs'
+      - 'tests/test_rsi01_daily_campaign.mjs'
+      - 'api/partners.js'
+      - 'tests/test_asmas_research_watchdog.mjs'
+      - '.github/workflows/asmas_rsi01_9am.yml'
+permissions:
+  contents: read
+concurrency:
+  group: boltech-rsi-agent-execution
+  cancel-in-progress: false
+jobs:
+  watchdog:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      - name: Verify research watchdog and SDR campaign
+        run: node --test tests/test_sdr_dispatch.mjs tests/test_agent1_sales_skills.mjs tests/test_asmas_research_watchdog.mjs tests/test_rsi01_research_executor.mjs tests/test_rsi01_public_research.mjs tests/test_sdr_campaign.mjs tests/test_rsi01_daily_campaign.mjs tests/test_rsi01_lead_preparation.mjs tests/test_rsi01_external_discovery.mjs tests/test_prepare_five_entrypoint.mjs tests/test_rsi01_daily_readiness.mjs tests/test_rsi01_platform_sources.mjs tests/test_campaign_workflow_sequence.mjs tests/test_rsi_agent_executor.mjs
+      - name: Check configured research sources without exposing credentials
+        if: github.event_name != 'pull_request'
+        env:
+          APOLLO_API_KEY: ${{ secrets.APOLLO_API_KEY }}
+          BoltechVercelCRM: ${{ secrets.BoltechVercelCRM }}
+          LUSHA_API_KEY: ${{ secrets.LUSHA_API_KEY }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          UPWORK_MCP_ACCESS_TOKEN: ${{ secrets.UPWORK_MCP_ACCESS_TOKEN }}
+          N8N_MCP_URL: ${{ vars.N8N_MCP_URL }}
+          N8N_MCP_TOKEN: ${{ secrets.N8N_MCP_TOKEN }}
+        run: node scripts/commercial/agent1_auth_preflight.mjs
+      # Intake must finish before RSI-01 checks the approved queue.
+      # Intake never grants approval or sends mail.
+      - name: Execute Marketing intake before RSI-01
+        if: github.event_name != 'pull_request'
+        env:
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+          RSI_EXECUTION_ROLES: 'MARKETING'
+          RSI_EXPECT_DEPLOYMENT_SHA: ''
+        run: node scripts/ops/run_rsi_agents.mjs
+      - name: Research independent platforms and CRM before preparation
+        if: ${{ !cancelled() && github.event_name != 'pull_request' }}
+        env:
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+          RSI_EXECUTION_ROLES: 'RSI-01'
+          RSI_EXPECT_DEPLOYMENT_SHA: ${{ github.event_name == 'push' && github.sha || '' }}
+        run: node scripts/ops/run_rsi_agents.mjs
+      - name: Prepare exactly five complete leads before dispatch
+        if: ${{ !cancelled() && github.event_name != 'pull_request' }}
+        env:
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+        run: node scripts/ops/prepare_five_leads.mjs
+      - name: Verify Upwork authentication from the production server
+        if: ${{ !cancelled() && github.event_name != 'pull_request' }}
+        continue-on-error: true
+        env:
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+          UPWORK_START_AUTHORIZATION: ${{ github.event_name == 'push' && '1' || '0' }}
+        run: node scripts/ops/check_platform_sources.mjs
+      - name: Execute daily RSI-01 campaign with shared durable receipt
+        if: ${{ success() && github.event_name != 'pull_request' && github.event_name != 'push' && github.event.schedule != '0,15,30,45 14 * * 1-5' }}
+        env:
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+          RSI_EXPECT_DEPLOYMENT_SHA: ''
+        run: node scripts/ops/run_daily_campaign.mjs
+      - name: Execute independent RSI-02 and RSI-03
+        if: ${{ !cancelled() && github.event_name != 'pull_request' }}
+        env:
+          PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
+          RSI_EXECUTION_ROLES: 'RSI-02,RSI-03'
+          RSI_EXPECT_DEPLOYMENT_SHA: ''
+        run: node scripts/ops/run_rsi_agents.mjs
+      - name: Preserve execution receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: asmas-rsi01-9am-${{ github.run_id }}
+          path: |
+            ops-output/agent1-auth-preflight.json
+            ops-output/rsi01-five-preparation.json
+            ops-output/rsi-agent-execution.json
+            ops-output/rsi01-daily-campaign.json
+            ops-output/rsi01-research-execution.json
+            ops-output/platform-source-readiness.json
+          if-no-files-found: warn
+          retention-days: 30
