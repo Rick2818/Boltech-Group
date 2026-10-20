@@ -8,7 +8,7 @@ test('hot lead import is read-only and saves cursor after persisting contact',as
   if(u.includes('explee_hot_leads_cursor')&&(opts.method||'GET')==='GET')return new Response('[]',{status:200});
   if(u.includes('/autogtm/campaigns?'))return new Response(JSON.stringify({campaigns:[{id:13,project_id:51973}]}));
   if(u.includes('/autogtm/hot-leads'))return new Response(JSON.stringify({leads:[{person_id:'person1',campaign_id:13,email:'buyer@example.com',why_hot:'Interested',became_hot_at:'2026-10-20T14:00:00Z'}],has_more:false,next_offset:null}));
-  return new Response('',{status:204});
+  return new Response(null,{status:204});
  };
  const result=await syncHotLeads({env,fetcher});
  assert.equal(result.fetched,1);
