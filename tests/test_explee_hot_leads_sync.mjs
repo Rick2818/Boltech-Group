@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {syncHotLeads} from '../api/explee-hot-leads-sync.js';
+import {syncHotLeads} from '../lib/explee_hot_leads_sync.js';
 const env={EXPLEE_API_KEY:'mock-not-a-secret',SUPABASE_URL:'https://example.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'mock'};
 test('hot lead import is read-only and saves cursor after persisting contact',async()=>{
  const calls=[];
