@@ -41,6 +41,7 @@ import {
 } from '../lib/universal_email_engine.js';
 import telegramHandler from './telegram.js';
 import cronHandler from './cron/master-dispatcher.js';
+import expleeHotLeadsHandler from '../lib/explee_hot_leads_sync.js';
 import aiHandler from './ai.js';
 import crmHandler from './crm.js';
 import whatsappHandler from './whatsapp.js';
@@ -78,6 +79,8 @@ export default async function handler(req, res) {
     if (['callback','start'].includes(upworkOAuthAction)) {
       return await upworkOAuthHandler(req,res,upworkOAuthAction);
     }
+
+    if (url.searchParams.get('explee_hot_leads_sync') === '1' || pathname === '/api/explee-hot-leads-sync' || pathname.endsWith('/explee-hot-leads-sync')) return await expleeHotLeadsHandler(req,res);
 
     // MCP remoto consolidado en api/index para respetar el límite de funciones de Vercel Hobby.
     if (url.searchParams.get('mcp') === '1' || pathname === '/api/mcp' || pathname.endsWith('/mcp')) {

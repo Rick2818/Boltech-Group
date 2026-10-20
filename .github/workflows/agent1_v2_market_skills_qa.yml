@@ -1,0 +1,17 @@
+name: Agent 1 V2 Market Skills QA
+on:
+  push:
+    branches:
+      - agent1-rebuild-20261020
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --test tests/test_agent1_v2_market_skills.mjs tests/test_agent1_v2_core.mjs tests/test_agent1_v2_sales_cycle.mjs tests/test_agent1_v2_executor.mjs tests/test_agent1_v2_gmail_adapter.mjs tests/test_agent1_v2_lead_sources.mjs tests/test_agent1_v2_three_sources_synthetic.mjs tests/test_agent1_v2_triage.mjs tests/test_agent1_v2_five_lead_gate.mjs tests/test_agent1_v2_explee_live.mjs tests/test_agent1_v2_explee_mcp.mjs tests/test_agent1_v2_explee_mcp_transport.mjs tests/test_agent1_v2_recursive_improvement.mjs tests/test_agent1_v2_harness_migration.mjs tests/test_agent1_v2_rsi_operations.mjs tests/test_agent1_v2_production_handover.mjs tests/test_explee_hot_leads_sync.mjs

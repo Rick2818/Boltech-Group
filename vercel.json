@@ -4,6 +4,10 @@
   "trailingSlash": false,
   "rewrites": [
     {
+      "source": "/api/explee-hot-leads-sync",
+      "destination": "/api/index?explee_hot_leads_sync=1"
+    },
+    {
       "source": "/api/upwork/callback",
       "destination": "/api/index?upwork_oauth=callback"
     },
@@ -150,4 +154,3 @@
     }
   ]
 }
-
