@@ -9,10 +9,15 @@ function memoryLedger(){
  read:async key=>rows.get(key),
  insertIfAbsent:async(key,row)=>{if(!rows.has(key))rows.set(key,row);},
  updateIfState:async(key,state,patch)=>{if(rows.get(key)?.state!==state)return false;rows.set(key,{...rows.get(key),...patch});return true;},
- reserveWithDailyCap:async({key,day,cap,from,to})=>{
+ reserveProspectAtomically:async({key,globalKey,day,recipient,cap})=>{
+  if(rows.has(globalKey))return {reserved:false,state:'BLOCKED',reason:'CROSS_DAY_HISTORY_RECONCILIATION_REQUIRED'};
   const used=[...rows.values()].filter(x=>x.day===day&&['RESERVED','SENT','UNKNOWN'].includes(x.state)).length;
-  if(used>=cap||rows.get(key)?.state!==from)return {reserved:false};
-  rows.set(key,{...rows.get(key),state:to});return {reserved:true};
+  if(used>=cap)return {reserved:false,state:'BLOCKED',reason:'DAILY_CAP_REACHED'};
+  if(rows.has(key))return {reserved:false,state:rows.get(key).state,reason:'ALREADY_RESERVED'};
+  rows.set(globalKey,{state:'SEEN',day});
+  rows.set(key,{day,state:'RESERVED',recipient});
+  return {reserved:true};
+ }
  }
  };
 }
