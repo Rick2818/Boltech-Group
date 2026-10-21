@@ -16,3 +16,6 @@ Antes de quitar los módulos heredados restantes de `lib/`, `api/` y workflows, 
 
 ## Estado de envíos
 La preparación y revisión de borradores es interna. Envíos NO habilitados hasta disponer de un ejecutor Supabase-nativo con recibos Gmail, idempotencia, historial y supresiones validados. No se interpretará un buzón genérico verificado como aprobación comercial.
+
+## Preservación adicional (2026-10-21)
+Se copiaron al archivo los ocho módulos históricos `lib/rsi01_*` de campaña, preparación, búsqueda y seguimiento y los ejecutores `scripts/rsi01-gmail-dispatch.cjs` y `scripts/rsi01-outreach-executor.cjs`. Estas copias son históricas y no son componentes autorizados del sistema actual. Los archivos originales aún existen por compatibilidad de pruebas y referencias; su eliminación definitiva requiere un PR separado con inventario de dependencias. Las únicas programaciones comerciales cron habilitadas en Supabase son boltech-research, boltech-inbox, boltech-explee, boltech-receipts y boltech-marketing.
