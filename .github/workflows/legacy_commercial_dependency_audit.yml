@@ -1,0 +1,33 @@
+name: Legacy Commercial Dependency Audit
+on:
+  pull_request:
+    paths:
+      - 'api/**'
+      - 'lib/**'
+      - 'scripts/**'
+      - '.github/workflows/**'
+      - 'tests/test_legacy_commercial_dependencies.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  legacy-commercial-dependencies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Verify canonical runtime is isolated from legacy Airtable executors
+        run: node --test tests/test_legacy_commercial_dependencies.mjs
+      - name: Build dependency inventory and persistent artifact
+        run: |
+          mkdir -p ops-output
+          node scripts/quality/audit_legacy_commercial_dependencies.mjs --json > ops-output/legacy-commercial-dependencies.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: legacy-commercial-dependencies-${{ github.run_id }}
+          path: ops-output/legacy-commercial-dependencies.json
+          retention-days: 30
