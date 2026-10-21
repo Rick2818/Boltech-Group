@@ -1,7 +1,6 @@
 name: Explee hot leads to Supabase
 on:
-  schedule:
-    - cron: '*/10 * * * *'
+  # Production schedule lives in Supabase cron: boltech-explee (same API/queue).
   workflow_dispatch:
 permissions:
   contents: read
