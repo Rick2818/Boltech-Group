@@ -1,7 +1,6 @@
 name: Agent 1 Gmail autonomous inbound sales
 on:
-  schedule:
-    - cron: '5,20,35,50 * * * *'
+  # Production schedule lives in Supabase cron: boltech-inbox (same API/queue).
   workflow_dispatch:
 permissions:
   contents: read

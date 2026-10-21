@@ -1,10 +1,10 @@
 import test from 'node:test';import assert from 'node:assert/strict';
 import {runInboundSalesCycle} from '../lib/agent1_autonomous_inbox.js';
 const env={SUPABASE_URL:'https://example.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'test'};
-const reply={id:'gmail-1',threadId:'thread-1',from:'buyer@example.org',subject:'Pricing information',text:'What is your price?',rfcMessageId:'<gmail-1@example.org>',sent:false,automatic:false};
+const reply={id:'gmail-1',threadId:'thread-1',from:'buyer@example.org',subject:'Pricing information',text:'What is your price?',rfcMessageId:'<gmail-1@example.org>',receivedAt:'2026-10-21T15:00:00Z',sent:false,automatic:false};
 function fake({duplicate=false,unsubscribe=false}={}){
  const sent=[],writes=[];let calls=0;
- const gmail={verify:async()=>({verified:true}),search:async()=>[{id:'gmail-1'}],message:async()=>({...reply,text:unsubscribe?'unsubscribe':reply.text}),send:async j=>{sent.push(j);return {messageId:'sent-1',threadId:j.threadId}}};
+ const gmail={verify:async()=>({verified:true}),search:async()=>[{id:'gmail-1'}],message:async()=>({...reply,text:unsubscribe?'unsubscribe':reply.text}),thread:async()=>[{id:'original',sent:true,from:'ricardo.boltechgroup@gmail.com',to:reply.from,receivedAt:'2026-10-20T15:00:00Z'}, {...reply,text:unsubscribe?'unsubscribe':reply.text}],send:async j=>{assert.ok(j.rfcMessageId);sent.push(j);return {messageId:'sent-1',threadId:j.threadId}}};
  const fetcher=async(url,opts={})=>{
   const s=String(url);
   if(s.includes('/leads?'))return new Response(JSON.stringify([{id:'lead-1',contact_email:'buyer@example.org',status:'CONTACTED',data_quality:'REAL'}]));

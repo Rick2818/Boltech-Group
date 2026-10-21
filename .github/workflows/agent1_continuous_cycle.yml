@@ -1,7 +1,6 @@
 name: Agent 1 continuous commercial cycle
 on:
-  schedule:
-    - cron: '*/10 * * * *'
+  # Production schedule lives in Supabase cron: boltech-research (same API/queue).
   workflow_dispatch:
 permissions:
   contents: read

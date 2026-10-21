@@ -22,6 +22,10 @@ function database(initial=[]){
 }
 const empty=async({cursor=0})=>({status:'EMPTY',candidates:[],nextCursor:cursor+1});
 const verify=async lead=>({status:'PREPARED_PENDING_HISTORY_CHECK',verification:{...lead.source_payload.verification,mxVerified:true},draft:{subject:'QA',body:'QA',sent:false}});
+test('research tasks never inflate followup count and prepared totals reflect saved rows',async()=>{
+ const db=database([{...candidate(1),next_action:'Research contact'}, {...candidate(2),status:'CONTACTED',source_payload:{gmail_sent_message_id:'provider-id'}},{...candidate(3),status:'CONTACTED',commercial_stage:'REPLIED',source_payload:{gmail_sent_message_id:'replied-id'}}]);
+ const r=await runAgent1Cycle({env,fetcher:db.fetcher,discoverExplee:empty,discoverPublic:empty,verifyCandidate:verify});assert.equal(r.followups_pending,1);assert.equal(r.preparedTotal,1);assert.equal(r.researchPending,0);
+});
 test('research persists and prepares more than five; resumes source cursor and deduplicates',async()=>{
  const db=database();const cursors=[];
  const discover=async({cursor})=>{cursors.push(cursor);return {status:'FOUND',candidates:Array.from({length:17},(_,i)=>candidate(i)),nextCursor:cursor+1}};
