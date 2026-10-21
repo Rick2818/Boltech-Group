@@ -2,6 +2,10 @@
 
 ## Operación comercial vigente — 20 octubre 2026
 
+### Regla de seguimiento vinculada — 21 octubre 2026
+
+Ricardo eligió el primer seguimiento después de tres días calendario, incluidos sábados y domingos, del correo inicial confirmado por Gmail. Aplicar `config/canonical_followups.json` en el ejecutor existente de Agente 1, con ventana diaria 09:00–17:00 de El Salvador. Un solo seguimiento sin respuesta; una respuesta, baja, rechazo, rebote o contacto posterior cancela o detiene la secuencia. No pedir aprobación por correo: la autorización permanente sigue vigente. Guardar vencimiento, intención y recibo en la misma fila canónica; conciliar resultados inciertos por Message-ID antes de repetir. El cron de inbox procesa esta regla; no crear un agente o calendario adicional.
+
 La instrucción actual de Rick es mantener dos agentes: Agente 1 de Ventas y Agente de Mercadeo. Las referencias antiguas a varios vendedores/ASMAS son históricas y no autorizan recrearlos. Reutilizar los ejecutores y la cola actuales.
 
 Agente 1 debe investigar y preparar oportunidades 24/7, mediante ciclos persistentes que retoman el avance. No trabajar por lotes de cinco, no imponer un objetivo total fijo de investigación y no detenerse al completar una cantidad. Los tamaños de página o el presupuesto de tiempo de una ejecución son límites técnicos; el resto del trabajo queda pendiente para el siguiente ciclo. Un observador que solo cuenta filas no cumple la prospección continua.
