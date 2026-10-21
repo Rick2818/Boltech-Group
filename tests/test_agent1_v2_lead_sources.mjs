@@ -28,3 +28,13 @@ test('all sources available from single agent and no automatic sends',async()=>{
 test('historical Explee source cannot auto-qualify contacts',async()=>{ const source=createAgent1LeadSources(); const result=await source.discover(); assert.equal(result.sources[2].status,'OBSERVED');assert.ok(result.sources[2].candidates.length>0);assert.equal(result.sources[2].candidates[0].contactVerified,false);assert.equal(result.sources[2].candidates[0].buyerVerified,false); });
 
 test('Explee historic source retains country for commercial triage',async()=>{const {triageAgent1Candidates}=await import('../lib/agent1_v2_triage.js');const result=await createAgent1LeadSources().discover();const explee=result.sources.find(s=>s.source==='EXPLEE');assert.ok(explee.candidates.some(x=>x.country));const summary=triageAgent1Candidates(result.sources);assert.ok(summary.diagnostics.EXPLEE.observed>0);assert.equal(summary.selected.length,0);assert.equal(summary.ready,false);});
+
+test('research accepts over 50 candidates; all remain send-disabled',async()=>{
+ const {createAgent1LeadSources}=await import('../lib/agent1_v2_lead_sources.js');
+ const rows=Array.from({length:125},(_,i)=>({id:String(i),company:'US Company '+i,email:'contact'+i+'@example.org',country:'US'}));
+ const result=await createAgent1LeadSources({apollo:async()=>rows,upwork:async()=>[],explee:async()=>[]}).discover();
+ assert.equal(result.observed,125);
+ assert.equal(result.sources[0].candidates.length,125);
+ assert.equal(result.sendAllowed,false);
+ assert.ok(result.sources[0].candidates.every(x=>x.sendAllowed===false));
+});

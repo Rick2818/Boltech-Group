@@ -4,6 +4,18 @@
   "trailingSlash": false,
   "rewrites": [
     {
+      "source": "/api/agent1-autonomous-inbox",
+      "destination": "/api/index?agent1_inbox=1"
+    },
+    {
+      "source": "/api/agent1-continuous-cycle",
+      "destination": "/api/index?agent1_cycle=1"
+    },
+    {
+      "source": "/api/marketing-sales-cycle",
+      "destination": "/api/index?marketing_sales_cycle=1"
+    },
+    {
       "source": "/api/explee-hot-leads-sync",
       "destination": "/api/index?explee_hot_leads_sync=1"
     },
