@@ -1,5 +1,13 @@
 # Instrucciones de Ricardo
 
+## Operación comercial vigente — 20 octubre 2026
+
+La instrucción actual de Rick es mantener dos agentes: Agente 1 de Ventas y Agente de Mercadeo. Las referencias antiguas a varios vendedores/ASMAS son históricas y no autorizan recrearlos. Reutilizar los ejecutores y la cola actuales.
+
+Agente 1 debe investigar y preparar oportunidades 24/7, mediante ciclos persistentes que retoman el avance. No trabajar por lotes de cinco, no imponer un objetivo total fijo de investigación y no detenerse al completar una cantidad. Los tamaños de página o el presupuesto de tiempo de una ejecución son límites técnicos; el resto del trabajo queda pendiente para el siguiente ciclo. Un observador que solo cuenta filas no cumple la prospección continua.
+
+Usar el CRM canónico y guardar fuente, verificación, borrador, responsable, próxima acción y recibo. No contar señales o contactos incompletos como listos, ni atribuir intención de compra o dolor confirmado a datos de un directorio. Conciliar historial, bajas, rebotes, duplicados y ventanas antes de cada envío; la prospección continua no elimina esos controles ni autoriza consumo pagado. La estrategia Managed AI Operations es posicionamiento compartido; sus claims de ROI, SLA y cierre requieren evidencia real.
+
 ## Registro automático vigente del harness
 
 Consultar [Harness AutoDoc](docs/architecture/HARNESS_AUTODOC.md) y el [registro vivo #86](https://github.com/Rick2818/Boltech-Group/issues/86) para resultados automáticos de main y Vercel. La tabla operativa se actualiza en la issue, no reescribiendo estas reglas. Las pruebas locales y los avances de una conversación requieren documentación explícita; los resultados automáticos no autorizan campañas, gasto, pagos, merges ni cambios de oferta.

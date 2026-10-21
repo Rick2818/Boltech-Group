@@ -63,3 +63,8 @@ test('runtime budget checkpoints remaining candidates for the next run without a
  const a=await runAgent1Cycle({env,fetcher:db.fetcher,now:new Date('2026-10-21T01:00:00Z'),clock:()=>time,budgetMs:30,discoverExplee:empty,discoverPublic:empty,verifyCandidate:check});assert.equal(a.prepared,3);
  time=0;const b=await runAgent1Cycle({env,fetcher:db.fetcher,now:new Date('2026-10-21T01:10:00Z'),clock:()=>time,budgetMs:300,discoverExplee:empty,discoverPublic:empty,verifyCandidate:check});assert.equal(b.prepared,9);assert.equal(db.leads.filter(x=>x.source_payload.campaignDraft).length,12);
 });
+test('real published quoting and contact forms produce specific drafts without claiming confirmed pain',async()=>{
+ const p=candidate(1);p.source_payload.verification={humanVerified:false,officialSourceReviewed:true};const mxResolver=async()=>[{exchange:'mx.company1.com',priority:0}];
+ const a=await verifyPublishedCandidate(p,{mxResolver,pageReader:async()=>'<html>Jane Doe President owner@company1.com For quotes or quoting contact us</html>'});assert.equal(a.status,'PREPARED_PENDING_HISTORY_CHECK');assert.match(a.draft.body,/quote request process/);
+ const b=await verifyPublishedCandidate(p,{mxResolver,pageReader:async()=>'<html><img alt="Jane Doe, President">owner@company1.com Contact us<form><input name="project"></form></html>'});assert.equal(b.verification.namedContactPublished,true);assert.equal(b.verification.publishedWorkflow,'CONTACT_REQUEST');assert.match(b.draft.body,/project inquiry form/);assert.doesNotMatch(b.draft.body,/quote request process/);assert.equal(b.verification.humanVerified,false);
+});
