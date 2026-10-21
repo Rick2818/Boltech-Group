@@ -12,6 +12,10 @@ Agente 1 debe investigar y preparar oportunidades 24/7, mediante ciclos persiste
 
 Usar el CRM canónico y guardar fuente, verificación, borrador, responsable, próxima acción y recibo. No contar señales o contactos incompletos como listos, ni atribuir intención de compra o dolor confirmado a datos de un directorio. Conciliar historial, bajas, rebotes, duplicados y ventanas antes de cada envío; la prospección continua no elimina esos controles ni autoriza consumo pagado. La estrategia Managed AI Operations es posicionamiento compartido; sus claims de ROI, SLA y cierre requieren evidencia real.
 
+### Mercadeo vinculado a Ventas — 21 octubre 2026
+
+Por encargo de Ricardo, conectar y habilitar el ejecutor de Mercadeo en el ciclo canónico existente. Preparar materiales por oportunidad y bloqueo comercial, sin lote ni meta de cinco; retomar pendientes por presupuesto de tiempo. Priorizar respuestas de compradores, seguimiento autorizado y nuevos contactos verificados. Reutilizar `marketing_sales_support`, `marketing_trace`, `marketing_sales_cycle_v2`, inbox y `agent_work`; la ejecución normal comparte el disparador de diez minutos de Ventas y el workflow de Mercadeo queda manual para recuperación. Registrar preparación, revisión de Agente 1, uso con Gmail y respuesta real como hechos separados. No atribuir mensajes anteriores a materiales nuevos ni contar una publicación como demanda o pago. No crear agentes o gasto.
+
 ## Registro automático vigente del harness
 
 Consultar [Harness AutoDoc](docs/architecture/HARNESS_AUTODOC.md) y el [registro vivo #86](https://github.com/Rick2818/Boltech-Group/issues/86) para resultados automáticos de main y Vercel. La tabla operativa se actualiza en la issue, no reescribiendo estas reglas. Las pruebas locales y los avances de una conversación requieren documentación explícita; los resultados automáticos no autorizan campañas, gasto, pagos, merges ni cambios de oferta.

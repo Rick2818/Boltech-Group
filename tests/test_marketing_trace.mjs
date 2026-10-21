@@ -20,3 +20,7 @@ test('a previous email cannot be attributed to a newly revised material version'
  await assert.rejects(f.worker.use({...f.input,messageId:'sent',language:'es'}),/USAGE_UNVERIFIED/);
  assert.equal((await f.worker.metrics()).used,0);
 });
+test('provider MIME line endings do not hide actual use of a complete material passage',async()=>{
+ const f=fixture();await f.review();f.messages.sent.text=f.row().material.materials.es.text.replace(/\n/g,'\r\n');
+ await f.worker.use({...f.input,messageId:'sent',language:'es'});assert.equal((await f.worker.metrics()).used,1);
+});

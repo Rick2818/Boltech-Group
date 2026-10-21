@@ -50,3 +50,8 @@ test('two simultaneous canonical cycles acquire one lease and permit one send',a
  const args={leads:[structuredClone(lead)],gmail,db,now:new Date('2026-10-23T15:00:00Z'),command:async a=>a[0]==='ZCOUNT'?0:null};
  const result=await Promise.all([reconcileCanonicalFollowups(args),reconcileCanonicalFollowups(args)]);assert.equal(sent.length,1);assert.equal(result.reduce((n,r)=>n+r.sent,0),1);assert.ok(runReads>0);
 });
+test('marketing prepares follow-up support early but acceptance and provider use wait for the calendar due date',async()=>{
+ const x=sender(),calls=[];const marketing={ensure:async p=>{calls.push('prepare');assert.equal(p.kind,'FOLLOWUP');return {eventId:'material',material:{materials:{en:{text:p.draft.body}}}};},accept:async()=>calls.push('accept'),use:async(h,id)=>{calls.push('use');assert.equal(id,'provider-sent');}};
+ await processFirstFollowup({...x,marketing,now:new Date('2026-10-22T15:00:00Z')});assert.deepEqual(calls,['prepare']);assert.equal(x.sent.length,0);
+ await processFirstFollowup({...x,marketing});assert.deepEqual(calls,['prepare','prepare','accept','use']);assert.equal(x.sent.length,1);
+});
