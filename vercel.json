@@ -161,7 +161,7 @@
   ],
   "crons": [
     {
-      "path": "/api/partners?action=commercial-activation&run=1",
+      "path": "/api/agent1-autonomous-inbox?scheduled_campaign=1",
       "schedule": "0 15 * * *"
     }
   ]

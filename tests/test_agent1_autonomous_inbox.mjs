@@ -20,3 +20,9 @@ test('real contacted prospect pricing reply is sent and recorded once',async()=>
 test('duplicate message does not send twice',async()=>{const x=fake({duplicate:true});const r=await runInboundSalesCycle({gmail:x.gmail,env,fetcher:x.fetcher});assert.equal(r.duplicate,1);assert.equal(x.sent.length,0);});
 test('opt out is held and never responded to',async()=>{const x=fake({unsubscribe:true});const r=await runInboundSalesCycle({gmail:x.gmail,env,fetcher:x.fetcher});assert.equal(r.replied,0);assert.equal(x.sent.length,0);});
 test('broken configuration fails closed without external reads',async()=>{const x=fake();await assert.rejects(runInboundSalesCycle({gmail:x.gmail,env:{},fetcher:x.fetcher}),/CONFIG|UNAVAILABLE/);assert.equal(x.calls,0);});
+test('canonical campaign receives company and market fields from the shared CRM read',async()=>{
+ const x=fake();let invoked=false;
+ const fetcher=async(url,opts)=>{if(String(url).includes('/leads?')){assert.match(String(url),/name,company_url,country/);}return x.fetcher(url,opts);};
+ const result=await runInboundSalesCycle({gmail:x.gmail,env,fetcher,outreach:async({leads,db,gmail})=>{invoked=true;assert.equal(leads[0].id,'lead-1');assert.equal(typeof db,'function');assert.equal(gmail,x.gmail);return {sent:0,errors:[]};}});
+ assert.equal(invoked,true);assert.equal(result.campaign.sent,0);
+});
