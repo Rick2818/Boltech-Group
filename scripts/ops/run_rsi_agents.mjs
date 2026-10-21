@@ -29,6 +29,8 @@ try{
   report.directorNotification=await noticeResponse.json();
   if(!noticeResponse.ok||report.directorNotification.success!==true)throw new Error('Director notification cycle unconfirmed');
   report.status=report.results.some(r=>!r.success||r.receipt?.outcome!=='COMPLETED')?'ATTENTION':'PASS';
-  if(report.results.some(r=>!r.success))process.exitCode=1;
+  // A completed HTTP request does not certify a commercially operational agent.
+  // Surface blocked agents as a failing CI gate; never advance to approved outreach.
+  if(report.status!=='PASS'||report.closingReadiness?.status==='ERROR')process.exitCode=1;
 }catch(error){report.error=String(error.message).slice(0,300);process.exitCode=1;}
 finally{await mkdir('ops-output',{recursive:true});await writeFile(process.env.RSI_EXECUTION_ROLES==='RSI-01'?'ops-output/rsi01-research-execution.json':process.env.RSI_EXECUTION_ROLES==='MARKETING'?'ops-output/marketing-autonomy-execution.json':'ops-output/rsi-agent-execution.json',JSON.stringify(report,null,2));console.log(JSON.stringify(report));}
