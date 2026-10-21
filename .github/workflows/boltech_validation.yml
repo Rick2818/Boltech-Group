@@ -26,7 +26,7 @@ jobs:
       - name: Verify isolated synthetic campaign
         run: node --test tests/test_synthetic_campaign_qa.mjs tests/test_synthetic_relay_chain.mjs tests/test_commercial_relay.mjs tests/test_director_notifications.mjs
       - name: Verify continuous research, scheduler authentication and canonical followups
-        run: node --test tests/test_agent1_continuous_cycle.mjs tests/test_agent1_autonomous_inbox.mjs tests/test_explee_hot_leads_sync.mjs tests/test_canonical_followups.mjs tests/test_canonical_followup_sender.mjs tests/test_canonical_outreach.mjs
+        run: node --test tests/test_agent1_continuous_cycle.mjs tests/test_agent1_autonomous_inbox.mjs tests/test_explee_hot_leads_sync.mjs tests/test_canonical_followups.mjs tests/test_canonical_followup_sender.mjs tests/test_canonical_outreach.mjs tests/test_marketing_sales_cycle_v2.mjs tests/test_marketing_trace.mjs
       - name: Verify Marketing skill execution and role handoff
         run: node --test tests/test_marketing_autonomy.mjs tests/test_marketing_skill_executor.mjs tests/test_director_audit_status.mjs tests/test_director_tracking.mjs
       - name: Verify synthetic follow-up to qualification and Director supervision

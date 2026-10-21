@@ -1,7 +1,6 @@
 name: Marketing to Sales v2
 on:
-  schedule:
-    - cron: '20 * * * *'
+  # Normal execution is inside the existing ten-minute canonical inbox cycle.
   workflow_dispatch:
 permissions:
   contents: read
