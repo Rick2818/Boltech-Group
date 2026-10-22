@@ -1,4 +1,4 @@
-import {orientReception,receptionSteps,receptionPricing,recommendReception} from './reception-guidance.js';
+import {orientReception,receptionSteps,receptionPricing,recommendReception} from './reception-guidance.js?v=20261021-sales2';
 (() => {
   const style=document.createElement('link');style.rel='stylesheet';style.href='/assets/css/web-reception.css';document.head.append(style);
   const root=document.createElement('aside');root.id='web-reception';root.setAttribute('aria-label','Asistente de Boltech');
