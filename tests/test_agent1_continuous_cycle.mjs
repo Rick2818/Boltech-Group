@@ -1,3 +1,4 @@
+import './agent1-review-retry.test.mjs'; // Required by the governance workflow's targeted Agent 1 test invocation.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {runAgent1Cycle} from '../lib/agent1_continuous_cycle.js';
