@@ -5,9 +5,9 @@ import {createAgent1SalesExecutor} from '../lib/agent1_sales_skills.js';
 
 test('approved pilot splits the discounted total, not the original price',()=>{
  const full=pilotCommercialTerms();
- assert.deepEqual([full.baseAmount,full.totalAmount,full.upfrontAmount,full.completionAmount],[990,990,495,495]);
+ assert.deepEqual([full.baseAmount,full.totalAmount,full.upfrontAmount,full.completionAmount],[600,600,300,300]);
  const discounted=createAgent1SalesExecutor().commercialTerms({discountPercent:10});
- assert.deepEqual([discounted.totalAmount,discounted.upfrontAmount,discounted.completionAmount],[891,445.5,445.5]);
+ assert.deepEqual([discounted.totalAmount,discounted.upfrontAmount,discounted.completionAmount],[540,270,270]);
  assert.equal(discounted.upfrontAmount+discounted.completionAmount,discounted.totalAmount);
  assert.equal(discounted.paymentConfirmed,false);assert.equal(discounted.createsOrder,false);
 });
@@ -24,8 +24,8 @@ test('agent 1 consumes policy and keeps pilot scope separate from other quotes',
  assert.match(plan.commercialTerms.monthlyPaymentRule,/paid in full/);
  assert.equal(plan.commercialTerms.recurringPricingStatus,'NOT_OFFERED');
  assert.deepEqual(plan.commercialTerms.scope,{businesses:1,webWorkflows:1,simpleIntegrations:1});
- assert.match(plan.commercialTerms.applicability,/Only the USD990 pilot/);
- assert.equal(plan.commercialTerms.otherOffersPricingEnabled,false);
+ assert.match(plan.commercialTerms.applicability,/USD600 scoped trial/);
+ assert.equal(plan.commercialTerms.otherOffersPricingEnabled,true);
  assert.match(plan.commercialTerms.deliveryStartsAfter,/upfront payment confirmed/);
  assert.equal(plan.commercialTerms.existingAcceptedQuotesUnchanged,true);
  const again=pilotCommercialTerms();again.scope.businesses=999;again.exclusions.push('corrupt');
