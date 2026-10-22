@@ -12,7 +12,7 @@ test('review queue retries stale reviews and retains untouched new drafts',()=>{
  assert.equal(isDue({checkedAt:'2026-10-21T11:59:59Z'},now),true);
  assert.equal(isDue({checkedAt:'2026-10-22T11:59:59Z'},now),false);
  assert.equal(isDue({checkedAt:'invalid'},now),true);
- assert.match(source,/now\.getTime\(\)-Date\.parse\(x\.source_payload\.commercialReview\.checkedAt\)>=24\*3600000/);
+ assert.match(source,/companyDraftReviewDue\(x\.source_payload\.commercialReview,now\)/);
  assert.match(source,/await reviewCompanyDraft\(lead,/);
 });
 test('commercial review remains fail-closed without eligibility, suppression and dispatcher',()=>{
