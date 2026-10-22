@@ -16,14 +16,15 @@ test('sales, marketing and pilot agree on initial US manufacturing segment',()=>
  assert.equal(BOLTECH_POSITIONING.otherIndustriesEligible,true);
  assert.equal(MARKETING_PLAYBOOK.otherIndustriesEligible,true);
 });
-test('segmentation revision cannot change price, split, scope or payments',()=>{
+test('segmentation and approved pricing keep split, scope and payments safe',()=>{
  const t=pilotCommercialTerms();
- assert.equal(pilot.implementationAmount,990);
- assert.equal(t.baseAmount,990);
- assert.equal(t.upfrontAmount,495);
- assert.equal(t.completionAmount,495);
+ assert.equal(pilot.implementationAmount,600);
+ assert.equal(t.baseAmount,600);
+ assert.equal(t.upfrontAmount,300);
+ assert.equal(t.completionAmount,300);
  assert.equal(pilot.scope.businesses,1);
  assert.equal(pilot.scope.webWorkflows,1);
  assert.equal(pilot.scope.simpleIntegrations,1);
+ assert.equal(pilot.generalAgentImplementationAmount,900);
  assert.equal(pilot.paymentEnabled,false);
 });
