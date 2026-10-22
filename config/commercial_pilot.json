@@ -1,6 +1,6 @@
 {
   "id": "quotation_intake_pilot",
-  "offerVersion": "2026-10-21-segmentation",
+  "offerVersion": "2026-10-21-price-segment",
   "name": "Registro, asignación y seguimiento de solicitudes",
   "targetSegment": "Fabricantes y talleres de fabricación metálica B2B en Estados Unidos que reciben solicitudes de cotización y requieren registrar, asignar y dar seguimiento a cada consulta",
   "outcomes": [
@@ -30,18 +30,18 @@
     "Garantía de ventas o funcionamiento ininterrumpido"
   ],
   "currency": "USD",
-  "implementationAmount": 990,
+  "implementationAmount": 600,
   "recurring": false,
   "durationDays": 14,
   "milestones": [
     {
       "id": "kickoff",
-      "amount": 495,
+      "amount": 300,
       "condition": "Scope accepted and required access available"
     },
     {
       "id": "verified_delivery",
-      "amount": 495,
+      "amount": 300,
       "condition": "Delivery acceptance criteria verified"
     }
   ],
@@ -59,7 +59,7 @@
   "positioningNote": "Segmento inicial de prospección: fabricantes y talleres de fabricación metálica B2B en Estados Unidos, especialmente equipos con solicitudes de cotización recibidas por web o correo. El piloto de registro, asignación y seguimiento de solicitudes puede adaptarse a empresas de otros sectores previa validación de alcance; no es una oferta exclusiva para fabricantes. Otros procesos requieren alcance y cotización individuales. No implica resultados ni certificaciones no verificadas.",
   "commercialPolicy": {
     "authorizedBy": "Ricardo",
-    "authorizedOn": "2026-10-19",
+    "authorizedOn": "2026-10-21",
     "maxDiscountPercent": 10,
     "discountBasis": "Approved implementation price; no stacking",
     "upfrontPercent": 50,
@@ -70,7 +70,8 @@
     "existingAcceptedQuotesUnchanged": true,
     "monthlyInstallmentsAllowed": false,
     "monthlyPaymentRule": "Monthly fees are paid in full; the 50/50 split applies only to implementation",
-    "activePriceScope": "Only the USD990 pilot; no monthly prices or other product prices",
-    "otherOffersPricingEnabled": false
-  }
+    "activePriceScope": "USD600 scoped trial pilot; USD900 standard agent implementation subject to confirmed scope; no monthly price implied",
+    "otherOffersPricingEnabled": true
+  },
+  "generalAgentImplementationAmount": 900
 }
