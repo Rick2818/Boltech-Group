@@ -10,7 +10,7 @@ test('pricing response requests qualification, not automatic payment',()=>{
  assert.equal(nextSalesAction({reply:'Please send pricing'}).action,'PREPARE_SCOPE_QUESTIONS');
 });
 test('pilot respects discount, 50/50 and explicit scope acceptance',()=>{
- assert.deepEqual([quotePilot({discountPercent:10}).total,quotePilot({discountPercent:10}).upfront],[891,445.5]);
+ assert.deepEqual([quotePilot({discountPercent:10}).total,quotePilot({discountPercent:10}).upfront],[540,270]);
  assert.equal(quotePilot().readyToOffer,false);
  assert.equal(quotePilot({scopeAccepted:true}).paymentRequested,false);
  assert.throws(()=>quotePilot({discountPercent:11}),/DISCOUNT_NOT_AUTHORIZED/);

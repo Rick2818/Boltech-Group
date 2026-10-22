@@ -1,0 +1,28 @@
+name: Commercial Pricing and Segment Alignment
+on:
+  pull_request:
+    paths:
+      - 'config/commercial_pilot.json'
+      - 'lib/commercial_offer.js'
+      - 'lib/agent1_v2_sales_cycle.js'
+      - 'lib/boltech_positioning_v2.js'
+      - 'lib/marketing_commercial_playbook.js'
+      - 'index.html'
+      - 'tests/test_commercial_terms.mjs'
+      - 'tests/test_commercial_segment_alignment.mjs'
+      - 'tests/test_agent1_v2_sales_cycle.mjs'
+      - 'tests/test_web_commercial_pricing_alignment.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  commercial-offer-pricing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Certify authorized product pricing, segmentation, and 50/50 milestones
+        run: node --test tests/test_commercial_terms.mjs tests/test_commercial_segment_alignment.mjs tests/test_agent1_v2_sales_cycle.mjs tests/test_web_commercial_pricing_alignment.mjs
