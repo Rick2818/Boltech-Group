@@ -20,4 +20,4 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: node --test tests/supabase-commercial-dispatch-gate.test.mjs tests/supabase-commercial-executor.test.mjs
+      - run: node --test tests/supabase-commercial-dispatch-gate.test.mjs tests/supabase-commercial-executor.test.mjs tests/supabase-commercial-synthetic-client.test.mjs
