@@ -49,3 +49,20 @@ test('storage outage cannot create a false receipt',async()=>{
   const f=fixture();f.deps.queue=async()=>{throw Error('unavailable');};
   await assert.rejects(receiveWebLead(input,f.deps));assert.equal(f.writes,0);
 });
+
+test('commercial diagnosis recommends a relevant agent and asks for purchase preference before contact',async()=>{
+  const {recommendReception,receptionPricing}=await import('../assets/js/reception-guidance.js');
+  const keys=receptionSteps.map(s=>s[0]);
+  assert.ok(keys.indexOf('commercialIntent')>keys.indexOf('limits'));
+  assert.ok(keys.indexOf('commercialIntent')<keys.indexOf('email'));
+  assert.equal(recommendReception(input).type,'PREBUILT_CANDIDATE');
+  assert.equal(recommendReception({...input,painPoint:'Conciliar documentos internos'}).type,'CUSTOM_REVIEW');
+  assert.ok(recommendReception(input).text.includes(input.result));
+  assert.match(receptionPricing,/US\$600/);assert.match(receptionPricing,/US\$900/);assert.doesNotMatch(receptionPricing,/990/);
+  const f=fixture();await receiveWebLead({...input,commercialIntent:'Quiero propuesta de la prueba'},f.deps);
+  const evidence=JSON.parse(f.tables.get('tblHVqUMifOFjlGvj')[0].fields.Evidence);
+  assert.equal(evidence.commercialIntent,'Quiero propuesta de la prueba');
+  assert.equal(evidence.recommendation.type,'PREBUILT_CANDIDATE');
+  assert.equal(evidence.customerAcceptance,false);assert.equal(evidence.paymentVerified,false);
+  assert.throws(()=>validateReception({...input,commercialIntent:'x'.repeat(501)}));
+});
