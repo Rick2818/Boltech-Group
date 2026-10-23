@@ -88,7 +88,7 @@ export default async function handler(req, res) {
 
     if (pathname === '/api/marketing-sales-cycle' || url.searchParams.get('marketing_sales_cycle') === '1') return await marketingCycleHandler(req,res);
 
-    if (pathname === '/api/agent1-evidence-executor') return await evidenceExecutorHandler(req,res);
+    if (pathname === '/api/agent1-evidence-executor' || url.searchParams.get('agent1_evidence') === '1') return await evidenceExecutorHandler(req,res);
 
     if (pathname === '/api/agent1-continuous-cycle' || url.searchParams.get('agent1_cycle') === '1') return await salesCycleHandler(req,res);
 
