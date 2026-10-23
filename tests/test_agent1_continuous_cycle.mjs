@@ -65,6 +65,17 @@ test('official extraction requires one explicitly published email beside name an
  const found=await researchOfficialContact(p,{pageReader:async()=>'<html>Jane Doe President owner@company1.com</html>'});assert.equal(found.contact_email,'owner@company1.com');assert.equal(found.source_payload.verification.officialNameRoleEmailLocated,true);
  const ambiguous=await researchOfficialContact(p,{pageReader:async()=>'<html>Jane Doe President jane@company1.com support@company1.com</html>'});assert.equal(ambiguous.contact_email,undefined);
 });
+test('hosting placeholders and cross-domain email near a buyer name never become contact addresses',async()=>{
+ const p=candidate(1);p.contact_email='filler@godaddy.com';
+ const pageReader=async()=>'<html>filler@godaddy.com Jane Doe President</html>';
+ const sanitized=await researchOfficialContact(p,{pageReader});
+ assert.equal(sanitized.contact_email,null);
+ assert.equal(sanitized.source_payload.verification.officialNameRoleEmailLocated,false);
+ const external=await researchOfficialContact({...p,contact_email:undefined},{pageReader:async()=>'<html>Jane Doe President owner@othercompany.com</html>'});
+ assert.equal(external.contact_email,undefined);
+ const valid=await researchOfficialContact({...p,contact_email:undefined},{pageReader:async()=>'<html>Jane Doe President owner@company1.com</html>'});
+ assert.equal(valid.contact_email,'owner@company1.com');
+});
 test('official source loader rejects private DNS and cross-host redirects',async()=>{
  let called=false;await assert.rejects(readOfficialPage('https://internal.example.com',{resolveAddresses:async()=>['127.0.0.1'],fetcher:async()=>{called=true;}}),/PUBLIC_SOURCE_ADDRESS/);assert.equal(called,false);
  await assert.rejects(readOfficialPage('https://public.example.com',{resolveAddresses:async()=>['93.184.216.34'],fetcher:async()=>new Response(null,{status:302,headers:{location:'http://127.0.0.1'}})}),/SOURCE_HTTP_302/);
