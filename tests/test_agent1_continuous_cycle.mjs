@@ -99,11 +99,11 @@ test('EDM-shaped named buyer bypasses future research timer only for fail-closed
    verification:{checkedAt:'2026-10-23T16:00:00Z',emailSyntax:true,emailPublished:true,namedContactPublished:true,rolePublished:true,mxVerified:true,publishedWorkflow:'QUOTE_REQUEST'},
    leadEvidence:{personalCandidateVerified:true,sendAuthorized:false},
    campaignDraft:{marketingContentId:'quote-material',sent:false},companyCampaignDraft:null}};
- const db=database([edm]);
+ const db=database([edm,...Array.from({length:12},(_,i)=>candidate(i))]);let time=0;
  const fetcher=async(url,opts)=>String(url).includes('/marketing_content_runs?')?Response.json([{id:'quote-material',workflow:'QUOTE_REQUEST',body:'Quote material',distribution_status:'SALES_QUEUE_READY'}]):String(url).includes('/marketing_sales_briefs?')?Response.json([]):db.fetcher(url,opts);
- const result=await runAgent1Cycle({env,fetcher,now:new Date('2026-10-23T16:28:00Z'),discoverExplee:empty,discoverPublic:empty});
+ const result=await runAgent1Cycle({env,fetcher,now:new Date('2026-10-23T16:28:00Z'),clock:()=>time,budgetMs:30,verifyCandidate:async lead=>{time+=10;return verify(lead);},discoverExplee:empty,discoverPublic:empty});
  assert.equal(result.commercialReviewsChecked,1);
- assert.equal(result.preparedTotal,0);
+ assert.equal(result.preparedTotal,3); // Three independent research candidates progress; EDM itself remains blocked.
  assert.equal(db.leads[0].commercial_stage,'DRAFT_REVIEW');
  assert.equal(db.leads[0].source_payload.commercialReview.reason,'GMAIL_READ_UNAVAILABLE');
  assert.equal(db.leads[0].source_payload.commercialReview.sendAuthorized,false);

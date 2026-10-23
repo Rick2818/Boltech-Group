@@ -12,6 +12,9 @@ test('review queue retries stale reviews and retains untouched new drafts',()=>{
  assert.equal(isDue({checkedAt:'2026-10-21T11:59:59Z'},now),true);
  assert.equal(isDue({checkedAt:'2026-10-22T11:59:59Z'},now),false);
  assert.equal(isDue({checkedAt:'invalid'},now),true);
+ assert.equal(isDue({checkedAt:'2026-10-22T11:49:00Z',reason:'GMAIL_READ_UNAVAILABLE'},now),true);
+ assert.equal(isDue({checkedAt:'2026-10-22T11:55:00Z',reason:'GMAIL_READ_UNAVAILABLE'},now),false);
+ assert.equal(isDue({checkedAt:'2026-10-22T12:01:00Z',reason:'GMAIL_READ_UNAVAILABLE'},now),true);
  assert.match(source,/companyDraftReviewDue\(x\.source_payload\.commercialReview,now\)/);
  assert.match(source,/await reviewCompanyDraft\(lead,/);
 });
