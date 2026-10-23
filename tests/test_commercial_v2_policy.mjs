@@ -1,0 +1,8 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {getCommercialV2Compliance,evaluateCommercialV2Policy,commercialV2BodyWithFooter} from '../lib/commercial_v2_policy.js';
+const lead={country:'US',source_payload:{campaignDraft:{subject:'Quote workflow',body:'A relevant commercial message that offers a consultation.',marketingContentId:'asset'}}};
+const env={COMMERCIAL_V2_AUTONOMOUS_AUTHORIZED:'true',COMMERCIAL_V2_POSTAL_ADDRESS_VERIFIED:'true',COMMERCIAL_V2_POSTAL_ADDRESS:'123 Verified Business Avenue, San Salvador, El Salvador'};
+test('missing postal or authorization blocks',async()=>{assert.equal((await evaluateCommercialV2Policy(lead,{env:{}})).authorized,false);assert.equal((await evaluateCommercialV2Policy(lead,{env:{...env,COMMERCIAL_V2_POSTAL_ADDRESS_VERIFIED:'false'}})).eligible,false)});
+test('explicitly configured business policy permits an eligible US lead',async()=>{const x=await evaluateCommercialV2Policy(lead,{env});assert.equal(x.eligible,true);assert.equal(x.authorized,true)});
+test('unrelated market and QA lead never eligible',async()=>{assert.equal((await evaluateCommercialV2Policy({...lead,country:'DE'},{env})).eligible,false);assert.equal((await evaluateCommercialV2Policy({...lead,data_quality:'QA'},{env})).eligible,false)});
+test('footer preserves opt-out and postal compliance information',()=>{const b=commercialV2BodyWithFooter(lead.source_payload.campaignDraft.body,{env});assert.match(b,/reply UNSUBSCRIBE/);assert.match(b,/Postal address:/)});
+test('footer rejects unconfigured postage',()=>assert.throws(()=>commercialV2BodyWithFooter(lead.source_payload.campaignDraft.body,{env:{}})));
