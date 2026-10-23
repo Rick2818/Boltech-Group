@@ -64,6 +64,8 @@ test('named buyer review fails closed on Gmail errors and existing history',asyn
 test('named buyer review blocks stale evidence, mismatched marketing and missing eligibility',async()=>{
  const stale=structuredClone(named);stale.source_payload.verification.checkedAt='2026-10-21T16:00:00Z';
  assert.equal((await review(stale)).reason,'NAMED_BUYER_EVIDENCE_NOT_CURRENT');
+ const future=structuredClone(named);future.source_payload.verification.checkedAt='2026-10-24T16:00:00Z';
+ assert.equal((await review(future)).reason,'NAMED_BUYER_EVIDENCE_NOT_CURRENT');
  const wrong=await review(named,{marketingRuns:[{...materials[0],workflow:'SERVICE_ROUTING'}]});
  assert.equal(wrong.reason,'MARKETING_ASSET_NOT_VERIFIED');
  const noPermission=structuredClone(named);noPermission.source_payload.recipientEligibility.approved=false;
