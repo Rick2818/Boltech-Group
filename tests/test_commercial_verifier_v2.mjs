@@ -1,0 +1,18 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {evaluateRecipientV2} from '../lib/commercial_verifier_v2.js';
+const now=new Date('2026-10-23T18:00:00Z');
+const lead={id:'example',contact_email:'buyer@example.com',company_url:'https://example.com',source_evidence_url:'https://example.com/team',source_payload:{verification:{checkedAt:'2026-10-23T17:00:00Z',emailSyntax:true,emailPublished:true,namedContactPublished:true,rolePublished:true,mxVerified:true,publishedWorkflow:'QUOTE_REQUEST'},leadEvidence:{personalCandidateVerified:true,sendAuthorized:true},recipientEligibility:{approved:true},campaignDraft:{sent:false,marketingContentId:'asset'}}};
+const deps={now,marketingRuns:[{id:'asset',workflow:'QUOTE_REQUEST',body:'Example',distribution_status:'SALES_QUEUE_READY'}],checkDuplicates:async()=>false,checkSuppression:async()=>({status:'CLEAR',checkedAt:now.toISOString(),recipient:'buyer@example.com'}),checkHistory:async()=>[],policy:async()=>true};
+test('all required evidence gives CLEAR without sending',async()=>{const x=await evaluateRecipientV2(lead,deps);assert.equal(x.status,'CLEAR');assert.equal(x.sendAuthorized,true);});
+test('missing DNC cannot clear',async()=>assert.equal((await evaluateRecipientV2(lead,{...deps,checkSuppression:async()=>null})).status,'REVIEW_REQUIRED'));
+test('DNC matched blocks',async()=>assert.equal((await evaluateRecipientV2(lead,{...deps,checkSuppression:async()=>({status:'BLOCKED'})})).status,'BLOCKED'));
+test('Gmail read failing cannot clear',async()=>assert.equal((await evaluateRecipientV2(lead,{...deps,checkHistory:async()=>{throw Error('429')}})).status,'REVIEW_REQUIRED'));
+test('existing Gmail history blocks',async()=>assert.equal((await evaluateRecipientV2(lead,{...deps,checkHistory:async()=>[{id:'x'}]})).status,'BLOCKED'));
+test('unauthorized lead cannot clear',async()=>assert.equal((await evaluateRecipientV2({...lead,source_payload:{...lead.source_payload,leadEvidence:{personalCandidateVerified:true}}},deps)).status,'REVIEW_REQUIRED'));
+test('missing source cannot clear',async()=>assert.equal((await evaluateRecipientV2({...lead,source_evidence_url:'https://other.com'},deps)).status,'REVIEW_REQUIRED'));
+test('future dated evidence cannot clear',async()=>assert.equal((await evaluateRecipientV2({...lead,source_payload:{...lead.source_payload,verification:{...lead.source_payload.verification,checkedAt:'2026-10-24T17:00:00Z'}}},deps)).status,'REVIEW_REQUIRED'));
+test('no checker cannot clear',async()=>assert.equal((await evaluateRecipientV2(lead,{...deps,checkDuplicates:null})).status,'REVIEW_REQUIRED'));
+test('duplicate blocks',async()=>assert.equal((await evaluateRecipientV2(lead,{...deps,checkDuplicates:async()=>true})).status,'BLOCKED'));
+test('stale DNC receipt cannot clear',async()=>assert.equal((await evaluateRecipientV2(lead,{...deps,checkSuppression:async()=>({status:'CLEAR',checkedAt:'2026-10-22T17:00:00Z',recipient:'buyer@example.com'})})).status,'REVIEW_REQUIRED'));
+test('ineligible lead cannot clear',async()=>assert.equal((await evaluateRecipientV2({...lead,source_payload:{...lead.source_payload,recipientEligibility:{approved:false}}},deps)).status,'REVIEW_REQUIRED'));
