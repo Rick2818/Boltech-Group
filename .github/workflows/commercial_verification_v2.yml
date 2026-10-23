@@ -1,0 +1,25 @@
+name: Commercial Verification V2 CI
+on:
+  pull_request:
+    paths:
+      - 'lib/commercial_verifier_v2.js'
+      - 'lib/commercial_dispatch_v2.js'
+      - 'tests/test_commercial_verifier_v2.mjs'
+      - 'tests/test_commercial_dispatch_v2.mjs'
+      - '.github/workflows/commercial_verification_v2.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  safety:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Source syntax
+        run: node --check lib/commercial_verifier_v2.js && node --check lib/commercial_dispatch_v2.js
+      - name: Fail-closed tests and recovery regressions
+        run: node --test tests/test_commercial_verifier_v2.mjs tests/test_commercial_dispatch_v2.mjs
