@@ -14,6 +14,8 @@ on:
       - 'tests/test_commercial_v2_gmail_provider.mjs'
       - 'tests/test_commercial_v2_orchestrator.mjs'
       - 'tests/test_commercial_v2_policy.mjs'
+      - 'supabase/migrations/20261023000000_commercial_v2_dispatch.sql'
+      - 'supabase/migrations/20261023010000_commercial_v2_reviews.sql'
       - '.github/workflows/commercial_verification_v2.yml'
   workflow_dispatch:
 permissions:
@@ -30,4 +32,4 @@ jobs:
       - name: Source syntax
         run: node --check lib/commercial_verifier_v2.js && node --check lib/commercial_dispatch_v2.js && node --check lib/commercial_v2_gmail_provider.js && node --check lib/commercial_v2_supabase_store.js && node --check lib/commercial_v2_orchestrator.js && node --check lib/commercial_v2_policy.js && node --check lib/agent1_autonomous_inbox.js
       - name: Fail-closed tests and recovery regressions
-        run: node --test tests/test_commercial_verifier_v2.mjs tests/test_commercial_dispatch_v2.mjs tests/test_commercial_v2_gmail_provider.mjs
+        run: node --test tests/test_commercial_verifier_v2.mjs tests/test_commercial_dispatch_v2.mjs tests/test_commercial_v2_gmail_provider.mjs tests/test_commercial_v2_orchestrator.mjs tests/test_commercial_v2_policy.mjs
