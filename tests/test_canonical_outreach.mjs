@@ -41,15 +41,10 @@ test('time budget checkpoints pending opportunities without an exact-five thresh
  const x=setup({amount:8});let time=0;const original=x.gmail.send;x.gmail.send=async j=>{const r=await original(j);time+=100;return r;};
  const r=await runCanonicalOutreach({...x,clock:()=>time,budgetMs:150});assert.equal(r.sent,2);assert.equal(r.pending,6);
 });
-test('24/7 outreach still requires independent recipient verification and records receipts',async()=>{
- const x=setup();const r=await runCanonicalOutreach({...x,now:new Date('2026-10-25T16:00:00Z')});
- assert.equal(r.sent,1);assert.equal(x.sent.length,1);assert.equal(x.leads[0].status,'CONTACTED');
- assert.ok(x.leads[0].source_payload.gmail_sent_message_id);
-});
-test('24/7 outreach never bypasses suppression or verification safeguards',async()=>{
+test('24/7 outreach retains evidence, suppression and provider receipts',async()=>{
+ const x=setup();const r=await runCanonicalOutreach({...x,now:new Date('2026-10-25T16:00:00Z')});assert.equal(r.sent,1);assert.equal(x.leads[0].status,'CONTACTED');assert.ok(x.leads[0].source_payload.gmail_sent_message_id);
  const blocked=setup({blocked:true});await runCanonicalOutreach({...blocked,now:new Date('2026-10-25T16:00:00Z')});assert.equal(blocked.sent.length,0);
- const unverified=setup();unverified.verifyCandidate=async()=>({draft:{subject:'x',body:'x'},verification:{mxVerified:false}});
- await runCanonicalOutreach({...unverified,now:new Date('2026-10-25T16:00:00Z')});assert.equal(unverified.sent.length,0);
+ const unverified=setup();unverified.verifyCandidate=async()=>({draft:{subject:'x',body:'x'},verification:{mxVerified:false}});await runCanonicalOutreach({...unverified,now:new Date('2026-10-25T16:00:00Z')});assert.equal(unverified.sent.length,0);
 });
 
 import {prepareCampaignDraft} from '../lib/agent1_continuous_research.js';
@@ -71,4 +66,18 @@ test('missing assigned Marketing material holds send without generic fallback',a
  const x=setup();x.leads[0].source_payload.campaignDraft.marketingContentId='missing';
  const originalDb=x.db;x.db=async(path,options)=>path.startsWith('/marketing_content_runs?')?[]:originalDb(path,options);
  const result=await runCanonicalOutreach(x);assert.equal(x.sent.length,0);assert.equal(result.errors[0].error,'OUTREACH_MARKETING_MATERIAL_UNAVAILABLE');
+});
+test('stale mismatched asset is replaced only with content for the verified workflow',async()=>{
+ const x=setup();x.leads[0].source_payload.research={contactName:'Sam Buyer'};
+ x.leads[0].source_payload.campaignDraft={marketingContentId:'wrong-service',marketingBriefId:'brief',marketingStrategyVersion:'v2'};
+ const original=x.db;const lookups=[];
+ x.db=async(path,options)=>{
+  if(path.startsWith('/marketing_content_runs?')){
+   lookups.push(path);
+   return path.includes('workflow=eq.QUOTE_REQUEST')?[{id:'correct-quote',workflow:'QUOTE_REQUEST',body:'Correct quoting material',distribution_status:'SALES_QUEUE_READY'}]:[{id:'wrong-service',workflow:'SERVICE_ROUTING',body:'WRONG MATERIAL',distribution_status:'SALES_QUEUE_READY'}];
+  }return original(path,options);
+ };
+ const result=await runCanonicalOutreach(x);
+ assert.equal(result.sent,1);assert.equal(lookups.length,2);assert.match(x.sent[0].text,/Correct quoting material/);assert.doesNotMatch(x.sent[0].text,/WRONG MATERIAL/);
+ assert.equal([...x.rows.values()][0].execution_receipt.marketingContentId,'correct-quote');
 });

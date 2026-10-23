@@ -1,0 +1,44 @@
+# Gmail quota recovery and verified Marketing selection
+
+22 October 2026. Responsible: Agent 1 application maintainer.
+
+Production scheduler receipts identified HTTP 403 `rateLimitExceeded` during
+`MESSAGE_READ`. The inbox scanned unrelated mail every cycle, and only 429/5xx
+were retried. Reads now search canonical contact senders in bounded query pages.
+Transient quota reads retry once after a delay; repeated failures persist an
+exponential cooldown in the existing `agent_work` table (one minute to one hour).
+Followup and initial-outreach scans stop immediately on read quota exhaustion and
+release their leases. Sends remain non-retried; uncertain sends still require
+provider reconciliation. No new scheduler, agent, paid service or schema.
+
+Marketing was selected before official workflow verification. Research now selects
+the queued asset after `publishedWorkflow` is known and prepares the final draft
+from that matching asset. Initial outreach can recover old mismatched assignments
+by selecting the newest ready asset for the freshly verified workflow. Missing
+material or evidence remains held. The durable send receipt records the asset
+actually used; provider identity, suppression and history controls remain required.
+
+Acceptance tests cover 403 recovery versus permission failure, persistent cooldown
+and recovery, lease release on quota failure, unknown-workflow intake, replacement
+of a stale mismatched asset, final body/receipt correspondence and uncertain-send
+deduplication. Local targeted suite: 58 passing tests. Live acceptance additionally
+requires a scheduled inbox cycle after deployment, and an eligible campaign send
+with Gmail receipt and matching Marketing ID during the authorized sending window.
+Tests and deployment readiness alone do not certify that live send.
+
+Review follow-up: daily-limit reads now propagate quota exhaustion immediately
+without the transient retry. A durable message-ID scan cursor rotates the bounded
+100-message read across all contact sender queries, avoiding starvation of later
+contacts. The cursor shares the existing quota work receipt and survives restarts.
+Expanded local suite including SDR dispatch: 68 passing tests.
+
+The inbox now claims an optimistic five-minute lease in that same work row before
+Gmail calls. Concurrent invocations return BUSY and cannot erase a newer quota
+cooldown. Cursor progress is saved before downstream campaign/error checks, and
+the owning execution releases its lease on success or failure. The 69-test suite
+also covers cursor continuation after a campaign failure and overlapping cycles.
+
+Production observation after #234: scheduler HTTP receipt 795 at 21:47:42 SV
+completed successfully, reviewed all 18 followups and reported no errors. No mail
+was sent: initial outreach was outside its send window, and followups were waiting.
+This confirms one recovered read/reconciliation cycle, not a campaign send.

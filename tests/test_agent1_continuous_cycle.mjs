@@ -23,6 +23,13 @@ function database(initial=[]){
 }
 const empty=async({cursor=0})=>({status:'EMPTY',candidates:[],nextCursor:cursor+1});
 const verify=async lead=>({status:'PREPARED_PENDING_HISTORY_CHECK',verification:{...lead.source_payload.verification,mxVerified:true},draft:{subject:'QA',body:'QA',sent:false}});
+test('new lead receives queued Marketing material after official workflow verification',async()=>{
+ const db=database([candidate(0)]);
+ const assets=[{id:'newest-wrong',workflow:'SERVICE_ROUTING',body:'Wrong service',distribution_status:'SALES_QUEUE_READY'},{id:'quote-correct',workflow:'QUOTE_REQUEST',body:'Verified quoting content',distribution_status:'SALES_QUEUE_READY'}];
+ const fetcher=async(url,opts)=>String(url).includes('/marketing_content_runs?')?Response.json(assets):String(url).includes('/marketing_sales_briefs?')?Response.json([{id:'brief',status:'READY_FOR_SALES_REVIEW',strategy_version:'v2',message:'Generic'}]):db.fetcher(url,opts);
+ const result=await runAgent1Cycle({env,fetcher,discoverExplee:empty,discoverPublic:empty,verifyCandidate:async lead=>({...await verify(lead),verification:{mxVerified:true,publishedWorkflow:'QUOTE_REQUEST'}})});
+ assert.equal(result.marketingContentConsumed,1);assert.equal(db.leads[0].source_payload.campaignDraft.marketingContentId,'quote-correct');assert.match(db.leads[0].source_payload.campaignDraft.body,/Verified quoting content/);assert.doesNotMatch(db.leads[0].source_payload.campaignDraft.body,/Wrong service/);
+});
 test('research tasks never inflate followup count and prepared totals reflect saved rows',async()=>{
  const db=database([{...candidate(1),next_action:'Research contact'}, {...candidate(2),status:'CONTACTED',source_payload:{gmail_sent_message_id:'provider-id'}},{...candidate(3),status:'CONTACTED',commercial_stage:'REPLIED',source_payload:{gmail_sent_message_id:'replied-id'}}]);
  const r=await runAgent1Cycle({env,fetcher:db.fetcher,discoverExplee:empty,discoverPublic:empty,verifyCandidate:verify});assert.equal(r.followups_pending,1);assert.equal(r.preparedTotal,1);assert.equal(r.researchPending,0);

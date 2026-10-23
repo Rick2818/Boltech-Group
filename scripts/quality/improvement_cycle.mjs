@@ -15,6 +15,7 @@ const groups = [
   { name: 'Partner Network', files: ['tests/test_partner_network.mjs'] },
   { name: 'Operational truth', files: ['tests/test_operational_truth_guards.mjs', 'tests/test_operational_privacy.mjs', 'tests/test_production_watch.mjs'] },
   { name: 'Payment security', files: ['tests/test_current_offer.mjs', 'tests/test_payment_security_v2.mjs', 'tests/test_payment_rsi_hardening.mjs', 'tests/test_billing_sentinel.mjs'] },
+  { name: 'Agent 1 evidence executor', files: ['tests/test_agent1_evidence_executor.mjs'] },
   { name: 'MCP authentication', files: ['tests/test_mcp_remote_auth.mjs', 'tests/test_mcp_remote_handshake.mjs'] },
 ];
 

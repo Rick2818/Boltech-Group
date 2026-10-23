@@ -47,3 +47,9 @@ test('dedicated scheduler credential is fail-closed and preserves existing cron 
  assert.equal(commercialSchedulerAuthorized({headers:{authorization:'Bearer old'}},{CRON_SECRET:'old'}),true);
  assert.equal(commercialSchedulerAuthorized({headers:{authorization:'Bearer wrong'}},{BOLTECH_SCHEDULER_SECRET:'scheduler'}),false);
 });
+test('quota exhaustion stops the scan and releases the current followup lease',async()=>{
+ const x=setup();let reads=0;
+ x.gmail.message=async()=>{reads++;throw Object.assign(Error('GMAIL_RATE_LIMITED'),{code:'GMAIL_RATE_LIMITED'});};
+ await assert.rejects(reconcileCanonicalFollowups({...x,leads:[x.lead,{...x.lead,id:'second'}]}),/GMAIL_RATE_LIMITED/);
+ assert.equal(reads,1);assert.equal(x.work.size,1);assert.equal([...x.work.values()][0].execution_receipt.leaseUntil,null);
+});

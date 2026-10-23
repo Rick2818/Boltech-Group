@@ -109,3 +109,25 @@ test('send rejection is never retried and diagnostic excludes provider free text
   assert.ok(!JSON.stringify(e).includes('SECRET_CANARY'));return true;
  });assert.equal(sends,1);
 });
+
+test('403 quota reads back off and recover, while permission failures do not retry',async()=>{
+ for(const reason of ['rateLimitExceeded','userRateLimitExceeded','insufficientPermissions']){
+  let reads=0;const waits=[];
+  const gmail=createSdrGmail(async url=>{
+   if(url.includes('oauth2'))return Response.json({access_token:'test',expires_in:3600});
+   if(++reads===1)return Response.json({error:{errors:[{reason}]}},{status:403});
+   return Response.json({emailAddress:'ricardo.boltechgroup@gmail.com'});
+  },env,{wait:async ms=>waits.push(ms)});
+  if(reason==='insufficientPermissions'){await assert.rejects(gmail.verify(),/GMAIL_API_REJECTED/);assert.equal(reads,1);assert.deepEqual(waits,[]);}
+  else{assert.equal((await gmail.verify()).verified,true);assert.equal(reads,2);assert.deepEqual(waits,[1000]);}
+ }
+});
+test('daily quota propagates immediately without a transient read retry',async()=>{
+ let reads=0,waits=0;
+ const gmail=createSdrGmail(async url=>{
+  if(url.includes('oauth2'))return Response.json({access_token:'test',expires_in:3600});
+  reads++;return Response.json({error:{errors:[{reason:'dailyLimitExceeded'}]}},{status:403});
+ },env,{wait:async()=>{waits++;}});
+ await assert.rejects(gmail.message('test-message'),e=>e.code==='GMAIL_RATE_LIMITED'&&e.diagnostic.reason==='dailyLimitExceeded');
+ assert.equal(reads,1);assert.equal(waits,0);
+});
