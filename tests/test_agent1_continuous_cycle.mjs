@@ -1,4 +1,5 @@
-import './agent1-review-retry.test.mjs'; // Required by the governance workflow's targeted Agent 1 test invocation.
+import './agent1-review-retry.test.mjs';
+import './test_agent1_company_draft_review.mjs'; // Named-buyer regression runs in the existing governance CI. // Required by the governance workflow's targeted Agent 1 test invocation.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {runAgent1Cycle} from '../lib/agent1_continuous_cycle.js';
