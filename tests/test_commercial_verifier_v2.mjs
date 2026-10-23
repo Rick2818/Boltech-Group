@@ -16,3 +16,11 @@ test('no checker cannot clear',async()=>assert.equal((await evaluateRecipientV2(
 test('duplicate blocks',async()=>assert.equal((await evaluateRecipientV2(lead,{...deps,checkDuplicates:async()=>true})).status,'BLOCKED'));
 test('stale DNC receipt cannot clear',async()=>assert.equal((await evaluateRecipientV2(lead,{...deps,checkSuppression:async()=>({status:'CLEAR',checkedAt:'2026-10-22T17:00:00Z',recipient:'buyer@example.com'})})).status,'REVIEW_REQUIRED'));
 test('legacy eligibility flag does not veto independent approved V2 policy',async()=>assert.equal((await evaluateRecipientV2({...lead,source_payload:{...lead.source_payload,recipientEligibility:{approved:false}}},deps)).status,'CLEAR'));
+
+test('official shared company mailbox is eligible only with matching published proof',async()=>{
+ const company={...lead,contact_email:'info@example.com',source_payload:{verification:{checkedAt:'2026-10-23T17:00:00Z',publishedWorkflow:'QUOTE_REQUEST'},leadEvidence:{companyMailboxVerification:{status:'OFFICIAL_COMPANY_MAILBOX_VERIFIED',email:'info@example.com'}},companyCampaignDraft:{recipientType:'OFFICIAL_COMPANY_MAILBOX',recipient:'info@example.com',sent:false,marketingContentId:'asset',subject:'Quote',body:'Hello'}}};
+ const x=await evaluateRecipientV2(company,{...deps,checkSuppression:async()=>({status:'CLEAR',checkedAt:now.toISOString(),recipient:'info@example.com'})});
+ assert.equal(x.status,'CLEAR');
+ const bad=await evaluateRecipientV2({...company,source_payload:{...company.source_payload,leadEvidence:{companyMailboxVerification:{status:'UNVERIFIED',email:'info@example.com'}}}},{...deps,checkSuppression:async()=>({status:'CLEAR',checkedAt:now.toISOString(),recipient:'info@example.com'})});
+ assert.equal(bad.status,'REVIEW_REQUIRED');
+});
