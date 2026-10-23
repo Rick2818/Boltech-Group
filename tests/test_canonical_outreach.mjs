@@ -44,3 +44,24 @@ test('time budget checkpoints pending opportunities without an exact-five thresh
 test('initial outreach respects the configured weekday business window',async()=>{
  const x=setup();const r=await runCanonicalOutreach({...x,now:new Date('2026-10-25T16:00:00Z')});assert.equal(r.status,'OUTSIDE_INITIAL_SEND_WINDOW');assert.equal(x.sent.length,0);
 });
+
+import {prepareCampaignDraft} from '../lib/agent1_continuous_research.js';
+test('selected queued Marketing content wins over generic brief and stays traceable',()=>{
+ const lead={name:'Company',source_payload:{research:{contactName:'Sam Buyer'}}};
+ const draft=prepareCampaignDraft(lead,{workflow:'QUOTE_REQUEST',marketingBrief:{id:'brief',strategy_version:'v2',selectedAsset:{id:'asset-123',key:'QUOTE_REQUEST',solution:'Specific queued material',cta:'Reply by email'},evidence:{assets:[{key:'QUOTE_REQUEST',solution:'GENERIC_OLD',cta:'Old'}]}}});
+ assert.ok(draft.body.includes('Specific queued material'));assert.ok(!draft.body.includes('GENERIC_OLD'));assert.equal(draft.marketingContentId,'asset-123');
+});
+test('revalidation passes persisted Marketing asset into final send and receipt',async()=>{
+ const x=setup();x.leads[0].source_payload.research={contactName:'Sam Buyer'};
+ x.leads[0].source_payload.campaignDraft={marketingContentId:'asset-123',marketingBriefId:'brief',marketingStrategyVersion:'v2'};
+ const originalDb=x.db;x.db=async(path,options)=>path.startsWith('/marketing_content_runs?')?[{id:'asset-123',workflow:'QUOTE_REQUEST',body:'Specific queued material',distribution_status:'SALES_QUEUE_READY'}]:originalDb(path,options);
+ const originalVerify=x.verifyCandidate;x.verifyCandidate=async(lead,options)=>({...await originalVerify(),draft:prepareCampaignDraft(lead,{workflow:'QUOTE_REQUEST',marketingBrief:options.marketingBrief})});
+ const result=await runCanonicalOutreach(x);
+ assert.equal(result.sent,1);assert.ok(x.sent[0].text.includes('Specific queued material'));
+ assert.equal([...x.rows.values()][0].execution_receipt.marketingContentId,'asset-123');
+});
+test('missing assigned Marketing material holds send without generic fallback',async()=>{
+ const x=setup();x.leads[0].source_payload.campaignDraft.marketingContentId='missing';
+ const originalDb=x.db;x.db=async(path,options)=>path.startsWith('/marketing_content_runs?')?[]:originalDb(path,options);
+ const result=await runCanonicalOutreach(x);assert.equal(x.sent.length,0);assert.equal(result.errors[0].error,'OUTREACH_MARKETING_MATERIAL_UNAVAILABLE');
+});
