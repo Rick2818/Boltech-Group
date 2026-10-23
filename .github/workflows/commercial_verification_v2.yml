@@ -6,9 +6,12 @@ on:
       - 'lib/commercial_dispatch_v2.js'
       - 'lib/commercial_v2_gmail_provider.js'
       - 'lib/commercial_v2_supabase_store.js'
+      - 'lib/commercial_v2_orchestrator.js'
+      - 'lib/agent1_autonomous_inbox.js'
       - 'tests/test_commercial_verifier_v2.mjs'
       - 'tests/test_commercial_dispatch_v2.mjs'
       - 'tests/test_commercial_v2_gmail_provider.mjs'
+      - 'tests/test_commercial_v2_orchestrator.mjs'
       - '.github/workflows/commercial_verification_v2.yml'
   workflow_dispatch:
 permissions:
@@ -23,6 +26,6 @@ jobs:
         with:
           node-version: '22'
       - name: Source syntax
-        run: node --check lib/commercial_verifier_v2.js && node --check lib/commercial_dispatch_v2.js && node --check lib/commercial_v2_gmail_provider.js && node --check lib/commercial_v2_supabase_store.js
+        run: node --check lib/commercial_verifier_v2.js && node --check lib/commercial_dispatch_v2.js && node --check lib/commercial_v2_gmail_provider.js && node --check lib/commercial_v2_supabase_store.js && node --check lib/commercial_v2_orchestrator.js && node --check lib/agent1_autonomous_inbox.js
       - name: Fail-closed tests and recovery regressions
         run: node --test tests/test_commercial_verifier_v2.mjs tests/test_commercial_dispatch_v2.mjs tests/test_commercial_v2_gmail_provider.mjs
