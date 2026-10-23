@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: '22'
       - name: Verify named-buyer DNC evidence and fail-closed approvals
-        run: node --test tests/test_agent1_company_draft_review.mjs tests/test_agent1_suppression_evidence.mjs
+        run: node --test tests/test_agent1_company_draft_review.mjs tests/test_agent1_suppression_evidence.mjs tests/agent1-review-retry.test.mjs
       - name: Verify research-only discovery safety
         run: node --test tests/test_blia01_discovery.cjs
       - name: Check BLIA-01 no unauthorized outreach or CRM writes
