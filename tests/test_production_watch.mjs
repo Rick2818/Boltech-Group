@@ -2,14 +2,14 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {classifyPayments,scheduleEvidence,runWatch,triggerEvidence} from '../scripts/ops/production_watch.mjs';
 
-test('daily campaign monitor distinguishes missed execution from a completed blocked cycle',async()=>{
- for(const [state,status,expected] of [['NOT_STARTED',undefined,'FAILED'],['RUNNING',undefined,'FAILED'],['FINISHED','ATTENTION','ATTENTION'],['FINISHED','EXECUTED','PASSED']]){
-  const r=await runWatch({now:new Date('2026-10-17T16:00:00Z'),env:{PARTNER_API_TOKEN:'admin'},fetcher:async(url,options)=>{
-   if(url.includes('action=rsi01-daily')){assert.equal(options.method,undefined);return Response.json({success:true,dailyCampaign:{day:'2026-10-17',state,status}})}
-   return new Response('{}',{status:503});
-  }});
-  assert.equal(r.checks.find(x=>x.name==='rsi01_daily_campaign').status,expected);
- }
+test('monitor does not query retired campaign or infer current sales success',async()=>{
+ const r=await runWatch({now:new Date('2026-10-22T23:00:00Z'),env:{PARTNER_API_TOKEN:'admin'},fetcher:async(url)=>{
+  assert.ok(!url.includes('rsi01-daily'));
+  return new Response('{}',{status:503});
+ }});
+ assert.equal(r.checks.find(x=>x.name==='commercial_execution').status,'PENDING');
+ assert.equal(r.checks.find(x=>x.name==='commercial_execution').code,'CANONICAL_COMMERCIAL_RECEIPTS_REQUIRED');
+ assert.ok(!r.checks.some(x=>x.name==='rsi01_daily_campaign'));
 });
 
 test('existing monitor renews Gmail and validates the corporate sender without sending',async()=>{
@@ -48,10 +48,10 @@ test('configured payments remain pending verification, missing storage is failur
   assert.equal(classifyPayments({success:true,environment:'production',store:{configured:false}}),'FAILED');
   assert.equal(classifyPayments({}),'FAILED');
 });
-test('schedule evidence flags the actual six hour delay and missing commercial run',()=>{
+test('schedule evidence flags actual health delay without requiring retired ASMAS workflow',()=>{
   const findings=scheduleEvidence([{path:'.github/workflows/boltech_health_check.yml',event:'schedule',created_at:'2026-10-01T18:29:43Z',status:'completed',conclusion:'success'}],new Date('2026-10-01T19:35:00Z'));
   assert.ok(findings.some(x=>x.code==='LATE_EXECUTION'&&x.delayMinutes===359));
-  assert.ok(findings.some(x=>x.code==='MISSING_EXECUTION'&&x.path.includes('asmas_rsi01_9am')));
+  assert.ok(!findings.some(x=>x.path?.includes('asmas')));
 });
 test('schedule evidence observes grace, weekdays and stale hourly executions',()=>{
   const recent={path:'.github/workflows/boltech_health_check.yml',event:'schedule',created_at:'2026-10-03T12:17:00Z',status:'completed',conclusion:'success'};
