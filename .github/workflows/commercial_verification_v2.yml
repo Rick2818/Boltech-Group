@@ -16,6 +16,7 @@ on:
       - 'tests/test_commercial_v2_policy.mjs'
       - 'supabase/migrations/20261023000000_commercial_v2_dispatch.sql'
       - 'supabase/migrations/20261023010000_commercial_v2_reviews.sql'
+      - 'supabase/migrations/20261023020000_commercial_v2_atomic_daily_cap.sql'
       - '.github/workflows/commercial_verification_v2.yml'
   workflow_dispatch:
 permissions:
