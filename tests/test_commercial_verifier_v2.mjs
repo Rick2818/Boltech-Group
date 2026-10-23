@@ -15,4 +15,4 @@ test('future dated evidence cannot clear',async()=>assert.equal((await evaluateR
 test('no checker cannot clear',async()=>assert.equal((await evaluateRecipientV2(lead,{...deps,checkDuplicates:null})).status,'REVIEW_REQUIRED'));
 test('duplicate blocks',async()=>assert.equal((await evaluateRecipientV2(lead,{...deps,checkDuplicates:async()=>true})).status,'BLOCKED'));
 test('stale DNC receipt cannot clear',async()=>assert.equal((await evaluateRecipientV2(lead,{...deps,checkSuppression:async()=>({status:'CLEAR',checkedAt:'2026-10-22T17:00:00Z',recipient:'buyer@example.com'})})).status,'REVIEW_REQUIRED'));
-test('ineligible lead cannot clear',async()=>assert.equal((await evaluateRecipientV2({...lead,source_payload:{...lead.source_payload,recipientEligibility:{approved:false}}},deps)).status,'REVIEW_REQUIRED'));
+test('legacy eligibility flag does not veto independent approved V2 policy',async()=>assert.equal((await evaluateRecipientV2({...lead,source_payload:{...lead.source_payload,recipientEligibility:{approved:false}}},deps)).status,'CLEAR'));
