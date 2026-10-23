@@ -41,8 +41,15 @@ test('time budget checkpoints pending opportunities without an exact-five thresh
  const x=setup({amount:8});let time=0;const original=x.gmail.send;x.gmail.send=async j=>{const r=await original(j);time+=100;return r;};
  const r=await runCanonicalOutreach({...x,clock:()=>time,budgetMs:150});assert.equal(r.sent,2);assert.equal(r.pending,6);
 });
-test('initial outreach respects the configured weekday business window',async()=>{
- const x=setup();const r=await runCanonicalOutreach({...x,now:new Date('2026-10-25T16:00:00Z')});assert.equal(r.status,'OUTSIDE_INITIAL_SEND_WINDOW');assert.equal(x.sent.length,0);
+test('24/7 outreach still requires independent recipient verification and records receipts',async()=>{
+ const x=setup();const r=await runCanonicalOutreach({...x,now:new Date('2026-10-25T16:00:00Z')});
+ assert.equal(r.sent,1);assert.equal(x.sent.length,1);assert.equal(x.leads[0].status,'CONTACTED');
+ assert.ok(x.leads[0].source_payload.gmail_sent_message_id);
+});
+test('24/7 outreach never bypasses suppression or verification safeguards',async()=>{
+ const blocked=setup({blocked:true});await runCanonicalOutreach({...blocked,now:new Date('2026-10-25T16:00:00Z')});assert.equal(blocked.sent.length,0);
+ const unverified=setup();unverified.verifyCandidate=async()=>({draft:{subject:'x',body:'x'},verification:{mxVerified:false}});
+ await runCanonicalOutreach({...unverified,now:new Date('2026-10-25T16:00:00Z')});assert.equal(unverified.sent.length,0);
 });
 
 import {prepareCampaignDraft} from '../lib/agent1_continuous_research.js';
