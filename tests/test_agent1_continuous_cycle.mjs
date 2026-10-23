@@ -91,3 +91,20 @@ test('real published quoting and contact forms produce specific drafts without c
  const a=await verifyPublishedCandidate(p,{mxResolver,pageReader:async()=>'<html>Jane Doe President owner@company1.com For quotes or quoting contact us</html>'});assert.equal(a.status,'PREPARED_PENDING_HISTORY_CHECK');assert.match(a.draft.body,/quote request process/);
  const b=await verifyPublishedCandidate(p,{mxResolver,pageReader:async()=>'<html><img alt="Jane Doe, President">owner@company1.com Contact us<form><input name="project"></form></html>'});assert.equal(b.verification.namedContactPublished,true);assert.equal(b.verification.publishedWorkflow,'CONTACT_REQUEST');assert.match(b.draft.body,/project inquiry form/);assert.doesNotMatch(b.draft.body,/quote request process/);assert.equal(b.verification.humanVerified,false);
 });
+
+test('EDM-shaped named buyer bypasses future research timer only for fail-closed review',async()=>{
+ const edm={id:'edm-pilot',name:'EDM Express',company_url:'https://edmexpress.com',source_evidence_url:'https://edmexpress.com/',contact_email:'joe@edmexpress.com',country:'US',status:'NEW',commercial_stage:'DRAFT_REVIEW',
+  source_payload:{research:{contactName:'Joe Jackson',contactRole:'President',nextReviewAt:'2026-10-24T18:00:00Z'},
+   verification:{checkedAt:'2026-10-23T16:00:00Z',emailSyntax:true,emailPublished:true,namedContactPublished:true,rolePublished:true,mxVerified:true,publishedWorkflow:'QUOTE_REQUEST'},
+   leadEvidence:{personalCandidateVerified:true,sendAuthorized:false},
+   campaignDraft:{marketingContentId:'quote-material',sent:false},companyCampaignDraft:null}};
+ const db=database([edm]);
+ const fetcher=async(url,opts)=>String(url).includes('/marketing_content_runs?')?Response.json([{id:'quote-material',workflow:'QUOTE_REQUEST',body:'Quote material',distribution_status:'SALES_QUEUE_READY'}]):String(url).includes('/marketing_sales_briefs?')?Response.json([]):db.fetcher(url,opts);
+ const result=await runAgent1Cycle({env,fetcher,now:new Date('2026-10-23T16:28:00Z'),discoverExplee:empty,discoverPublic:empty});
+ assert.equal(result.commercialReviewsChecked,1);
+ assert.equal(result.preparedTotal,0);
+ assert.equal(db.leads[0].commercial_stage,'DRAFT_REVIEW');
+ assert.equal(db.leads[0].source_payload.commercialReview.reason,'GMAIL_READ_UNAVAILABLE');
+ assert.equal(db.leads[0].source_payload.commercialReview.sendAuthorized,false);
+ assert.equal(db.leads[0].source_payload.commercialReview.marketingContentId,'quote-material');
+});
