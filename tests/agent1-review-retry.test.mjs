@@ -25,7 +25,7 @@ test('review queue retries stale reviews and retains untouched new drafts',()=>{
  assert.equal(isDue(prior,now,{recipientEligibility:{approved:true},leadEvidence:{sendAuthorized:false},suppressionCheck:{status:'CLEAR'}}),true);
  assert.equal(isDue(prior,now,{recipientEligibility:{approved:false},leadEvidence:{sendAuthorized:true},suppressionCheck:{status:'CLEAR'}}),true);
  assert.equal(isDue(prior,now,{recipientEligibility:{approved:false},leadEvidence:{sendAuthorized:false},suppressionCheck:{status:'BLOCKED'}}),true);
- assert.match(source,/companyDraftReviewDue\\(x\\.source_payload\\.commercialReview,now,x\\.source_payload\\)/);
+ assert.match(source,/companyDraftReviewDue\(x\.source_payload\.commercialReview,now,x\.source_payload\)/);
  assert.match(source,/await reviewCompanyDraft\(lead,/);
 });
 test('commercial review remains fail-closed without eligibility, suppression and dispatcher',()=>{
