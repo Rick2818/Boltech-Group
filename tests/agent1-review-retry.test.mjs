@@ -18,7 +18,14 @@ test('review queue retries stale reviews and retains untouched new drafts',()=>{
  assert.equal(isDue({checkedAt:'2026-10-22T11:49:00Z',reason:'SUPABASE_ELIGIBILITY_OR_SUPPRESSION_NOT_CLEARED',suppression:'REVIEW_REQUIRED'},now),true);
  assert.equal(isDue({checkedAt:'2026-10-22T11:55:00Z',reason:'SUPABASE_ELIGIBILITY_OR_SUPPRESSION_NOT_CLEARED',suppression:'REVIEW_REQUIRED'},now),false);
  assert.equal(isDue({checkedAt:'2026-10-22T11:49:00Z',reason:'SUPABASE_ELIGIBILITY_OR_SUPPRESSION_NOT_CLEARED',suppression:'CLEAR'},now),false);
- assert.match(source,/companyDraftReviewDue\(x\.source_payload\.commercialReview,now\)/);
+ // EDM Express is blocked until explicit approvals are recorded; a new
+ // decision must wake the queue without bypassing any review gate.
+ const prior={checkedAt:'2026-10-22T11:59:59Z',reason:'SUPABASE_ELIGIBILITY_OR_SUPPRESSION_NOT_CLEARED',crm:'REVIEW_REQUIRED',suppression:'CLEAR',sendAuthorized:false};
+ assert.equal(isDue(prior,now,{recipientEligibility:{approved:false},leadEvidence:{sendAuthorized:false},suppressionCheck:{status:'CLEAR'}}),false);
+ assert.equal(isDue(prior,now,{recipientEligibility:{approved:true},leadEvidence:{sendAuthorized:false},suppressionCheck:{status:'CLEAR'}}),true);
+ assert.equal(isDue(prior,now,{recipientEligibility:{approved:false},leadEvidence:{sendAuthorized:true},suppressionCheck:{status:'CLEAR'}}),true);
+ assert.equal(isDue(prior,now,{recipientEligibility:{approved:false},leadEvidence:{sendAuthorized:false},suppressionCheck:{status:'BLOCKED'}}),true);
+ assert.match(source,/companyDraftReviewDue\(x\.source_payload\.commercialReview,now,x\.source_payload\)/);
  assert.match(source,/await reviewCompanyDraft\(lead,/);
 });
 test('commercial review remains fail-closed without eligibility, suppression and dispatcher',()=>{
