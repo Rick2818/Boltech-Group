@@ -12,7 +12,7 @@ export default async function handler(req,res) {
  for(const lead of data||[]) {
   const buyer=lead.source_payload?.research?.contactName;
   let u;
-  try {u=new URL(lead.company_url); if(u.protocol!=='https:') throw Error();} catch {output.push({id:lead.id,status:'INVALID_URL'});continue;}
+  try {u=new URL(lead.company_url); if(u.protocol!=='https:' || /^(localhost|127\\.|10\\.|192\\.168\\.|169\\.254\\.|172\\.(1[6-9]|2[0-9]|3[01])\\.|0\\.)/i.test(u.hostname)) throw Error();} catch {output.push({id:lead.id,status:'INVALID_URL'});continue;}
   if(!buyer){output.push({id:lead.id,status:'BUYER_MISSING'});continue;}
   try {
    const r=await fetch(u.toString(),{signal:AbortSignal.timeout(6000),redirect:'error'});
