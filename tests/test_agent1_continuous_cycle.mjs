@@ -1,4 +1,5 @@
-import './agent1-review-retry.test.mjs'; // Required by the governance workflow's targeted Agent 1 test invocation.
+import './agent1-review-retry.test.mjs';
+import './test_agent1_company_draft_review.mjs'; // Named-buyer regression runs in the existing governance CI. // Required by the governance workflow's targeted Agent 1 test invocation.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {runAgent1Cycle} from '../lib/agent1_continuous_cycle.js';
@@ -28,7 +29,7 @@ test('new lead receives queued Marketing material after official workflow verifi
  const assets=[{id:'newest-wrong',workflow:'SERVICE_ROUTING',body:'Wrong service',distribution_status:'SALES_QUEUE_READY'},{id:'quote-correct',workflow:'QUOTE_REQUEST',body:'Verified quoting content',distribution_status:'SALES_QUEUE_READY'}];
  const fetcher=async(url,opts)=>String(url).includes('/marketing_content_runs?')?Response.json(assets):String(url).includes('/marketing_sales_briefs?')?Response.json([{id:'brief',status:'READY_FOR_SALES_REVIEW',strategy_version:'v2',message:'Generic'}]):db.fetcher(url,opts);
  const result=await runAgent1Cycle({env,fetcher,discoverExplee:empty,discoverPublic:empty,verifyCandidate:async lead=>({...await verify(lead),verification:{mxVerified:true,publishedWorkflow:'QUOTE_REQUEST'}})});
- assert.equal(result.marketingContentConsumed,1);assert.equal(db.leads[0].source_payload.campaignDraft.marketingContentId,'quote-correct');assert.match(db.leads[0].source_payload.campaignDraft.body,/Verified quoting content/);assert.doesNotMatch(db.leads[0].source_payload.campaignDraft.body,/Wrong service/);
+ assert.equal(result.marketingContentConsumed,0);assert.equal(result.marketingContentAssigned,1);assert.equal(db.leads[0].source_payload.campaignDraft.marketingContentId,'quote-correct');assert.match(db.leads[0].source_payload.campaignDraft.body,/Verified quoting content/);assert.doesNotMatch(db.leads[0].source_payload.campaignDraft.body,/Wrong service/);
 });
 test('research tasks never inflate followup count and prepared totals reflect saved rows',async()=>{
  const db=database([{...candidate(1),next_action:'Research contact'}, {...candidate(2),status:'CONTACTED',source_payload:{gmail_sent_message_id:'provider-id'}},{...candidate(3),status:'CONTACTED',commercial_stage:'REPLIED',source_payload:{gmail_sent_message_id:'replied-id'}}]);
@@ -90,4 +91,21 @@ test('real published quoting and contact forms produce specific drafts without c
  const p=candidate(1);p.source_payload.verification={humanVerified:false,officialSourceReviewed:true};const mxResolver=async()=>[{exchange:'mx.company1.com',priority:0}];
  const a=await verifyPublishedCandidate(p,{mxResolver,pageReader:async()=>'<html>Jane Doe President owner@company1.com For quotes or quoting contact us</html>'});assert.equal(a.status,'PREPARED_PENDING_HISTORY_CHECK');assert.match(a.draft.body,/quote request process/);
  const b=await verifyPublishedCandidate(p,{mxResolver,pageReader:async()=>'<html><img alt="Jane Doe, President">owner@company1.com Contact us<form><input name="project"></form></html>'});assert.equal(b.verification.namedContactPublished,true);assert.equal(b.verification.publishedWorkflow,'CONTACT_REQUEST');assert.match(b.draft.body,/project inquiry form/);assert.doesNotMatch(b.draft.body,/quote request process/);assert.equal(b.verification.humanVerified,false);
+});
+
+test('EDM-shaped named buyer bypasses future research timer only for fail-closed review',async()=>{
+ const edm={id:'edm-pilot',name:'EDM Express',company_url:'https://edmexpress.com',source_evidence_url:'https://edmexpress.com/',contact_email:'joe@edmexpress.com',country:'US',status:'NEW',commercial_stage:'DRAFT_REVIEW',
+  source_payload:{research:{contactName:'Joe Jackson',contactRole:'President',nextReviewAt:'2026-10-24T18:00:00Z'},
+   verification:{checkedAt:'2026-10-23T16:00:00Z',emailSyntax:true,emailPublished:true,namedContactPublished:true,rolePublished:true,mxVerified:true,publishedWorkflow:'QUOTE_REQUEST'},
+   leadEvidence:{personalCandidateVerified:true,sendAuthorized:false},
+   campaignDraft:{marketingContentId:'quote-material',sent:false},companyCampaignDraft:null}};
+ const db=database([edm]);
+ const fetcher=async(url,opts)=>String(url).includes('/marketing_content_runs?')?Response.json([{id:'quote-material',workflow:'QUOTE_REQUEST',body:'Quote material',distribution_status:'SALES_QUEUE_READY'}]):String(url).includes('/marketing_sales_briefs?')?Response.json([]):db.fetcher(url,opts);
+ const result=await runAgent1Cycle({env,fetcher,now:new Date('2026-10-23T16:28:00Z'),discoverExplee:empty,discoverPublic:empty});
+ assert.equal(result.commercialReviewsChecked,1);
+ assert.equal(result.preparedTotal,0);
+ assert.equal(db.leads[0].commercial_stage,'DRAFT_REVIEW');
+ assert.equal(db.leads[0].source_payload.commercialReview.reason,'GMAIL_READ_UNAVAILABLE');
+ assert.equal(db.leads[0].source_payload.commercialReview.sendAuthorized,false);
+ assert.equal(db.leads[0].source_payload.commercialReview.marketingContentId,'quote-material');
 });

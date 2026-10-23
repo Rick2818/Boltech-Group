@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {runCanonicalOutreach} from '../lib/canonical_outreach.js';
 
 function setup({amount=1,unknown=false,blocked=false,history=false}={}){
- const leads=Array.from({length:amount},(_,i)=>({id:'lead'+i,name:'Company '+i,company_url:'https://company'+i+'.com',contact_email:'owner@company'+i+'.com',country:'US',status:'NEW',commercial_stage:'PREPARED',data_quality:'PREPARED_PENDING_HISTORY_CHECK',source_payload:{campaignDraft:{subject:'Workflow',body:'Draft'}}}));
+ const leads=Array.from({length:amount},(_,i)=>({id:'lead'+i,name:'Company '+i,company_url:'https://company'+i+'.com',contact_email:'owner@company'+i+'.com',country:'US',status:'NEW',commercial_stage:'PREPARED',data_quality:'PREPARED_PENDING_HISTORY_CHECK',source_payload:{campaignDraft:{subject:'Workflow',body:'Draft'},leadEvidence:{sendAuthorized:true},recipientEligibility:{approved:true},suppressionCheck:{status:'CLEAR'},commercialReview:{sendAuthorized:true,result:'ELIGIBLE',recipient:'owner@company'+i+'.com',checkedAt:'2026-10-21T15:00:00Z'}}}));
  const rows=new Map(),sent=[],messages=new Map();
  const db=async(raw,opts={})=>{
   const u=new URL('https://db.test'+raw),key=u.searchParams.get('work_id')?.slice(3);
@@ -42,7 +42,7 @@ test('time budget checkpoints pending opportunities without an exact-five thresh
  const r=await runCanonicalOutreach({...x,clock:()=>time,budgetMs:150});assert.equal(r.sent,2);assert.equal(r.pending,6);
 });
 test('24/7 outreach retains evidence, suppression and provider receipts',async()=>{
- const x=setup();const r=await runCanonicalOutreach({...x,now:new Date('2026-10-25T16:00:00Z')});assert.equal(r.sent,1);assert.equal(x.leads[0].status,'CONTACTED');assert.ok(x.leads[0].source_payload.gmail_sent_message_id);
+ const x=setup();x.leads[0].source_payload.commercialReview.checkedAt='2026-10-25T15:00:00Z';const r=await runCanonicalOutreach({...x,now:new Date('2026-10-25T16:00:00Z')});assert.equal(r.sent,1);assert.equal(x.leads[0].status,'CONTACTED');assert.ok(x.leads[0].source_payload.gmail_sent_message_id);
  const blocked=setup({blocked:true});await runCanonicalOutreach({...blocked,now:new Date('2026-10-25T16:00:00Z')});assert.equal(blocked.sent.length,0);
  const unverified=setup();unverified.verifyCandidate=async()=>({draft:{subject:'x',body:'x'},verification:{mxVerified:false}});await runCanonicalOutreach({...unverified,now:new Date('2026-10-25T16:00:00Z')});assert.equal(unverified.sent.length,0);
 });
@@ -80,4 +80,14 @@ test('stale mismatched asset is replaced only with content for the verified work
  const result=await runCanonicalOutreach(x);
  assert.equal(result.sent,1);assert.equal(lookups.length,2);assert.match(x.sent[0].text,/Correct quoting material/);assert.doesNotMatch(x.sent[0].text,/WRONG MATERIAL/);
  assert.equal([...x.rows.values()][0].execution_receipt.marketingContentId,'correct-quote');
+});
+
+test('PREPARED alone never authorizes outbound; stale and missing approvals fail closed',async()=>{
+ const missing=setup();missing.leads[0].source_payload.leadEvidence.sendAuthorized=false;
+ const a=await runCanonicalOutreach(missing);assert.equal(a.sent,0);assert.equal(missing.sent.length,0);
+ assert.equal([...missing.rows.values()][0].execution_receipt.holdReason,'OUTREACH_AUTHORIZATION_NOT_VERIFIED');
+ const stale=setup();stale.leads[0].source_payload.commercialReview.checkedAt='2026-10-19T15:00:00Z';
+ const b=await runCanonicalOutreach(stale);assert.equal(b.sent,0);assert.equal(stale.sent.length,0);
+ const denied=setup();denied.leads[0].source_payload.suppressionCheck.status='REVIEW_REQUIRED';
+ const c=await runCanonicalOutreach(denied);assert.equal(c.sent,0);assert.equal(denied.sent.length,0);
 });
