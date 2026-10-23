@@ -87,3 +87,24 @@ test('failed refresh emits only safe metadata and never reaches Gmail or retries
  assert.ok(!JSON.stringify(logs).includes('SECRET_CANARY'));
  for(const value of Object.values(env))assert.ok(!JSON.stringify(logs).includes(value));
 });
+
+test('temporary Gmail read rejection retries once and recovers',async()=>{
+ let reads=0;
+ const gmail=createSdrGmail(async url=>{
+  if(url.includes('oauth2'))return Response.json({access_token:'test',expires_in:3600});
+  if(++reads===1)return Response.json({error:{errors:[{reason:'backendError'}]}},{status:503});
+  return Response.json({emailAddress:'ricardo.boltechgroup@gmail.com'});
+ },env);
+ assert.equal((await gmail.verify()).verified,true);assert.equal(reads,2);
+});
+test('send rejection is never retried and diagnostic excludes provider free text',async()=>{
+ let sends=0;
+ const gmail=createSdrGmail(async url=>{
+  if(url.includes('oauth2'))return Response.json({access_token:'test',expires_in:3600});
+  sends++;return Response.json({error:{message:'SECRET_CANARY',errors:[{reason:'insufficientPermissions'}]}},{status:403});
+ },env);
+ await assert.rejects(gmail.send({email:'qa@example.com',subject:'Test',text:'Test',rfcMessageId:'test@example.com'}),e=>{
+  assert.deepEqual(e.diagnostic,{stage:'SEND',httpStatus:403,reason:'insufficientPermissions'});
+  assert.ok(!JSON.stringify(e).includes('SECRET_CANARY'));return true;
+ });assert.equal(sends,1);
+});
