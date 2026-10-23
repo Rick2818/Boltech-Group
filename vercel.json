@@ -4,6 +4,10 @@
   "trailingSlash": false,
   "rewrites": [
     {
+      "source": "/api/agent1-evidence-executor",
+      "destination": "/api/index?agent1_evidence=1"
+    },
+    {
       "source": "/api/agent1-autonomous-inbox",
       "destination": "/api/index?agent1_inbox=1"
     },
