@@ -78,3 +78,15 @@ test('explicit authorization only clears review; repeated review does not send o
  const first=await review(authorized),second=await review(authorized);
  assert.equal(first.result,'ELIGIBLE');assert.equal(first.sendAuthorized,true);assert.deepEqual(first,second);
 });
+
+test('named-buyer suppression probe records independent evidence without granting approval',async()=>{
+ const missing=structuredClone(named);delete missing.source_payload.recipientEligibility;
+ const evidence={status:'CLEAR',recipient:missing.contact_email,checkedAt:now.toISOString(),sources:['supabase/leads','redis/dnc']};
+ const r=await review(missing,{suppressionProbe:async()=>evidence});
+ assert.equal(r.suppression,'CLEAR');assert.deepEqual(r.suppressionEvidence,evidence);
+ assert.equal(r.crm,'REVIEW_REQUIRED');assert.equal(r.sendAuthorized,false);
+ const blocked=await review(named,{suppressionProbe:async()=>({...evidence,status:'BLOCKED'})});
+ assert.equal(blocked.reason,'SUPPRESSION_LIST_MATCH');assert.equal(blocked.sendAuthorized,false);
+ const unavailable=await review(named,{suppressionProbe:async()=>{throw Error('redis offline')}});
+ assert.equal(unavailable.reason,'SUPPRESSION_CHECK_UNAVAILABLE');assert.equal(unavailable.sendAuthorized,false);
+});
