@@ -15,9 +15,10 @@ create table if not exists public.commercial_v2_dispatch (
 );
 alter table public.commercial_v2_dispatch enable row level security;
 revoke all on public.commercial_v2_dispatch from anon, authenticated;
+grant select, insert, update on public.commercial_v2_dispatch to service_role;
 create or replace function public.commercial_v2_reserve(
  p_key text, p_sender text, p_recipient text, p_campaign text, p_purpose text)
-returns jsonb language plpgsql security definer
+returns jsonb language plpgsql security invoker
 set search_path = public
 as $$
 declare r public.commercial_v2_dispatch%rowtype; newly_created boolean;
@@ -34,7 +35,7 @@ end $$;
 create or replace function public.commercial_v2_transition(
  p_key text, p_expected text, p_status text, p_message_id text default null,
  p_thread_id text default null, p_failure_code text default null)
-returns boolean language plpgsql security definer
+returns boolean language plpgsql security invoker
 set search_path = public
 as $$
 declare transitions_ok boolean;
