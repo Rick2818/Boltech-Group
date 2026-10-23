@@ -25,3 +25,9 @@ deduplication. Local targeted suite: 58 passing tests. Live acceptance additiona
 requires a scheduled inbox cycle after deployment, and an eligible campaign send
 with Gmail receipt and matching Marketing ID during the authorized sending window.
 Tests and deployment readiness alone do not certify that live send.
+
+Review follow-up: daily-limit reads now propagate quota exhaustion immediately
+without the transient retry. A durable message-ID scan cursor rotates the bounded
+100-message read across all contact sender queries, avoiding starvation of later
+contacts. The cursor shares the existing quota work receipt and survives restarts.
+Expanded local suite including SDR dispatch: 68 passing tests.
