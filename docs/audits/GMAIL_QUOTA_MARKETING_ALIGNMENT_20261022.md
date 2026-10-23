@@ -31,3 +31,14 @@ without the transient retry. A durable message-ID scan cursor rotates the bounde
 100-message read across all contact sender queries, avoiding starvation of later
 contacts. The cursor shares the existing quota work receipt and survives restarts.
 Expanded local suite including SDR dispatch: 68 passing tests.
+
+The inbox now claims an optimistic five-minute lease in that same work row before
+Gmail calls. Concurrent invocations return BUSY and cannot erase a newer quota
+cooldown. Cursor progress is saved before downstream campaign/error checks, and
+the owning execution releases its lease on success or failure. The 69-test suite
+also covers cursor continuation after a campaign failure and overlapping cycles.
+
+Production observation after #234: scheduler HTTP receipt 795 at 21:47:42 SV
+completed successfully, reviewed all 18 followups and reported no errors. No mail
+was sent: initial outreach was outside its send window, and followups were waiting.
+This confirms one recovered read/reconciliation cycle, not a campaign send.
