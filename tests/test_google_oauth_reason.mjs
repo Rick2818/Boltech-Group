@@ -101,6 +101,7 @@ test('send rejection is never retried and diagnostic excludes provider free text
  let sends=0;
  const gmail=createSdrGmail(async url=>{
   if(url.includes('oauth2'))return Response.json({access_token:'test',expires_in:3600});
+  if(url.endsWith('/profile'))return Response.json({emailAddress:'ricardo.boltechgroup@gmail.com'});
   sends++;return Response.json({error:{message:'SECRET_CANARY',errors:[{reason:'insufficientPermissions'}]}},{status:403});
  },env);
  await assert.rejects(gmail.send({email:'qa@example.com',subject:'Test',text:'Test',rfcMessageId:'test@example.com'}),e=>{
