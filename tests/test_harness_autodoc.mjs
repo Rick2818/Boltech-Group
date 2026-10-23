@@ -82,3 +82,10 @@ test('preview deployment status is ignored without any write',async()=>{
 });
 
 test('successful reporting exposes the real OAuth blocker and never claims autonomous code repair',()=>{const s={latest:{},deployment:{status:'FAILED',code:'GMAIL_OAUTH_INVALID_GRANT'}};const r=harnessOperationalSummary(s);assert.equal(r.status,'ATTENTION_REQUIRED');assert.equal(r.blockers[0].code,'GMAIL_OAUTH_INVALID_GRANT');assert.equal(r.autonomousCodeRepair,false);assert.match(renderIssue(s,'2026-10-17T00:00:00Z'),/GMAIL_OAUTH_INVALID_GRANT/);});
+
+test('health observations persist without notification comments',async()=>{
+ const f=fixture();
+ const result=await updateHarness({api:f.api,repository:repo,eventName:'workflow_run',event:{workflow_run:run({path:'.github/workflows/boltech_health_check.yml'})}});
+ assert.equal(readState(f.body()).latest['boltech_health_check.yml'].conclusion,'failure');
+ assert.ok(!f.comments().some(c=>c.body.includes('Salud de producción')));
+});
