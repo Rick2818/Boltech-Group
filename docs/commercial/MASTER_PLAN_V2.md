@@ -1,5 +1,5 @@
 # Boltech Commercial Verification V2.1 — delivery contract
-Status: IMPLEMENTATION IN PROGRESS; NOT CERTIFIED. Baseline main ce622cbfab7f81701ceea6d72d456ad2f4322f0a (2026-10-23).
+Status: V2 CODE IMPLEMENTED AND TESTED; PRODUCTION SEND NOT CERTIFIED. Legacy must remain archived only AFTER certified first send. Baseline main ce622cbfab7f81701ceea6d72d456ad2f4322f0a (2026-10-23).
 Owner: Agent 1, with Marketing providing opportunity-specific content. Exactly two agents. No changes to Wompi; no paid services.
 
 ## Objective and invariant
@@ -44,3 +44,10 @@ Until all gates are met, status remains NOT CERTIFIED. Provider credentials miss
 
 ## Handoff after session interruption
 Read this file first, inspect branch/PR and deployed commit, execute the first incomplete gate, attach links to actual test runs, release, provider receipts and migration evidence. Never claim completion based solely on code or green CI. Keep outstanding blockers explicit.
+## Implementation evidence — 2026-10-23
+- Branch feat/commercial-verifier-v2; PR #244. Existing inbox scheduler routes to V2 only when COMMERCIAL_V2_ENGINE_ENABLED=true. No additional agents or crons.
+- Modules: commercial_verifier_v2, commercial_v2_policy, commercial_v2_orchestrator, commercial_dispatch_v2, commercial_v2_supabase_store, commercial_v2_gmail_provider. Existing V2 CI runs verifier, delivery, provider, orchestration and legal-policy tests.
+- Supabase migrations applied to Boltech production project uxwfqhromoicrwzyylbn: commercial_v2_dispatch, commercial_v2_reviews, rolling 24-hour atomic max-five reservation cap. Read-only checks and rollback-only transaction tests passed; no synthetic production recipients or sent emails created.
+- Vercel production switches staged: COMMERCIAL_V2_ENGINE_ENABLED=true; COMMERCIAL_V2_SEND_ENABLED=false; COMMERCIAL_V2_AUTONOMOUS_AUTHORIZED=true; COMMERCIAL_V2_POSTAL_ADDRESS_VERIFIED=false. Sending remains deliberately blocked pending compliance prerequisites and commercial production evidence.
+- US business promotional email requires verified sender's physical postal address and opt-out procedure (FTC CAN-SPAM). Populate COMMERCIAL_V2_POSTAL_ADDRESS only with an owner-approved genuine business postal address, then independently validate and set verified flag. Do NOT substitute personal location guesses or synthetic test addresses. The Gmail adapter appends explicit ad/opt-out/postal footer only when valid configuration is present.
+- Do not claim a live send, delivery recovery, commercial conversion, or legacy archive without exact Gmail IDs, Supabase receipts, scheduled execution proof and a verified live canary. Keep Wompi untouched.
