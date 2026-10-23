@@ -65,3 +65,17 @@ test('missing assigned Marketing material holds send without generic fallback',a
  const originalDb=x.db;x.db=async(path,options)=>path.startsWith('/marketing_content_runs?')?[]:originalDb(path,options);
  const result=await runCanonicalOutreach(x);assert.equal(x.sent.length,0);assert.equal(result.errors[0].error,'OUTREACH_MARKETING_MATERIAL_UNAVAILABLE');
 });
+test('stale mismatched asset is replaced only with content for the verified workflow',async()=>{
+ const x=setup();x.leads[0].source_payload.research={contactName:'Sam Buyer'};
+ x.leads[0].source_payload.campaignDraft={marketingContentId:'wrong-service',marketingBriefId:'brief',marketingStrategyVersion:'v2'};
+ const original=x.db;const lookups=[];
+ x.db=async(path,options)=>{
+  if(path.startsWith('/marketing_content_runs?')){
+   lookups.push(path);
+   return path.includes('workflow=eq.QUOTE_REQUEST')?[{id:'correct-quote',workflow:'QUOTE_REQUEST',body:'Correct quoting material',distribution_status:'SALES_QUEUE_READY'}]:[{id:'wrong-service',workflow:'SERVICE_ROUTING',body:'WRONG MATERIAL',distribution_status:'SALES_QUEUE_READY'}];
+  }return original(path,options);
+ };
+ const result=await runCanonicalOutreach(x);
+ assert.equal(result.sent,1);assert.equal(lookups.length,2);assert.match(x.sent[0].text,/Correct quoting material/);assert.doesNotMatch(x.sent[0].text,/WRONG MATERIAL/);
+ assert.equal([...x.rows.values()][0].execution_receipt.marketingContentId,'correct-quote');
+});
