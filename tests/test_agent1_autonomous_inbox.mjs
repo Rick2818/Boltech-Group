@@ -50,3 +50,18 @@ test('persistent quota backoff skips Gmail then permits a recovered cycle',async
  await runInboundSalesCycle({gmail:x.gmail,env,fetcher,now:new Date('2026-10-22T15:02:00Z')});
  assert.equal(calls,2);assert.equal(receipt.failures,0);assert.ok(receipt.recoveredAt);
 });
+test('durable scan cursor reaches later senders despite a full first sender chunk',async()=>{
+ const leads=Array.from({length:41},(_,i)=>({id:'lead-'+i,contact_email:'buyer'+i+'@example.org',status:'NEW',data_quality:'REAL'}));
+ let receipt=null;const reads=[];
+ const fetcher=async(url,opts={})=>{
+  if(String(url).includes('/leads?'))return Response.json(leads);
+  if(String(url).includes('/agent_work?')){
+   if(opts.method==='POST'){receipt=JSON.parse(opts.body)[0].execution_receipt;return new Response(null,{status:204});}
+   return Response.json(receipt?[{execution_receipt:receipt}]:[]);
+  }throw Error('UNEXPECTED_DB');
+ };
+ const gmail={verify:async()=>({verified:true}),search:async q=>q.includes('from:buyer40@')?[{id:'zz-new'}]:Array.from({length:100},(_,i)=>({id:String(i).padStart(4,'0')})),message:async id=>{reads.push(id);return {id,sent:true};}};
+ const args={gmail,env,fetcher,outreach:async()=>({errors:[]})};
+ await runInboundSalesCycle(args);assert.equal(reads.length,100);assert.ok(!reads.includes('zz-new'));assert.equal(receipt.scanCursor,'0099');
+ await runInboundSalesCycle(args);assert.equal(reads[100],'zz-new');assert.equal(reads.length,200);
+});
