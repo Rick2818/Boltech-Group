@@ -39,7 +39,52 @@
     @media(max-width:1000px){.value-layout{gap:35px}}
     @media(max-width:760px){.value-section{padding:36px 0}.value-layout{grid-template-columns:1fr;gap:28px}.value-principles{gap:20px}.value-qualification{margin-top:24px}.value-section #value-title{max-width:100%}}
   </style>
-</head>
+
+<style id="agents-playground-styles">
+.agents-playground{margin:36px 0 42px;padding:30px 0;border-block:1px solid var(--line)}
+.agents-playground-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
+.agents-playground-heading .eyebrow{margin:0 0 10px}
+.agents-playground-heading h3{font-size:24px;margin:0 0 10px}
+.agents-playground-heading p:not(.eyebrow){font-size:14px;color:var(--muted);margin:0}
+#agents-sound-toggle{display:inline-flex;align-items:center;gap:7px;flex-shrink:0;background:transparent;border:1px solid var(--line);border-radius:24px;color:var(--muted);padding:9px 14px;font-size:12px;min-height:44px;cursor:pointer}
+#agents-sound-toggle:hover{border-color:var(--accent);color:var(--ink)}
+.agents-dot-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));max-width:740px;margin:18px auto 0;gap:28px}
+.agent-dot-button{display:flex;flex-direction:column;align-items:center;position:relative;min-width:0;background:none;border:0;padding:8px 0 16px;color:var(--ink);cursor:pointer;border-radius:16px;-webkit-tap-highlight-color:transparent}
+.agent-dot-stage{position:relative;display:grid;place-items:center;width:168px;height:168px;max-width:100%;isolation:isolate}
+.agent-dot-body{position:relative;width:108px;height:108px;display:grid;place-items:center;z-index:1;border-radius:47% 53% 48% 52% / 48% 44% 56% 52%;background:radial-gradient(circle at 30% 22%,#c5ffdf 0%,#7ce9bd 30%,#3cba9b 75%,#22856e 100%);box-shadow:inset -7px -9px 18px #071d3526,inset 4px 5px 12px #ffffff30,0 0 32px #6fe2bd0a;transform-origin:50% 85%;transition:transform .25s}
+.agent-dot-coral .agent-dot-body{width:112px;height:102px;border-radius:42% 50% 44% 48% / 48% 43% 55% 50%;background:radial-gradient(circle at 30% 22%,#ffd5b7 0%,#ffab8f 30%,#ef7d80 75%,#ba4967 100%);transform:rotate(-7deg)}
+.agent-dot-violet .agent-dot-body{width:103px;height:114px;border-radius:52% 48% 44% 56% / 43% 54% 46% 57%;background:radial-gradient(circle at 30% 22%,#ede0ff 0%,#c6adfa 30%,#a382e7 75%,#7053b0 100%);transform:rotate(7deg)}
+.agent-dot-face{position:relative;display:flex;gap:16px;align-items:center;justify-content:center;width:72px;height:55px;margin-top:8px;transition:transform .2s}
+.agent-dot-eye{display:block;width:9px;height:15px;border-radius:50%;background:#17272b;position:relative}
+.agent-dot-eye:after{content:'';position:absolute;top:3px;left:2px;width:3px;height:3px;background:#fff;border-radius:50%}
+.agent-dot-mouth{position:absolute;left:29px;top:35px;width:15px;height:9px;border:2px solid #17272b;border-top:0;border-radius:0 0 14px 14px}
+.agent-dot-coral .agent-dot-face{transform:rotate(7deg)}
+.agent-dot-violet .agent-dot-face{transform:rotate(-7deg)}
+.agent-dot-coral .agent-dot-mouth{height:7px;width:10px;left:31px;border:0;border-radius:50%;background:#4b234c}
+.agent-dot-violet .agent-dot-eye:last-of-type{height:11px}
+.agent-dot-cheek{position:absolute;top:29px;width:11px;height:5px;border-radius:50%;background:#ef758d44}
+.cheek-left{left:7px}.cheek-right{right:7px}
+.agent-dot-shadow{position:absolute;left:50%;bottom:8px;width:76px;height:12px;background:var(--dot-color,#7ce9bd);filter:blur(10px);opacity:.13;transform:translateX(-50%) scaleY(.6)}
+.agent-dot-coral{--dot-color:#ffab8f}.agent-dot-violet{--dot-color:#c6adfa}
+.agent-dot-spark{position:absolute;z-index:2;color:var(--dot-color,#7ce9bd);font-size:22px;opacity:0;pointer-events:none}
+.spark-one{top:12px;right:5px}.spark-two{bottom:40px;left:5px;font-size:16px}
+.agent-dot-name{font-family:var(--font-heading);font-size:18px;font-weight:700;letter-spacing:-.02em}
+.agent-dot-type{font-size:12px;color:var(--muted);margin-top:4px}
+.agents-playground-hint{text-align:center;font-size:12px!important;color:var(--muted);margin:14px 0 0}
+@media(hover:hover){.agent-dot-button:hover .agent-dot-body{transform:translateY(-6px) rotate(-5deg)}.agent-dot-button:hover .agent-dot-face{transform:translateY(-2px)}}
+.agent-dot-button.is-playing .agent-dot-body{animation:dot-hop .85s both}
+.agent-dot-coral.is-playing .agent-dot-body{animation:dot-wobble .85s both}
+.agent-dot-violet.is-playing .agent-dot-body{animation:dot-twirl .85s both}
+.agent-dot-button.is-playing .agent-dot-spark{animation:dot-spark .8s both}
+.agent-dot-button.is-playing .agent-dot-eye{animation:dot-squint .85s both}
+@keyframes dot-hop{0%,100%{transform:translateY(0) scale(1)}15%{transform:translateY(7px) scale(1.18,.8)}42%{transform:translateY(-30px) rotate(-12deg) scale(.9,1.1)}64%{transform:translateY(5px) rotate(8deg) scale(1.15,.85)}82%{transform:translateY(-9px) scale(.97,1.04)}}
+@keyframes dot-wobble{0%,100%{transform:rotate(-7deg)}15%{transform:rotate(-20deg) scale(1.12,.88)}32%{transform:translateX(8px) rotate(22deg)}48%{transform:translateX(-7px) rotate(-18deg)}65%{transform:translateY(-12px) rotate(12deg) scale(.92,1.09)}83%{transform:rotate(-10deg) scale(1.08,.94)}}
+@keyframes dot-twirl{0%,100%{transform:rotate(7deg)}20%{transform:translateY(4px) rotate(-15deg) scale(1.12,.88)}53%{transform:translateY(-22px) rotate(190deg) scale(.93,1.06)}82%{transform:rotate(367deg) scale(1.08,.92)}99%{transform:rotate(367deg)}}
+@keyframes dot-spark{0%,100%{opacity:0;transform:scale(.5)}35%,65%{opacity:1;transform:translateY(-7px) scale(1)}}
+@keyframes dot-squint{0%,100%{transform:scaleY(1)}22%,55%{transform:scaleY(.3)}}
+@media(max-width:760px){.agents-playground{padding:24px 0}.agents-playground-heading{flex-direction:column;gap:14px}.agents-playground-heading h3{font-size:21px}.agents-dot-row{gap:6px}.agent-dot-stage{width:100%;height:138px}.agent-dot-body{width:78px;height:80px}.agent-dot-coral .agent-dot-body{width:80px;height:76px}.agent-dot-violet .agent-dot-body{width:76px;height:84px}.agent-dot-face{transform:scale(.8)}.agent-dot-coral .agent-dot-face{transform:scale(.8) rotate(7deg)}.agent-dot-violet .agent-dot-face{transform:scale(.8) rotate(-7deg)}.agent-dot-name{font-size:16px}.agent-dot-type{font-size:10px}.spark-one{right:0}.spark-two{left:0}.agents-playground-hint{max-width:260px;margin:12px auto 0}}
+@media(prefers-reduced-motion:reduce){.agent-dot-button .agent-dot-body,.agent-dot-button .agent-dot-face{transition:none!important;animation:none!important}.agent-dot-button.is-playing .agent-dot-body{outline:2px solid var(--dot-color,#7ce9bd);outline-offset:6px}.agent-dot-button.is-playing .agent-dot-spark{animation:none!important;opacity:1}}
+</style></head>
 
 <body class="text-slate-200 min-h-screen antialiased selection:bg-cyan-400 selection:text-black font-sans">
 
@@ -69,7 +114,45 @@
     </div>
     <p class="value-qualification" data-inline-es="El monitoreo 24/7 y la medición avanzada están sujetos a certificación y al alcance contratado. Prueba con alcance definido: US$600. Implementación general de agentes: US$900, sujeta al alcance acordado. El servicio continuo se cotiza por separado." data-inline-en="24/7 monitoring and advanced measurement are subject to certification and contracted scope. Scoped implementation trial: US$600. General agent implementation: US$900, subject to agreed scope. Ongoing service is quoted separately.">El monitoreo 24/7 y la medición avanzada están sujetos a certificación y al alcance contratado. Prueba con alcance definido: US$600. Implementación general de agentes: US$900, sujeta al alcance acordado. El servicio continuo se cotiza por separado.</p>
   </div>
-</section><section class="cases-section"><div class="site-container"><p data-copy="cases-label" class="eyebrow">DÓNDE PODEMOS AYUDAR</p><h2 data-copy="cases-title">Empieza por el paso que frena a tu equipo.</h2><p data-copy="cases-desc" class="section-intro">Estos son procesos que podemos evaluar. La solución se define después de revisar tus requisitos.</p><div class="case-grid"><article><span class="case-number">01</span><h3 data-copy="case-1-title">Consultas y cotizaciones</h3><p data-copy="case-1-desc">Organizar solicitudes, asignarlas y conservar el siguiente contacto.</p></article><article><span class="case-number">02</span><h3 data-copy="case-2-title">Operación administrativa</h3><p data-copy="case-2-desc">Reducir pasos repetitivos al clasificar información y preparar documentos.</p></article><article><span class="case-number">03</span><h3 data-copy="case-3-title">Coordinación interna</h3><p data-copy="case-3-desc">Conectar herramientas y hacer visibles responsables, estados y pendientes.</p></article></div></div></section><section id="services" class="services-section"><div class="site-container"><p data-copy="services-label" class="eyebrow">NUESTROS PRODUCTOS</p><h2 data-copy="services-title">Una solución que encaje con tu operación.</h2><p data-copy="services-desc" class="section-intro">Partimos de una base existente o diseñamos un agente a medida, según el proceso y sus requisitos.</p><div class="product-film"><div class="film-heading"><p class="eyebrow" data-inline-es="TU TIEMPO Y TU TRANQUILIDAD IMPORTAN" data-inline-en="YOUR TIME AND PEACE OF MIND MATTER">TU TIEMPO Y TU TRANQUILIDAD IMPORTAN</p><h3 data-inline-es="¿Qué puede hacer un agente por tu proceso?" data-inline-en="What can an agent do for your process?">¿Qué puede hacer un agente por tu proceso?</h3><p data-inline-es="En poco más de un minuto: del cuello de botella a un flujo más claro, con tu equipo al mando." data-inline-en="In about a minute: from a bottleneck to a clearer workflow, with your team in control.">En poco más de un minuto: del cuello de botella a un flujo más claro, con tu equipo al mando.</p></div><video id="main-executive-video" controls playsinline preload="none" poster="assets/videos/boltech_paz_mental_poster_es.jpg?v=20261006-institutional-black-products" src="assets/videos/boltech_paz_mental_es.mp4?v=20261006-institutional-black-products" aria-label="Video: agentes de IA y paz mental en tu negocio"></video></div><div class="service-options"><a href="#custom-agents-section" onclick="focusPainInput()" class="group p-6 rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950 border border-cyan-500/30 hover:border-cyan-400 hover:shadow-xl hover:shadow-cyan-500/10 transition-all flex flex-col justify-between block cursor-pointer">
+</section><section class="cases-section"><div class="site-container"><p data-copy="cases-label" class="eyebrow">DÓNDE PODEMOS AYUDAR</p><h2 data-copy="cases-title">Empieza por el paso que frena a tu equipo.</h2><p data-copy="cases-desc" class="section-intro">Estos son procesos que podemos evaluar. La solución se define después de revisar tus requisitos.</p><div class="case-grid"><article><span class="case-number">01</span><h3 data-copy="case-1-title">Consultas y cotizaciones</h3><p data-copy="case-1-desc">Organizar solicitudes, asignarlas y conservar el siguiente contacto.</p></article><article><span class="case-number">02</span><h3 data-copy="case-2-title">Operación administrativa</h3><p data-copy="case-2-desc">Reducir pasos repetitivos al clasificar información y preparar documentos.</p></article><article><span class="case-number">03</span><h3 data-copy="case-3-title">Coordinación interna</h3><p data-copy="case-3-desc">Conectar herramientas y hacer visibles responsables, estados y pendientes.</p></article></div></div></section><section id="services" class="services-section"><div class="site-container"><p data-copy="services-label" class="eyebrow">NUESTROS PRODUCTOS</p><h2 data-copy="services-title">Una solución que encaje con tu operación.</h2><p data-copy="services-desc" class="section-intro">Partimos de una base existente o diseñamos un agente a medida, según el proceso y sus requisitos.</p>
+<section class="agents-playground" aria-labelledby="agents-playground-title">
+  <div class="agents-playground-heading">
+    <div><p class="eyebrow" data-inline-es="AGENTES PREELABORADOS" data-inline-en="PREBUILT AGENTS">AGENTES PREELABORADOS</p>
+    <h3 id="agents-playground-title" data-inline-es="Tres agentes, mucha personalidad." data-inline-en="Three agents. Plenty of personality.">Tres agentes, mucha personalidad.</h3>
+    <p data-inline-es="Dales un toque. Cada uno tiene su propia forma de saludarte." data-inline-en="Give them a tap. Each has a different way of saying hello.">Dales un toque. Cada uno tiene su propia forma de saludarte.</p></div>
+    <button type="button" id="agents-sound-toggle" aria-pressed="true"><span aria-hidden="true">♫</span> <span id="agents-sound-label">Sonido activado</span></button>
+  </div>
+  <div class="agents-dot-row">
+    <button type="button" class="agent-dot-button agent-dot-mint" data-dot="0" aria-describedby="agents-playground-hint">
+      <span class="agent-dot-stage" aria-hidden="true">
+        <span class="agent-dot-shadow"></span>
+        <span class="agent-dot-body"><span class="agent-dot-face"><span class="agent-dot-eye"></span><span class="agent-dot-eye"></span><span class="agent-dot-mouth"></span><span class="agent-dot-cheek cheek-left"></span><span class="agent-dot-cheek cheek-right"></span></span></span>
+        <span class="agent-dot-spark spark-one">✦</span><span class="agent-dot-spark spark-two">✧</span>
+      </span>
+      <span class="agent-dot-name">Milo</span>
+      <span class="agent-dot-type" data-inline-es="Agente preelaborado" data-inline-en="Prebuilt agent">Agente preelaborado</span>
+    </button>
+<button type="button" class="agent-dot-button agent-dot-coral" data-dot="1" aria-describedby="agents-playground-hint">
+      <span class="agent-dot-stage" aria-hidden="true">
+        <span class="agent-dot-shadow"></span>
+        <span class="agent-dot-body"><span class="agent-dot-face"><span class="agent-dot-eye"></span><span class="agent-dot-eye"></span><span class="agent-dot-mouth"></span><span class="agent-dot-cheek cheek-left"></span><span class="agent-dot-cheek cheek-right"></span></span></span>
+        <span class="agent-dot-spark spark-one">✦</span><span class="agent-dot-spark spark-two">✧</span>
+      </span>
+      <span class="agent-dot-name">Kora</span>
+      <span class="agent-dot-type" data-inline-es="Agente preelaborado" data-inline-en="Prebuilt agent">Agente preelaborado</span>
+    </button>
+<button type="button" class="agent-dot-button agent-dot-violet" data-dot="2" aria-describedby="agents-playground-hint">
+      <span class="agent-dot-stage" aria-hidden="true">
+        <span class="agent-dot-shadow"></span>
+        <span class="agent-dot-body"><span class="agent-dot-face"><span class="agent-dot-eye"></span><span class="agent-dot-eye"></span><span class="agent-dot-mouth"></span><span class="agent-dot-cheek cheek-left"></span><span class="agent-dot-cheek cheek-right"></span></span></span>
+        <span class="agent-dot-spark spark-one">✦</span><span class="agent-dot-spark spark-two">✧</span>
+      </span>
+      <span class="agent-dot-name">Lumi</span>
+      <span class="agent-dot-type" data-inline-es="Agente preelaborado" data-inline-en="Prebuilt agent">Agente preelaborado</span>
+    </button>
+  </div>
+  <p id="agents-playground-hint" class="agents-playground-hint" data-inline-es="Toca o haz clic para jugar · También funciona con Enter o espacio" data-inline-en="Tap or click to play · Enter or Space works too">Toca o haz clic para jugar · También funciona con Enter o espacio</p>
+</section><div class="product-film"><div class="film-heading"><p class="eyebrow" data-inline-es="TU TIEMPO Y TU TRANQUILIDAD IMPORTAN" data-inline-en="YOUR TIME AND PEACE OF MIND MATTER">TU TIEMPO Y TU TRANQUILIDAD IMPORTAN</p><h3 data-inline-es="¿Qué puede hacer un agente por tu proceso?" data-inline-en="What can an agent do for your process?">¿Qué puede hacer un agente por tu proceso?</h3><p data-inline-es="En poco más de un minuto: del cuello de botella a un flujo más claro, con tu equipo al mando." data-inline-en="In about a minute: from a bottleneck to a clearer workflow, with your team in control.">En poco más de un minuto: del cuello de botella a un flujo más claro, con tu equipo al mando.</p></div><video id="main-executive-video" controls playsinline preload="none" poster="assets/videos/boltech_paz_mental_poster_es.jpg?v=20261006-institutional-black-products" src="assets/videos/boltech_paz_mental_es.mp4?v=20261006-institutional-black-products" aria-label="Video: agentes de IA y paz mental en tu negocio"></video></div><div class="service-options"><a href="#custom-agents-section" onclick="focusPainInput()" class="group p-6 rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950 border border-cyan-500/30 hover:border-cyan-400 hover:shadow-xl hover:shadow-cyan-500/10 transition-all flex flex-col justify-between block cursor-pointer">
             <div>
               <div class="flex items-center justify-between mb-3">
                 <span id="hub-card1-badge" class="text-[10px] font-mono font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded border border-cyan-500/20 uppercase tracking-wider">Servicio 1 • Agentes Pre-elaborados a tu Servicio</span>
@@ -2223,4 +2306,67 @@
 
 
 <script src="/assets/js/web-reception.js?v=20261021-sales2" type="module"></script>
-</body></html>
+
+<script id="agents-playground-script">
+(() => {
+  const buttons = [...document.querySelectorAll('.agent-dot-button')];
+  const soundToggle = document.getElementById('agents-sound-toggle');
+  const soundLabel = document.getElementById('agents-sound-label');
+  if (!buttons.length || !soundToggle) return;
+  let audioContext, soundEnabled = true, lastSoundAt = -Infinity;
+  const pending = new Map();
+  const isEnglish = () => document.documentElement.lang === 'en';
+  function updateSoundLabel() {
+    soundToggle.setAttribute('aria-pressed', String(soundEnabled));
+    soundLabel.textContent = isEnglish()
+      ? (soundEnabled ? 'Sound on' : 'Sound off')
+      : (soundEnabled ? 'Sonido activado' : 'Sonido desactivado');
+  }
+  soundToggle.addEventListener('click', () => { soundEnabled = !soundEnabled; updateSoundLabel(); });
+  new MutationObserver(updateSoundLabel).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
+  updateSoundLabel();
+  async function chirp(index) {
+    if (!soundEnabled || performance.now() - lastSoundAt < 180) return;
+    lastSoundAt = performance.now();
+    try {
+      const Audio = window.AudioContext || window.webkitAudioContext;
+      if (!Audio) return;
+      audioContext ||= new Audio();
+      if (audioContext.state === 'suspended') await audioContext.resume();
+      if (!soundEnabled || audioContext.state !== 'running') return;
+      const now = audioContext.currentTime;
+      const notes = [
+        [[0,340,740,.16],[.16,740,470,.18],[.35,620,850,.12]],
+        [[0,210,520,.12],[.13,520,250,.13],[.27,250,660,.2]],
+        [[0,600,970,.13],[.14,830,460,.16],[.31,460,1120,.2]]
+      ][index];
+      for (const [offset,from,to,length] of notes) {
+        const oscillator = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        oscillator.type = index === 1 ? 'sine' : 'triangle';
+        oscillator.frequency.setValueAtTime(from, now + offset);
+        oscillator.frequency.exponentialRampToValueAtTime(to, now + offset + length);
+        gain.gain.setValueAtTime(0.0001, now + offset);
+        gain.gain.exponentialRampToValueAtTime(0.065, now + offset + .018);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + offset + length);
+        oscillator.connect(gain); gain.connect(audioContext.destination);
+        oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
+        oscillator.start(now + offset); oscillator.stop(now + offset + length + .02);
+      }
+    } catch { /* A silent device still gets the full visual reaction. */ }
+  }
+  for (const button of buttons) {
+    button.addEventListener('click', () => {
+      clearTimeout(pending.get(button));
+      button.classList.remove('is-playing');
+      void button.offsetWidth;
+      button.classList.add('is-playing');
+      pending.set(button, setTimeout(() => { button.classList.remove('is-playing'); pending.delete(button); }, 900));
+      void chirp(Number(button.dataset.dot));
+    });
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && audioContext?.state === 'running') void audioContext.suspend().catch(() => {});
+  });
+})();
+</script></body></html>
