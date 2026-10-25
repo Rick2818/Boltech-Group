@@ -109,3 +109,11 @@ test('EDM-shaped named buyer bypasses future research timer only for fail-closed
  assert.equal(db.leads[0].source_payload.commercialReview.sendAuthorized,false);
  assert.equal(db.leads[0].source_payload.commercialReview.marketingContentId,'quote-material');
 });
+
+test('long email-free official page does not starve research deadlines', async () => {
+ const start=Date.now();
+ const lead={company_url:'https://example.com',source_payload:{research:{contactName:'Jane Buyer',contactRole:'Owner'}}};
+ const result=await researchOfficialContact(lead,{pageReader:async()=>'<html>'+ 'a'.repeat(1500000)+'</html>'});
+ assert.equal(result.contact_email,undefined);
+ assert.ok(Date.now()-start<2000,'official page extraction must remain bounded');
+});
