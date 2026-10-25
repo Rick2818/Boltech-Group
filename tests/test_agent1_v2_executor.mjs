@@ -13,7 +13,7 @@ test('reply handling records CRM event without sending',async()=>{
 test('quotation requires scope and respects commercial price',async()=>{
  const events=[];
  const agent=createAgent1V2({redisCommand:async()=>null,mailSender:{send:async()=>{}},crm:{recordEvent:async e=>events.push(e)}});
- const quote=await agent.prepareQuote({contactId:'synthetic-1',scopeAccepted:true,discountPercent:10});
+ const quote=await agent.prepareQuote({contactId:'synthetic-1',scopeAccepted:true,discountPercent:10,approvedQuote:{ownerApproved:true,approvalId:'QA-APPROVAL',amount:990,currency:'USD',maxDiscountPercent:10,upfrontPercent:50}});
  assert.equal(quote.total,891);
  assert.equal(quote.upfront,445.5);
  assert.equal(quote.readyToOffer,true);
