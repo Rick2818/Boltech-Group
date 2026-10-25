@@ -19,9 +19,9 @@ test('cold email requires research plus cleared history, does not send',()=>{
 });
 test('enablement protects price, discount and explicit acceptance',()=>{
  const scope={workflow:'support',deliverables:['workflow'],acceptanceCriteria:['verified']};
- assert.deepEqual([salesEnablement({scope,discountPercent:10,accepted:true}).price,salesEnablement({scope,discountPercent:10,accepted:true}).upfront],[891,445.5]);
+ assert.deepEqual([salesEnablement({scope,discountPercent:10,accepted:true,approvedQuote:{ownerApproved:true,approvalId:'QA-APPROVAL',amount:990,currency:'USD',maxDiscountPercent:10,upfrontPercent:50}}).price,salesEnablement({scope,discountPercent:10,accepted:true,approvedQuote:{ownerApproved:true,approvalId:'QA-APPROVAL',amount:990,currency:'USD',maxDiscountPercent:10,upfrontPercent:50}}).upfront],[891,445.5]);
  assert.equal(salesEnablement({scope,accepted:false}).paymentAuthorized,false);
- assert.throws(()=>salesEnablement({scope,discountPercent:15}),/DISCOUNT_NOT_AUTHORIZED/);
+ assert.throws(()=>salesEnablement({scope,discountPercent:15,approvedQuote:{ownerApproved:true,approvalId:'QA',amount:990,currency:'USD',maxDiscountPercent:10,upfrontPercent:50}}),/DISCOUNT_NOT_AUTHORIZED/);
 });
 test('skills reachable from single agent executor without real provider activity',async()=>{
  const agent=createAgent1V2({redisCommand:async()=>null,mailSender:{send:async()=>{throw Error('unexpected send');}},crm:{recordEvent:async()=>{}}});
@@ -29,4 +29,10 @@ test('skills reachable from single agent executor without real provider activity
  assert.equal(out.research.eligible,true);
  assert.equal(out.draft.ready,true);
  assert.equal(out.send,false);
+});
+
+test('customer acceptance cannot authorize unapproved pricing or a payment',()=>{
+ const scope={workflow:'support',deliverables:['workflow'],acceptanceCriteria:['verified']};
+ const q=salesEnablement({scope,accepted:true});
+ assert.equal(q.price,null);assert.equal(q.ready,false);assert.equal(q.paymentAuthorized,false);
 });
