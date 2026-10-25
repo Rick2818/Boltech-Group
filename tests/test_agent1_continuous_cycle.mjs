@@ -109,3 +109,34 @@ test('EDM-shaped named buyer bypasses future research timer only for fail-closed
  assert.equal(db.leads[0].source_payload.commercialReview.sendAuthorized,false);
  assert.equal(db.leads[0].source_payload.commercialReview.marketingContentId,'quote-material');
 });
+
+
+test('failed research does not advance lastCompletedAt or claim a completed cycle',async()=>{
+ const db=database();
+ const prior='2026-10-24T12:00:00.000Z',now=new Date('2026-10-25T07:45:00.000Z');
+ db.works.push({work_id:'agent1-continuous-prospecting',execution_run_id:null,execution_receipt:{lastCompletedAt:prior}});
+ const fetcher=(url,opts)=>String(url).includes('/leads?select=*&')
+   ?new Response('unavailable',{status:503}):db.fetcher(url,opts);
+ await assert.rejects(runAgent1Cycle({env,fetcher,now,discoverExplee:empty,discoverPublic:empty}),/SALES_CYCLE_HTTP_503/);
+ const work=db.works[0];
+ assert.equal(work.execution_receipt.lastCompletedAt,prior);
+ assert.equal(work.execution_receipt.lastError,'SALES_CYCLE_HTTP_503');
+ assert.equal(work.execution_receipt.lastErrorAt,now.toISOString());
+ assert.equal(work.execution_receipt.leaseUntil,null);
+ assert.equal(work.execution_state,'RETRY_REQUIRED');
+ assert.equal(db.receipts.length,0);
+ const recovery=await runAgent1Cycle({env,fetcher:db.fetcher,now:new Date('2026-10-25T07:55:00.000Z'),discoverExplee:empty,discoverPublic:empty});
+ assert.equal(recovery.status,'RECORDED');
+ assert.equal(work.execution_receipt.lastCompletedAt,'2026-10-25T07:55:00.000Z');
+ assert.equal(work.execution_receipt.lastError,undefined);
+ assert.equal(work.execution_receipt.lastErrorAt,undefined);
+});
+test('missing receipt readback cannot be misreported as completed',async()=>{
+ const db=database(),now=new Date('2026-10-25T08:05:00.000Z');
+ const fetcher=(url,opts)=>String(url).includes('/agent1_commercial_cycle_receipts?cycle_key=eq.')
+   ?Response.json([]):db.fetcher(url,opts);
+ await assert.rejects(runAgent1Cycle({env,fetcher,now,discoverExplee:empty,discoverPublic:empty}),/SALES_CYCLE_RECEIPT_MISSING/);
+ assert.equal(db.works[0].execution_receipt.lastCompletedAt,undefined);
+ assert.equal(db.works[0].execution_receipt.lastError,'SALES_CYCLE_RECEIPT_MISSING');
+ assert.equal(db.works[0].execution_state,'RETRY_REQUIRED');
+});
