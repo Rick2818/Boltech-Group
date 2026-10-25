@@ -12,7 +12,7 @@ function memoryLedger(){
  reserveProspectAtomically:async({key,globalKey,day,recipient,cap})=>{
   if(rows.has(globalKey))return {reserved:false,state:'BLOCKED',reason:'CROSS_DAY_HISTORY_RECONCILIATION_REQUIRED'};
   const used=[...rows.values()].filter(x=>x.day===day&&['RESERVED','SENT','UNKNOWN'].includes(x.state)).length;
-  if(used>=cap)return {reserved:false,state:'BLOCKED',reason:'DAILY_CAP_REACHED'};
+  if(cap!==null&&used>=cap)return {reserved:false,state:'BLOCKED',reason:'DAILY_CAP_REACHED'};
   if(rows.has(key))return {reserved:false,state:rows.get(key).state,reason:'ALREADY_RESERVED'};
   rows.set(globalKey,{state:'SEEN',day});
   rows.set(key,{day,state:'RESERVED',recipient});
@@ -40,10 +40,10 @@ test('ambiguous provider failure stays UNKNOWN and never resends',async()=>{
  assert.equal((await agent.dispatch(args)).state,'UNKNOWN');
  assert.equal(sent,1);
 });
-test('daily cap is five',async()=>{
+test('continuous outreach is not capped at five',async()=>{
  let sent=0;const agent=createSalesAgentV2({ledger:memoryLedger(),clock:at,sender:{send:async()=>({messageId:String(++sent)})}});
  for(let i=0;i<6;i++)await agent.dispatch({...args,prospect:{...lead,email:'sales'+i+'@example.com'}});
- assert.equal(sent,5);
+ assert.equal(sent,6);
 });
 test('date and dedupe key are deterministic',()=>{
  assert.equal(campaignDate('2026-10-20T04:00:00Z'),'2026-10-19');
@@ -59,4 +59,12 @@ test('same recipient held across different campaign dates',async()=>{
  assert.equal(repeat.state,'BLOCKED');
  assert.equal(repeat.reason,'CROSS_DAY_HISTORY_RECONCILIATION_REQUIRED');
  assert.equal(sent,1);
+});
+
+test('explicit provider limit still applies without a hardcoded five ceiling',async()=>{
+ let sent=0;
+ const agent=createSalesAgentV2({ledger:memoryLedger(),clock:at,dailyCap:2,sender:{send:async()=>({messageId:String(++sent)})}});
+ for(let i=0;i<4;i++)await agent.dispatch({...args,prospect:{...lead,email:'bounded'+i+'@example.com'}});
+ assert.equal(sent,2);
+ assert.throws(()=>createSalesAgentV2({ledger:memoryLedger(),sender:{send:async()=>{}},dailyCap:0}),/INVALID_DAILY_CAP/);
 });

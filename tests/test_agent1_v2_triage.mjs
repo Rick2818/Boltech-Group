@@ -19,5 +19,5 @@ test('reject non-US, unsafe and unrelated requests',()=>{
 });
 test('same triage reachable through unified executor',()=>{
  const a=createAgent1V2({redisCommand:async()=>null,mailSender:{send:async()=>{throw Error('NOT_ALLOWED');}},crm:{recordEvent:async()=>{}}});
- assert.equal(a.triage([],{}).remaining,5);
+ assert.equal(a.triage([],{}).remaining,null);
 });
