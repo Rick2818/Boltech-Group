@@ -130,3 +130,24 @@ test('long email-free official page does not starve research deadlines', async (
  const absent=await check('<p>sales@example.com</p>');
  assert.equal(absent.publishedWorkflow,null);
  });
+
+test('evidence-only mode preserves draft and stage, verifies existing leads and never discovers',async()=>{
+ const lead=candidate(42);lead.commercial_stage='DRAFT_REVIEW';lead.source_payload.campaignDraft={subject:'Preserve',body:'Existing draft',sent:false};
+ const db=database([lead]);let researched=0;
+ const result=await runAgent1Cycle({env:{...env,AGENT1_OPERATION_MODE:'EVIDENCE_ONLY'},fetcher:db.fetcher,
+ discoverExplee:async()=>{throw Error('DISCOVERY_MUST_NOT_RUN');},discoverPublic:async()=>{throw Error('DISCOVERY_MUST_NOT_RUN');},
+ researchContact:async l=>{researched++;return l;},verifyCandidate:verify});
+ assert.equal(researched,1);assert.equal(result.discovered,0);assert.equal(result.outreachSent,0);assert.equal(result.commercialReviewsChecked,0);assert.equal(result.evidenceChecked,1);
+ assert.equal(db.leads[0].commercial_stage,'DRAFT_REVIEW');assert.deepEqual(db.leads[0].source_payload.campaignDraft,lead.source_payload.campaignDraft);
+ assert.ok(db.leads[0].source_payload.evidenceOnlyReceipt.checkedAt);
+});
+test('evidence-only inbox and intake return before any provider call; transport rejects sends',async()=>{
+ const {runInboundSalesCycle}=await import('../lib/agent1_autonomous_inbox.js');
+ const {syncHotLeads}=await import('../lib/explee_hot_leads_sync.js');
+ const {createSdrGmail}=await import('../lib/sdr_gmail.js');
+ const mode={AGENT1_OPERATION_MODE:'EVIDENCE_ONLY'};
+ const forbidden=async()=>{throw Error('PROVIDER_MUST_NOT_RUN');};
+ assert.equal((await runInboundSalesCycle({env:mode,fetcher:forbidden,gmail:{verify:forbidden}})).status,'EVIDENCE_ONLY');
+ assert.equal((await syncHotLeads({env:mode,fetcher:forbidden})).imported,0);
+ await assert.rejects(createSdrGmail(forbidden,mode).send({}),/AGENT1_EVIDENCE_ONLY_SEND_PAUSED/);
+});
