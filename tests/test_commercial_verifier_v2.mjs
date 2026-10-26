@@ -18,9 +18,13 @@ test('stale DNC receipt cannot clear',async()=>assert.equal((await evaluateRecip
 test('legacy eligibility flag does not veto independent approved V2 policy',async()=>assert.equal((await evaluateRecipientV2({...lead,source_payload:{...lead.source_payload,recipientEligibility:{approved:false}}},deps)).status,'CLEAR'));
 
 test('official shared company mailbox is eligible only with matching published proof',async()=>{
- const company={...lead,contact_email:'info@example.com',source_payload:{verification:{checkedAt:'2026-10-23T17:00:00Z',publishedWorkflow:'QUOTE_REQUEST'},leadEvidence:{companyMailboxVerification:{status:'OFFICIAL_COMPANY_MAILBOX_VERIFIED',email:'info@example.com'}},companyCampaignDraft:{recipientType:'OFFICIAL_COMPANY_MAILBOX',recipient:'info@example.com',sent:false,marketingContentId:'asset',subject:'Quote',body:'Hello'}}};
+ const company={...lead,source_evidence_url:'https://linkedin.com/in/person',contact_email:'info@example.com',source_payload:{verification:{checkedAt:'2026-10-23T17:00:00Z',publishedWorkflow:'QUOTE_REQUEST'},leadEvidence:{companyMailboxVerification:{status:'OFFICIAL_COMPANY_MAILBOX_VERIFIED',email:'info@example.com',sourceUrl:'https://example.com/contact',checkedAt:'2026-10-23T17:00:00Z',published:true,mxVerified:true,domainMatches:true}},companyCampaignDraft:{recipientType:'OFFICIAL_COMPANY_MAILBOX',recipient:'info@example.com',sent:false,marketingContentId:'asset',subject:'Quote',body:'Hello'}}};
  const x=await evaluateRecipientV2(company,{...deps,checkSuppression:async()=>({status:'CLEAR',checkedAt:now.toISOString(),recipient:'info@example.com'})});
  assert.equal(x.status,'CLEAR');
+ for(const change of [{sourceUrl:'https://other.example/contact'},{checkedAt:'2026-10-21T17:00:00Z'},{checkedAt:'2026-10-24T17:00:00Z'},{published:false},{mxVerified:false},{domainMatches:false},{email:'someone@example.com'}]){
+  const altered={...company,source_payload:{...company.source_payload,leadEvidence:{companyMailboxVerification:{...company.source_payload.leadEvidence.companyMailboxVerification,...change}}}};
+  assert.notEqual((await evaluateRecipientV2(altered,{...deps,checkSuppression:async()=>({status:'CLEAR',checkedAt:now.toISOString(),recipient:'info@example.com'})})).status,'CLEAR');
+ }
  const bad=await evaluateRecipientV2({...company,source_payload:{...company.source_payload,leadEvidence:{companyMailboxVerification:{status:'UNVERIFIED',email:'info@example.com'}}}},{...deps,checkSuppression:async()=>({status:'CLEAR',checkedAt:now.toISOString(),recipient:'info@example.com'})});
  assert.equal(bad.status,'REVIEW_REQUIRED');
 });
