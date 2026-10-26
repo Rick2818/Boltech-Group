@@ -3,7 +3,7 @@ import './test_agent1_company_draft_review.mjs'; // Named-buyer regression runs 
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {runAgent1Cycle} from '../lib/agent1_continuous_cycle.js';
-import {discoverExpleeResearch,verifyPublishedCandidate,researchOfficialContact,readOfficialPage} from '../lib/agent1_continuous_research.js';
+import {discoverExpleeResearch,verifyOfficialCompanyMailbox,verifyPublishedCandidate,researchOfficialContact,readOfficialPage} from '../lib/agent1_continuous_research.js';
 const env={SUPABASE_URL:'https://test.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'test'};
 const candidate=i=>({id:'lead-'+i,name:'Company '+i,company_url:'https://company'+i+'.com',country:'US',status:'NEW',contact_email:'owner@company'+i+'.com',source_evidence_url:'https://company'+i+'.com/contact',source_payload:{research:{contactName:'Jane Doe',contactRole:'President'},verification:{humanVerified:true}}});
 function database(initial=[]){
@@ -117,3 +117,16 @@ test('long email-free official page does not starve research deadlines', async (
  assert.equal(result.contact_email,undefined);
  assert.ok(Date.now()-start<2000,'official page extraction must remain bounded');
 });
+
+ test('shared mailbox verifies workflow from its own official source without a named buyer',async()=>{
+ const lead={company_url:'https://example.com',source_payload:{research:{officialCompanyMailbox:'sales@example.com',officialCompanyMailboxEvidence:'https://example.com/contact'}}};
+ const check=html=>verifyOfficialCompanyMailbox(lead,{pageReader:async()=>html,mxResolver:async()=>[{exchange:'mx.example.com'}]});
+ const quote=await check('<p>Request a quote: sales@example.com</p>');
+ assert.equal(quote.status,'OFFICIAL_COMPANY_MAILBOX_VERIFIED');
+ assert.equal(quote.publishedWorkflow,'QUOTE_REQUEST');
+ assert.equal(quote.sendAuthorized,false);
+ const contact=await check('<p>Contact sales@example.com</p><form><input></form>');
+ assert.equal(contact.publishedWorkflow,'CONTACT_REQUEST');
+ const absent=await check('<p>sales@example.com</p>');
+ assert.equal(absent.publishedWorkflow,null);
+ });
