@@ -1,8 +1,9 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
-import {writeFile} from 'node:fs/promises';
+import {writeFile,mkdir} from 'node:fs/promises';
 import qaCase from '../../config/qa_case.json' with {type:'json'};
 // Deliberately synthetic and marked QA by the receiver; no email or payment is sent.
+await mkdir('ops-output',{recursive:true});
 const browser=await chromium.launch({headless:true,channel:'msedge'});
 try{
   const page=await browser.newPage({viewport:{width:1365,height:900}});

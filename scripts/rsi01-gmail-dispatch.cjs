@@ -4,10 +4,12 @@
  * Unknown outcomes remain PENDING_RECONCILIATION: never auto-retry.
  */
 const fs=require('node:fs');
+const qa=require('../config/qa_case.json');
 const API='https://api.airtable.com/v0';
 const REQUIRED=['buyer_verified','contact_verified','intent_verified','permission_verified','template_approved','recipient_verified'];
 function safeEmail(s){return typeof s==='string'&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);}
 function validate(intent,approval,allowedSender){
+ if(intent.event_id===qa.requestId||intent.lead_id===qa.id||String(intent.recipient||'').trim().toLowerCase()===qa.answers[8].toLowerCase())throw Error('QA_EXTERNAL_CONTACT_FORBIDDEN');
  if(intent.status!=='APPROVED_PENDING_DISPATCH'||intent.send_performed!==false)throw Error('INTENT_NOT_APPROVED');
  if(!approval||REQUIRED.some(k=>approval[k]!==true)||approval.release_to_send!==true)throw Error('RELEASE_NOT_AUTHORIZED');
  if(!safeEmail(intent.recipient)||!safeEmail(intent.sender)||intent.sender!==allowedSender||!safeEmail(approval.recipient)||approval.recipient!==intent.recipient)throw Error('SENDER_OR_RECIPIENT_MISMATCH');

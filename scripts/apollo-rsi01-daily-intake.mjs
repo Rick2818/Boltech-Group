@@ -15,7 +15,7 @@ try {
   if (!response.ok || result.success !== true) fail(typeof result.code === 'string' && /^APOLLO_[A-Z_]+$/.test(result.code) ? result.code : 'APOLLO_ROUTE_UNAVAILABLE');
   if (result.complete !== true || !Array.isArray(result.leads)) fail('APOLLO_INCOMPLETE_LEADS');
   const candidates = result.leads.filter(c => c.source === 'APOLLO_SAVED_CONTACT' && c.emailValidation?.syntax === true && c.contactEligible === false && /^[a-f0-9]{24}$/.test(c.apolloContactId||''));
-  const endpoint='https://api.airtable.com/v0/'+encodeURIComponent(base)+'/RSI%20Agent%20Work';
+  const endpoint='https://api.airtable.com/v0/'+encodeURIComponent(base)+'/tblHVqUMifOFjlGvj';
   const headers = {Authorization:'Bearer '+airtableToken,'Content-Type':'application/json'};
   for (const c of candidates) {
     if (output.created >= 5) break;
@@ -23,12 +23,19 @@ try {
     const search=await fetch(endpoint+'?'+new URLSearchParams({filterByFormula:'{Work ID}="'+id+'"',maxRecords:'2'}),{headers,signal:AbortSignal.timeout(10000)});
     if(!search.ok)fail('AIRTABLE_LOOKUP_FAILED');
     const existing=await search.json();if(!Array.isArray(existing.records))fail('AIRTABLE_INVALID_LOOKUP');
-    if(existing.records.length){output.existing++;continue;}
+    if(existing.records.length>1)fail('AIRTABLE_DUPLICATE_WORK_ID');
+    const confirm=async recordId=>{
+      const check=await fetch(endpoint+'/'+encodeURIComponent(recordId),{headers,signal:AbortSignal.timeout(10000)});
+      if(!check.ok)fail('AIRTABLE_READBACK_FAILED');
+      const saved=await check.json(),fields=saved.fields||{};
+      if(saved.id!==recordId||fields['Work ID']!==id||fields['Source Record ID']!==c.apolloContactId)fail('AIRTABLE_READBACK_MISMATCH');
+    };
+    if(existing.records.length){await confirm(existing.records[0].id);output.existing++;continue;}
     const evidence={source:'APOLLO_SAVED_CONTACT',apolloContactId:c.apolloContactId,company:c.company,contactEmail:c.contactEmail,contactName:c.name,title:c.title,domain:c.domain,providerStatus:c.providerEmailStatus,synthetic:false,contactEligible:false,notVerifiedBuyer:true};
     const post=await fetch(endpoint,{method:'POST',headers,signal:AbortSignal.timeout(10000),body:JSON.stringify({records:[{fields:{'Work ID':id,RSI:'RSI-01',Owner:'RSI-01',Status:'RESEARCH_REQUIRED','Account Domain':c.domain,'Source Record ID':c.apolloContactId,Evidence:JSON.stringify(evidence),'Next Action':'Independently qualify buyer, pain, relevance, existing Gmail history, suppression and lawful outreach before approval.','Handoff To':'RSI-01',Authorization:'APOLLO_READ_ONLY; NO SEND','Execution State':'BLOCKED'}}]})});
     if(!post.ok)fail('AIRTABLE_WRITE_UNCERTAIN');
     const receipt=await post.json();if(!receipt.records?.[0]?.id)fail('AIRTABLE_WRITE_UNCERTAIN');
-    output.created++;
+    await confirm(receipt.records[0].id);output.created++;
   }
   output.reviewed=output.created + output.existing;
   if(output.created<5)output.blocked='FEWER_THAN_FIVE_NEW_SAVED_CONTACTS_FOR_RESEARCH';

@@ -11,7 +11,7 @@ async function intake(handoff,{token,base,fetchImpl=fetch}={}){
  if(!token||!base)throw Error('AIRTABLE_AUTH_NOT_CONFIGURED');
  if(handoff?.consumer!=='RSI-01'||!Array.isArray(handoff.events))throw Error('INVALID_HANDOFF');
  const headers={Authorization:'Bearer '+token,'Content-Type':'application/json'};
- const workTable='RSI Agent Work';
+ const workTable='tblHVqUMifOFjlGvj';
  const receipts=[];
  for(const e of handoff.events){
   if(e.producer!=='BLIA-01'||e.event_type!=='LEAD_RESEARCHED'||e.synthetic!==false||e.payload?.status!=='RESEARCH_REQUIRED'||e.payload?.buyer_verified!==false||e.payload?.contact_verified!==false||!/^https:\/\//.test(e.evidence_ref)||!e.event_id)throw Error('UNSAFE_EVENT');
@@ -22,13 +22,21 @@ async function intake(handoff,{token,base,fetchImpl=fetch}={}){
   if(!check.ok)throw Error('AIRTABLE_READ_FAILED_'+check.status);
   const found=await check.json();
   if(!Array.isArray(found.records))throw Error('AIRTABLE_INVALID_RESPONSE');
-  if(found.records.length){receipts.push({event_id:e.event_id,record_id:found.records[0].id,state:'EXISTS'});continue;}
+  if(found.records.length>1)throw Error('AIRTABLE_DUPLICATE_WORK_ID');
+  async function confirm(recordId){
+   const readback=await fetchImpl(url+'/'+encodeURIComponent(recordId),{headers});
+   if(!readback.ok)throw Error('AIRTABLE_READBACK_FAILED');
+   const saved=await readback.json(),f=saved.fields||{};
+   if(saved.id!==recordId||f['Work ID']!==id||f['Source Record ID']!==e.lead_id)throw Error('AIRTABLE_READBACK_MISMATCH');
+   return {event_id:e.event_id,record_id:recordId,owner:f.Owner,status:f.Status,readback_verified:true};
+  }
+  if(found.records.length){receipts.push({...await confirm(found.records[0].id),state:'EXISTS'});continue;}
   const body={records:[{fields:{'Work ID':id,RSI:'RSI-01',Owner:'RSI-01',Status:'RESEARCH_REQUIRED','Source Record ID':e.lead_id,Evidence:JSON.stringify({url:e.evidence_ref,title:e.payload.title,market:e.payload.market,source:'BLIA-01'}),'Next Action':'Verify actual buyer, contact, purchase intent, permission, and approve content before any outreach.','Handoff To':'RSI-01',Authorization:'RESEARCH_ONLY; NO SEND','Execution State':'BLOCKED'}}]};
   const write=await fetchImpl(url,{method:'POST',headers,body:JSON.stringify(body)});
   if(!write.ok)throw Error('AIRTABLE_WRITE_UNCERTAIN_'+write.status);
   const created=await write.json();
   if(!created.records?.[0]?.id)throw Error('AIRTABLE_WRITE_UNCERTAIN');
-  receipts.push({event_id:e.event_id,record_id:created.records[0].id,state:'CREATED'});
+  receipts.push({...await confirm(created.records[0].id),state:'CREATED'});
  }
  return {consumer:'RSI-01',count:receipts.length,receipts};
 }

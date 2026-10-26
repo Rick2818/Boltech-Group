@@ -1,8 +1,9 @@
+const qa=require('../config/qa_case.json');
 const test=require('node:test');
 const assert=require('node:assert/strict');
 const {build}=require('../scripts/blia01-rsi-handoff.cjs');
-const id='0123456789abcdef0123';
-const candidate={evidence_id:id,source_url:'https://example.org/notice',title:'Request for automation',market:'US',score:65,status:'RESEARCH_REQUIRED',buyer_verified:false,contact_verified:false,buying_intent_verified:false};
+const id=qa.requestId.slice(0,20);
+const candidate={evidence_id:id,source_url:'https://example.com/'+qa.id,title:qa.answers[7],market:'US',score:65,status:'RESEARCH_REQUIRED',buyer_verified:false,contact_verified:false,buying_intent_verified:false};
 const source={agent:'BLIA-01',mode:'DISCOVERY_RESEARCH_ONLY',generated_at:'2026-10-11T00:00:00Z',items:[candidate,candidate]};
 test('deduplicated deterministic RSI handoff retains unverified state',()=>{
  const first=build(source),second=build(source);
