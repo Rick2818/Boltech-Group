@@ -151,3 +151,12 @@ test('evidence-only inbox and intake return before any provider call; transport 
  assert.equal((await syncHotLeads({env:mode,fetcher:forbidden})).imported,0);
  await assert.rejects(createSdrGmail(forbidden,mode).send({}),/AGENT1_EVIDENCE_ONLY_SEND_PAUSED/);
 });
+
+test('research deadline does not abort durable evidence receipt and lease release',async()=>{
+ const lead=candidate(71);lead.commercial_stage='DRAFT_REVIEW';const db=database([lead]);
+ const fetcher=async(url,options={})=>{if(options.signal?.aborted)throw Error('EXPIRED_CONTROL_SIGNAL');return db.fetcher(url,options);};
+ const result=await runAgent1Cycle({env:{...env,AGENT1_OPERATION_MODE:'EVIDENCE_ONLY'},fetcher,budgetMs:1000,
+ researchContact:async l=>{await new Promise(resolve=>setTimeout(resolve,1100));return l;},verifyCandidate:verify});
+ assert.equal(result.status,'RECORDED');assert.equal(result.mode,'EVIDENCE_ONLY');assert.equal(result.evidenceChecked,1);
+ assert.equal(db.works[0].execution_receipt.leaseUntil,null);assert.equal(db.receipts[0].details.followupExecution,'PAUSED_EVIDENCE_ONLY');
+});
