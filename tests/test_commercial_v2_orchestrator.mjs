@@ -13,3 +13,13 @@ test('send flag off: complete verification but no POST',async()=>{let sends=0;co
 test('approved prospect sends exactly once and persists provider receipt',async()=>{let sends=0;const store=createStore();const provider={send:async()=>{sends++;return {id:'m1',threadId:'t1'}},lookup:async()=>[]};const r=await runCommercialV2Outreach({...args,env:{...authorizationEnv,COMMERCIAL_V2_SEND_ENABLED:'true'},store,provider});assert.equal(r.sent,1);assert.equal(sends,1);const r2=await runCommercialV2Outreach({...args,env:{...authorizationEnv,COMMERCIAL_V2_SEND_ENABLED:'true'},store,provider});assert.equal(r2.sent,1);assert.equal(sends,1)});
 test('timeout is held; next cycle reconciles without another POST',async()=>{const store=createStore();let sends=0;const provider={send:async()=>{sends++;throw Error('timeout')},lookup:async()=>[{id:'m1',threadId:'t1'}]};const a=await runCommercialV2Outreach({...args,env:{...authorizationEnv,COMMERCIAL_V2_SEND_ENABLED:'true'},store,provider});assert.equal(a.sent,0);const b=await runCommercialV2Outreach({...args,env:{...authorizationEnv,COMMERCIAL_V2_SEND_ENABLED:'true'},store,provider});assert.equal(b.sent,1);assert.equal(sends,1)});
 test('suspicious DNC evidence never sends',async()=>{let sends=0;const r=await runCommercialV2Outreach({...args,env:{...authorizationEnv,COMMERCIAL_V2_SEND_ENABLED:'true'},store:createStore(),suppressionProbe:async()=>({status:'REVIEW_REQUIRED'}),provider:{send:async()=>{sends++}}});assert.equal(r.held,1);assert.equal(sends,0)});
+
+for(const scenario of ['success','unknown','blocked'])test('alternate production mode: '+scenario,async()=>{
+ const store=createStore();let sends=0;
+ const provider={send:async()=>{sends++;if(scenario==='unknown')throw Error('timeout');return {id:'m1',threadId:'t1'};},lookup:async()=>[{id:'m1',threadId:'t1'}]};
+ const options={...args,env:{...authorizationEnv,COMMERCIAL_V2_SEND_ENABLED:'true',AGENT1_EXECUTOR_MODE:'ALTERNATE_V2'},store,provider,...(scenario==='blocked'?{suppressionProbe:async()=>({status:'REVIEW_REQUIRED'})}:{})};
+ const a=await runCommercialV2Outreach(options);
+ assert.equal(a.engine,'ALTERNATE_V2');assert.equal(a.sent,scenario==='success'?1:0);
+ const b=await runCommercialV2Outreach(options);
+ assert.equal(b.sent,scenario==='blocked'?0:1);assert.equal(sends,scenario==='blocked'?0:1);
+});
