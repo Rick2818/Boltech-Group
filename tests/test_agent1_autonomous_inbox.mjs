@@ -28,7 +28,7 @@ function fake({duplicate=false,unsubscribe=false}={}){
  return {gmail,fetcher,sent,writes,quota,get calls(){return calls;}};
 }
 test('real contacted prospect pricing reply is sent and recorded once',async()=>{
- const x=fake();const r=await runInboundSalesCycle({gmail:x.gmail,env,fetcher:x.fetcher});assert.equal(r.replied,1);assert.equal(x.sent.length,1);assert.match(x.sent[0].text,/USD 990/);assert.equal(x.calls,1);assert.equal(r.paymentRecorded,false);
+ const x=fake();const r=await runInboundSalesCycle({gmail:x.gmail,env,fetcher:x.fetcher});assert.equal(r.replied,1);assert.equal(x.sent.length,1);assert.doesNotMatch(x.sent[0].text,/USD 990|50%/);assert.match(x.sent[0].text,/approved pricing/);assert.equal(x.calls,1);assert.equal(r.paymentRecorded,false);
 });
 test('duplicate message does not send twice',async()=>{const x=fake({duplicate:true});const r=await runInboundSalesCycle({gmail:x.gmail,env,fetcher:x.fetcher});assert.equal(r.duplicate,1);assert.equal(x.sent.length,0);});
 test('opt out is held and never responded to',async()=>{const x=fake({unsubscribe:true});const r=await runInboundSalesCycle({gmail:x.gmail,env,fetcher:x.fetcher});assert.equal(r.replied,0);assert.equal(x.sent.length,0);});
