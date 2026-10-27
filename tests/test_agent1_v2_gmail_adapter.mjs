@@ -7,5 +7,6 @@ test('business Gmail adapter returns receipt with synthetic provider',async()=>{
  const adapter=createAgent1GmailAdapter({verifiedSender:true,gmail:{send:async p=>{sent.push(p);return {messageId:'synthetic-msg',threadId:'synthetic-thread'};}}});
  const receipt=await adapter.send({to:'test@example.com',subject:'Test',body:'Message',idempotencyKey:'a'.repeat(64)});
  assert.equal(receipt.messageId,'synthetic-msg');
- assert.match(sent[0].rfcMessageId,/^<[a-f0-9]{32}@boltech-group\.vercel\.app>$/);
+ assert.match(sent[0].rfcMessageId,/^[a-f0-9]{32}@boltech-group\.vercel\.app$/);
+ assert.equal(receipt.rfcMessageId,sent[0].rfcMessageId);
 });
