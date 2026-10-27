@@ -1,0 +1,21 @@
+name: Leo Factory commercial API QA
+on:
+  pull_request:
+    paths:
+      - 'lib/leo_factory_commercial_http.js'
+      - 'api/leo-factory-commercial.js'
+      - 'tests/test_leo_factory_commercial_http.mjs'
+      - '.github/workflows/leo-factory-commercial-qa.yml'
+  workflow_dispatch:
+jobs:
+  commercial-api:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --ignore-scripts
+      - run: node --test tests/test_leo_factory_commercial_http.mjs
