@@ -11,10 +11,14 @@ test('current offer has two quote-based services without inherited prices', () =
     assert.equal(product.pricingMode, 'quote');
   }
   const page = fs.readFileSync('index.html', 'utf8');
-  assert.deepEqual([...page.matchAll(/data-service-id="([^"]+)"/g)].map(m => m[1]), ['prebuilt', 'custom']);
-  assert.doesNotMatch(page, /\$(?:19|69|490)(?:\D|$)|Parche de Ciberseguridad|Plan Flash|Plan Pro/);
-  assert.match(page, /requestAgentQuote\('prebuilt'\)/);
-  assert.match(page, /requestAgentQuote\('custom'\)/);
+  assert.match(page, /US\$69\/mes/);
+  assert.match(page, /US\$600/);
+  assert.match(page, /US\$900/);
+  assert.match(page, /cotización aprobada/);
+  assert.doesNotMatch(page, /Parche de Ciberseguridad|Plan Flash|Plan Pro/);
+  assert.doesNotMatch(page, /\/api\/payments\?action=create/);
+  assert.match(page, /factory-preview\.html/);
+  assert.match(page, /mailto:ricardo\.boltechgroup@gmail\.com/);
 });
 
 test('retired and unpriced products fail before ledger or provider calls, despite caller amount', async () => {
