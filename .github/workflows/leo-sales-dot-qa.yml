@@ -1,0 +1,26 @@
+name: Boltech Leo synthetic commercial circuit
+on:
+  pull_request:
+    paths:
+      - 'lib/sales_dot_pilot.js'
+      - 'lib/leo_sales_runtime.js'
+      - 'tests/test_leo_sales_runtime.mjs'
+      - 'lib/factory_order_executors.js'
+      - 'sales-agent.html'
+      - 'tests/test_sales_dot_pilot.mjs'
+      - 'tests/test_sales_factory_synthetic_circuit.mjs'
+      - '.github/workflows/leo-sales-dot-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Test Boltech synthetic client and full handoff
+        run: npm ci --ignore-scripts && node --test tests/test_sales_dot_pilot.mjs tests/test_sales_factory_synthetic_circuit.mjs tests/test_leo_sales_runtime.mjs
