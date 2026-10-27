@@ -77,14 +77,18 @@ test('payment confirmation requires provider verification and persistent ledger'
   assert.match(api, /bodyParser:\s*false/);
 });
 
-test('front-end only shows provider-confirmed PAID state', () => {
+test('minimal front-end cannot create or pretend to confirm payment', () => {
   const html = read('index.html');
-  assert.match(html, /\/api\/payments\?action=create/);
-  assert.match(html, /\/api\/payments\?action=status/);
-  assert.match(html, /Pago confirmado por Strike/);
-  assert.match(html, /Pago confirmado por Wompi/);
-  assert.doesNotMatch(html, /Ya transferí: Notificar/);
-  assert.doesNotMatch(html, /Confirmar y Activar Licencia/);
+  const factory = read('factory-preview.html');
+  for (const page of [html, factory]) {
+    assert.doesNotMatch(page, /\/api\/payments\?action=(?:create|create-approved|status)/);
+    assert.doesNotMatch(page, /Pago confirmado por Strike|Pago confirmado por Wompi/);
+    assert.doesNotMatch(page, /Ya transferí: Notificar|Confirmar y Activar Licencia/);
+  }
+  const api = read('api/payments.js');
+  const catalog = read('lib/payment_catalog.js');
+  assert.match(api, /requireOperationalAuth\(req, res\)/);
+  assert.match(catalog, /APPROVED_QUOTE_REQUIRED/);
 });
 
 
