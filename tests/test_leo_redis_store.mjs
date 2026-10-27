@@ -10,7 +10,7 @@ function harness(){
  if(JSON.parse(value).version!==Number(a[4]))return 'CONFLICT';
  mem.set(key,a[5]);return 'OK';
  };
- const store=createLeoRedisStore(command),agent=(tenant,subject='client')=>createLeoTenantAgent({store,principal:{verified:true,tenantId:tenant,subject}});
+ const store=createLeoRedisStore(command),agent=(tenant,subject='client')=>createLeoTenantAgent({store,principal:{verified:true,tenantId:tenant,subject,roles:['tenant_operator']}});
  return {mem,store,agent};
 }
 const spec={id:'sale_goal_01',description:'Qualify incoming B2B requests correctly',criteria:'Qualified contacts with evidence'};
