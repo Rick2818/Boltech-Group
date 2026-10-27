@@ -1,0 +1,26 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {createLeoTenantAgent} from '../lib/leo_tenant_autonomy.js';
+function fixture(){
+ const data=new Map();
+ const store={read:async k=>structuredClone(data.get(k)||null),writeIfVersion:async(k,v,r)=>{let old=data.get(k);if((old?.version??null)!==v)return false;data.set(k,structuredClone(r));return true}};
+ const as=(tenantId,subject='buyer')=>createLeoTenantAgent({store,principal:{verified:true,tenantId,subject,roles:['tenant_admin']},tools:{research:{readOnly:true,run:async()=>({ok:true,receipt:'verified-local-test-1'})},send:{readOnly:false,run:async()=>{throw Error('SHOULD_NOT_SEND')}}}});
+ return {as,data};
+}
+const input={id:'customer-goal-001',description:'Find qualified companies with public evidence',criteria:'At least three verified candidates'};
+test('test 1: separate buyers have isolated objective namespaces',async()=>{const f=fixture();await f.as('tenant-boltech').objective(input);assert.equal(await f.as('tenant-other').get(input.id),null);await assert.rejects(f.as('tenant-other').transition({id:input.id,expectedVersion:1,action:'approve',eventId:'event-01',approval:true}),{code:'LEO_OBJECTIVE_MISSING'});});
+test('test 2: objective survives new agent instance, requires reviewed plan and receipt',async()=>{const f=fixture();let a=f.as('tenant-boltech');let r=await a.objective(input);await assert.rejects(a.transition({id:r.id,expectedVersion:r.version,action:'execute',eventId:'event-01',toolName:'research',approval:true}),{code:'LEO_EXECUTION_NOT_AUTHORIZED'});r=await a.transition({id:r.id,expectedVersion:r.version,action:'plan',eventId:'event-02',plan:['Research official published evidence']});a=f.as('tenant-boltech');r=await a.transition({id:r.id,expectedVersion:r.version,action:'approve',eventId:'event-03',approval:true});r=await a.transition({id:r.id,expectedVersion:r.version,action:'execute',eventId:'event-04',approval:true,toolName:'research'});assert.equal(r.status,'AWAITING_REVIEW');r=await a.transition({id:r.id,expectedVersion:r.version,action:'complete',eventId:'event-05',approval:true});assert.equal(r.status,'COMPLETED');});
+test('test 3: duplicate and concurrent operations do not dispatch unauthorized sends',async()=>{const f=fixture();const a=f.as('tenant-boltech');let r=await a.objective(input);r=await a.transition({id:r.id,expectedVersion:1,action:'plan',eventId:'event-10',plan:['Research public evidence only']});r=await a.transition({id:r.id,expectedVersion:2,action:'approve',eventId:'event-11',approval:true});await assert.rejects(a.transition({id:r.id,expectedVersion:3,action:'execute',eventId:'event-12',toolName:'send',approval:true}),{code:'LEO_TOOL_NOT_APPROVED'});const args={id:r.id,expectedVersion:3,action:'execute',toolName:'research',approval:true};const out=await Promise.allSettled([a.transition({...args,eventId:'event-13'}),a.transition({...args,eventId:'event-14'})]);assert.equal(out.filter(x=>x.status==='fulfilled').length,1);const replay=await a.transition({...args,eventId:out[0].status==='fulfilled'?'event-13':'event-14'});assert.equal(replay.version,4);});
+test('unverified browser tenant identity is rejected',()=>{const store={read:async()=>null,writeIfVersion:async()=>true};assert.throws(()=>createLeoTenantAgent({store,principal:{verified:false,tenantId:'tenant-boltech',subject:'buyer'}}),{code:'LEO_VERIFIED_PRINCIPAL_REQUIRED'});});
+
+test('same-tenant unrelated operator cannot read another buyer objective',async()=>{
+ const f=fixture();await f.as('tenant-boltech','owner-001').objective(input);
+ const other=createLeoTenantAgent({store:{read:async k=>structuredClone(f.data.get(k)||null),writeIfVersion:async()=>false},principal:{verified:true,tenantId:'tenant-boltech',subject:'other-002',roles:['tenant_operator']}});
+ await assert.rejects(other.get(input.id),{code:'LEO_ACCESS_DENIED'});
+});
+
+test('tenant operator cannot approve or execute merely by setting approval=true',async()=>{
+ const f=fixture();const admin=f.as('tenant-boltech','owner-003');let r=await admin.objective({...input,id:'operator-goal-001'});
+ r=await admin.transition({id:r.id,expectedVersion:r.version,action:'plan',eventId:'op-plan-1',plan:['Check public records first']});
+ const operator=createLeoTenantAgent({store:{read:async k=>structuredClone(f.data.get(k)||null),writeIfVersion:async()=>false},principal:{verified:true,tenantId:'tenant-boltech',subject:'owner-003',roles:['tenant_operator']}});
+ await assert.rejects(operator.transition({id:r.id,expectedVersion:r.version,action:'approve',eventId:'op-approve-1',approval:true}),{code:'LEO_APPROVAL_REQUIRED'});
+});

@@ -1,0 +1,25 @@
+name: Leo independent tenant autonomy QA
+on:
+  pull_request:
+    paths:
+      - 'lib/leo_tenant_autonomy.js'
+      - 'lib/leo_redis_store.js'
+      - 'tests/test_leo_redis_store.mjs'
+      - 'lib/leo_tenant_auth.js'
+      - 'lib/leo_objectives_http.js'
+      - 'tests/test_leo_tenant_auth.mjs'
+      - 'tests/test_leo_tenant_autonomy.mjs'
+      - '.github/workflows/leo-tenant-autonomy-qa.yml'
+permissions:
+  contents: read
+jobs:
+  synthetic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Three tenant autonomy synthetic tests and authorization guard
+        run: node --test tests/test_leo_tenant_autonomy.mjs tests/test_leo_redis_store.mjs tests/test_leo_tenant_auth.mjs

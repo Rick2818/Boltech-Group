@@ -48,6 +48,7 @@ import evidenceExecutorHandler from '../lib/agent1_evidence_executor.js';
 import inboundSalesHandler from '../lib/agent1_autonomous_inbox.js';
 import aiHandler from './ai.js';
 import {leoHttpHandler} from '../lib/leo_sales_runtime.js';
+import {handleLeoObjective} from '../lib/leo_objectives_http.js';
 import crmHandler from './crm.js';
 import whatsappHandler from './whatsapp.js';
 import intelHandler from './intel.js';
@@ -79,6 +80,7 @@ export default async function handler(req, res) {
     const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
     const pathname = url.pathname;
     if (url.searchParams.get('leo_sales') === '1') return await leoHttpHandler(req,res);
+    if (pathname === '/api/leo-objectives' || url.searchParams.get('leo_objectives') === '1') return await handleLeoObjective(req,res);
 
     const upworkOAuthAction = pathname === '/api/upwork/callback' ? 'callback' :
       pathname === '/api/upwork/authorize' ? 'start' : url.searchParams.get('upwork_oauth');
