@@ -1,0 +1,19 @@
+name: Factory Leo request flow QA
+on:
+  pull_request:
+    paths:
+      - 'lib/factory_leo_request_flow.js'
+      - 'tests/test_factory_leo_request_flow.mjs'
+      - '.github/workflows/factory-leo-request-flow-qa.yml'
+  workflow_dispatch:
+jobs:
+  request-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/test_factory_leo_request_flow.mjs
