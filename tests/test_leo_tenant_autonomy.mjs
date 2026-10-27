@@ -3,7 +3,7 @@ import {createLeoTenantAgent} from '../lib/leo_tenant_autonomy.js';
 function fixture(){
  const data=new Map();
  const store={read:async k=>structuredClone(data.get(k)||null),writeIfVersion:async(k,v,r)=>{let old=data.get(k);if((old?.version??null)!==v)return false;data.set(k,structuredClone(r));return true}};
- const as=(tenantId,subject='buyer')=>createLeoTenantAgent({store,principal:{verified:true,tenantId,subject,roles:['tenant_operator']},tools:{research:{readOnly:true,run:async()=>({ok:true,receipt:'verified-local-test-1'})},send:{readOnly:false,run:async()=>{throw Error('SHOULD_NOT_SEND')}}}});
+ const as=(tenantId,subject='buyer')=>createLeoTenantAgent({store,principal:{verified:true,tenantId,subject,roles:['tenant_admin']},tools:{research:{readOnly:true,run:async()=>({ok:true,receipt:'verified-local-test-1'})},send:{readOnly:false,run:async()=>{throw Error('SHOULD_NOT_SEND')}}}});
  return {as,data};
 }
 const input={id:'customer-goal-001',description:'Find qualified companies with public evidence',criteria:'At least three verified candidates'};
@@ -15,4 +15,11 @@ test('unverified browser tenant identity is rejected',()=>{const store={read:asy
 test('same-tenant unrelated operator cannot read another buyer objective',async()=>{
  const f=fixture();await f.as('tenant-boltech','owner-001').objective(input);
  await assert.rejects(f.as('tenant-boltech','other-002').get(input.id),{code:'LEO_ACCESS_DENIED'});
+});
+
+test('tenant operator cannot approve or execute merely by setting approval=true',async()=>{
+ const f=fixture();const admin=f.as('tenant-boltech','owner-003');let r=await admin.objective({...input,id:'operator-goal-001'});
+ r=await admin.transition({id:r.id,expectedVersion:r.version,action:'plan',eventId:'op-plan-1',plan:['Check public records first']});
+ const operator=createLeoTenantAgent({store:{read:async k=>structuredClone(f.data.get(k)||null),writeIfVersion:async()=>false},principal:{verified:true,tenantId:'tenant-boltech',subject:'owner-003',roles:['tenant_operator']}});
+ await assert.rejects(operator.transition({id:r.id,expectedVersion:r.version,action:'approve',eventId:'op-approve-1',approval:true}),{code:'LEO_APPROVAL_REQUIRED'});
 });
