@@ -14,7 +14,8 @@ test('unverified browser tenant identity is rejected',()=>{const store={read:asy
 
 test('same-tenant unrelated operator cannot read another buyer objective',async()=>{
  const f=fixture();await f.as('tenant-boltech','owner-001').objective(input);
- await assert.rejects(f.as('tenant-boltech','other-002').get(input.id),{code:'LEO_ACCESS_DENIED'});
+ const other=createLeoTenantAgent({store:{read:async k=>structuredClone(f.data.get(k)||null),writeIfVersion:async()=>false},principal:{verified:true,tenantId:'tenant-boltech',subject:'other-002',roles:['tenant_operator']}});
+ await assert.rejects(other.get(input.id),{code:'LEO_ACCESS_DENIED'});
 });
 
 test('tenant operator cannot approve or execute merely by setting approval=true',async()=>{
