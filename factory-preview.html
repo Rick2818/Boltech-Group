@@ -33,9 +33,9 @@ document.querySelector('#intake').addEventListener('submit',async e=>{
  const get=id=>document.getElementById(id).value.trim();
  const obj=get('objective'),tasks=get('tasks'),company=get('companyName'),email=get('email'),integration=get('integrations');
  const payload={source:'RSI01_WEB',email,companyName:company,painPoint:obj,workflow:tasks,
- impact:'Resultado solicitado: '+obj,tools:integration||'Por definir',decision:'Solicita evaluación y cotización; plan: '+selected,
+ impact:('Resultado solicitado: '+obj).slice(0,500),tools:integration||'Por definir',decision:'Solicita evaluación y cotización; plan: '+selected,
  result:obj,limits:'Frecuencia: '+(get('frequency')||'Por definir')+'; canales: '+(get('channels')||'Por definir'),
- commercialIntent:'Solicita atención comercial para '+get('specialty')+'; usuarios: '+(get('users')||'Por definir')+'; datos: '+(get('dataSources')||'Por definir')+'; idioma: '+language,
+ commercialIntent:('Solicita atención comercial para '+get('specialty')+'; usuarios: '+(get('users')||'Por definir')+'; datos: '+(get('dataSources')||'Por definir')+'; idioma: '+language).slice(0,500),
  consent:document.getElementById('consent').checked};
  button.disabled=true;
  status.textContent=language==='es'?'Registrando solicitud…':'Submitting request…';
