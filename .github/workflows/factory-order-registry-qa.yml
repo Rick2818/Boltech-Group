@@ -1,0 +1,19 @@
+name: Factory order registry QA
+on:
+  pull_request:
+    paths:
+      - 'lib/factory_order_registry.js'
+      - 'tests/test_factory_order_registry.mjs'
+      - '.github/workflows/factory-order-registry-qa.yml'
+  workflow_dispatch:
+jobs:
+  registry-tests:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/test_factory_order_registry.mjs
