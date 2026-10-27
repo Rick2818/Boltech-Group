@@ -1,0 +1,21 @@
+name: Factory order executors synthetic QA
+on:
+  pull_request:
+    paths:
+      - 'lib/factory_order_executors.js'
+      - 'tests/test_factory_order_executors.mjs'
+      - '.github/workflows/factory-order-executors-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic-factory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Synthetic sale to factory and customer, with fail-closed negatives
+        run: node --test tests/test_factory_order_executors.mjs
