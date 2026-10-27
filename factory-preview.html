@@ -16,8 +16,11 @@
 <label for="users" data-es="Usuarios que utilizarán el agente" data-en="People who will use the agent">Usuarios que utilizarán el agente</label><input id="users" maxlength="150">
 <label for="dataSources" data-es="Datos disponibles (sin credenciales)" data-en="Available data (no credentials)">Datos disponibles (sin credenciales)</label><input id="dataSources" maxlength="150">
 <label for="integrations" data-es="Integraciones deseadas (sin contraseñas)" data-en="Requested integrations (no passwords)">Integraciones deseadas (sin contraseñas)</label><input id="integrations" maxlength="150">
-<button class="submit" type="submit" data-es="Preparar mi resumen" data-en="Prepare my summary">Preparar mi resumen</button></form><div id="result" role="status"></div>
-<p class="notice muted" data-es="No introduzcas datos personales sensibles ni contraseñas. Los precios requieren cotización aprobada y condiciones de uso. El resumen se genera solo en tu navegador." data-en="Do not enter sensitive personal data or passwords. Prices require an approved quote and usage terms. Your summary is generated only in your browser.">No introduzcas datos personales sensibles ni contraseñas. Los precios requieren cotización aprobada y condiciones de uso. El resumen se genera solo en tu navegador.</p></section></main>
+<label for="companyName" data-es="Empresa" data-en="Company">Empresa</label><input id="companyName" maxlength="120" required>
+<label for="email" data-es="Correo de contacto" data-en="Contact email">Correo de contacto</label><input id="email" type="email" maxlength="254" required autocomplete="email">
+<label style="display:flex;align-items:flex-start;gap:10px"><input type="checkbox" id="consent" required style="width:auto;margin-top:4px"><span data-es="Autorizo a Boltech a registrar esta solicitud y contactarme para responder sobre ella. No autorizo campañas no solicitadas." data-en="I authorize Boltech to record this request and contact me about it. This does not authorize unsolicited campaigns.">Autorizo a Boltech a registrar esta solicitud y contactarme para responder sobre ella. No autorizo campañas no solicitadas.</span></label>
+<button class="submit" type="submit" data-es="Enviar al equipo de ventas" data-en="Send to sales">Enviar al equipo de ventas</button></form><div id="result" role="status"></div>
+<p class="notice muted" data-es="No introduzcas datos personales sensibles ni contraseñas. Los precios requieren cotización aprobada y condiciones de uso. La solicitud se registra únicamente al presionar Enviar y aceptar el contacto." data-en="Do not enter sensitive personal data or passwords. Prices require an approved quote and usage terms. Your request is submitted only after you press Send and consent to contact.">No introduzcas datos personales sensibles ni contraseñas. Los precios requieren cotización aprobada y condiciones de uso. El resumen se genera solo en tu navegador.</p></section></main>
 <script type="module">
 import { publicOffers } from "./lib/commercial_offer_catalog.js";
 let language='es',selected='prebuilt';const labels={es:{quote:'Por cotización',month:'/mes',once:' único',from:'Desde ',selected:'Seleccionado',summary:'Resumen de propuesta (no es pedido ni cotización aprobada)',notReady:'Catálogo temporalmente no disponible.'},en:{quote:'Request quote',month:'/month',once:' one-time',from:'From ',selected:'Selected',summary:'Proposal brief (not an order or approved quote)',notReady:'Catalog currently unavailable.'}};let offers=[];
@@ -25,6 +28,25 @@ const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>'
 function render(){document.documentElement.lang=language;document.querySelector('#lang').textContent=language==='es'?'English':'Español';document.querySelectorAll('[data-es]').forEach(el=>el.textContent=el.dataset[language]);const l=labels[language];document.querySelector('#offers').innerHTML=offers.map(p=>{const x=p.price;const amount=x.usd===null?l.quote:(x.period==='implementation_from'?l.from:'')+'US$'+x.usd+(x.period==='month'?l.month:x.period==='once'?l.once:'');return '<button type="button" class="offer" aria-pressed="'+(p.id===selected)+'" data-id="'+escapeHtml(p.id)+'"><h2>'+escapeHtml(p.title)+'</h2><div class="price">'+escapeHtml(amount)+'</div><p>'+escapeHtml(p.scope)+'</p><span class="muted">'+(p.id===selected?l.selected:'')+'</span></button>'}).join('');document.querySelectorAll('.offer').forEach(b=>b.addEventListener('click',()=>{selected=b.dataset.id;render()}))}
 function load(){try{offers=publicOffers(language).items;render()}catch{document.querySelector('#offers').textContent=labels[language].notReady}}
 document.querySelector('#lang').addEventListener('click',()=>{language=language==='es'?'en':'es';load()});
-document.querySelector('#intake').addEventListener('submit',e=>{e.preventDefault();const ids=['specialty','objective','tasks','frequency','channels','users','dataSources','integrations'];const answers=Object.fromEntries(ids.map(id=>[id,document.getElementById(id).value.trim()]));document.getElementById('result').textContent=labels[language].summary+'\n'+JSON.stringify({product:selected,language,answers},null,2)});
+document.querySelector('#intake').addEventListener('submit',async e=>{
+ e.preventDefault();const form=e.currentTarget,button=form.querySelector('button[type="submit"]'),status=document.getElementById('result');
+ const get=id=>document.getElementById(id).value.trim();
+ const obj=get('objective'),tasks=get('tasks'),company=get('companyName'),email=get('email'),integration=get('integrations');
+ const payload={source:'RSI01_WEB',email,companyName:company,painPoint:obj,workflow:tasks,
+ impact:'Resultado solicitado: '+obj,tools:integration||'Por definir',decision:'Solicita evaluación y cotización; plan: '+selected,
+ result:obj,limits:'Frecuencia: '+(get('frequency')||'Por definir')+'; canales: '+(get('channels')||'Por definir'),
+ commercialIntent:'Solicita atención comercial para '+get('specialty')+'; usuarios: '+(get('users')||'Por definir')+'; datos: '+(get('dataSources')||'Por definir')+'; idioma: '+language,
+ consent:document.getElementById('consent').checked};
+ button.disabled=true;
+ status.textContent=language==='es'?'Registrando solicitud…':'Submitting request…';
+ try{
+ const res=await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+ const data=await res.json();
+ if(!res.ok||data.success!==true||data.assignment?.status!=='QUEUED')throw Error(data.error||'REGISTRATION_UNCONFIRMED');
+ status.textContent=(language==='es'?'Solicitud registrada para revisión comercial. Referencia: ':'Request recorded for sales review. Reference: ')+data.registration.requestId;
+ form.reset();
+ }catch(err){status.textContent=language==='es'?'No se pudo confirmar el registro. No se ha enviado una propuesta. Contacta a ricardo.boltechgroup@gmail.com e indica el problema.':'Registration could not be confirmed. No quote was sent. Contact ricardo.boltechgroup@gmail.com.';}
+ finally{button.disabled=false;}
+});
 load();
 </script></body></html>
