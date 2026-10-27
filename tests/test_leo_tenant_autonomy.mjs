@@ -3,7 +3,7 @@ import {createLeoTenantAgent} from '../lib/leo_tenant_autonomy.js';
 function fixture(){
  const data=new Map();
  const store={read:async k=>structuredClone(data.get(k)||null),writeIfVersion:async(k,v,r)=>{let old=data.get(k);if((old?.version??null)!==v)return false;data.set(k,structuredClone(r));return true}};
- const as=(tenantId,subject='buyer')=>createLeoTenantAgent({store,principal:{verified:true,tenantId,subject,roles:[]},tools:{research:{readOnly:true,run:async()=>({ok:true,receipt:'verified-local-test-1'})},send:{readOnly:false,run:async()=>{throw Error('SHOULD_NOT_SEND')}}}});
+ const as=(tenantId,subject='buyer')=>createLeoTenantAgent({store,principal:{verified:true,tenantId,subject,roles:['tenant_operator']},tools:{research:{readOnly:true,run:async()=>({ok:true,receipt:'verified-local-test-1'})},send:{readOnly:false,run:async()=>{throw Error('SHOULD_NOT_SEND')}}}});
  return {as,data};
 }
 const input={id:'customer-goal-001',description:'Find qualified companies with public evidence',criteria:'At least three verified candidates'};
