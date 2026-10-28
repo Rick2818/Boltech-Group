@@ -30,9 +30,9 @@ test('synthetic Gmail transport emits exactly one RFC Message-ID bracket pair',a
  assert.equal(sends.length,1);
  assert.equal(requests.length,3);
  const mime=Buffer.from(JSON.parse(sends[0].options.body).raw,'base64url').toString('utf8');
- const match=mime.match(/^Message-ID: <([a-f0-9]{32}@boltech-group\\.vercel\\.app)>\\r?$/m);
+ const match=mime.match(/^Message-ID: <([a-f0-9]{32}@boltech-group\.vercel\.app)>\r?$/m);
  assert.ok(match,'MIME must contain exactly one bracket pair');
- assert.doesNotMatch(mime,/Message-ID: <<|Message-ID: <[^\\r\\n]+>>/);
+ assert.doesNotMatch(mime,/Message-ID: <<|Message-ID: <[^\r\n]+>>/);
  assert.equal(receipt.rfcMessageId,match[1]);
  assert.equal(receipt.messageId,'synthetic-msg');
 });
