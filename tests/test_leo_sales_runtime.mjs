@@ -12,6 +12,8 @@ test('malformed and oversized history is rejected before model',async()=>{
 test('provider errors fail closed and do not claim outreach',async()=>{
  const old=process.env.GEMINI_API_KEY;process.env.GEMINI_API_KEY='unit-test-key';
  try{const r=await respondAsLeo({message:'hello'}, {generate:async()=>{throw Error('provider down')}});
- assert.equal(r.mode,'MODEL_UNAVAILABLE');assert.deepEqual(r.authorizedActions,[]);assert.match(r.reply,/not recorded or sent|no he registrado/);
+ assert.equal(r.mode,'MODEL_UNAVAILABLE');assert.deepEqual(r.authorizedActions,[]);assert.match(r.reply,/automatizar|automate/);
  }finally{if(old===undefined)delete process.env.GEMINI_API_KEY;else process.env.GEMINI_API_KEY=old}
 });
+
+test('Gemini failure keeps helpful but non-autonomous sales guidance',async()=>{const old=process.env.GEMINI_API_KEY;process.env.GEMINI_API_KEY='invalid-key';try{const r=await respondAsLeo({message:'¿Cuánto cuesta?',language:'es'},{generate:async()=>{throw Object.assign(Error('unauthorized'),{status:401})}});assert.equal(r.mode,'MODEL_UNAVAILABLE');assert.match(r.reply,/US\\$600/);assert.deepEqual(r.authorizedActions,[]);}finally{if(old===undefined)delete process.env.GEMINI_API_KEY;else process.env.GEMINI_API_KEY=old}});
