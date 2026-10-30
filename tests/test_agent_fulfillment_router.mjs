@@ -44,3 +44,18 @@ test('prebuilt cross-tenant and access failure cannot be reported as ready',asyn
  templateId:'support',templateVersion:'template-v2',isolated:false,accessible:false,evidenceRef:'false'});
  await assert.rejects(f.router.prepare(req),/ACTIVATION_UNVERIFIED/);
 });
+
+test('prebuilt route does not require a custom factory provider',async()=>{
+ const f=fixture('prebuilt');
+ delete f.deps.customFactory;
+ const router=createAgentFulfillmentRouter(f.deps);
+ const result=await router.prepare(req);
+ assert.equal(result.fulfillmentKind,'prebuilt');
+});
+test('custom route does not require a prebuilt activation provider',async()=>{
+ const f=fixture('custom');
+ delete f.deps.activation;
+ const router=createAgentFulfillmentRouter(f.deps);
+ const result=await router.prepare(req);
+ assert.equal(result.fulfillmentKind,'custom');
+});
