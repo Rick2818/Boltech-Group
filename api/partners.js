@@ -387,7 +387,7 @@ export default async function partnersHandler(req, res) {
           body.operation==='register'?await worker.fromOpportunity(body.opportunityId):await worker.act(body);
         if(!record)return json(res,404,{success:false,code:'DELIVERY_ORDER_NOT_FOUND'});
         return json(res,200,{success:true,record});
-      }catch(error){return json(res,error.statusCode||503,{success:false,code:/^DELIVERY_[A-Z_]+$/.test(error.code||'')?error.code:'DELIVERY_OPERATION_UNCONFIRMED'});}
+      }catch(error){return json(res,error.statusCode||503,{success:false,code:/^(DELIVERY_|RSI_STORAGE_)[A-Z_]+$/.test(error.code||'')?error.code:'DELIVERY_OPERATION_UNCONFIRMED'});}
     }
     if(action==='rsi03-readiness'){
       if(!requireOperationalAuth(req,res))return;
