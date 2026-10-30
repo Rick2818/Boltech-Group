@@ -12,11 +12,13 @@ import {orientReception,receptionSteps,receptionPricing,recommendReception} from
   const steps=receptionSteps;
   const mic=root.querySelector('.reception-mic');
   const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const voiceLanguage=document.createElement('select');voiceLanguage.className='reception-voice-language';voiceLanguage.setAttribute('aria-label','Idioma del dictado');voiceLanguage.innerHTML='<option value="es-SV">Español</option><option value="en-US">English</option>';voiceLanguage.value=/^en\b/i.test(navigator.language||'')?'en-US':'es-SV';mic.before(voiceLanguage);
   let recognition=null,listening=false;
   if(!SpeechRecognition){mic.disabled=true;mic.title='El reconocimiento de voz no está disponible en este navegador';mic.textContent='Micrófono no disponible';}
   else{
     recognition=new SpeechRecognition();
-    recognition.lang=document.documentElement.lang?.startsWith('en')?'en-US':'es-SV';
+    recognition.lang=/^en\b/i.test(navigator.language||'')?'en-US':'es-SV';
+    voiceLanguage.onchange=()=>{if(listening)recognition.stop();recognition.lang=voiceLanguage.value;};
     recognition.interimResults=false;
     recognition.continuous=false;
     recognition.onresult=event=>{
@@ -25,7 +27,7 @@ import {orientReception,receptionSteps,receptionPricing,recommendReception} from
     };
     recognition.onerror=event=>{status.textContent=event.error==='not-allowed'?'Permite el acceso al micrófono en tu navegador.':'No se pudo reconocer la voz. Puedes escribir tu respuesta.';};
     recognition.onend=()=>{listening=false;mic.setAttribute('aria-pressed','false');mic.textContent='🎙 Hablar';};
-    mic.onclick=()=>{if(listening){recognition.stop();return;}try{recognition.start();listening=true;mic.setAttribute('aria-pressed','true');mic.textContent='■ Detener';status.textContent='Escuchando…';}catch{status.textContent='No se pudo iniciar el micrófono.';}};
+    mic.onclick=()=>{if(listening){recognition.stop();return;}try{recognition.lang=voiceLanguage.value;recognition.start();listening=true;mic.setAttribute('aria-pressed','true');mic.textContent='■ Detener';status.textContent='Escuchando…';}catch{status.textContent='No se pudo iniciar el micrófono.';}};
   }
   const campaignParams=new URLSearchParams(window.location.search);
   const campaignAttribution={utm_source:campaignParams.get('utm_source'),utm_medium:campaignParams.get('utm_medium'),utm_campaign:campaignParams.get('utm_campaign')};
