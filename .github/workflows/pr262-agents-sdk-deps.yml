@@ -1,0 +1,38 @@
+name: Pin Agents SDK dependencies on PR 262
+on:
+  push:
+    branches:
+      - feature/two-executors-factory-order-20261027
+    paths:
+      - package.json
+permissions:
+  contents: write
+jobs:
+  lock-and-test:
+    if: github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Resolve and pin official SDK packages
+        run: npm install --package-lock-only --ignore-scripts --save-exact @openai/agents@0.21.0 @openai/agents-extensions@0.21.0
+      - name: Verify reproducible installation
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Verify actual package imports
+        run: node --input-type=module -e "await import('@openai/agents'); await import('@openai/agents-extensions/ai-sdk'); console.log('SDK_IMPORTS_OK')"
+      - name: Regression tests
+        run: node --test tests/test_gemini_agents_runtime.mjs tests/test_supabase_tenant_authorizer.mjs tests/test_redis_agent_checkpoints.mjs tests/test_factory_order_executors.mjs
+      - name: Commit tested lockfile
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(deps): lock tested Agents SDK dependencies"
+            git push
+          fi

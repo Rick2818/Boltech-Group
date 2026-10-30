@@ -1,0 +1,81 @@
+name: PR262 tenant RLS PostgreSQL isolation
+on:
+  push:
+    branches:
+      - feature/two-executors-factory-order-20261027
+    paths:
+      - '.github/workflows/pr262-tenant-rls.yml'
+      - 'docs/strategy/BOLTECH_TENANT_MEMBERSHIPS_STAGING.sql'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tenant-rls:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PGPASSWORD: postgres
+      PGHOST: localhost
+      PGUSER: postgres
+      PGDATABASE: testdb
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure local Supabase-like roles and auth.uid
+        run: |
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          create role anon nologin;
+          create role authenticated nologin;
+          create schema auth;
+          create table auth.users(id uuid primary key);
+          create function auth.uid() returns uuid language sql stable as $$
+             select nullif(current_setting('request.jwt.claim.sub', true),'')::uuid
+          $$;
+          SQL
+      - name: Apply tenant membership migration
+        run: psql -v ON_ERROR_STOP=1 -f docs/strategy/BOLTECH_TENANT_MEMBERSHIPS_STAGING.sql
+      - name: Assert tenant A, tenant B, anonymous and revoked isolation
+        run: |
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          insert into auth.users values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'),('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb');
+          insert into public.agent_tenant_memberships(auth_user_id,order_id,tenant_id,customer_id,status)
+          values ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa','order-a','tenant-a','customer-a','active'),
+                 ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb','order-b','tenant-b','customer-b','active');
+          set role authenticated;
+          select set_config('request.jwt.claim.sub','aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',false);
+          do $$ begin
+            if (select count(*) from public.agent_tenant_memberships) <> 1 then
+              raise exception 'TENANT_A_ISOLATION_FAILED';
+            end if;
+          end $$;
+          select set_config('request.jwt.claim.sub','bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',false);
+          do $$ begin
+            if (select count(*) from public.agent_tenant_memberships) <> 1 then
+              raise exception 'TENANT_B_ISOLATION_FAILED';
+            end if;
+          end $$;
+          reset role;
+          update public.agent_tenant_memberships set status='revoked' where customer_id='customer-b';
+          set role authenticated;
+          do $$ begin
+            if (select count(*) from public.agent_tenant_memberships where status='active') <> 0 then
+              raise exception 'REVOKED_MEMBERSHIP_VISIBLE';
+            end if;
+          end $$;
+          reset role;
+          set role anon;
+          do $$ begin
+            if has_table_privilege(current_user,'public.agent_tenant_memberships','SELECT') then
+              raise exception 'ANON_CAN_READ_MEMBERSHIPS';
+            end if;
+          end $$;
+          SQL
