@@ -1,3 +1,9 @@
+## Credenciales y seguimiento comercial — 18 octubre 2026
+
+[Estado y evidencia de Upwork/n8n](docs/audits/UPWORK_OAUTH_SETUP_20261018.md): Callback de Upwork desplegada y verificada con HTTP 200; 13 pruebas OAuth aprobadas y PR #164 integrado. El formulario está preparado y Ricardo autorizó aceptar términos y enviarlo a las 15:16 SV; se aceptaron los términos y se pulsó Submit; Upwork exige volver a verificar la contraseña y aún no hay recibo de solicitud. **Upwork y n8n aún no están conectados al agente 1.** n8n Community rechazó los datos de inicio de sesión rellenados. La cuenta de oportunidades de la comunidad se distingue de una instancia de automatizaciones.
+
+[Seguimientos reales y autonomía autorizada](docs/audits/COMMERCIAL_TRACTION_SYNTHETIC_20261018.md): cuatro seguimientos Gmail enviados y verificados el 18 de octubre; autorización permanente registrada en PR #163. Respuestas, interés y venta siguen pendientes de evidencia.
+
 ## Campaña freelance n8n — 10 de octubre de 2026
 
 [Registro de cinco presentaciones enviadas y conciliación con RSI/Airtable](docs/commercial/N8N_FREELANCE_OUTREACH_2026-10-10.md). Evidencia Gmail: cinco mensajes aceptados (uno el 9 de octubre, cuatro el 10). Pendiente verificar registro en Airtable y ejecución real del flujo RSI; HubSpot no es condición obligatoria según la arquitectura comercial documentada. Seguimiento preparado para el 12 de octubre. **No se acreditan respuestas, contratos ni ventas por estos envíos.**
