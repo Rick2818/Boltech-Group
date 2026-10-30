@@ -1,0 +1,35 @@
+name: Factory order executors synthetic QA
+on:
+  pull_request:
+    paths:
+      - 'lib/factory_order_executors.js'
+      - 'lib/factory_delivery_connectors.js'
+      - 'lib/agent_fulfillment_router.js'
+      - 'lib/openai_agents_runtime.js'
+      - 'lib/gemini_agents_model.js'
+      - 'tests/test_gemini_agents_runtime.mjs'
+      - 'tests/test_factory_order_executors.mjs'
+      - 'tests/test_factory_delivery_connectors.mjs'
+      - 'tests/test_agent_fulfillment_router.mjs'
+      - 'tests/test_client_order_execution.mjs'
+      - '.github/workflows/factory-order-executors-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic-factory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Test 1 - Sales handoff, isolated accepted-order checks
+        run: node --test --test-name-pattern='synthetic customer|accepted offer|forged or automatic' tests/test_factory_order_executors.mjs tests/test_client_order_execution.mjs
+      - name: Test 2 - QA, failure and recovery
+        run: node --test --test-name-pattern='failed QA|GitHub QA receipt|unsupported actions|synthetic negative' tests/test_factory_order_executors.mjs tests/test_client_order_execution.mjs
+      - name: Test 3 - customer delivery, payment, concurrency and receipts
+        run: node --test --test-name-pattern='approved implementation|wrong amount|CAS prevents|delivery cannot|storage failure' tests/test_client_order_execution.mjs
+      - name: Full regression suite for both executors
+        run: node --test tests/test_factory_order_executors.mjs tests/test_factory_delivery_connectors.mjs tests/test_agent_fulfillment_router.mjs tests/test_gemini_agents_runtime.mjs tests/test_client_order_execution.mjs
