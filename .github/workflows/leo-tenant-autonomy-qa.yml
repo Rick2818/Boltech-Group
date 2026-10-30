@@ -9,6 +9,7 @@ on:
       - 'lib/leo_objectives_http.js'
       - 'tests/test_leo_tenant_auth.mjs'
       - 'tests/test_leo_tenant_autonomy.mjs'
+      - 'tests/test_leo_execution_claim_regression.mjs'
       - '.github/workflows/leo-tenant-autonomy-qa.yml'
 permissions:
   contents: read
@@ -21,5 +22,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Three tenant autonomy synthetic tests and authorization guard
-        run: node --test tests/test_leo_tenant_autonomy.mjs tests/test_leo_redis_store.mjs tests/test_leo_tenant_auth.mjs
+      - name: Leo tenant autonomy, persistence, authorization and concurrency regression
+        run: node --test tests/test_leo_tenant_autonomy.mjs tests/test_leo_redis_store.mjs tests/test_leo_tenant_auth.mjs tests/test_leo_execution_claim_regression.mjs
