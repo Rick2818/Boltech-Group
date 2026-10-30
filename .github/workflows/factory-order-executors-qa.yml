@@ -5,6 +5,9 @@ on:
       - 'lib/factory_order_executors.js'
       - 'lib/factory_delivery_connectors.js'
       - 'lib/agent_fulfillment_router.js'
+      - 'lib/openai_agents_runtime.js'
+      - 'lib/gemini_agents_model.js'
+      - 'tests/test_gemini_agents_runtime.mjs'
       - 'tests/test_factory_order_executors.mjs'
       - 'tests/test_factory_delivery_connectors.mjs'
       - 'tests/test_agent_fulfillment_router.mjs'
@@ -29,4 +32,4 @@ jobs:
       - name: Test 3 - customer delivery, payment, concurrency and receipts
         run: node --test --test-name-pattern='approved implementation|wrong amount|CAS prevents|delivery cannot|storage failure' tests/test_client_order_execution.mjs
       - name: Full regression suite for both executors
-        run: node --test tests/test_factory_order_executors.mjs tests/test_factory_delivery_connectors.mjs tests/test_agent_fulfillment_router.mjs tests/test_client_order_execution.mjs
+        run: node --test tests/test_factory_order_executors.mjs tests/test_factory_delivery_connectors.mjs tests/test_agent_fulfillment_router.mjs tests/test_gemini_agents_runtime.mjs tests/test_client_order_execution.mjs
