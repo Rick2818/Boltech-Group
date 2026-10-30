@@ -17,3 +17,5 @@ test('provider errors fail closed and do not claim outreach',async()=>{
 });
 
 test('Gemini failure keeps helpful but non-autonomous sales guidance',async()=>{const old=process.env.GEMINI_API_KEY;process.env.GEMINI_API_KEY='invalid-key';try{const r=await respondAsLeo({message:'¿Cuánto cuesta?',language:'es'},{generate:async()=>{throw Object.assign(Error('unauthorized'),{status:401})}});assert.equal(r.mode,'MODEL_UNAVAILABLE');assert.ok(r.reply.includes('US$600'));assert.deepEqual(r.authorizedActions,[]);}finally{if(old===undefined)delete process.env.GEMINI_API_KEY;else process.env.GEMINI_API_KEY=old}});
+
+test('WhatsApp support fallback acknowledges supplied channel',async()=>{const old=process.env.GEMINI_API_KEY;delete process.env.GEMINI_API_KEY;try{const r=await respondAsLeo({message:'Quiero automatizar atención al cliente y solo utilizo WhatsApp',language:'es'});assert.equal(r.mode,'GUIDED_FALLBACK');assert.match(r.reply,/WhatsApp/);assert.doesNotMatch(r.reply,/qué herramientas utiliza tu empresa/i);}finally{if(old!==undefined)process.env.GEMINI_API_KEY=old}});
