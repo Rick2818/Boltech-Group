@@ -9,8 +9,19 @@ function start(){history=[];chat.replaceChildren();add(startText[language],'agen
 document.getElementById('lang').onclick=()=>{if(busy)return;language=language==='es'?'en':'es';start()};
 document.getElementById('form').onsubmit=async e=>{
 e.preventDefault();if(busy)return;const msg=input.value.trim();if(!msg)return;input.value='';add(msg,'user');busy=true;send.disabled=true;
-try{const resp=await fetch('/api/index?leo_sales=1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,language,history:history.slice(-12)})});const data=await resp.json();if(!resp.ok||!data.success)throw Error('Request failed');const reply=String(data.reply||'');add(reply,'agent');history.push({role:'user',text:msg},{role:'assistant',text:reply});history=history.slice(-12)}
-catch{add(language==='es'?'La conexión no está disponible. Puedes escribir a ricardo.boltechgroup@gmail.com.':'Connection unavailable. You can email ricardo.boltechgroup@gmail.com.','agent')}
+try{
+const controller=new AbortController();
+const timeout=setTimeout(()=>controller.abort(),20000);
+let resp;
+try{resp=await fetch('/api/index?leo_sales=1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,language,history:history.slice(-12)}),signal:controller.signal})}
+finally{clearTimeout(timeout)}
+const data=await resp.json().catch(()=>null);
+if(!resp.ok||!data?.success||typeof data.reply!=='string'||!data.reply.trim())throw Error('LEO_HTTP_'+resp.status);
+const reply=data.reply.trim();add(reply,'agent');history.push({role:'user',text:msg},{role:'assistant',text:reply});history=history.slice(-12)
+}catch(err){
+const code=err?.name==='AbortError'?'TIMEOUT':String(err?.message||'NETWORK_ERROR').replace(/[^A-Z0-9_]/gi,'').slice(0,35);
+add((language==='es'?'Leo no pudo responder en este momento. Inténtalo de nuevo. Código: ':'Leo could not respond. Please retry. Code: ')+code,'agent')
+}
 finally{busy=false;send.disabled=false;input.focus()}
 };start();
 </script></body></html>
