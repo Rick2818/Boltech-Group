@@ -1,0 +1,26 @@
+name: Leo autonomy safety gates
+on:
+  pull_request:
+    paths:
+      - 'lib/leo_sales_runtime.js'
+      - 'lib/leo_public_tools.js'
+      - 'sales-agent.html'
+      - 'tests/leo_*.test.js'
+      - '.github/workflows/leo-autonomy-gates.yml'
+  workflow_dispatch:
+jobs:
+  leo-autonomy-safety:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Test Leo read-only tools and WhatsApp consent
+        run: node --test tests/leo_public_tools.test.js tests/leo_whatsapp_authorization.test.js
+      - name: Validate server syntax
+        run: node --check lib/leo_public_tools.js && node --check lib/leo_sales_runtime.js
