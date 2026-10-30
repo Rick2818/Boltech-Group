@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - 'feature/two-executors-factory-order-20261027'
+      - 'integrate/pr262-safe-20261030'
   pull_request:
     paths:
       - 'lib/factory_order_executors.js'
