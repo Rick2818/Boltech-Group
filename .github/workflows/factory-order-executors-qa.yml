@@ -1,5 +1,8 @@
 name: Factory order executors synthetic QA
 on:
+  push:
+    branches:
+      - 'feature/two-executors-factory-order-20261027'
   pull_request:
     paths:
       - 'lib/factory_order_executors.js'
@@ -8,6 +11,9 @@ on:
       - 'lib/openai_agents_runtime.js'
       - 'lib/gemini_agents_model.js'
       - 'lib/supabase_tenant_authorizer.js'
+      - 'lib/redis_agent_checkpoints.js'
+      - 'lib/boltech_tenant_provider.js'
+      - 'tests/test_redis_agent_checkpoints.mjs'
       - 'tests/test_supabase_tenant_authorizer.mjs'
       - 'tests/test_gemini_agents_runtime.mjs'
       - 'tests/test_factory_order_executors.mjs'
@@ -34,4 +40,4 @@ jobs:
       - name: Test 3 - customer delivery, payment, concurrency and receipts
         run: node --test --test-name-pattern='approved implementation|wrong amount|CAS prevents|delivery cannot|storage failure' tests/test_client_order_execution.mjs
       - name: Full regression suite for both executors
-        run: node --test tests/test_factory_order_executors.mjs tests/test_factory_delivery_connectors.mjs tests/test_agent_fulfillment_router.mjs tests/test_gemini_agents_runtime.mjs tests/test_supabase_tenant_authorizer.mjs tests/test_client_order_execution.mjs
+        run: node --test tests/test_factory_order_executors.mjs tests/test_factory_delivery_connectors.mjs tests/test_agent_fulfillment_router.mjs tests/test_gemini_agents_runtime.mjs tests/test_supabase_tenant_authorizer.mjs tests/test_redis_agent_checkpoints.mjs tests/test_client_order_execution.mjs
