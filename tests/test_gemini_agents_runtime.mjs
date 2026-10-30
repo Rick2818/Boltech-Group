@@ -22,6 +22,6 @@ test('authorized task remains NOT_DELIVERED and isolated',async()=>{
  await assert.rejects(runtime.execute({...req,tenantId:'tenant-other'}),/AGENTS_IDENTITY_UNVERIFIED/);
 });
 test('runtime disabled by default',async()=>{
- const runtime=createOpenAIAgentsRuntime({env:{},persistence:{load:async()=>{},save:async()=>{}}});
+ const runtime=createOpenAIAgentsRuntime({env:{},authorize:async()=>({authorized:false}),persistence:{load:async()=>{},save:async()=>{}}});
  await assert.rejects(runtime.execute(req),/AGENTS_RUNTIME_DISABLED/);
 });
