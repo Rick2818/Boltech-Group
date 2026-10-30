@@ -11,6 +11,7 @@ on:
       - 'tests/test_leo_tenant_autonomy.mjs'
       - 'tests/test_leo_execution_claim_regression.mjs'
       - 'tests/test_leo_objective_http_e2e.mjs'
+      - 'tests/test_leo_objective_http_e2e.mjs'
       - '.github/workflows/leo-tenant-autonomy-qa.yml'
 permissions:
   contents: read
