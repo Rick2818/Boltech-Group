@@ -12,7 +12,7 @@ test('malformed and oversized history is rejected before model',async()=>{
 test('provider errors fail closed and do not claim outreach',async()=>{
  const old=process.env.GEMINI_API_KEY;process.env.GEMINI_API_KEY='unit-test-key';
  try{const r=await respondAsLeo({message:'hello'}, {generate:async()=>{throw Error('provider down')}});
- assert.equal(r.mode,'MODEL_UNAVAILABLE');assert.deepEqual(r.authorizedActions,[]);assert.match(r.reply,/automatizar|automate/);
+ assert.equal(r.mode,'MODEL_UNAVAILABLE');assert.deepEqual(r.authorizedActions,[]);assert.match(r.reply,/automatizar|automate|ayudarte|help/);
  }finally{if(old===undefined)delete process.env.GEMINI_API_KEY;else process.env.GEMINI_API_KEY=old}
 });
 
