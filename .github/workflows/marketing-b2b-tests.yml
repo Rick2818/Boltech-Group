@@ -22,4 +22,4 @@ jobs:
       - name: Install project dependencies
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Run targeted marketing tests
-        run: node --test tests/test_marketing_research_gate.mjs tests/test_marketing_b2b_generator.mjs tests/test_marketing_b2b_executor.mjs tests/test_marketing_b2b_verified_cycle.mjs
+        run: node --test tests/test_marketing_research_gate.mjs tests/test_marketing_b2b_generator.mjs tests/test_marketing_b2b_executor.mjs tests/test_marketing_b2b_strategy.mjs tests/test_marketing_b2b_verified_cycle.mjs
