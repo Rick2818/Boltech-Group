@@ -43,6 +43,8 @@ jobs:
         run: node --test tests/test_boltech_specialist_ui_regression.mjs
       - name: Verify bilingual reception regression
         run: node --test tests/test_reception_bilingual_qa.mjs
+      - name: Verify Leo language switch preserves session
+        run: node --test tests/test_leo_language_session_regression.mjs
       - name: Check server module syntax
         run: npm run build
       - name: Measure partner, truth, payment and MCP safeguards
