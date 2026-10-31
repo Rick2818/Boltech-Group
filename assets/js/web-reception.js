@@ -22,8 +22,11 @@ import {orientReception,receptionSteps,receptionPricing,recommendReception} from
     root.querySelector('.reception-intro').textContent=t.intro;root.querySelector('.reception-close').setAttribute('aria-label',t.close);
     root.querySelector('.reception-consent').lastChild.textContent=' '+t.consent;
     root.querySelector('.reception-scope').textContent=t.scope;
+    root.querySelector('.reception-voice-language')?.setAttribute('aria-label',receptionLang==='en'?'Dictation language':'Idioma del dictado');
+    if(typeof voiceLanguage!=='undefined')voiceLanguage.value=receptionLang==='en'?'en-US':'es-SV';
     if(typeof render==='function')render();
   }
+  document.addEventListener('boltech:language-change',applyReceptionLanguage);
   new MutationObserver(()=>{if(receptionLang!==currentLang())applyReceptionLanguage();}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
   const panel=root.querySelector('section'),launch=root.querySelector('.reception-launch'),form=root.querySelector('form'),answer=root.querySelector('#reception-answer'),question=root.querySelector('.reception-question'),log=root.querySelector('.reception-log'),status=root.querySelector('.reception-status'),consent=root.querySelector('.reception-consent'),submit=form.querySelector('button');
   const steps=receptionSteps;
@@ -40,11 +43,11 @@ import {orientReception,receptionSteps,receptionPricing,recommendReception} from
     recognition.continuous=false;
     recognition.onresult=event=>{
       const transcript=Array.from(event.results).map(result=>result[0]?.transcript||'').join(' ').trim();
-      if(transcript){answer.value=[answer.value.trim(),transcript].filter(Boolean).join(' ');answer.dispatchEvent(new Event('input',{bubbles:true}));status.textContent='Texto dictado. Revísalo y presiona Continuar.';}
+      if(transcript){answer.value=[answer.value.trim(),transcript].filter(Boolean).join(' ');answer.dispatchEvent(new Event('input',{bubbles:true}));status.textContent=receptionLang==='en'?'Text captured. Review it and press Continue.':'Texto dictado. Revísalo y presiona Continuar.';}
     };
     recognition.onerror=event=>{status.textContent=event.error==='not-allowed'?'Permite el acceso al micrófono en tu navegador.':'No se pudo reconocer la voz. Puedes escribir tu respuesta.';};
     recognition.onend=()=>{listening=false;mic.setAttribute('aria-pressed','false');mic.textContent=translations[receptionLang].mic;};
-    mic.onclick=()=>{if(listening){recognition.stop();return;}try{recognition.lang=voiceLanguage.value;recognition.start();listening=true;mic.setAttribute('aria-pressed','true');mic.textContent='■ Detener';status.textContent='Escuchando…';}catch{status.textContent='No se pudo iniciar el micrófono.';}};
+    mic.onclick=()=>{if(listening){recognition.stop();return;}try{recognition.lang=voiceLanguage.value;recognition.start();listening=true;mic.setAttribute('aria-pressed','true');mic.textContent='■ Detener';status.textContent=receptionLang==='en'?'Listening…':'Escuchando…';}catch{status.textContent='No se pudo iniciar el micrófono.';}};
   }
   const campaignParams=new URLSearchParams(window.location.search);
   const campaignAttribution={utm_source:campaignParams.get('utm_source'),utm_medium:campaignParams.get('utm_medium'),utm_campaign:campaignParams.get('utm_campaign')};
@@ -55,10 +58,10 @@ import {orientReception,receptionSteps,receptionPricing,recommendReception} from
   launch.onclick=()=>{panel.hidden=!panel.hidden;launch.setAttribute('aria-expanded',String(!panel.hidden));if(!panel.hidden)answer.focus();};root.querySelector('.reception-close').onclick=close;
   root.addEventListener('keydown',e=>{if(e.key==='Escape')close();});
   root.querySelector('.reception-scope').onclick=()=>say(translations[receptionLang].pricing);
-  form.onsubmit=async event=>{event.preventDefault();if(busy)return;const value=answer.value.trim();if(!value || (step===0 && value.length<4)){status.textContent='Describe un poco más el proceso.';return;}values[steps[step][0]]=value;status.textContent='';
+  form.onsubmit=async event=>{event.preventDefault();if(busy)return;const value=answer.value.trim();if(!value || (step===0 && value.length<4)){status.textContent=receptionLang==='en'?'Please describe the process in more detail.':'Describe un poco más el proceso.';return;}values[steps[step][0]]=value;status.textContent='';
     if(step<steps.length-1){say(value,translations[receptionLang].you);if(step===0)say(orientReception(value));if(steps[step][0]==='limits')say(recommendReception(values).text);step++;render();answer.focus();return;}
-    if(!consent.querySelector('input').checked){status.textContent='Autoriza el contacto para registrar tu solicitud.';return;}
-    busy=true;submit.disabled=true;status.textContent='Guardando tu solicitud…';
+    if(!consent.querySelector('input').checked){status.textContent=receptionLang==='en'?'Please authorize contact to register your request.':'Autoriza el contacto para registrar tu solicitud.';return;}
+    busy=true;submit.disabled=true;status.textContent=receptionLang==='en'?'Saving your request…':'Guardando tu solicitud…';
     try{const response=await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...values,...campaignAttribution,source:'RSI01_WEB',consent:true})});const data=await response.json();
       if(!response.ok || data.success!==true || data.registration?.status!=='RECORDED' || data.assignment?.owner!=='RSI-01')throw Error(data.error||'No se confirmó el registro.');
       form.hidden=true;status.textContent=`Solicitud registrada. Referencia: ${data.registration.requestId}. Recibimos tu necesidad y tu preferencia de compra para preparar la propuesta por correo. La revisión comercial está pendiente; aún no has contratado ni pagado.`;
