@@ -3,6 +3,7 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
+    {"source":"/api/leo-channels","destination":"/api/index?leo_channels=1"},
     {
       "source": "/api/agent1-evidence-executor",
       "destination": "/api/index?agent1_evidence=1"
