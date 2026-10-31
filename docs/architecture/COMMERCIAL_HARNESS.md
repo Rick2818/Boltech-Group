@@ -1,6 +1,6 @@
 # Harness comercial vigente — Boltech Group
 
-**Versión:** Agente 1 V2, 2026-10-20. **Estado:** código en rama `agent1-rebuild-20261020`; QA aprobado, producción no certificada.
+**Versión:** Agente 1 V2, 2026-10-20 (contrato actualizado el 2026-10-30). **Estado:** código integrado en `main`; la certificación comercial E2E requiere evidencias independientes de ejecución real.
 
 ## Alcance actual
 - **Agente 1 — Ventas:** investigación B2B, verificación de prospectos, contacto personalizado, respuestas, cotización, seguimiento y cierre comercial con autorización humana cuando corresponda.
@@ -11,14 +11,14 @@
 **Arquitectura vigente: exactamente dos agentes comerciales, Ventas y Mercadeo.** Las numeraciones y traspasos de la arquitectura anterior son exclusivamente históricos.
 
 ## Regla comercial obligatoria
-Se entregará un lote **solo si hay exactamente cinco leads completos y verificados**. Investigar cinco empresas, registrar una oferta de Upwork o contar correos históricos no acredita cinco leads.
+La investigación y calificación **no tienen límite fijo de cinco leads ni exigen completar un lote**. Cada oportunidad se evalúa individualmente; una ejecución del ciclo no acredita prospectos nuevos sin evidencia verificable. La liberación para investigación no autoriza envíos ni gasto de créditos.
 Cada contacto requiere empresa US, persona y cargo identificados, email empresarial, web/fuente comprobables, necesidad real con evidencia, verificación de correo y contacto, historial Gmail/CRM/supresión CLEAR, ausencia de duplicados y revisión de cumplimiento. Cuatro de cinco significa **lote retenido**, nunca completado artificialmente.
 Los trabajos de Upwork usan el canal de propuesta de Upwork y no se convierten automáticamente en correos salientes.
 
 ## Harness y pruebas
 - Composición: `lib/agent1_v2_executor.js`
 - Fuentes: `lib/agent1_v2_lead_sources.js`, `lib/agent1_v2_explee_mcp.js`, `lib/agent1_v2_explee_live.js`
-- Compuerta: `lib/agent1_v2_five_lead_gate.js`
+- Compuerta: `lib/agent1_v2_five_lead_gate.js` (nombre histórico de compatibilidad; exporta `releaseVerifiedProspects` sin lote fijo)
 - Mejora recursiva controlada: `lib/agent1_v2_recursive_improvement.js`
 - CI aislada: `.github/workflows/agent1_v2_market_skills_qa.yml`
 - Las pruebas sintéticas certifican contratos de código, **no** autenticación real de Explee, envío Gmail o ejecución autónoma diaria.
