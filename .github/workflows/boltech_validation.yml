@@ -45,6 +45,8 @@ jobs:
         run: node --test tests/test_reception_bilingual_qa.mjs
       - name: Verify Leo language switch preserves session
         run: node --test tests/test_leo_language_session_regression.mjs
+      - name: Verify Groq model fallback and 404 recovery
+        run: node --test tests/test_specialist_groq_model_fallback.mjs
       - name: Check server module syntax
         run: npm run build
       - name: Measure partner, truth, payment and MCP safeguards
