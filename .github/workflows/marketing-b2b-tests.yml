@@ -1,0 +1,22 @@
+name: Marketing B2B targeted tests
+on:
+  pull_request:
+    paths:
+      - 'lib/marketing_b2b_*.js'
+      - 'lib/marketing_research_gate.js'
+      - 'tests/test_marketing_b2b_*.mjs'
+      - 'tests/test_marketing_research_gate.mjs'
+      - '.github/workflows/marketing-b2b-tests.yml'
+  workflow_dispatch:
+jobs:
+  marketing-b2b:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run targeted marketing tests
+        run: node --test tests/test_marketing_research_gate.mjs tests/test_marketing_b2b_generator.mjs tests/test_marketing_b2b_executor.mjs
