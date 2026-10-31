@@ -4,6 +4,7 @@ on:
     paths:
       - 'lib/marketing_b2b_*.js'
       - 'lib/marketing_research_gate.js'
+      - 'lib/marketing_b2b_verified_cycle.js'
       - 'tests/test_marketing_b2b_*.mjs'
       - 'tests/test_marketing_research_gate.mjs'
       - '.github/workflows/marketing-b2b-tests.yml'
@@ -21,4 +22,4 @@ jobs:
       - name: Install project dependencies
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Run targeted marketing tests
-        run: node --test tests/test_marketing_research_gate.mjs tests/test_marketing_b2b_generator.mjs tests/test_marketing_b2b_executor.mjs
+        run: node --test tests/test_marketing_research_gate.mjs tests/test_marketing_b2b_generator.mjs tests/test_marketing_b2b_executor.mjs tests/test_marketing_b2b_verified_cycle.mjs
