@@ -6,6 +6,7 @@ on:
       - 'lib/leo_public_tools.js'
       - 'sales-agent.html'
       - 'tests/leo_*.test.js'
+      - 'tests/test_leo_sales_runtime.mjs'
       - '.github/workflows/leo-autonomy-gates.yml'
   workflow_dispatch:
 jobs:
@@ -22,5 +23,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - name: Test Leo read-only tools and WhatsApp consent
         run: node --test tests/leo_public_tools.test.js tests/leo_whatsapp_authorization.test.js
+      - name: Test Leo sales runtime and synthetic commercial safety
+        run: node --test tests/test_leo_sales_runtime.mjs
       - name: Validate server syntax
         run: node --check lib/leo_public_tools.js && node --check lib/leo_sales_runtime.js
