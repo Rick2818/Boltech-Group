@@ -9,6 +9,8 @@
  * =============================================================================
  */
 
+import twilio from 'twilio';
+import {requireOperationalAuth} from '../lib/operational_auth.js';
 import {
   applyStrictBankingHeaders,
   resolveCorsOrigin,
@@ -63,6 +65,13 @@ export default async function handler(req, res) {
     // 2. POST: Manejo de consultas y soporte
     if (req.method === 'POST') {
       const body = req.body || {};
+      if(body.From || body.Body || req.headers['x-twilio-signature']){
+        const token=String(process.env.TWILIO_AUTH_TOKEN||'');
+        const signature=String(req.headers['x-twilio-signature']||'');
+        const host=String(req.headers['x-forwarded-host']||req.headers.host||'');
+        if(!token||!signature||!host||!twilio.validateRequest(token,signature,'https://'+host+req.url,body))
+          return res.status(403).json({success:false,error:'TWILIO_SIGNATURE_INVALID'});
+      }
 
       // Caso A: Consulta al Asistente de Soporte Gemini 2.5 Flash (desde Web App o Webhook)
       const userMessage = body.message || body.query || body.Body;
@@ -82,13 +91,16 @@ export default async function handler(req, res) {
         // Si la petición viene de un Webhook de Twilio (Body & From presentes)
         if (body.From && body.Body) {
           res.setHeader('Content-Type', 'text/xml; charset=utf-8');
-          return res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?><Response><Message>${supportRes.reply}</Message></Response>`);
+          return res.status(200).send(`<?xml version="1.0" encoding="UTF-8"?><Response><Message>${String(supportRes.reply||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</Message></Response>`);
         }
 
         return res.status(200).json(supportRes);
       }
 
       // Caso B: Despacho saliente de mensaje a un destinatario específico
+      if(!requireOperationalAuth(req,res))return;
+      if(body.ownerApproved!==true||body.recipientConsent!==true)
+        return res.status(403).json({success:false,error:'APPROVAL_AND_CONSENT_REQUIRED'});
       const { to, body: msgBody, mediaUrl } = body;
       if (!to || !msgBody) {
         return res.status(400).json({
