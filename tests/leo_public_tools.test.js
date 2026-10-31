@@ -24,3 +24,11 @@ test('invalid model output cannot execute a tool',async()=>{
  assert.equal(await executeLeoDecision('I sent an email'),null);
  assert.equal(await executeLeoDecision('{"action":"none"}'),null);
 });
+
+test('JSON decisions parse from plain and fenced model replies',async()=>{
+ for(const text of ['{"action":"read_tool","tool":"catalog"}', 'Result:\n'+'{"action":"read_tool","tool":"catalog"}', '```json\n{"action":"read_tool","tool":"catalog"}\n```']){
+  assert.deepEqual(parseLeoToolDecision(text),{tool:'catalog'});
+  const result=await executeLeoDecision(text);
+  assert.equal(result.receipt,'catalog:v1');
+ }
+});
