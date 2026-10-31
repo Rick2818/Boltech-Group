@@ -48,6 +48,7 @@ import evidenceExecutorHandler from '../lib/agent1_evidence_executor.js';
 import inboundSalesHandler from '../lib/agent1_autonomous_inbox.js';
 import aiHandler from './ai.js';
 import {leoHttpHandler} from '../lib/leo_sales_runtime.js';
+import {handleMetaWhatsApp} from '../lib/leo_meta_whatsapp.js';
 import {handleLeoChannels} from '../lib/leo_channels.js';
 import {handleSpecialistChat} from '../lib/specialist_chat.js';
 import {handleLeoObjective} from '../lib/leo_objectives_http.js';
@@ -83,6 +84,7 @@ export default async function handler(req, res) {
     const pathname = url.pathname;
     if (url.searchParams.get('specialist_chat') === '1') return await handleSpecialistChat(req,res);
     if (url.searchParams.get('leo_channels') === '1') return await handleLeoChannels(req,res);
+    if (url.searchParams.get('leo_meta_whatsapp') === '1') return await handleMetaWhatsApp(req,res);
     if (url.searchParams.get('leo_sales') === '1') return await leoHttpHandler(req,res);
     if (pathname === '/api/leo-objectives' || url.searchParams.get('leo_objectives') === '1') return await handleLeoObjective(req,res);
 
