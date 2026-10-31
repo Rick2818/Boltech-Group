@@ -25,7 +25,7 @@ export const receptionSteps=[
 export const receptionPricingEn = 'Pilot implementation USD 600: USD 300 upfront and USD 300 after verified delivery. Scope: one business workflow and one simple integration. A written proposal and approval are required; license costs and usage are separate. No automatic payment.';
 export const receptionPricing = 'Prueba de implementación US$600 (US$300 iniciales y US$300 contra entrega verificada): una empresa, un flujo web y una integración sencilla. Plazo: 14 días desde alcance aceptado, anticipo confirmado y accesos disponibles. Implementación general US$900, según alcance aprobado. Licencias, consumo y mantenimiento aparte. No hay contratación ni cobro automático.';
 export function recommendReception(values = {}, language='es') {
-  if(language==='en') return {type:'CUSTOM_REVIEW',text:'We can review a tailored solution for this workflow. Scope, integrations and permissions must be approved in writing before implementation. '+receptionPricingEn'};
+  if(language==='en') return {type:'CUSTOM_REVIEW',text:'We can review a tailored solution for this workflow. Scope, integrations and permissions must be approved in writing before implementation. '+receptionPricingEn};
   const process = String(values.painPoint || '').trim();
   const result = String(values.result || '').trim();
   const routine = /cotiza|consulta|lead|solicitud|seguimiento|inquir|follow.?up/i.test(process);
