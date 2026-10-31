@@ -6,7 +6,8 @@ const visual={
  marketing:{shape:'antenna',tool:'<path d="M145 163l34-12v24l-34-7zM145 168l-2 12M181 146q12 10 0 20" fill="#292017" stroke="url(#gold)" stroke-width="4" stroke-linejoin="round"/>'},
  finance:{shape:'tall',tool:'<rect x="140" y="139" width="39" height="45" rx="6" fill="#121518" stroke="url(#gold)" stroke-width="3"/><path d="M148 149h23M149 158h5m6 0h5m-16 7h5m6 0h5m-16 7h5m6 0h5" stroke="#f4cf75" stroke-width="3"/>'},
  logistics:{shape:'helmet',tool:'<path d="M142 147h38v34h-38z" fill="#1b1c1d" stroke="url(#gold)" stroke-width="3"/><path d="M142 156l19 9 19-9m-19 9v16" fill="none" stroke="#dfb35d" stroke-width="3"/>'},
- chemistry:{shape:'antenna',tool:'<path d="M153 137h19m-14 0v14l-14 24q-2 6 6 6h25q7 0 4-6l-14-24v-14M150 169h27" fill="#33251b" stroke="url(#gold)" stroke-width="4"/><circle cx="164" cy="170" r="3" fill="#ffda87"/>'}\n};
+ chemistry:{shape:'antenna',tool:'<path d="M153 137h19m-14 0v14l-14 24q-2 6 6 6h25q7 0 4-6l-14-24v-14M150 169h27" fill="#33251b" stroke="url(#gold)" stroke-width="4"/><circle cx="164" cy="170" r="3" fill="#ffda87"/>'}
+};
 function portraitSVG(type){
  const cfg=visual[type],head=cfg.shape==='visor'
  ?'<path d="M36 85Q31 32 110 34T184 85l-9 54Q111 157 45 139Z" fill="url(#shell)" stroke="url(#gold)" stroke-width="4"/><rect x="44" y="70" width="132" height="64" rx="28" fill="#060708" stroke="#b78b48" stroke-width="2"/>'
