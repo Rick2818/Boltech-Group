@@ -20,6 +20,7 @@ test('all specialty pages can render a named agent, with visible fallback and op
  assert.match(specialist,/id="replay"/);
  assert.match(specialist,/let speakReplies=\('speechSynthesis' in window\)/);
  assert.match(specialist,/id="listen"/);
+ assert.doesNotMatch(specialist,/id="listen" hidden/);
  assert.match(specialist,/requestSubmit\(\)/);
  assert.match(specialist,/dataset\.welcome/);
 });
