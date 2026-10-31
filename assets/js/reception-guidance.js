@@ -1,6 +1,7 @@
 // Bounded guidance from the customer's statement; never an approved scope or promise.
-export function orientReception(pain) {
+export function orientReception(pain, language='es') {
   const text=String(pain).toLowerCase();
+  if(language==='en') return 'We can evaluate automating repeated steps, subject to a review of your existing workflow, integrations and approval requirements.';
   if(/cotiza|consulta|lead|solicitud|seguimiento|cliente|inquir|follow.?up/.test(text))
     return 'Podríamos ayudarte a registrar cada consulta, asignar un responsable y conservar la próxima acción. Para saber si resuelve tu caso, necesito entender cómo llega y se atiende hoy una solicitud.';
   if(/excel|hoja|document|pdf|factura|copiar|dato|sheet|invoice/.test(text))
@@ -21,8 +22,10 @@ export const receptionSteps=[
 ];
 
 // Guidance only; feasibility and accepted scope require a written proposal.
+export const receptionPricingEn = 'Pilot implementation USD 600: USD 300 upfront and USD 300 after verified delivery. Scope: one business workflow and one simple integration. A written proposal and approval are required; license costs and usage are separate. No automatic payment.';
 export const receptionPricing = 'Prueba de implementación US$600 (US$300 iniciales y US$300 contra entrega verificada): una empresa, un flujo web y una integración sencilla. Plazo: 14 días desde alcance aceptado, anticipo confirmado y accesos disponibles. Implementación general US$900, según alcance aprobado. Licencias, consumo y mantenimiento aparte. No hay contratación ni cobro automático.';
-export function recommendReception(values = {}) {
+export function recommendReception(values = {}, language='es') {
+  if(language==='en') return {type:'CUSTOM_REVIEW',text:'We can review a tailored solution for this workflow. Scope, integrations and permissions must be approved in writing before implementation. '+receptionPricingEn};
   const process = String(values.painPoint || '').trim();
   const result = String(values.result || '').trim();
   const routine = /cotiza|consulta|lead|solicitud|seguimiento|inquir|follow.?up/i.test(process);
