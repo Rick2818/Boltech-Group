@@ -1,1 +1,54 @@
-<!doctype html><html lang="es"><meta charset="utf-8"><title>Boltech - Mercadeo privado</title><body><h1>Acceso privado de Mercadeo</h1><p>Inicio de sesión por correo en configuración.</p></body></html>
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Boltech Group | Mercadeo privado</title>
+<style>
+:root{font-family:Inter,system-ui,-apple-system,sans-serif;color-scheme:dark;background:#090b0e;color:#f0eee8}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#6a4a2030,transparent 50%),#090b0e;min-height:100vh}
+a{color:#edd094}header{padding:20px 0;border-bottom:1px solid #403a2e}
+.wrap{width:min(1050px,calc(100% - 36px));margin:auto}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.brand{letter-spacing:.18em;font-size:12px;color:#e2bc70;font-weight:800}
+main{padding:43px 0 70px}.eyebrow{font-size:11px;color:#cfa967;text-transform:uppercase;letter-spacing:.2em}
+h1{font-size:clamp(32px,5vw,52px);letter-spacing:-.05em;margin:13px 0}h2{font-size:20px}.intro{line-height:1.65;color:#abaeb1;max-width:660px}
+.panel,.item,.metric{border:1px solid #3d372e;background:#14171b;border-radius:16px;padding:22px}
+.panel{max-width:590px;margin:30px 0}.hidden{display:none!important}
+button{font:inherit;cursor:pointer;background:linear-gradient(110deg,#f0d087,#b78a42);border:0;border-radius:10px;padding:13px 19px;color:#17110c;font-size:14px;font-weight:800}
+button:disabled{opacity:.5}button.secondary{background:#25272a;color:#dbd4c7;border:1px solid #494138}
+input{font:inherit;background:#090b0e;color:#fff;padding:13px;border-radius:10px;border:1px solid #665d50;width:170px}
+.hint,.msg,.sub{font-size:13px;line-height:1.65;color:#a9abb0}.msg{color:#e8c180;min-height:20px;margin-top:13px}
+.row{display:flex;align-items:center;flex-wrap:wrap;gap:11px}.spread{justify-content:space-between}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:26px 0}
+.metric b{font-size:30px;color:#e8c781;display:block}.metric span{font-size:12px;color:#aaa}
+.item{margin:14px 0}.item h3{font-size:17px;margin:0 0 8px}.chip{display:inline-block;border:1px solid #6c5734;border-radius:20px;color:#e6c585;padding:4px 10px;font-size:11px;margin:9px 6px 9px 0}
+details{border-top:1px solid #39352e;padding-top:15px;margin-top:12px}summary{cursor:pointer;color:#e4be78}
+pre{background:#0c0f12;border:1px solid #35322a;border-radius:10px;padding:17px;color:#ece7dc;white-space:pre-wrap;overflow-wrap:anywhere;font:13px/1.75 Inter,system-ui,sans-serif}
+.link{display:inline-block;margin:10px 0;font-size:13px}.empty{padding:30px;border:1px dashed #544636;border-radius:12px;color:#aaa}
+footer{border-top:1px solid #39352d;padding:20px 0;color:#8b8d8f;font-size:12px}
+@media(max-width:650px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}main{padding-top:29px}.panel,.item{padding:17px}}
+</style></head>
+<body><header><div class="wrap top"><span class="brand">BOLTECH GROUP / MERCADEO</span><a href="/cockpit">Volver a la cabina</a></div></header>
+<main class="wrap"><span class="eyebrow">Revisión interna · Upwork y Freelancer</span>
+<h1>Material de Mercadeo</h1>
+<p class="intro">Revisa cada oportunidad, su propuesta y el material preparado para ayudar al Agente 1 a conseguir contratos. Nada se envía a los compradores desde esta pantalla.</p>
+<section id="login" class="panel hidden">
+<h2>Acceso privado</h2><p class="hint">Te enviaremos un código de seis dígitos al correo administrativo registrado. No necesitas claves técnicas.</p>
+<div id="request-step"><button id="send-code" type="button">Enviar código a mi correo</button></div>
+<div id="verify-step" class="hidden"><label for="code" class="hint">Introduce el código recibido por correo</label>
+<div class="row" style="margin-top:10px"><input id="code" autocomplete="one-time-code" inputmode="numeric" maxlength="6" placeholder="000000">
+<button id="verify-code" type="button">Entrar al panel</button></div>
+<p class="hint">El código caduca a los diez minutos.</p></div>
+<p id="login-msg" class="msg" role="status"></p>
+</section>
+<section id="dashboard" class="hidden">
+<div class="row spread"><p id="checked" class="sub"></p><div class="row"><button id="reload" class="secondary">Actualizar</button><button id="logout" class="secondary">Cerrar sesión</button></div></div>
+<div class="metrics"><div class="metric"><b id="total">—</b><span>Materiales vigentes</span></div>
+<div class="metric"><b id="today">—</b><span>Preparados hoy</span></div>
+<div class="metric"><b id="linked">—</b><span>Entregados al Agente 1</span></div>
+<div class="metric"><b id="pending">—</b><span>Pendientes de revisión</span></div></div>
+<div class="row" style="margin-bottom:20px"><button id="all" class="secondary">Todos los materiales</button><button id="only-today" class="secondary">Hoy</button></div>
+<div id="drafts"></div><p id="dashboard-msg" class="msg" role="status"></p>
+<p class="hint">Consulta diaria recomendada después de las 9:17 a. m. (El Salvador). El borrador no equivale a una postulación ni a un contrato ganado.</p>
+</section></main>
+<footer><div class="wrap">Boltech Group · Panel privado de revisión comercial · Sin envíos ni gastos automáticos.</div></footer>
+<script>
+// Owner session and read-only marketing dashboard.
+</script></body></html>
