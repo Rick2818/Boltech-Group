@@ -1,23 +1,23 @@
-# Marketing autonomous RSI and dashboard — implementation contract
+# Mercadeo autónomo y control comercial — contrato vigente
 
-Status: specification only; no runtime deployment or LinkedIn publishing is authorized by this file alone.
+Versión: 2026-10-31. Sustituye la especificación antigua de campañas B2B de correo y RSI. Estado: la conexión de marketing→Agente 1 por Supabase está implementada; un tablero visual permanente no queda acreditado por este documento.
 
-## Existing evidence
-- Marketing cron is active at 2,17,32,47 minutes each hour; successful execution is not proof of delivery.
-- Existing marketing content has remained in SALES_QUEUE_READY; historic rotation among QUOTE_REQUEST, SERVICE_ROUTING and LEAD_FOLLOWUP is insufficient.
-- Keep Agent 1 Sales and Marketing separate. Marketing must work even if Agent 1 is paused.
-- LinkedIn organization publishing is authorized by owner; personal profile publishing is forbidden. Require organization identity, approved permissions and publish receipt before enabling.
+## Flujo exclusivo
+1. **Agente 1:** busca trabajos verificables en Upwork y Freelancer.com (conexión real, sin scraping no autorizado), filtra duplicados, presupuesto, encaje, competencia, fecha, costo y elegibilidad. Si falta OAuth, registra bloqueo, no inventa.
+2. **Mercadeo:** prepara propuestas individuales internas; adjunta capacidades, fases, preguntas y requisitos; registra prueba de lectura/escritura de `marketing_content_runs` con `sourceId`, `sourceUrl`, `workId`, `strategyVersion` y `publicationStatus:NOT_PUBLISHED`.
+3. **Handoff:** el Agente 1 recibe `marketingContentId` y el estado `MARKETING_DRAFT_READY_FOR_REVIEW`; no sobrescribir trabajos que ya estén postulados, rechazados o cerrados.
+4. **Aprobación:** solo el propietario autoriza envío, gasto de Connects y compromisos comerciales; guardar recibo real de plataforma antes de reportar postulación.
+5. **Mercadeo institucional:** producir portafolio verificado, documentación, educación técnica ES/EN y piezas para LinkedIn institucional. Nunca atribuir ventas a vistas o borradores; publicar solo con permiso y recibo de proveedor.
 
-## Requirements
-1. Replace fixed three-topic rotation with a configurable, versioned topic portfolio: use cases, demos, integrations, comparisons, vertical-specific pain points, education, technical explainers, proof-backed differentiation and opportunity support. Select based on sourced market demand and observed performance. Avoid near-duplicates using normalized text fingerprints and semantic similarity.
-2. Preserve sources, claim checks, source timestamp, language, format, target segment, review status and content lineage. Never fabricate testimonials, performance, customers or integrations.
-3. Maintain independent marketing scheduler and durable state; do not modify existing cron until replacement is certified.
-4. Publish to LinkedIn **organization page only**, using an authenticated server-side integration with explicit organization URN allowlist, verified organization admin permissions and idempotency key. Fail closed on missing permissions. No personal LinkedIn publishing. Do not use unapproved third-party scraping. Persist request status, provider post ID, URL, timestamp and error; never mark published without provider acknowledgment.
-5. Internal dashboard (ES/EN): content preview, queued/scheduled/published/failed statuses, verified post URLs, channel metrics with measurement timestamp, opportunities supported, RSI experiments, run errors and evidence receipts. Protect with authenticated staff access.
-6. Marketing-to-Sales handoff must link opportunity/source ID to asset ID and acknowledgment. Never trigger email, DMs, Upwork proposals, Connects, or cold outreach.
-7. RSI loop: observe, measure, diagnose, propose, test, compare, adopt/revert. Version strategy and retain immutable audit trail. Automatic adjustments restricted to content topic mix, format, timing and prioritization within limits. Never self-modify code, prompts governing safety, credentials, spending, permissions or provider connections.
-8. Gates: unit tests for topic diversity, no duplicates, claim sourcing, no personal posting, idempotency, provider failure, no external publishing in dry run, tenant access, rollback; integration tests with mock LinkedIn and Supabase; CI Governance; Vercel preview; production deployment only after all critical checks.
-9. LinkedIn go-live requires real institutional account linkage and one verified organization post receipt. Until then, status is BLOCKED_PROVIDER_AUTH, not success.
+## Indicadores de un tablero ES/EN autenticado
+- Por plataforma: vistos, deduplicados, calificados, excluidos, bloqueados por OAuth, propuestas en borrador, borradores entregados, utilizados, aprobados y postulaciones aceptadas por proveedor.
+- Por contenido: ID, tema/habilidad, versión, URL del trabajo, fecha, estado de revisión, handoff, aceptación y evidencia de uso.
+- Resultados: respuestas, entrevistas, adjudicaciones y cobros confirmados, con sello temporal y atribución verificable.
+- Infraestructura: cron activo, última ejecución, status HTTP, errores, OAuth, Governance, SHA de Vercel.
+- Diferenciar **0** (medición válida sin eventos) de **N/D** (sin medición o falta de proveedor).
 
-## Explicit non-goals
-Do not touch Wompi, modify Agent 1 RSI, revive legacy RSI-01/02/03, spend credits, send cold email, publish to personal LinkedIn, or deactivate active executors.
+## Límites de certificación
+Sin cold email, proveedores de bases de leads, nuevos RSI comerciales, envío de propuestas ni gasto de créditos. Conservar atención iniciada voluntariamente en web, cobros, pedidos y seguridad. No usar recibos sintéticos para tracción real. Los registros históricos se conservan con `RETIRED_LEGACY` para auditoría.
+
+## Criterios de salida a producción
+Pruebas de URLs genuinas, bloqueo de antigua tracción, estados enviados, idempotencia, handoff, credenciales ausentes, protección de servicios de web/pagos; Governance; Vercel READY en el commit fusionado; recibo real de Supabase. Autorización de OAuth de proveedores es gate independiente y debe marcarse BLOCKED si no funciona.
