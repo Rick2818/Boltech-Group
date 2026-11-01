@@ -18,7 +18,9 @@ test('all specialty pages can render a named agent, with visible fallback and op
  assert.match(specialist,/requestedType==='pharma'\?'chemistry'/);
  assert.match(specialist,/id="portrait"/);
  assert.match(specialist,/id="replay"/);
- assert.match(specialist,/let speakReplies=\('speechSynthesis' in window\)/);
+ assert.match(specialist,/let speakReplies=true/);
+ assert.match(specialist,/maria_speech=1/);
+ assert.match(specialist,/No se usará la voz del navegador/);
  assert.match(specialist,/id="listen"/);
  assert.doesNotMatch(specialist,/id="listen" hidden/);
  assert.match(specialist,/requestSubmit\(\)/);
