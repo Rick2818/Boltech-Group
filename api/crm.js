@@ -19,7 +19,6 @@ import {
   syncLeadToCRM
 } from '../lib/crm_integrations.js';
 import { requireOperationalAuth } from '../lib/operational_auth.js';
-import { createApolloHandler } from '../lib/apollo_api.js';
 import { createCrmRecovery } from '../lib/crm_recovery.js';
 
 export const config = { maxDuration: 60 };
@@ -53,7 +52,7 @@ export default async function handler(req, res) {
     const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
     const pathname = url.pathname;
     const action = req.query?.action || url.searchParams.get('action');
-    if (typeof action === 'string' && action.startsWith('apollo-')) return createApolloHandler()(req, res);
+    if (typeof action === 'string' && action.startsWith('apollo-')) return res.status(410).json({success:false,code:'LEGACY_COMMERCIAL_TRACTION_RETIRED',sendingEnabled:false});
     if (action === 'recovery') {
       const store = createCrmRecovery();
       if (req.method === 'POST') {
