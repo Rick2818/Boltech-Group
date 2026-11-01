@@ -10,3 +10,12 @@ tests/
 scratch/
 .env
 .env.local
+
+# Build and development metadata that do not belong in production artifacts
+.github/
+coverage/
+.nyc_output/
+.pytest_cache/
+.cache/
+*.tsbuildinfo
+*.map
