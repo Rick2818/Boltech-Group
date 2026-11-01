@@ -47,7 +47,7 @@ test('legacy and unknown host material never appear, even if Supabase has them',
  assert.deepEqual(d.drafts.map(x=>x.id),[assets[0].id]);
 });
 test('API rejects missing session before any DB access and remains GET-only',async()=>{
- const m=store(),redis={async get(){return {authorized:true}}};
+ const renewals=[];const m=store(),redis={async get(){return {authorized:true}},async expire(key,seconds){renewals.push({key,seconds});return 1;}};
  const anonymous=response();
  await handleMarketingReview({method:'GET',headers:{}},anonymous,{env,fetcher:m.fetcher,redis});
  assert.equal(anonymous.code,401);assert.equal(m.calls.length,0);
@@ -57,6 +57,9 @@ test('API rejects missing session before any DB access and remains GET-only',asy
  const valid=response();
  await handleMarketingReview({method:'GET',headers:{cookie:'__Host-boltech-marketing='+'a'.repeat(64)}},valid,{env,fetcher:m.fetcher,redis});
  assert.equal(valid.code,200);assert.equal(valid.body.metrics.total,1);
+ assert.equal(renewals.length,1);
+ assert.equal(renewals[0].seconds,30*24*3600);
+ assert.match(valid.headers['Set-Cookie'],/HttpOnly; SameSite=Lax; Max-Age=2592000/);
  assert.match(valid.headers['Cache-Control'],/no-store/);
 });
 test('review page uses code login, no technical token, and cockpit targets working file',()=>{
