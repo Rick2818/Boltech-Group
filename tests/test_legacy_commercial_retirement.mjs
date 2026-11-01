@@ -35,13 +35,13 @@ test('historical workflows can no longer be triggered manually or by schedule',(
   '.github/workflows/apollo_production_acceptance.yml',
   '.github/workflows/audit_apollo_production.yml',
   '.github/workflows/sdr_connection_verification.yml'
- ])assert.equal(existsSync(new URL('../'+f,base)),false,f);
- const rsi=readFileSync(new URL('../.github/workflows/agent1_v2_rsi_operations.yml',base),'utf8');
+ ])assert.equal(existsSync(new URL(f,base)),false,f);
+ const rsi=readFileSync(new URL('.github/workflows/agent1_v2_rsi_operations.yml',base),'utf8');
  assert.doesNotMatch(rsi,/^\s*schedule:\s*$/m);
 });
 test('marketplace and customer-initiated web orders remain in the repository',()=>{
- const api=readFileSync(new URL('../api/index.js',base),'utf8');
- const partners=readFileSync(new URL('../api/partners.js',base),'utf8');
+ const api=readFileSync(new URL('api/index.js',base),'utf8');
+ const partners=readFileSync(new URL('api/partners.js',base),'utf8');
  assert.match(api,/agent1_marketplace_cycle/);
  assert.match(api,/marketing_sales_cycle_v2/);
  assert.match(partners,/action==='client-order'/);
