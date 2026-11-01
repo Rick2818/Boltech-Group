@@ -107,7 +107,8 @@ $('reload').onclick=load;
 $('all').onclick=()=>{period='all';render();};
 $('only-today').onclick=()=>{period='today';render();};
 $('logout').onclick=async()=>{await request('logout').catch(()=>{});records=null;challenge=null;showLogin('Sesión cerrada.');};
-// end-part-6
+load();
+})();
 
 
 </script></body></html>
