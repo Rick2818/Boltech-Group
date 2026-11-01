@@ -48,7 +48,7 @@ test('Marketing only prepares reviewable drafts linked to marketplace work',asyn
  const fetcher=async(url,options)=>{
   const u=new URL(url);
   if(u.pathname.endsWith('/agent_work')&&options?.method!=='PATCH')return {ok:true,text:async()=>JSON.stringify([{work_id:'AGENT1:MARKETPLACE:'+good.sourceId,status:'PENDING',
-   execution_receipt:{source:'UPWORK',sourceId:good.sourceId,sourceUrl:good.sourceUrl,title:good.title,summary:good.requestSummary,sendingEnabled:false}}])};
+   execution_receipt:{source:'UPWORK',sourceId:good.sourceId,sourceUrl:good.sourceUrl,title:good.title,summary:good.requestSummary,sendingEnabled:false,proposalStatus:'NOT_SUBMITTED'}}])};
   if(u.pathname.endsWith('/marketing_content_runs')){
     if(options?.method==='POST'){const x=JSON.parse(options.body);assets.push(...x);return {ok:true,text:async()=>JSON.stringify(x)};}
     return {ok:true,text:async()=>JSON.stringify(assets.map(x=>({id:x.id,distribution_status:x.distribution_status,evidence:x.evidence})))};
@@ -58,7 +58,7 @@ test('Marketing only prepares reviewable drafts linked to marketplace work',asyn
     return {ok:true,text:async()=>JSON.stringify([{work_id:'AGENT1:MARKETPLACE:'+good.sourceId,execution_receipt:x.execution_receipt}])};
   }
   if(u.pathname.endsWith('/marketing_sales_briefs')&&options?.method==='POST'){briefs.push(...JSON.parse(options.body));return {ok:true,text:async()=>''};}
-  if(u.pathname.endsWith('/marketing_sales_briefs'))return {ok:true,text:async()=>JSON.stringify([{id:'boltech-marketplace-proposal-support-v3',strategy_version:'2026-10-31-marketplace-only-v3'}])};
+  if(u.pathname.endsWith('/marketing_sales_briefs'))return {ok:true,text:async()=>JSON.stringify([{id:'boltech-marketplace-proposal-support-v4',strategy_version:'2026-10-31-marketplace-only-v4'}])};
   throw Error('Unexpected DB route '+url);
  };
  const result=await runMarketingSalesCycle({env,fetcher});
@@ -66,6 +66,8 @@ test('Marketing only prepares reviewable drafts linked to marketplace work',asyn
  assert.equal(assets[0].distribution_status,'REVIEW_REQUIRED');
  assert.equal(assets[0].evidence.sourceUrl,good.sourceUrl);
  assert.equal(assets[0].evidence.proposalStatus,'NOT_SUBMITTED');
+ assert.match(assets[0].body,/CRM data mappings/);
+ assert.match(assets[0].body,/accept the work/);
  assert.equal(briefs[0].evidence.autonomousSend,false);
  assert.equal(handoffs[0].execution_receipt.marketingContentId,assets[0].id);
  assert.equal(handoffs[0].execution_receipt.proposalStatus,'NOT_SUBMITTED');
@@ -76,4 +78,40 @@ test('no scheduled Gmail cron and sales API routes cannot reach old senders',()=
  const api=readFileSync(new URL('../api/index.js',import.meta.url),'utf8');
  assert.match(api,/import salesCycleHandler from '..\/lib\/agent1_marketplace_cycle.js'/);
  assert.match(api,/RETIRED_BY_MARKETPLACE_STRATEGY/);
+});
+
+test('Marketing rejects obsolete CRM leads, spoofed jobs and already submitted bids without any POST',async()=>{
+ const fake=[
+  {work_id:'OLD:EMAIL:LEAD',status:'PENDING',execution_receipt:{...good,source:good.source,proposalStatus:'NOT_SUBMITTED',sendingEnabled:false}},
+  {work_id:'AGENT1:MARKETPLACE:'+good.sourceId,status:'PENDING',
+    execution_receipt:{...good,proposalStatus:'APPLIED',sendingEnabled:false}},
+  {work_id:'AGENT1:MARKETPLACE:UPWORK-111111111111',status:'PENDING',
+    execution_receipt:{...good,sourceId:'UPWORK-111111111111',sourceUrl:'https://evil.test/jobs/111',proposalStatus:'NOT_SUBMITTED'}}
+ ];
+ let mutations=0;
+ const fetcher=async(url,options)=>{
+  const u=new URL(url);
+  if(u.pathname.endsWith('/agent_work'))return {ok:true,text:async()=>JSON.stringify(fake)};
+  if(u.pathname.endsWith('/marketing_sales_briefs')&&options?.method==='POST'){
+    mutations++;return {ok:true,text:async()=>''};
+  }
+  if(u.pathname.endsWith('/marketing_sales_briefs'))return {ok:true,text:async()=>JSON.stringify([
+    {id:'boltech-marketplace-proposal-support-v4',strategy_version:'2026-10-31-marketplace-only-v4'}])};
+  throw Error('Legacy work must not create drafts: '+url);
+ };
+ const r=await runMarketingSalesCycle({env,fetcher});
+ assert.equal(r.observed,0);
+ assert.equal(r.prepared,0);
+ assert.equal(r.linked,0);
+ assert.equal(r.ignoredNonMarketplace,3);
+ assert.equal(mutations,1);
+ assert.equal(r.proposalsSent,0);
+});
+test('Legacy send endpoints explicitly retired and marketplace production route intact',()=>{
+ const source=readFileSync(new URL('../api/partners.js',import.meta.url),'utf8');
+ for(const route of ['rsi01-daily','sdr-send','commercial-activation','marketing-multi-source-import','rsi-execute']){
+   assert.match(source,new RegExp("'"+route+"'"));
+ }
+ assert.match(source,/LEGACY_COMMERCIAL_TRACTION_RETIRED/);
+ assert.match(source,/UPWORK_FREELANCER_ONLY/);
 });
