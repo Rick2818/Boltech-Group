@@ -3,8 +3,14 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    {"source":"/api/leo-meta-whatsapp","destination":"/api/index?leo_meta_whatsapp=1"},
-    {"source":"/api/leo-channels","destination":"/api/index?leo_channels=1"},
+    {
+      "source": "/api/leo-meta-whatsapp",
+      "destination": "/api/index?leo_meta_whatsapp=1"
+    },
+    {
+      "source": "/api/leo-channels",
+      "destination": "/api/index?leo_channels=1"
+    },
     {
       "source": "/api/agent1-evidence-executor",
       "destination": "/api/index?agent1_evidence=1"
@@ -165,10 +171,5 @@
       ]
     }
   ],
-  "crons": [
-    {
-      "path": "/api/agent1-autonomous-inbox?scheduled_campaign=1",
-      "schedule": "0 15 * * *"
-    }
-  ]
+  "crons": []
 }

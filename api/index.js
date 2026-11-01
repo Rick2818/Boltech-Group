@@ -43,7 +43,7 @@ import telegramHandler from './telegram.js';
 import cronHandler from './cron/master-dispatcher.js';
 import expleeHotLeadsHandler from '../lib/explee_hot_leads_sync.js';
 import marketingCycleHandler from '../lib/marketing_sales_cycle_v2.js';
-import salesCycleHandler from '../lib/agent1_continuous_cycle.js';
+import salesCycleHandler from '../lib/agent1_marketplace_cycle.js';
 import evidenceExecutorHandler from '../lib/agent1_evidence_executor.js';
 import inboundSalesHandler from '../lib/agent1_autonomous_inbox.js';
 import aiHandler from './ai.js';
@@ -96,15 +96,15 @@ export default async function handler(req, res) {
       return await upworkOAuthHandler(req,res,upworkOAuthAction);
     }
 
-    if (url.searchParams.get('explee_hot_leads_sync') === '1' || pathname === '/api/explee-hot-leads-sync' || pathname.endsWith('/explee-hot-leads-sync')) return await expleeHotLeadsHandler(req,res);
+    if (url.searchParams.get('explee_hot_leads_sync') === '1' || pathname === '/api/explee-hot-leads-sync' || pathname.endsWith('/explee-hot-leads-sync')) return res.status(200).json({status:'RETIRED_BY_MARKETPLACE_STRATEGY',sendingEnabled:false});
 
     if (pathname === '/api/marketing-sales-cycle' || url.searchParams.get('marketing_sales_cycle') === '1') return await marketingCycleHandler(req,res);
 
-    if (pathname === '/api/agent1-evidence-executor' || url.searchParams.get('agent1_evidence') === '1') return await evidenceExecutorHandler(req,res);
+    if (pathname === '/api/agent1-evidence-executor' || url.searchParams.get('agent1_evidence') === '1') return res.status(200).json({status:'RETIRED_BY_MARKETPLACE_STRATEGY',sendingEnabled:false});
 
     if (pathname === '/api/agent1-continuous-cycle' || url.searchParams.get('agent1_cycle') === '1') return await salesCycleHandler(req,res);
 
-    if (pathname === '/api/agent1-autonomous-inbox' || url.searchParams.get('agent1_inbox') === '1') return await inboundSalesHandler(req,res);
+    if (pathname === '/api/agent1-autonomous-inbox' || url.searchParams.get('agent1_inbox') === '1') return res.status(200).json({status:'RETIRED_BY_MARKETPLACE_STRATEGY',outreachSent:0,followupsSent:0,sendingEnabled:false});
 
     // MCP remoto consolidado en api/index para respetar el límite de funciones de Vercel Hobby.
     if (url.searchParams.get('mcp') === '1' || pathname === '/api/mcp' || pathname.endsWith('/mcp')) {

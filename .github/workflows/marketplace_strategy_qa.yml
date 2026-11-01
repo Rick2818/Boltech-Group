@@ -1,0 +1,26 @@
+name: Agent 1 Marketplace Strategy QA
+on:
+  pull_request:
+    paths:
+      - 'lib/agent1_marketplace_cycle.js'
+      - 'lib/freelancer_project_source.js'
+      - 'lib/rsi01_platform_sources.js'
+      - 'lib/marketing_sales_cycle_v2.js'
+      - 'api/index.js'
+      - 'vercel.json'
+      - 'tests/test_marketplace_strategy.mjs'
+      - '.github/workflows/marketplace_strategy_qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  marketplace-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm ci --ignore-scripts
+      - run: node --test tests/test_marketplace_strategy.mjs
