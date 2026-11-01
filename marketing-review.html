@@ -100,7 +100,8 @@ function render(){
   });details.append(copy);card.append(details);list.append(card);
  }
 }
-// end-part-2
+$('send-code').onclick=async()=>{try{say('login-msg','Enviando...');const v=await request('request');challenge=v.challenge;$('request-step').classList.add('hidden');$('verify-step').classList.remove('hidden');say('login-msg','Revisa tu correo.');}catch(e){say('login-msg',e.message);}};
+// end-part-3
 
 
 </script></body></html>
