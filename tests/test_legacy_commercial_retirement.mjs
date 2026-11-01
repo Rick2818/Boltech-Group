@@ -4,13 +4,18 @@ import {existsSync,readFileSync} from 'node:fs';
 import partnersHandler from '../api/partners.js';
 
 const base=new URL('../',import.meta.url);
-function invoke(action,method='POST'){
- const req={method,url:'/api/partners?action='+action,headers:{host:'localhost'},body:{}};
+function invoke(action,method='POST',authorized=true){
+ const headers={host:'localhost'};
+ if(authorized)headers.authorization='Bearer synthetic-marketplace-qa-only';
+ const req={method,url:'/api/partners?action='+action,headers,body:{}};
  const response={code:200,payload:null,setHeader(){return this;},
   status(n){this.code=n;return this;},json(data){this.payload=data;return this;}};
  return Promise.resolve(partnersHandler(req,response)).then(()=>response);
 }
 test('all former SDR, Apollo, marketing-import and RSI execution routes fail closed',async()=>{
+ const original=process.env.PARTNER_API_TOKEN;
+ process.env.PARTNER_API_TOKEN='synthetic-marketplace-qa-only';
+ try{
  for(const action of [
   'sdr-send','sdr-campaign','sdr-reconcile','rsi01-daily','rsi01-prepare',
   'commercial-activation','marketing-crm-intake','marketing-multi-source-import',
@@ -24,6 +29,13 @@ test('all former SDR, Apollo, marketing-import and RSI execution routes fail clo
  for(const action of ['interagent','rsi-handoff']){
   const r=await invoke(action);
   assert.equal(r.code,410,action+' write must be retired');
+ }
+ const denied=await invoke('sdr-send','POST',false);
+ assert.equal(denied.code,401);
+ assert.equal(denied.payload.code,'OPERATIONAL_AUTH_REQUIRED');
+ } finally {
+   if(original===undefined)delete process.env.PARTNER_API_TOKEN;
+   else process.env.PARTNER_API_TOKEN=original;
  }
 });
 test('historical workflows can no longer be triggered manually or by schedule',()=>{
