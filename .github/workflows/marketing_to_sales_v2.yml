@@ -1,7 +1,7 @@
 name: Marketing to Sales v2
 on:
-  schedule:
-    - cron: '20 * * * *'
+  # Supabase boltech-marketing is the single production schedule.
+  # Keep GitHub Actions for explicitly requested diagnostics only.
   workflow_dispatch:
 permissions:
   contents: read

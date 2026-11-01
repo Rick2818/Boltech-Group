@@ -44,22 +44,31 @@ test('Freelancer source fails closed without official OAuth credentials',async()
  assert.equal(result.status,'NOT_CONNECTED');assert.deepEqual(result.found,[]);
 });
 test('Marketing only prepares reviewable drafts linked to marketplace work',async()=>{
- const assets=[],briefs=[];
+ const assets=[],briefs=[],handoffs=[];
  const fetcher=async(url,options)=>{
   const u=new URL(url);
-  if(u.pathname.endsWith('/agent_work'))return {ok:true,text:async()=>JSON.stringify([{work_id:'AGENT1:MARKETPLACE:'+good.sourceId,status:'PENDING',
+  if(u.pathname.endsWith('/agent_work')&&options?.method!=='PATCH')return {ok:true,text:async()=>JSON.stringify([{work_id:'AGENT1:MARKETPLACE:'+good.sourceId,status:'PENDING',
    execution_receipt:{source:'UPWORK',sourceId:good.sourceId,sourceUrl:good.sourceUrl,title:good.title,summary:good.requestSummary,sendingEnabled:false}}])};
-  if(u.pathname.endsWith('/marketing_content_runs')){const x=JSON.parse(options.body);assets.push(...x);return {ok:true,text:async()=>JSON.stringify(x)};}
+  if(u.pathname.endsWith('/marketing_content_runs')){
+    if(options?.method==='POST'){const x=JSON.parse(options.body);assets.push(...x);return {ok:true,text:async()=>JSON.stringify(x)};}
+    return {ok:true,text:async()=>JSON.stringify(assets.map(x=>({id:x.id,distribution_status:x.distribution_status,evidence:x.evidence})))};
+  }
+  if(u.pathname.endsWith('/agent_work')&&options?.method==='PATCH'){
+    const x=JSON.parse(options.body);handoffs.push(x);
+    return {ok:true,text:async()=>JSON.stringify([{work_id:'AGENT1:MARKETPLACE:'+good.sourceId,execution_receipt:x.execution_receipt}])};
+  }
   if(u.pathname.endsWith('/marketing_sales_briefs')&&options?.method==='POST'){briefs.push(...JSON.parse(options.body));return {ok:true,text:async()=>''};}
   if(u.pathname.endsWith('/marketing_sales_briefs'))return {ok:true,text:async()=>JSON.stringify([{id:'boltech-marketplace-proposal-support-v3',strategy_version:'2026-10-31-marketplace-only-v3'}])};
   throw Error('Unexpected DB route '+url);
  };
  const result=await runMarketingSalesCycle({env,fetcher});
- assert.equal(result.prepared,1);assert.equal(result.proposalsSent,0);
+ assert.equal(result.prepared,1);assert.equal(result.linked,1);assert.equal(result.proposalsSent,0);
  assert.equal(assets[0].distribution_status,'REVIEW_REQUIRED');
  assert.equal(assets[0].evidence.sourceUrl,good.sourceUrl);
  assert.equal(assets[0].evidence.proposalStatus,'NOT_SUBMITTED');
  assert.equal(briefs[0].evidence.autonomousSend,false);
+ assert.equal(handoffs[0].execution_receipt.marketingContentId,assets[0].id);
+ assert.equal(handoffs[0].execution_receipt.proposalStatus,'NOT_SUBMITTED');
 });
 test('no scheduled Gmail cron and sales API routes cannot reach old senders',()=>{
  const config=JSON.parse(readFileSync(new URL('../vercel.json',import.meta.url)));
