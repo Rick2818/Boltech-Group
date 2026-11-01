@@ -22,7 +22,9 @@ test('language selection does not reset conversation or discard pending objectiv
 });
 
 test('Leo voice and mic adapt to the selected language',()=>{
- assert.match(html,/speechSynthesis\.speak\(utterance\)/);
+ assert.match(html,/voiceId:'es_MX-claude-high'/);
+ assert.match(html,/leoEngine\.predict\(/);
+ assert.match(html,/speechSynthesis\.speak\(u\)/);
  assert.match(html,/recognition\.lang=language==='es'\?'es-SV':'en-US'/);
  assert.match(html,/requestSubmit\(\)/);
  assert.match(html,/🔊 Voice/);
