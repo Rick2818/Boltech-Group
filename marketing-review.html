@@ -94,14 +94,20 @@ function render(){
   card.append(el('p','sub','CUÁNDO · '+d.platform+' · '+(d.createdAt&&!Number.isNaN(Date.parse(d.createdAt))?date(d.createdAt):'Fecha sin verificar')));
   card.append(el('p','', 'QUÉ HIZO · '+(d.title||'Material sin título')));
   card.append(el('p','sub','CÓMO · Preparó el material que figura a continuación a partir de la oportunidad enlazada. Método de investigación y fuentes adicionales: '+(d.method||d.researchMethod||'no documentados en este registro.')));
+  card.append(el('p','sub','DOLOR · '+(d.pain||'No documentado')));
+  card.append(el('p','sub','IMPACTO · '+(d.impact||'No cuantificado')));
+  card.append(el('p','sub','DIFERENCIACIÓN · '+(d.differentiation||'No documentada')));
+  card.append(el('p','sub','PRIMER HITO · '+(d.firstMilestone||'No documentado')));
+  card.append(el('p','sub','VERSIÓN · '+(d.strategyVersion||'Histórica')+' · APRENDIZAJE · '+(d.learningStatus||'Sin resultados verificados')));
+  if(d.internalNotes&&Object.keys(d.internalNotes).length){const notes=el('details');notes.append(el('summary','','Notas internas (no copiar al comprador)'));notes.append(el('pre','',Object.entries(d.internalNotes).map(([k,v])=>k.toUpperCase()+': '+v).join('\\n')));card.append(notes);}
   card.append(el('p','sub','EVIDENCIA · '+(d.linked?'Entrega al Agente 1 marcada como verificada.':'No consta entrega verificada al Agente 1.')+' '+(d.proposalStatus==='NOT_SUBMITTED'?'No consta postulación enviada.':'Estado de postulación: '+(d.proposalStatus||'no documentado')+'.')));
   card.append(el('span','chip',d.status==='REVIEW_REQUIRED'?'Pendiente de revisión':d.status));
   card.append(el('span','chip',d.linked?'Entregado al Agente 1':'Entrega no verificada'));
   card.append(el('span','chip',d.proposalStatus==='NOT_SUBMITTED'?'No enviado':d.proposalStatus));
   if(d.sourceUrl&&/^https:\/\//i.test(d.sourceUrl)){const url=el('a','link','Ver oportunidad original');url.href=d.sourceUrl;url.rel='noopener noreferrer';url.target='_blank';card.append(url);}else{card.append(el('p','hint','No se registró un enlace verificable de la oportunidad original.'));}
-  const details=el('details');details.append(el('summary','','Leer material completo'));
+  const details=el('details');details.append(el('summary','','Leer propuesta para el comprador'));
   details.append(el('pre','',d.body));
-  const copy=el('button','secondary','Copiar texto');copy.addEventListener('click',async()=>{
+  const copy=el('button','secondary','Copiar solo propuesta');copy.addEventListener('click',async()=>{
    try{await navigator.clipboard.writeText(d.body);copy.textContent='Copiado ✓';}catch{copy.textContent='Selecciona el texto para copiar';}
   });details.append(copy);card.append(details);list.append(card);
  }
