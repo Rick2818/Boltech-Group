@@ -208,9 +208,12 @@ export default async function partnersHandler(req, res) {
       'rsi03-readiness'
     ]);
     if(retiredCommercialActions.has(action) || (action==='interagent' && req.method!=='GET') ||
-       (action==='rsi-handoff' && req.method!=='GET'))
+       (action==='rsi-handoff' && req.method!=='GET')) {
+      // Preserve the existing authentication boundary; retirement is not a public diagnostic.
+      if(!requireOperationalAuth(req,res))return;
       return json(res,410,{success:false,code:'LEGACY_COMMERCIAL_TRACTION_RETIRED',
         strategy:'UPWORK_FREELANCER_ONLY',sendingEnabled:false,proposalsSent:0});
+    }
 
     if(action==='rsi01-platform-sources') {
       if(!requireOperationalAuth(req,res))return;
