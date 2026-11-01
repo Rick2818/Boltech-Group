@@ -48,3 +48,13 @@ test('marketplace and customer-initiated web orders remain in the repository',()
  assert.match(api,/new WompiGateway/);
  assert.match(api,/leo_sales/);
 });
+
+test('historical Apollo CRM and master hunter are retired without disabling customer CRM/settlement',()=>{
+ const crm=readFileSync(new URL('api/crm.js',base),'utf8');
+ const cloud=readFileSync(new URL('api/cron/master-dispatcher.js',base),'utf8');
+ assert.match(crm,/action.startsWith\('apollo-'\).*410/);
+ assert.match(crm,/action === 'recovery'/);
+ assert.match(cloud,/task === 'hunter'.*410/);
+ assert.doesNotMatch(cloud,/boltech_cron_sec_2026_prod/);
+ assert.match(cloud,/task === 'settlement'/);
+});
