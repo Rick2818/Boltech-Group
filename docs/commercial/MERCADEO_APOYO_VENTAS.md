@@ -1,27 +1,27 @@
-# Mercadeo como apoyo operativo de ventas
+# Mercadeo → Agente 1: trabajo vigente de Boltech Group
 
-Instrucción de Ricardo, 7 octubre 2026. Responsable de prioridad: Dirección de Ventas y Mercadeo. Aplica al responsable existente de mercadeo y RSI-01/02/03; no crea agentes ni calendarios.
+**Versión 31-10-2026. Sustituye las instrucciones de octubre basadas en RSI y campañas por correo.**
 
-## Asignaciones vinculadas
+## Objetivo compartido
+Conseguir contratos reales prestando servicios de agentes IA, automatización n8n, integraciones API, CRM, Supabase y chatbots mediante **Upwork y Freelancer.com**. Agente 1 hace investigación de solo lectura; Mercadeo prepara materiales específicos para mejorar la calidad de cada posible postulación. Nada de cold email.
 
-| Ventas necesita | Mercadeo entrega | Criterio de utilidad |
-|---|---|---|
-| RSI-01: contactar empresas con encaje y obtener respuesta | Mensaje específico del problema, explicación de oferta y material breve para la cohorte investigada; apoyar investigación de encaje con fuentes | Contactos aptos aceptados y respuestas útiles atribuibles |
-| RSI-02: entender necesidad y demostrar viabilidad | Preguntas de diagnóstico escrito, demostración del caso validado, explicación de funcionamiento y respuestas a objeciones reales | Diagnósticos completos y avance a propuesta |
-| RSI-03: aclarar alcance, justificar valor y lograr aceptación | Resumen comercial de propuesta, alcance/exclusiones aprobados, costos autorizados, respuestas a objeciones de compra y seguimiento escrito | Aceptación y pago confirmado por proveedor |
+| Etapa | Agente 1 | Mercadeo | Evidencia |
+|---|---|---|---|
+| Descubrimiento | Verifica anuncio, fecha, URL, presupuesto y cliente en la plataforma | Prioriza problemas y capacidades relevantes | Recibo de `agent_work` |
+| Calificación | Analiza encaje, esfuerzo, competencia, requisitos y Connects | Aporta material técnico y diferenciación con respaldo | Evaluación de proyecto, no un email de prospecto |
+| Preparación | Selecciona proyectos que ameritan postularse | Redacta borrador individualizado, preguntas y fases de trabajo | `marketing_content_runs` con `workId`, `sourceId`, `sourceUrl` |
+| Entrega interna | Lee material y decide siguiente paso | Verifica persistencia y enlaza `marketingContentId` | Estado `MARKETING_DRAFT_READY_FOR_REVIEW` |
+| Postulación | Requiere aprobación humana antes de enviar o gastar | Ajusta únicamente el borrador | Recibo genuino de Upwork/Freelancer, no inferencia |
+| Resultado | Registra respuesta, adjudicación y cobro | Mide adopción y mejoras del material | Recibos proveedor + atribución comprobada |
 
-Mercadeo no altera precios, márgenes, condiciones ni capacidades técnicas. RSI-03 valida viabilidad/costos; Dirección resuelve cambios fuera del alcance autorizado. Datos del prospecto requieren permiso para demostraciones. Nunca inventar testimonios, casos de éxito, ahorros o ventas.
+## Mercadeo institucional independiente
+Producir briefs, documentación, argumentos de valor, mini-demos etiquetadas, piezas educativas ES/EN y propuestas de contenido para **LinkedIn institucional**. No utilizar la cuenta personal. La publicación requiere permisos y comprobante real; no se reporta como venta. El tema y el mensaje deben corresponder a los servicios por los que Boltech compite, no a una lista de empresas estadounidenses para correos.
 
-## Cola única de apoyo
+## Prohibiciones y límites
+No usar Apollo, Lusha, Explee, Instantly, Waalaxy, cold email, campañas SDR, scraping no aprobado ni bases de correos. No hacer bids, propuestas, DMs o gastos sin autorización específica. No reactivar agentes vendedores históricos RSI-01/02/03, inventar casos de éxito, cotizar sin alcance ni usar simulaciones como pruebas comerciales. **La atención voluntaria al cliente de la web, pedidos y cobros siguen operativos por separado.**
 
-Usar CRM y tareas existentes, vinculados al lead o segmento correspondiente. Cada solicitud conserva: agente solicitante, lead/cohorte, etapa y bloqueo real, material necesario, responsable existente, fecha de entrega, enlace al material, aceptación del agente y resultado. No crear otra campaña, emisor o cohorte para entregar apoyo. Si falta un campo, conservar estos datos en las notas existentes.
+## Control de datos
+Medir por plataforma: proyectos identificados, nuevos/duplicados, filtros de elegibilidad, borradores producidos, handoffs comprobados, borradores usados, postulaciones verificadas, respuestas, contrataciones, valor del contrato y cobros. Cada contador debe señalar origen y fecha, con cero o N/D cuando falte evidencia. Los 40 materiales históricos `SALES_HANDOFF` y el brief `managed-ai-operations-v2-us-b2b` están retirados en Supabase con preservación de auditoría.
 
-Prioridad: (1) oportunidad esperando decisión o pago, (2) respuesta con interés esperando diagnóstico/demostración, (3) prospección apta que necesita mensaje, (4) contenido para adquirir demanda. Dirección puede adelantar materiales compartidos que desbloqueen varias oportunidades. Todo contenido público debe atender una necesidad de ventas y tener destino al diagnóstico escrito; accesos y publicación se verifican por separado.
-
-En cada ciclo existente, ventas comunica el bloqueo, Dirección asigna apoyo, mercadeo entrega, ventas valida y utiliza el material dentro de los permisos vigentes, y registra avance o descarte con causa. Sin necesidad concreta de ventas, posponer la pieza. No llamadas, reuniones ni visitas.
-
-## Aplicación inmediata
-
-Revisar respuestas y oportunidades vigentes antes de abrir solicitudes. Si no hay interesados, apoyar a RSI-01 con mensaje para el segmento existente y explicación de la oferta realmente entregable; preparar para RSI-02 diagnóstico escrito y esquema de demostración; apoyar a RSI-03 con plantilla de alcance y objeciones basada en condiciones aprobadas. Registrar estas piezas como pendientes hasta producirlas y aceptarlas.
-
-La meta del equipo es el primer pago comercial real, excluyendo QA. Medir contactos aptos, respuestas útiles, diagnósticos, propuestas, aceptaciones y pagos; registrar material utilizado para atribución sin atribuir causalidad no demostrada. Las cantidades de publicaciones/demos no sustituyen esas métricas. Este documento define la coordinación; no acredita materiales terminados ni identifica por sí solo un agente de mercadeo operativo.
+## Continuidad
+El único programador de producción usa `boltech-research` (Agente 1) y `boltech-marketing` (Mercadeo) en Supabase. El acceso de Upwork para Vercel y OAuth de Freelancer.com deben validarse; si están bloqueados, registrar error explícito y utilizar únicamente las herramientas conectadas realmente disponibles, sin fabricar investigación.
