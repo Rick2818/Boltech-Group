@@ -67,7 +67,12 @@ test('Marketing only prepares reviewable drafts linked to marketplace work',asyn
  assert.equal(assets[0].evidence.sourceUrl,good.sourceUrl);
  assert.equal(assets[0].evidence.proposalStatus,'NOT_SUBMITTED');
  assert.match(assets[0].body,/CRM data mappings/);
- assert.match(assets[0].body,/accept the work/);
+ assert.match(assets[0].body,/PAIN_TO_VALUE|DISCOVER:/);
+ assert.match(assets[0].body,/QUANTIFY:/);
+ assert.match(assets[0].body,/LEARN:/);
+ assert.equal(assets[0].evidence.method,'PAIN_TO_VALUE_V1');
+ assert.equal(assets[0].evidence.confidence,'LISTING_ONLY');
+ assert.match(assets[0].body,/successful\?/);
  assert.equal(briefs[0].evidence.autonomousSend,false);
  assert.equal(handoffs[0].execution_receipt.marketingContentId,assets[0].id);
  assert.equal(handoffs[0].execution_receipt.proposalStatus,'NOT_SUBMITTED');
