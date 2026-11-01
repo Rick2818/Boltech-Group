@@ -197,6 +197,21 @@ export default async function partnersHandler(req, res) {
 
   try {
     const action = actionFromRequest(req);
+    // Commercial strategy 2026-10-31: no legacy cold-email, Apollo/Lusha/Explee
+    // prospecting, RSI campaigns, CRM intake of scraped addresses, or old send workers.
+    // Preserve customer-initiated web intake, partner orders, Wompi and historical records.
+    const retiredCommercialActions = new Set([
+      'marketing-multi-source-import','marketing-crm-intake','rsi01-prepare',
+      'rsi01-daily','commercial-activation','marketing-maintenance',
+      'sdr-campaign','sdr-status','sdr-verify','sdr-metrics','sdr-send','sdr-reconcile',
+      'apollo-leads-status','apollo-leads-saved','rsi-execute','director-notify',
+      'rsi03-readiness'
+    ]);
+    if(retiredCommercialActions.has(action) || (action==='interagent' && req.method!=='GET') ||
+       (action==='rsi-handoff' && req.method!=='GET'))
+      return json(res,410,{success:false,code:'LEGACY_COMMERCIAL_TRACTION_RETIRED',
+        strategy:'UPWORK_FREELANCER_ONLY',sendingEnabled:false,proposalsSent:0});
+
     if(action==='rsi01-platform-sources') {
       if(!requireOperationalAuth(req,res))return;
       if(!['GET','POST'].includes(req.method))return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
@@ -238,11 +253,13 @@ export default async function partnersHandler(req, res) {
       return json(res,200,{
         success:true,
         product:'Boltech Group',
-        engine:'Boltech Commercial Engine',
-        architecture:'single-existing-coordinator',
-        executionRoute:'/api/partners?action=commercial-activation',
-        roles:{MARKETING:'marketing', 'RSI-01':'qualification', 'RSI-02':'replies','RSI-03':'closing'},
-        legacyPartnerApiPreserved:true,
+        engine:'Boltech Marketplace Opportunities Engine',
+        architecture:'agent1-marketplace-research-plus-marketing-internal-support',
+        executionRoute:'/api/agent1-continuous-cycle',
+        marketingRoute:'/api/marketing-sales-cycle',
+        channels:['UPWORK','FREELANCER'],
+        roles:{AGENT1:'read-only marketplace opportunity research',MARKETING:'source-linked internal proposal drafts'},
+        legacyOutboundRetired:true,
         autonomousOutreachCertified:false,
         endToEndPaymentCertified:false
       });
