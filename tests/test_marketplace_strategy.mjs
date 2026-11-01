@@ -47,7 +47,7 @@ test('Marketing only prepares reviewable drafts linked to marketplace work',asyn
  const assets=[],briefs=[],handoffs=[];
  const fetcher=async(url,options)=>{
   const u=new URL(url);
-  if(u.pathname.endsWith('/agent_work'))return {ok:true,text:async()=>JSON.stringify([{work_id:'AGENT1:MARKETPLACE:'+good.sourceId,status:'PENDING',
+  if(u.pathname.endsWith('/agent_work')&&options?.method!=='PATCH')return {ok:true,text:async()=>JSON.stringify([{work_id:'AGENT1:MARKETPLACE:'+good.sourceId,status:'PENDING',
    execution_receipt:{source:'UPWORK',sourceId:good.sourceId,sourceUrl:good.sourceUrl,title:good.title,summary:good.requestSummary,sendingEnabled:false}}])};
   if(u.pathname.endsWith('/marketing_content_runs')){
     if(options?.method==='POST'){const x=JSON.parse(options.body);assets.push(...x);return {ok:true,text:async()=>JSON.stringify(x)};}
