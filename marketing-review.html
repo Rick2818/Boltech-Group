@@ -68,6 +68,39 @@ async function request(action,extra={}){
  if(!r.ok)throw Error(({LOGIN_RATE_LIMITED:'Demasiadas solicitudes. Intenta más tarde.',INVALID_OR_EXPIRED_CODE:'Código incorrecto o vencido.',LOGIN_EMAIL_NOT_SENT:'No pudo enviarse el código por correo.',LOGIN_ATTEMPTS_EXCEEDED:'Demasiados intentos; solicita otro código.'})[v.error]||'No se pudo completar el acceso.');
  return v;
 }
-// end-part-1
+async function load(){
+ try{
+  const r=await fetch('/api/marketing-review',{credentials:'same-origin',cache:'no-store'});
+  const v=await r.json();
+  if(r.status===401){showLogin();return;}
+  if(!r.ok||!Array.isArray(v.drafts))throw Error('No se pudo consultar Mercadeo.');
+  records=v;$('login').classList.add('hidden');$('dashboard').classList.remove('hidden');render();
+ }catch(e){showLogin(e.message);}
+}
+function render(){
+ if(!records)return;
+ const m=records.metrics||{},ds=records.drafts||[];
+ say('total',m.total??'—');say('today',m.createdToday??'—');
+ say('linked',m.handoffsVerified??'—');say('pending',m.pendingReview??'—');
+ say('checked','Consulta: '+date(records.checkedAt)+' · El Salvador');
+ const list=$('drafts');list.replaceChildren();
+ const visible=ds.filter(d=>period==='all'||d.day===records.localDay);
+ if(!visible.length){list.append(el('p','empty',period==='today'?'No se prepararon materiales nuevos hoy. Revisa «Todos los materiales».':'No hay materiales disponibles.'));return;}
+ for(const d of visible){
+  const card=el('article','item');card.append(el('h3','',d.title));
+  card.append(el('p','sub',d.platform+' · '+date(d.createdAt)));
+  card.append(el('span','chip',d.status==='REVIEW_REQUIRED'?'Pendiente de revisión':d.status));
+  card.append(el('span','chip',d.linked?'Entregado al Agente 1':'Entrega no verificada'));
+  card.append(el('span','chip',d.proposalStatus==='NOT_SUBMITTED'?'No enviado':d.proposalStatus));
+  const url=el('a','link','Ver oportunidad original');url.href=d.sourceUrl;url.rel='noopener noreferrer';url.target='_blank';card.append(url);
+  const details=el('details');details.append(el('summary','','Leer material completo'));
+  details.append(el('pre','',d.body));
+  const copy=el('button','secondary','Copiar texto');copy.addEventListener('click',async()=>{
+   try{await navigator.clipboard.writeText(d.body);copy.textContent='Copiado ✓';}catch{copy.textContent='Selecciona el texto para copiar';}
+  });details.append(copy);card.append(details);list.append(card);
+ }
+}
+// end-part-2
+
 
 </script></body></html>
