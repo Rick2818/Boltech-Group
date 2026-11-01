@@ -44,6 +44,7 @@ import cronHandler from './cron/master-dispatcher.js';
 import expleeHotLeadsHandler from '../lib/explee_hot_leads_sync.js';
 import marketingCycleHandler from '../lib/marketing_sales_cycle_v2.js';
 import {handleMarketingReview} from '../lib/marketing_review_dashboard.js';
+import {handleMarketingLogin} from '../lib/marketing_passwordless_auth.js';
 import salesCycleHandler from '../lib/agent1_marketplace_cycle.js';
 import evidenceExecutorHandler from '../lib/agent1_evidence_executor.js';
 import inboundSalesHandler from '../lib/agent1_autonomous_inbox.js';
@@ -99,6 +100,7 @@ export default async function handler(req, res) {
 
     if (url.searchParams.get('explee_hot_leads_sync') === '1' || pathname === '/api/explee-hot-leads-sync' || pathname.endsWith('/explee-hot-leads-sync')) return res.status(200).json({status:'RETIRED_BY_MARKETPLACE_STRATEGY',sendingEnabled:false});
 
+    if (pathname === '/api/marketing-login' || url.searchParams.get('marketing_login') === '1') return await handleMarketingLogin(req,res);
     if (pathname === '/api/marketing-review' || url.searchParams.get('marketing_review') === '1') return await handleMarketingReview(req,res);
     if (pathname === '/api/marketing-sales-cycle' || url.searchParams.get('marketing_sales_cycle') === '1') return await marketingCycleHandler(req,res);
 
