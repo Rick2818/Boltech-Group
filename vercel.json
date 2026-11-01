@@ -5,7 +5,7 @@
   "rewrites": [
     {
       "source": "/api/marketing-login",
-      "destination": "/api/index"
+      "destination": "/api/index?marketing_login=1"
     },
     {
       "source": "/api/marketing-review",
