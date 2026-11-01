@@ -46,31 +46,30 @@ test('legacy and unknown host material never appear, even if Supabase has them',
  const d=await readMarketingReview({env,fetcher:m.fetcher});
  assert.deepEqual(d.drafts.map(x=>x.id),[assets[0].id]);
 });
-test('API rejects missing authentication before any DB access and remains GET-only',async()=>{
- const original=process.env.PARTNER_API_TOKEN;process.env.PARTNER_API_TOKEN='review-secret-fixture';
- try{
-  const m=store();const res=response();
-  await handleMarketingReview({method:'GET',headers:{}},res,{env,fetcher:m.fetcher});
-  assert.equal(res.code,401);assert.equal(m.calls.length,0);
-  const res2=response();
-  await handleMarketingReview({method:'POST',headers:{authorization:'Bearer review-secret-fixture'}},res2,{env,fetcher:m.fetcher});
-  assert.equal(res2.code,405);assert.equal(m.calls.length,0);
-  const yes=response();
-  await handleMarketingReview({method:'GET',headers:{authorization:'Bearer review-secret-fixture'}},yes,{env,fetcher:m.fetcher});
-  assert.equal(yes.code,200);assert.equal(yes.body.metrics.total,1);
-  assert.match(yes.headers['Cache-Control'],/no-store/);
- }finally{if(original===undefined)delete process.env.PARTNER_API_TOKEN;else process.env.PARTNER_API_TOKEN=original;}
+test('API rejects missing session before any DB access and remains GET-only',async()=>{
+ const m=store(),redis={async get(){return {authorized:true}}};
+ const anonymous=response();
+ await handleMarketingReview({method:'GET',headers:{}},anonymous,{env,fetcher:m.fetcher,redis});
+ assert.equal(anonymous.code,401);assert.equal(m.calls.length,0);
+ const invalidMethod=response();
+ await handleMarketingReview({method:'POST',headers:{}},invalidMethod,{env,fetcher:m.fetcher,redis});
+ assert.equal(invalidMethod.code,405);assert.equal(m.calls.length,0);
+ const valid=response();
+ await handleMarketingReview({method:'GET',headers:{cookie:'__Host-boltech-marketing='+'a'.repeat(64)}},valid,{env,fetcher:m.fetcher,redis});
+ assert.equal(valid.code,200);assert.equal(valid.body.metrics.total,1);
+ assert.match(valid.headers['Cache-Control'],/no-store/);
 });
-test('review page linked in cockpit; secrets never hardcoded or stored in URL/localStorage',()=>{
+test('review page uses code login, no technical token, and cockpit targets working file',()=>{
  const page=readFileSync(new URL('../marketing-review.html',import.meta.url),'utf8');
  const cockpit=readFileSync(new URL('../COCKPIT_EJECUTIVO_RICARDO.html',import.meta.url),'utf8');
  const routing=readFileSync(new URL('../vercel.json',import.meta.url),'utf8');
  const handler=readFileSync(new URL('../api/index.js',import.meta.url),'utf8');
- assert.match(cockpit,/href="\/mercadeo"/);
+ assert.match(cockpit,/href="\/marketing-review.html"/);
+ assert.match(page,/api\/marketing-login/);
  assert.match(page,/api\/marketing-review/);
- assert.doesNotMatch(page,/localStorage|sessionStorage|apikey|SUPABASE_SERVICE_ROLE_KEY/);
+ assert.match(page,/Enviar código a mi correo/);
+ assert.doesNotMatch(page,/localStorage|sessionStorage|Pega tu token|SUPABASE_SERVICE_ROLE_KEY/);
  assert.match(page,/textContent/);
- assert.match(page,/type="password"/);
- assert.match(routing,/"source": "\/mercadeo"/);
- assert.match(handler,/handleMarketingReview/);
+ assert.match(routing,/marketing_login=1/);
+ assert.match(handler,/handleMarketingLogin/);
 });
