@@ -45,7 +45,10 @@ footer{border-top:1px solid #39352d;padding:20px 0;color:#8b8d8f;font-size:12px}
 <div class="metric"><b id="linked">—</b><span>Entregados al Agente 1</span></div>
 <div class="metric"><b id="pending">—</b><span>Pendientes de revisión</span></div></div>
 <div class="row" style="margin-bottom:20px"><button id="all" class="secondary">Todos los materiales</button><button id="only-today" class="secondary">Hoy</button></div>
-<div id="drafts"></div><p id="dashboard-msg" class="msg" role="status"></p>
+<section aria-labelledby="audit-heading"><h2 id="audit-heading">Bitácora cronológica de Mercadeo</h2>
+<p class="intro">Qué produjo el agente, cuándo quedó registrado y cómo se relaciona con las oportunidades comerciales. Las acciones sin evidencia verificable se señalan expresamente.</p>
+<div class="row" style="margin:14px 0"><label class="hint" for="order">Orden:</label><select id="order" style="background:#14171b;color:#f0eee8;border:1px solid #665d50;border-radius:9px;padding:10px"><option value="desc">Más reciente primero</option><option value="asc">Más antiguo primero</option></select></div>
+<div id="drafts" aria-live="polite"></div></section><p id="dashboard-msg" class="msg" role="status"></p>
 <p class="hint">Consulta diaria recomendada después de las 9:17 a. m. (El Salvador). El borrador no equivale a una postulación ni a un contrato ganado.</p>
 </section></main>
 <footer><div class="wrap">Boltech Group · Panel privado de revisión comercial · Sin envíos ni gastos automáticos.</div></footer>
@@ -53,7 +56,7 @@ footer{border-top:1px solid #39352d;padding:20px 0;color:#8b8d8f;font-size:12px}
 (()=>{
 'use strict';
 const $=id=>document.getElementById(id);
-let challenge=null,records=null,period='all';
+let challenge=null,records=null,period='all',order='desc';
 const say=(id,s)=>$(id).textContent=s;
 const el=(tag,cls,value)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(value!==undefined)n.textContent=String(value);return n;};
 function showLogin(message=''){
@@ -84,15 +87,18 @@ function render(){
  say('linked',m.handoffsVerified??'—');say('pending',m.pendingReview??'—');
  say('checked','Consulta: '+date(records.checkedAt)+' · El Salvador');
  const list=$('drafts');list.replaceChildren();
- const visible=ds.filter(d=>period==='all'||d.day===records.localDay);
+ const visible=ds.filter(d=>period==='all'||d.day===records.localDay).slice().sort((a,b)=>{const ta=Date.parse(a.createdAt)||0,tb=Date.parse(b.createdAt)||0;return order==='asc'?ta-tb:tb-ta;});
  if(!visible.length){list.append(el('p','empty',period==='today'?'No se prepararon materiales nuevos hoy. Revisa «Todos los materiales».':'No hay materiales disponibles.'));return;}
  for(const d of visible){
   const card=el('article','item');card.append(el('h3','',d.title));
-  card.append(el('p','sub',d.platform+' · '+date(d.createdAt)));
+  card.append(el('p','sub','CUÁNDO · '+d.platform+' · '+(d.createdAt&&!Number.isNaN(Date.parse(d.createdAt))?date(d.createdAt):'Fecha sin verificar')));
+  card.append(el('p','', 'QUÉ HIZO · '+(d.title||'Material sin título')));
+  card.append(el('p','sub','CÓMO · Preparó el material que figura a continuación a partir de la oportunidad enlazada. Método de investigación y fuentes adicionales: '+(d.method||d.researchMethod||'no documentados en este registro.')));
+  card.append(el('p','sub','EVIDENCIA · '+(d.linked?'Entrega al Agente 1 marcada como verificada.':'No consta entrega verificada al Agente 1.')+' '+(d.proposalStatus==='NOT_SUBMITTED'?'No consta postulación enviada.':'Estado de postulación: '+(d.proposalStatus||'no documentado')+'.')));
   card.append(el('span','chip',d.status==='REVIEW_REQUIRED'?'Pendiente de revisión':d.status));
   card.append(el('span','chip',d.linked?'Entregado al Agente 1':'Entrega no verificada'));
   card.append(el('span','chip',d.proposalStatus==='NOT_SUBMITTED'?'No enviado':d.proposalStatus));
-  const url=el('a','link','Ver oportunidad original');url.href=d.sourceUrl;url.rel='noopener noreferrer';url.target='_blank';card.append(url);
+  if(d.sourceUrl&&/^https:\/\//i.test(d.sourceUrl)){const url=el('a','link','Ver oportunidad original');url.href=d.sourceUrl;url.rel='noopener noreferrer';url.target='_blank';card.append(url);}else{card.append(el('p','hint','No se registró un enlace verificable de la oportunidad original.'));}
   const details=el('details');details.append(el('summary','','Leer material completo'));
   details.append(el('pre','',d.body));
   const copy=el('button','secondary','Copiar texto');copy.addEventListener('click',async()=>{
@@ -106,6 +112,7 @@ $('code').onkeydown=e=>{if(e.key==='Enter')$('verify-code').click();};
 $('reload').onclick=load;
 $('all').onclick=()=>{period='all';render();};
 $('only-today').onclick=()=>{period='today';render();};
+$('order').onchange=e=>{order=e.target.value;render();};
 $('logout').onclick=async()=>{await request('logout').catch(()=>{});records=null;challenge=null;showLogin('Sesión cerrada.');};
 load();
 })();
