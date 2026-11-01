@@ -8,6 +8,8 @@ on:
       - 'lib/marketing_sales_cycle_v2.js'
       - 'api/index.js'
       - 'api/partners.js'
+      - 'api/crm.js'
+      - 'api/cron/master-dispatcher.js'
       - 'AGENTS.md'
       - 'REGLA-DE-ORO.md'
       - '.agents/**'
