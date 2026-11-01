@@ -102,6 +102,7 @@ export default async function handler(req, res) {
     if (url.searchParams.get('explee_hot_leads_sync') === '1' || pathname === '/api/explee-hot-leads-sync' || pathname.endsWith('/explee-hot-leads-sync')) return res.status(200).json({status:'RETIRED_BY_MARKETPLACE_STRATEGY',sendingEnabled:false});
 
     if (pathname === '/api/marketing-login' || url.searchParams.get('marketing_login') === '1') return await handleMarketingLogin(req,res);
+    if (pathname === '/api/marketing-login') return await handleMarketingLogin(req,res);
     if (pathname === '/api/marketing-review' || url.searchParams.get('marketing_review') === '1') return await handleMarketingReview(req,res);
     if (pathname === '/api/marketing-sales-cycle' || url.searchParams.get('marketing_sales_cycle') === '1') return await marketingCycleHandler(req,res);
 
