@@ -50,5 +50,24 @@ footer{border-top:1px solid #39352d;padding:20px 0;color:#8b8d8f;font-size:12px}
 </section></main>
 <footer><div class="wrap">Boltech Group · Panel privado de revisión comercial · Sin envíos ni gastos automáticos.</div></footer>
 <script>
-// Owner session and read-only marketing dashboard.
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+let challenge=null,records=null,period='all';
+const say=(id,s)=>$(id).textContent=s;
+const el=(tag,cls,value)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(value!==undefined)n.textContent=String(value);return n;};
+function showLogin(message=''){
+ $('login').classList.remove('hidden');$('dashboard').classList.add('hidden');
+ say('login-msg',message);
+}
+const date=s=>new Intl.DateTimeFormat('es-SV',{timeZone:'America/El_Salvador',dateStyle:'medium',timeStyle:'short'}).format(new Date(s));
+async function request(action,extra={}){
+ const r=await fetch('/api/marketing-login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',
+  body:JSON.stringify({action,...extra}),cache:'no-store'});
+ const v=await r.json();
+ if(!r.ok)throw Error(({LOGIN_RATE_LIMITED:'Demasiadas solicitudes. Intenta más tarde.',INVALID_OR_EXPIRED_CODE:'Código incorrecto o vencido.',LOGIN_EMAIL_NOT_SENT:'No pudo enviarse el código por correo.',LOGIN_ATTEMPTS_EXCEEDED:'Demasiados intentos; solicita otro código.'})[v.error]||'No se pudo completar el acceso.');
+ return v;
+}
+// end-part-1
+
 </script></body></html>
