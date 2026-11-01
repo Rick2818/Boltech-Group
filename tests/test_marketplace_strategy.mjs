@@ -28,6 +28,8 @@ test('the same commercial cycle persists real marketplace jobs without sending o
  assert.equal(response.outreachSent,0);
  assert.equal(response.proposalsSent,0);
  assert.equal(response.connectsSpent,0);
+ assert.equal(response.operationalReadiness,'PARTIAL_OR_READY');
+ assert.deepEqual(response.authorizationRequired,[{platform:'FREELANCER',code:'FREELANCER_OAUTH_REQUIRED'}]);
  assert.equal(writes[0].work_id,'AGENT1:MARKETPLACE:UPWORK-2116710960048985715');
  assert.equal(writes[0].execution_receipt.proposalStatus,'NOT_SUBMITTED');
 });
@@ -37,6 +39,7 @@ test('fake URLs or external domains cannot enter the commercial queue',async()=>
  const result=await runAgent1MarketplaceCycle({env,now,fetcher,
   upwork:async()=>({status:'OBSERVED',found:[{...good,sourceUrl:'https://evil.test/jobs/1'}]}),
   freelancer:async()=>({status:'NOT_CONNECTED',found:[]})});
+ assert.equal(result.operationalReadiness,'PARTIAL_OR_READY');
  assert.equal(calls,0);assert.equal(result.newOpportunities,0);assert.equal(result.errors[0].code,'UNVERIFIED_PLATFORM_LISTING');
 });
 test('Freelancer source fails closed without official OAuth credentials',async()=>{
@@ -119,4 +122,14 @@ test('Legacy send endpoints explicitly retired and marketplace production route 
  }
  assert.match(source,/LEGACY_COMMERCIAL_TRACTION_RETIRED/);
  assert.match(source,/UPWORK_FREELANCER_ONLY/);
+});
+
+test('fully disconnected platforms are reported as blocked without contact or spending',async()=>{
+ const result=await runAgent1MarketplaceCycle({env,now,fetcher:async()=>{throw Error('no storage access expected')},
+  upwork:async()=>({status:'BLOCKED',code:'UPWORK_CONNECT_AUTHORIZATION_REQUIRED',found:[]}),
+  freelancer:async()=>({status:'NOT_CONNECTED',code:'FREELANCER_OAUTH_REQUIRED',found:[]})});
+ assert.equal(result.operationalReadiness,'BLOCKED_PLATFORM_AUTH');
+ assert.equal(result.allPlatformsConnected,false);
+ assert.equal(result.authorizationRequired.length,2);
+ assert.equal(result.proposalsSent,0);assert.equal(result.connectsSpent,0);
 });
