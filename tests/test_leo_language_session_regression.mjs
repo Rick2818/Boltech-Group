@@ -29,3 +29,12 @@ test('Leo voice and mic adapt to the selected language',()=>{
  assert.match(html,/requestSubmit\(\)/);
  assert.match(html,/🔊 Voice/);
 });
+
+
+test('Piper catalog is an array and Claude MX is checked by voice key in Leo and specialists',()=>{
+ const specialists=readFileSync('specialist.html','utf8');
+ for(const page of [html,specialists]){
+  assert.match(page,/Array\.isArray\(voices\)&&voices\.some\(voice=>voice\.key==='es_MX-claude-high'\)/);
+  assert.doesNotMatch(page,/Object\.hasOwn\(voices,'es_MX-claude-high'\)/);
+ }
+});
