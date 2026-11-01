@@ -4,6 +4,10 @@
   "trailingSlash": false,
   "rewrites": [
     {
+      "source": "/api/marketing-review",
+      "destination": "/api/index?marketing_review=1"
+    },
+    {
       "source": "/api/leo-meta-whatsapp",
       "destination": "/api/index?leo_meta_whatsapp=1"
     },
@@ -86,6 +90,10 @@
     {
       "source": "/patch/(.*)",
       "destination": "/index.html"
+    },
+    {
+      "source": "/mercadeo",
+      "destination": "/marketing-review.html"
     }
   ],
   "headers": [
