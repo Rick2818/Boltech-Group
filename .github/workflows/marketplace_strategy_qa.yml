@@ -6,6 +6,10 @@ on:
       - 'lib/freelancer_project_source.js'
       - 'lib/rsi01_platform_sources.js'
       - 'lib/marketing_sales_cycle_v2.js'
+      - 'lib/marketing_review_dashboard.js'
+      - 'marketing-review.html'
+      - 'COCKPIT_EJECUTIVO_RICARDO.html'
+      - 'tests/test_marketing_review_dashboard.mjs'
       - 'api/index.js'
       - 'api/partners.js'
       - 'api/crm.js'
@@ -31,4 +35,4 @@ jobs:
         with:
           node-version: '22'
       - run: npm ci --ignore-scripts
-      - run: node --test tests/test_marketplace_strategy.mjs tests/test_legacy_commercial_retirement.mjs
+      - run: node --test tests/test_marketplace_strategy.mjs tests/test_legacy_commercial_retirement.mjs tests/test_marketing_review_dashboard.mjs
