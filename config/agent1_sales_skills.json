@@ -33,5 +33,10 @@
   ],
   "salesEnablementSkill": ".agents/skills/boltech-sales/SKILL.md",
   "commercialTermsMethod": "commercialTerms",
-  "commercialTermsSource": "config/commercial_pilot.json"
+  "commercialTermsSource": "config/commercial_pilot.json",
+  "active": false,
+  "deprecated": true,
+  "retirementStatus": "RETIRED_LEGACY_COLD_EMAIL",
+  "replacementRuntime": "lib/agent1_marketplace_cycle.js",
+  "retirementNote": "Historical deterministic lead/email skill inventory only. Not a runnable configuration; Agent 1 now searches Upwork and Freelancer.com."
 }
