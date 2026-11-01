@@ -7,6 +7,14 @@ on:
       - 'lib/rsi01_platform_sources.js'
       - 'lib/marketing_sales_cycle_v2.js'
       - 'api/index.js'
+      - 'api/partners.js'
+      - 'api/crm.js'
+      - 'api/cron/master-dispatcher.js'
+      - 'AGENTS.md'
+      - 'REGLA-DE-ORO.md'
+      - '.agents/**'
+      - 'docs/commercial/MERCADEO_APOYO_VENTAS.md'
+      - 'tests/test_legacy_commercial_retirement.mjs'
       - 'vercel.json'
       - 'tests/test_marketplace_strategy.mjs'
       - '.github/workflows/marketplace_strategy_qa.yml'
@@ -23,4 +31,4 @@ jobs:
         with:
           node-version: '22'
       - run: npm ci --ignore-scripts
-      - run: node --test tests/test_marketplace_strategy.mjs
+      - run: node --test tests/test_marketplace_strategy.mjs tests/test_legacy_commercial_retirement.mjs

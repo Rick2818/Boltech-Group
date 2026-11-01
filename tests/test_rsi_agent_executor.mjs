@@ -150,6 +150,6 @@ test('API rejects unauthenticated execution and invalid inputs without contactin
   const old=process.env.PARTNER_API_TOKEN;process.env.PARTNER_API_TOKEN='local-test';t.after(()=>{if(old===undefined)delete process.env.PARTNER_API_TOKEN;else process.env.PARTNER_API_TOKEN=old;});
   const response=()=>({setHeader(){},status(n){this.code=n;return this;},json(v){this.body=v;return this;}});
   const a=response();await handler({url:'/api/partners?action=rsi-execute',method:'POST',headers:{},body:{}},a);assert.equal(a.code,401);
-  const b=response();await handler({url:'/api/partners?action=rsi-execute',method:'POST',headers:{authorization:'Bearer local-test'},body:{rsi:'bad',cycleId:'x'}},b);assert.equal(b.code,400);
+  const b=response();await handler({url:'/api/partners?action=rsi-execute',method:'POST',headers:{authorization:'Bearer local-test'},body:{rsi:'bad',cycleId:'x'}},b);assert.equal(b.code,410);assert.equal(b.body.code,'LEGACY_COMMERCIAL_TRACTION_RETIRED');
   for(const method of ['GET','POST']){const c=response();await handler({url:'/api/partners?action=rsi01-platform-sources',method,headers:{},body:{subject:{type:'user',id:'attacker'}}},c);assert.equal(c.code,401);}
 });

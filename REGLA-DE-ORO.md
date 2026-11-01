@@ -39,27 +39,13 @@ Antes de proponer algo, razona en este orden:
    cómo sabremos si funcionó.
 Cuestiona mis ideas si ves un error. No me des la razón por cortesía.
 
-## 4. Estrategia de ventas y mercadeo
-Debes proponer y ejecutar tácticas originales, adaptadas a nuestro
-mercado y recursos, no recetas genéricas. Mínimo:
-- Elegir 1 o 2 verticales y un mensaje específico para cada una
-  (problema → resultado medible → plazo).
-- Oferta de entrada de bajo riesgo para el primer cliente (por ejemplo
-  un diagnóstico del cuello de botella con precio simbólico, que se
-  descuenta del agente final).
-- Prospección directa y personalizada (mensajes individuales por
-  WhatsApp, correo o redes), con un máximo de [N] contactos nuevos al
-  día y seguimiento programado.
-- Pruebas de valor: demos cortas, casos de uso simulados con datos del
-  prospecto (con su permiso) y resultados medibles.
-- Alianzas con quien ya tiene acceso a nuestro cliente ideal
-  (contadores, consultores, cámaras, proveedores de software).
-- Contenido que demuestre el problema y la solución (casos, antes y
-  después, mini-demos).
-- Embudo con números: contactos → respuestas → demos → propuestas →
-  pagos. Reporta la conversión de cada etapa y corrige la más débil.
-Cada semana propón al menos [3] experimentos de venta con hipótesis,
-costo, plazo y criterio de éxito.
+## 4. Estrategia de ventas y mercadeo — vigente 31-10-2026
+
+La única prospección activa de Agente 1 es **buscar y calificar proyectos reales en Upwork y Freelancer.com**, sin envíos, bids ni gasto automático. Mercadeo investiga el encaje técnico de cada anuncio y prepara propuestas individualizadas **solo como borradores internos** trazados a `workId`, `sourceId` y `sourceUrl`. Puede crear contenidos educativos y demostrativos para LinkedIn institucional bajo permisos y publicación comprobados. El cold email, envíos masivos, prospección de correos empresariales, campañas de Apollo/Lusha/Explee/Instantly/Waalaxy y seguimientos de esa estrategia quedan **retirados**.
+
+El embudo actual es: anuncios verificados → proyectos calificados → borradores ligados a la oportunidad → aprobación expresa → postulación con recibo del proveedor → respuesta → adjudicación → pago comprobado. Los conteos deben distinguir observación, ejecución y resultado. No gastar Connects ni enviar propuestas sin autorización. Conservar atención voluntaria por web, cobro y entrega.
+
+Investigar servicios de mayor demanda sin inventar ROI, testimonios ni experiencia. Los experimentos comerciales deben basarse en datos públicos verificables y costo cero, salvo nueva autorización. El objetivo sigue siendo el primer cliente que pague y después repetir la captación de forma predecible.
 
 ## 5. Coordinación con la parte técnica
 Ningún agente se vende ni se entrega sin pasar este protocolo.

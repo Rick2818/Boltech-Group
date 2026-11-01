@@ -24,7 +24,7 @@ export default async function handler(req, res) {
   // PILAR 3 & 4: Autenticación Timing-Safe de Administrador / Cron Secret
   const authHeader = req.headers['authorization'] || '';
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
-  const expectedSecret = process.env.CRON_SECRET || process.env.PLATFORM_MASTER_KEY || 'boltech_cron_sec_2026_prod';
+  const expectedSecret = process.env.CRON_SECRET || process.env.PLATFORM_MASTER_KEY || '';
 
   if (!token || !timingSafeCompare(token, expectedSecret)) {
     console.warn('[SEGURIDAD] Intento no autorizado en Master Cloud Dispatcher.');
@@ -34,6 +34,7 @@ export default async function handler(req, res) {
   try {
     const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
     const task = url.searchParams.get('task') || req.body?.task || 'all';
+    if(task === 'hunter') return res.status(410).json({success:false,code:'LEGACY_COMMERCIAL_TRACTION_RETIRED',sendingEnabled:false});
 
     const mcpHub = new ExecutiveAssistantMCPHub({
       strikeAddress: process.env.STRIKE_LIGHTNING_ADDRESS || 'rick2818@strike.me'
@@ -46,17 +47,7 @@ export default async function handler(req, res) {
       results: {}
     };
 
-    // TAREA 1: CAZADOR AUTÓNOMO 24/7 (LEAD DISCOVERY & VULNERABILITY MONITOR)
-    if (task === 'all' || task === 'hunter') {
-      const hunterStatus = await mcpHub.getProjectTrackingData();
-      executionReport.results.hunter = {
-        status: 'ACTIVE_SEARCHING',
-        monitored_leads_today: hunterStatus.monitored_leads_today,
-        actionable_flaws: hunterStatus.leads_with_actionable_flaws,
-        timestamp: new Date().toISOString()
-      };
-    }
-
+    // Historical lead hunter retired. Only settlement and operational health are supported.
     // TAREA 2: CONCILIACIÓN FIDUCIARIA LIGHTNING (STRIKE MONITOR)
     if (task === 'all' || task === 'settlement') {
       const btc = await mcpHub.getBitcoinData();

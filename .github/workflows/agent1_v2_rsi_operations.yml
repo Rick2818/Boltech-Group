@@ -7,8 +7,7 @@ on:
       - 'scripts/ops/run_agent1_v2_rsi.mjs'
       - 'tests/test_agent1_v2_rsi_operations.mjs'
       - '.github/workflows/agent1_v2_rsi_operations.yml'
-  schedule:
-    - cron: '30 15 * * 1-5'
+  # Historical RSI diagnostic: manual/PR only; no scheduled legacy sales traction.
 permissions:
   contents: read
   actions: read
