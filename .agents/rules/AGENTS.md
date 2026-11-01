@@ -6,7 +6,7 @@ La política canónica vigente es:
 
 # Boltech Group — 19 Reglas de Oro Canónicas
 
-**Versión:** 2026-09-28  
+**Versión:** 2026-10-31  
 **Estado:** Vigente para Boltech Group  
 **Autoridad:** Dirección General  
 **Alcance:** Código, agentes, cron jobs, ventas, partnerships, correo, CRM, pagos, reportes y despliegues.
@@ -34,8 +34,8 @@ Antes de una corrección o despliegue se revisan código, configuración, depend
 ## 6. Continuidad operacional basada en estado real
 Los cron jobs y agentes se consideran activos solo si existe evidencia actual de que el workflow está habilitado y sus ejecuciones funcionan. Un run histórico no demuestra que una automatización siga activa hoy.
 
-## 7. Correo oficial Boltech por Gmail SMTP
-El remitente operativo oficial es **ricardo.boltechgroup@gmail.com** y el canal principal de despacho es **Gmail SMTP** mediante **smtp.gmail.com** con conexión cifrada y autenticación segura. La contraseña de aplicación se guarda únicamente como secreto de runtime. Resend u otro transporte no sustituye silenciosamente a Gmail SMTP.
+## 7. Correo oficial para soporte y atención voluntaria (no prospección fría)
+El correo oficial puede usarse únicamente en atención a solicitudes iniciadas por clientes, confirmaciones transaccionales o soporte autorizado. **No usar Gmail, SMTP, Resend ni otras plataformas para cold email del Agente 1.** Credenciales únicamente en secretos de runtime y envío sujeto a autorización, consentimiento y recibos verificables.
 
 ## 8. CI/CD debe fallar de forma honesta
 GitHub Actions, Vercel y automatizaciones no deben ocultar fallas con secretos ficticios, valores por defecto sensibles o `exit 0` artificial. Una dependencia ausente o autenticación inválida debe producir un fallo visible y accionable.
@@ -80,17 +80,14 @@ Cuando una tarea pueda ejecutarse mediante los conectores, APIs o herramientas a
 ## 17. Marca y activos oficiales
 Solo se utilizan logotipos, identidad visual y activos aprobados de Boltech Group. No se crean variantes que puedan confundirse con el activo oficial sin autorización de Dirección General.
 
-## 18. Tracción B2B medible, consentimiento y economía real
-La operación comercial se rige por:
-- ICP y calificación antes del contacto;
-- Airtable como registro operativo del Partner Network;
-- deal/referral registration para atribución;
-- no compartir PII con un partner antes del consentimiento del cliente;
-- cero spam indiscriminado;
-- distinguir prospecting, conversación, propuesta, venta y efectivo cobrado;
-- una comisión a un partner de Boltech nace únicamente sobre **efectivo realmente cobrado**, conforme a la tasa aprobada y de forma proporcional si el cliente paga en cuotas;
-- una comisión recibida de un proveedor se registra únicamente cuando el proveedor/plataforma la confirma;
-- reportes diarios muestran ceros reales cuando no hubo actividad, ventas o cobros reales.
+## 18. Tracción comercial en marketplaces y economía real
+- El único flujo de prospección autónoma de Agente 1 es investigación **de solo lectura** en Upwork y Freelancer.com, con ID, URL y presupuesto verificables.
+- Mercadeo apoya cada oportunidad con material interno de propuesta, contenido técnico y posicionamiento institucional; no contacta prospectos por correo ni DMs.
+- Cold email, Apollo/Lusha/Explee/Instantly/Waalaxy, campañas SDR, antiguos RSI y sus triggers quedan fuera de producción.
+- El titular debe aprobar cada postulación, propuesta enviada, compra de Connects, pago o gasto. Sin aprobación, solo borradores.
+- Atención solicitada por el cliente en web, integraciones necesarias para servicio, cobros y entregas se preservan; no son prospecting.
+- No confundir anuncio descubierto, contacto, propuesta enviada, adjudicación o cobro. Cada transición requiere evidencia.
+- El Partner Network debe respetar consentimiento; las comisiones solo nacen sobre efectivo cobrado y confirmado.
 
 ## Regla de interpretación
 Cuando una regla histórica entre en conflicto con este documento, prevalece esta versión. La evidencia real prevalece sobre un log interno, un contador, una simulación o una expectativa.
