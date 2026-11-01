@@ -58,7 +58,7 @@ test('Marketing only prepares reviewable drafts linked to marketplace work',asyn
     return {ok:true,text:async()=>JSON.stringify([{work_id:'AGENT1:MARKETPLACE:'+good.sourceId,execution_receipt:x.execution_receipt}])};
   }
   if(u.pathname.endsWith('/marketing_sales_briefs')&&options?.method==='POST'){briefs.push(...JSON.parse(options.body));return {ok:true,text:async()=>''};}
-  if(u.pathname.endsWith('/marketing_sales_briefs'))return {ok:true,text:async()=>JSON.stringify([{id:'boltech-marketplace-proposal-support-v4',strategy_version:'2026-10-31-marketplace-only-v4'}])};
+  if(u.pathname.endsWith('/marketing_sales_briefs'))return {ok:true,text:async()=>JSON.stringify([{id:'boltech-marketplace-proposal-support-v5',strategy_version:'2026-11-01-pain-to-value-v5'}])};
   throw Error('Unexpected DB route '+url);
  };
  const result=await runMarketingSalesCycle({env,fetcher});
@@ -67,9 +67,9 @@ test('Marketing only prepares reviewable drafts linked to marketplace work',asyn
  assert.equal(assets[0].evidence.sourceUrl,good.sourceUrl);
  assert.equal(assets[0].evidence.proposalStatus,'NOT_SUBMITTED');
  assert.match(assets[0].body,/CRM data mappings/);
- assert.match(assets[0].body,/PAIN_TO_VALUE|DISCOVER:/);
- assert.match(assets[0].body,/QUANTIFY:/);
- assert.match(assets[0].body,/LEARN:/);
+ assert.doesNotMatch(assets[0].body,/INTERNAL SALES NOTES|DISCOVER:/);
+ assert.ok(assets[0].evidence.internalNotes.quantify);
+ assert.equal(assets[0].evidence.learningStatus,'NO_VERIFIED_CUSTOMER_OUTCOME');
  assert.equal(assets[0].evidence.method,'PAIN_TO_VALUE_V1');
  assert.equal(assets[0].evidence.confidence,'LISTING_ONLY');
  assert.match(assets[0].body,/successful\?/);
@@ -101,7 +101,7 @@ test('Marketing rejects obsolete CRM leads, spoofed jobs and already submitted b
     mutations++;return {ok:true,text:async()=>''};
   }
   if(u.pathname.endsWith('/marketing_sales_briefs'))return {ok:true,text:async()=>JSON.stringify([
-    {id:'boltech-marketplace-proposal-support-v4',strategy_version:'2026-10-31-marketplace-only-v4'}])};
+    {id:'boltech-marketplace-proposal-support-v5',strategy_version:'2026-11-01-pain-to-value-v5'}])};
   throw Error('Legacy work must not create drafts: '+url);
  };
  const r=await runMarketingSalesCycle({env,fetcher});
