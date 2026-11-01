@@ -51,6 +51,7 @@ import {leoHttpHandler} from '../lib/leo_sales_runtime.js';
 import {handleMetaWhatsApp} from '../lib/leo_meta_whatsapp.js';
 import {handleLeoChannels} from '../lib/leo_channels.js';
 import {handleSpecialistChat} from '../lib/specialist_chat.js';
+import {handleMariaSpeech} from '../lib/maria_speech_http.js';
 import {handleLeoObjective} from '../lib/leo_objectives_http.js';
 import crmHandler from './crm.js';
 import whatsappHandler from './whatsapp.js';
@@ -82,6 +83,7 @@ export default async function handler(req, res) {
   try {
     const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
     const pathname = url.pathname;
+    if (url.searchParams.get('maria_speech') === '1') return await handleMariaSpeech(req,res);
     if (url.searchParams.get('specialist_chat') === '1') return await handleSpecialistChat(req,res);
     if (url.searchParams.get('leo_channels') === '1') return await handleLeoChannels(req,res);
     if (url.searchParams.get('leo_meta_whatsapp') === '1') return await handleMetaWhatsApp(req,res);
