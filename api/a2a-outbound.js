@@ -23,7 +23,7 @@ function authorized(req) {
 function jobKey(targetId) { return 'outbound:' + targetId; }
 function recordId(targetId, intentId) { return taskIdentity(jobKey(targetId), intentId); }
 function contentHash(target, body) {
-  const payload = buildOutboundMessage({ ...body, targetId: target.targetId });
+  const payload = buildOutboundMessage({ ...body, targetId: target.targetId, protocolVersion: target.protocolVersion });
   return crypto.createHash('sha256').update(JSON.stringify([
     target.endpoint, payload.params.message.messageId, payload.params.message.parts
   ])).digest('hex');
@@ -100,7 +100,7 @@ async function processRequest(req, res) {
     const receipt = {
       targetId, organization: card.organization, intentId,
       remoteTaskId: result.remoteTaskId, remoteState: result.remoteState,
-      responseKind: result.responseKind, state: 'REMOTE_ACKNOWLEDGED', checkedAt: sentAt
+      replyText: result.replyText || '', responseKind: result.responseKind, state: 'REMOTE_ACKNOWLEDGED', checkedAt: sentAt
     };
     await completeTask(jobKey(targetId), identity, fingerprint, receipt);
     return respond(res, 200, { status: 'REMOTE_ACKNOWLEDGED', receipt });
@@ -118,7 +118,8 @@ async function processRequest(req, res) {
   });
   return respond(res, 200, {
     status: 'REMOTE_TASK_READ', organization: card.organization, targetId,
-    remoteTaskId: result.remoteTaskId, remoteState: result.remoteState, checkedAt: new Date().toISOString()
+    remoteTaskId: result.remoteTaskId, remoteState: result.remoteState,
+    replyText: result.replyText || '', checkedAt: new Date().toISOString()
   });
 }
 export default async function handler(req, res) {
