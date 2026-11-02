@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import handler from '../api/a2a-outbound.js';
+import handler from '../lib/a2a_outbound_handler.js';
 import { buildOutboundMessage, loadOutboundTarget } from '../lib/a2a_outbound_client.js';
 
 // Offline protocol tests only: all peer HTTP and Redis calls are mocked.
