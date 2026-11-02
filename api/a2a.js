@@ -50,6 +50,63 @@ function extractCard(body) {
   return null;
 }
 
+
+async function receivePartnerMessage({ body, source, card, res }) {
+  // This is a receipt for an authenticated partner message, not an approval or outbound reply.
+  const subject = typeof card.subject === 'string' ? card.subject.trim() : '';
+  const messageText = typeof card.message === 'string' ? card.message.trim() : '';
+  const replyTo = card.replyToTaskId;
+  if (!subject || subject.length > 160 || !messageText || messageText.length > 5000 ||
+      (replyTo !== undefined && (typeof replyTo !== 'string' || !/^[a-f0-9]{64}$/.test(replyTo)))) {
+    return send(res, 400, { jsonrpc: '2.0', id: rpcId(body), error: {
+      code: -32602, message: 'Valid subject (1-160 chars), message (1-5000 chars) and optional replyToTaskId are required'
+    } });
+  }
+  if (replyTo) {
+    const previous = await readTask(source.id, replyTo);
+    if (!previous || previous.state !== 'completed') {
+      return send(res, 404, { jsonrpc: '2.0', id: rpcId(body), error: { code: -32004, message: 'Referenced partner task not found' } });
+    }
+  }
+  const taskId = taskIdentity(source.id, body.params.message.messageId);
+  const fingerprint = sha256Hex(JSON.stringify(canonical({ card, contextId: body.params.message.contextId || '' })));
+  const claim = await claimTask(source.id, taskId, fingerprint);
+  if (!claim.claimed) {
+    if (claim.existing?.fingerprint !== fingerprint) return send(res, 409, { jsonrpc: '2.0', id: rpcId(body), error: { code: -32009, message: 'messageId already used with different content' } });
+    if (claim.existing?.state !== 'completed') return send(res, 409, { jsonrpc: '2.0', id: rpcId(body), error: { code: -32009, message: 'Task registration incomplete; operator review required', data: { taskId } } });
+    return send(res, 200, { jsonrpc: '2.0', id: rpcId(body), result: body.method === 'SendMessage' ? { task: claim.existing.task } : legacyTask(claim.existing.task) });
+  }
+  const activity = await logPartnerActivity({
+    activityId: generateActivityId(),
+    partnerRecordId: source.id,
+    channel: 'A2A',
+    activityType: replyTo ? 'FOLLOW_UP' : 'INTRODUCTION',
+    summary: 'Authenticated A2A partner message. Subject: ' + subject +
+      '\nMessage: ' + messageText + (replyTo ? '\nIn reply to task: ' + replyTo : '') +
+      '\nRequires human review. No commercial commitment made.',
+    outcome: 'PENDING'
+  });
+  if (typeof activity?.id !== 'string' || !activity.id) throw new Error('Partner activity storage did not acknowledge receipt');
+  const task = {
+    id: taskId,
+    contextId: clean(body.params.message.contextId, 120) || crypto.randomUUID(),
+    status: { state: 'TASK_STATE_COMPLETED' },
+    artifacts: [{
+      artifactId: crypto.randomUUID(),
+      name: 'Boltech Partner Message Receipt',
+      parts: [{ mediaType: 'application/json', data: {
+        activityRecordId: activity.id,
+        receiptStatus: 'RECEIVED_PENDING_REVIEW',
+        messageId: body.params.message.messageId,
+        replyToTaskId: replyTo || null,
+        responseChannel: 'A2A'
+      } }]
+    }]
+  };
+  await completeTask(source.id, taskId, fingerprint, task);
+  return send(res, 200, { jsonrpc: '2.0', id: rpcId(body), result: body.method === 'SendMessage' ? { task } : legacyTask(task) });
+}
+
 async function intake(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
@@ -90,6 +147,7 @@ async function intake(req, res) {
   }
   if (message.taskId) return send(res, 400, { jsonrpc: '2.0', id, error: { code: -32602, message: 'Use a new messageId to register a new need; existing tasks cannot be restarted' } });
   const card = extractCard(body);
+  if (card?.type === 'boltech.partner.message.v1') return await receivePartnerMessage({ body, source, card, res });
   if (!card || card.type !== 'boltech.referral.need.v1') {
     return send(res, 400, { jsonrpc: '2.0', id, error: { code: -32602, message: 'Expected boltech.referral.need.v1 data part' } });
   }
