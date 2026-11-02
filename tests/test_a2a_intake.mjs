@@ -114,3 +114,73 @@ test('reordered JSON keys replay the same result',async t=>{
   const card=req.body.params.message.parts[0].data; req.body.params.message.parts[0].data=Object.fromEntries(Object.entries(card).reverse());
   assert.deepEqual((await call(req)).body.result,first.body.result); assert.equal(f.referrals.length,1);
 });
+
+test('authenticated A2A partner messages receive durable receipts and an activity log', async t => {
+  const f = fixture(t);
+  const req = request();
+  req.body.params.message.parts = [{ data: {
+    type: 'boltech.partner.message.v1',
+    subject: 'Partnership introduction',
+    message: 'Please review our agency cooperation proposal.'
+  } }];
+  const first = await call(req);
+  assert.equal(first.statusCode, 200);
+  assert.equal(first.body.result.task.status.state, 'TASK_STATE_COMPLETED');
+  const receipt = first.body.result.task.artifacts[0].parts[0].data;
+  assert.equal(receipt.receiptStatus, 'RECEIVED_PENDING_REVIEW');
+  assert.equal(receipt.activityRecordId, 'recActivity');
+  assert.equal(f.referrals.length, 0, 'partner messages must not register customer referrals');
+  assert.equal(f.activities.length, 1);
+  assert.equal(f.activities[0]['Activity Type'], 'INTRODUCTION');
+  assert.equal(f.activities[0].Channel, 'A2A');
+  assert.equal(f.activities[0].Partner[0], 'recSource');
+  const replay = await call(req);
+  assert.deepEqual(replay.body.result, first.body.result);
+  assert.equal(f.activities.length, 1, 'replay must not duplicate partner activity');
+  const get = request();
+  get.body.method = 'GetTask';
+  get.body.params = { id: first.body.result.task.id };
+  assert.deepEqual((await call(get)).body.result, first.body.result.task);
+});
+test('partner A2A follow-ups stay scoped to original authenticated sender', async t => {
+  const f = fixture(t);
+  const first = request();
+  first.body.params.message.parts = [{ data: {
+    type: 'boltech.partner.message.v1', subject: 'Introduction', message: 'Initial contact'
+  } }];
+  const r1 = await call(first);
+  const second = request();
+  second.body.params.message.messageId = 'message-2';
+  second.body.params.message.parts = [{ data: {
+    type: 'boltech.partner.message.v1', subject: 'Reply',
+    message: 'Following up on the discussion', replyToTaskId: r1.body.result.task.id
+  } }];
+  const r2 = await call(second);
+  assert.equal(r2.statusCode, 200);
+  assert.equal(r2.body.result.task.artifacts[0].parts[0].data.replyToTaskId, r1.body.result.task.id);
+  assert.equal(f.activities[1]['Activity Type'], 'FOLLOW_UP');
+  assert.equal(f.activities.length, 2);
+  assert.equal(f.referrals.length, 0);
+});
+test('invalid partner messages do not persist activity', async t => {
+  const f = fixture(t);
+  for (const data of [
+    { type: 'boltech.partner.message.v1', subject: '', message: 'Text' },
+    { type: 'boltech.partner.message.v1', subject: 'Subject', message: '' },
+    { type: 'boltech.partner.message.v1', subject: 'Subject', message: 'Text', replyToTaskId: 'invalid' },
+    { type: 'boltech.partner.message.v1', subject: 'Subject', message: 'Text', replyToTaskId: 'f'.repeat(64) }
+  ]) {
+    const req = request();
+    req.body.params.message.parts = [{ data }];
+    const r = await call(req);
+    assert.ok([400, 404].includes(r.statusCode));
+  }
+  const unauthenticated = request();
+  unauthenticated.headers = {};
+  unauthenticated.body.params.message.parts = [{ data: {
+    type: 'boltech.partner.message.v1', subject: 'Subject', message: 'Text'
+  } }];
+  assert.equal((await call(unauthenticated)).statusCode, 401);
+  assert.equal(f.activities.length, 0);
+  assert.equal(f.referrals.length, 0);
+});
