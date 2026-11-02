@@ -174,7 +174,8 @@ test('provider rejections are not treated as delivered', async t => {
   assert.equal(result.body.status, 'REMOTE_REJECTED');
   assert.equal(f.accepted.length, 0);
   const again = await call(request());
-  assert.equal(again.statusCode, 200);
+  assert.equal(again.statusCode, 422);
+  assert.equal(again.body.status, 'REMOTE_REJECTED');
   assert.equal(again.body.receipt.state, 'REMOTE_REJECTED');
   assert.equal(f.requests.length, 1);
 });
