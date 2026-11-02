@@ -187,3 +187,49 @@ test('unknown target and invalid request fail before fetch', async t => {
   assert.equal(malformed.statusCode, 400);
   assert.equal(f.requests.length, 0);
 });
+
+test('Langflow A2A 0.3 compatibility: legacy roles/methods, x-api-key and task lookup', async t => {
+  const f = fixture(t);
+  const target = { ...peer, protocolVersion: '0.3.0', authType: 'api-key',
+    credentialEnv: 'A2A_PEER_LANGFLOW_TOKEN' };
+  process.env.A2A_OUTBOUND_TARGETS_JSON = JSON.stringify({ 'synthetic-vendor': target });
+  process.env.A2A_PEER_LANGFLOW_TOKEN = 'langflow-local-fake-token';
+  const oldFetch = globalThis.fetch;
+  globalThis.fetch = async (url, options = {}) => {
+    if (String(url) === peer.cardUrl) return Response.json({
+      name: card.name, provider: card.provider, protocolVersion: '0.3.0',
+      preferredTransport: 'JSONRPC', url: peer.endpoint,
+      security: [{ apiKey: [] }]
+    });
+    if (String(url) === peer.endpoint) {
+      const p = JSON.parse(options.body);
+      f.requests.push(p);
+      assert.equal(options.headers['x-api-key'], 'langflow-local-fake-token');
+      assert.equal(options.headers.Authorization, undefined);
+      if (p.method === 'message/send') return Response.json({
+        jsonrpc: '2.0', id: p.id, result: { id: 'langflow-task-123',
+          status: { state: 'completed' }, artifacts: [{ parts: [{ kind: 'text',
+            text: 'Thanks Boltech, proposal acknowledged for review.' }] }] }
+      });
+      if (p.method === 'tasks/get') return Response.json({
+        jsonrpc:'2.0', id:p.id, result: { id:'langflow-task-123',
+          status:{state:'completed'}, artifacts:[{parts:[{kind:'text',text:'Reviewed'}]}] }
+      });
+      throw Error('Unknown method');
+    }
+    return oldFetch(url, options);
+  };
+  const one = await call(request());
+  assert.equal(one.statusCode, 200);
+  assert.equal(one.body.receipt.remoteTaskId, 'langflow-task-123');
+  assert.match(one.body.receipt.replyText, /proposal acknowledged/);
+  assert.equal(f.requests[0].method, 'message/send');
+  assert.equal(f.requests[0].params.message.role, 'user');
+  assert.deepEqual(f.requests[0].params.message.parts, [{
+    kind: 'text', text: 'Boltech Group partnership\n\nInstitutional introduction for an authorized agent.'
+  }]);
+  const task = await call(request({ operation: 'get-task' }));
+  assert.equal(task.statusCode, 200);
+  assert.equal(f.requests[1].method, 'tasks/get');
+  assert.equal(task.body.replyText, 'Reviewed');
+});
