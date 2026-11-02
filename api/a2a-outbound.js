@@ -69,7 +69,11 @@ async function processRequest(req, res) {
       if (existing.state !== 'completed') return respond(res, 409, {
         status: 'DELIVERY_UNCERTAIN', message: 'Request may have reached peer; operator reconciliation required before another attempt'
       });
-      return respond(res, 200, { status: 'REMOTE_ACKNOWLEDGED', receipt: existing.task, replay: true });
+      const rejected = existing.task?.state === 'REMOTE_REJECTED';
+      return respond(res, rejected ? 422 : 200, {
+        status: rejected ? 'REMOTE_REJECTED' : 'REMOTE_ACKNOWLEDGED',
+        receipt: existing.task, replay: true
+      });
     }
     // Check actual peer identity and declared A2A capability before acquiring
     // an idempotence lock. This is not evidence of commercial intake approval.
