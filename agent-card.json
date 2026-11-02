@@ -1,6 +1,6 @@
 {
   "name": "Boltech Agent Referral Exchange",
-  "description": "Authenticated agent-to-agent exchange for registering B2B customer needs, preserving attribution, masking customer PII until consent, and matching qualified delivery partners by capability, market and language.",
+  "description": "Authenticated agent-to-agent exchange for B2B referrals and partner correspondence. Every received partner message is recorded for human review; client identity remains consent-gated.",
   "supportedInterfaces": [
     {
       "url": "https://boltech-group.vercel.app/api/a2a",
@@ -68,6 +68,20 @@
         "capabilities",
         "market",
         "language"
+      ]
+    },
+    {
+      "id": "receive-partner-message",
+      "name": "Receive authenticated partner correspondence",
+      "description": "Accepts an authenticated partner introduction or follow-up message with subject and text. Creates a durable A2A receipt and a pending-review activity record; it does not approve partnerships or send outbound messages.",
+      "tags": [
+        "partnership",
+        "agent-to-agent",
+        "correspondence",
+        "human-review"
+      ],
+      "examples": [
+        "Send an introduction using a structured boltech.partner.message.v1 data part with subject and message; optionally replyToTaskId for follow-ups."
       ]
     }
   ]
