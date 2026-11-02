@@ -4,6 +4,10 @@
   "trailingSlash": false,
   "rewrites": [
     {
+      "source": "/api/a2a-outbound",
+      "destination": "/api/a2a?outbound=1"
+    },
+    {
       "source": "/api/marketing-login",
       "destination": "/api/index?marketing_login=1"
     },
