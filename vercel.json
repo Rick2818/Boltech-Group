@@ -20,6 +20,10 @@
       "destination": "/api/index?leo_meta_whatsapp=1"
     },
     {
+      "source": "/api/leo-objectives",
+      "destination": "/api/index?leo_objectives=1"
+    },
+    {
       "source": "/api/leo-channels",
       "destination": "/api/index?leo_channels=1"
     },
