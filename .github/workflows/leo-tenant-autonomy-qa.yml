@@ -8,6 +8,8 @@ on:
       - 'lib/leo_tenant_auth.js'
       - 'lib/leo_objectives_http.js'
       - 'lib/leo_autonomous_engine.js'
+      - 'lib/leo_synthetic_probe.js'
+      - 'tests/test_leo_synthetic_probe.mjs'
       - 'tests/test_leo_autonomous_engine.mjs'
       - 'tests/test_leo_tenant_auth.mjs'
       - 'tests/test_leo_tenant_autonomy.mjs'
@@ -27,4 +29,4 @@ jobs:
         with:
           node-version: '24'
       - name: Leo tenant autonomy, persistence, authorization and concurrency regression
-        run: node --test tests/test_leo_tenant_autonomy.mjs tests/test_leo_redis_store.mjs tests/test_leo_tenant_auth.mjs tests/test_leo_execution_claim_regression.mjs tests/test_leo_objective_http_e2e.mjs tests/test_leo_autonomous_engine.mjs
+        run: node --test tests/test_leo_tenant_autonomy.mjs tests/test_leo_redis_store.mjs tests/test_leo_tenant_auth.mjs tests/test_leo_execution_claim_regression.mjs tests/test_leo_objective_http_e2e.mjs tests/test_leo_autonomous_engine.mjs tests/test_leo_synthetic_probe.mjs
