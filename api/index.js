@@ -54,7 +54,7 @@ import {handleMetaWhatsApp} from '../lib/leo_meta_whatsapp.js';
 import {handleLeoChannels} from '../lib/leo_channels.js';
 import {handleSpecialistChat} from '../lib/specialist_chat.js';
 import {handleMariaSpeech} from '../lib/maria_speech_http.js';
-import {handleLeoObjective} from '../lib/leo_objectives_http.js';
+import {handleLeoObjective,handleLeoAutonomyWorker} from '../lib/leo_objectives_http.js';
 import crmHandler from './crm.js';
 import whatsappHandler from './whatsapp.js';
 import intelHandler from './intel.js';
@@ -90,6 +90,7 @@ export default async function handler(req, res) {
     if (url.searchParams.get('leo_channels') === '1') return await handleLeoChannels(req,res);
     if (url.searchParams.get('leo_meta_whatsapp') === '1') return await handleMetaWhatsApp(req,res);
     if (url.searchParams.get('leo_sales') === '1') return await leoHttpHandler(req,res);
+    if (pathname === '/api/leo-autonomy-worker' || url.searchParams.get('leo_worker') === '1') return await handleLeoAutonomyWorker(req,res);
     if (pathname === '/api/leo-objectives' || url.searchParams.get('leo_objectives') === '1') return await handleLeoObjective(req,res);
 
     const upworkOAuthAction = pathname === '/api/upwork/callback' ? 'callback' :
