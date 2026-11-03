@@ -34,6 +34,10 @@ test('authenticated Leo HTTP objective persists, executes a guarded read and res
   assert.match(r.lastTool.receipt,/leo-inspect:goal_001:v/);
   const resumed=await request({operation:'read',id:r.id});
   assert.equal(resumed.version,r.version);
+  const progress=await request({operation:'progress',id:r.id});
+  assert.equal(progress.status,'AWAITING_REVIEW');
+  assert.match(progress.lastReceipt,/leo-inspect:goal_001:v/);
+  assert.equal(progress.delegation,null);
   r=await request({operation:'transition',input:{id:r.id,expectedVersion:r.version,action:'complete',eventId:'complete_001',approval:true}});
   assert.equal(r.status,'COMPLETED');
  } finally {
