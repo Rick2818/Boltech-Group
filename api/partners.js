@@ -3,18 +3,6 @@ import { createHandoffStore } from '../lib/rsi_handoff_store.js';
 import { requireOperationalAuth } from '../lib/operational_auth.js';
 import { getAgentExecutionStatus } from '../lib/rsi_agent_status.js';
 import { RSI_EXECUTOR_VERSION } from '../lib/rsi_agent_executor.js';
-import { createGoogleAdkTeam } from '../lib/google_adk_agents.js';
-import {createRsi03Closing} from '../lib/rsi03_closing.js';
-import {createRsi02InboxExecutor} from '../lib/rsi02_inbox_executor.js';
-import {createDirectorNotifications} from '../lib/director_notifications.js';
-import { createSdrDispatch, dailyCampaignSendDays } from '../lib/sdr_dispatch.js';
-import { createApolloClient, getApolloApiKey } from '../lib/apollo_client.js';
-import {authenticateInteragent,createInteragentCoordinator} from '../lib/interagent_coordinator.js';
-import {createMarketingMaintenance} from '../lib/marketing_maintenance.js';
-import {createMarketingCrmExecutor} from '../lib/marketing_crm_executor.js';
-import {createMultiSourceLeadImport} from '../lib/multi_source_lead_import.js';
-import {createDailyLeadExecutor} from '../lib/daily_lead_executor.js';
-import {marketingErrorCode,createRsiMarketingCycle} from '../lib/rsi_marketing_cycle.js';
 
 export const config = { maxDuration: 60 };
 import {
@@ -48,35 +36,6 @@ import { getOperatingCostMetrics } from '../lib/commercial_strategy.js';
 
 function json(res, status, payload) {
   return res.status(status).json(payload);
-}
-
-async function createRsi01PreparationWorker() {
- const [{createLeadPreparation},{redisCommand},{agentTableRequest},{paginationGuard},{investigatePublicSite},{validateApolloEmail},{createSdrGmail}] = await Promise.all([
-  import('../lib/rsi01_lead_preparation.js'),import('../lib/rsi_handoff_store.js'),import('../lib/rsi_agent_executor.js'),import('../lib/store_pagination.js'),import('../lib/rsi01_public_research.js'),import('../lib/apollo_client.js'),import('../lib/sdr_gmail.js')]);
- const listLeads=async()=>{const rows=[];let offset;const next=paginationGuard(1000,20);do{const p=await agentTableRequest('tblZaox2MX5uYA5PZ',{offset});rows.push(...p.records);offset=next(p)}while(offset);return rows};
- return createLeadPreparation({command:redisCommand,listLeads,readLead:async id=>(await listLeads()).find(l=>l.id===id),
-  writeLead:(id,fields)=>agentTableRequest('tblZaox2MX5uYA5PZ',{method:'PATCH',body:{records:[{id,fields}]}}),
-  investigate:investigatePublicSite,validateEmail:validateApolloEmail,gmail:createSdrGmail(),
-  apollo:async()=>{
-   const key='boltech:rsi01:apollo-inventory';const raw=await redisCommand(['GET',key]);
-   if(raw){const cached=JSON.parse(raw);if(Date.now()-Date.parse(cached.observedAt)>=0&&Date.now()-Date.parse(cached.observedAt)<600000)return cached;}
-   const batch=await createApolloClient().listSavedContacts({perPage:100,maxPages:20,budgetMs:15000});
-   const snapshot={complete:batch.complete,contacts:batch.contacts.map(c=>({domain:c.domain})),observedAt:batch.observedAt};
-   await redisCommand(['SET',key,JSON.stringify(snapshot)]);return snapshot;
-  }});
-}
-
-async function createRsi01DailyWorker() {
-  const [{createDailyCampaign},{redisCommand},{runApprovedCampaign,runExactlyFiveCampaign},{agentTableRequest},{paginationGuard}] = await Promise.all([
-    import('../lib/rsi01_daily_campaign.js'),import('../lib/rsi_handoff_store.js'),import('../lib/sdr_campaign.js'),
-    import('../lib/rsi_agent_executor.js'),import('../lib/store_pagination.js')
-  ]);
-  // Ricardo requested today's daily 09:00 campaign, including Sunday 18 October.
-  // Dated exception only; other dates and senders retain weekdays.
-  const sender=createSdrDispatch({sendDays:dailyCampaignSendDays()});
-  const listLeads=async()=>{const rows=[];let offset;const next=paginationGuard(1000,20);do{const p=await agentTableRequest('tblZaox2MX5uYA5PZ',{offset});rows.push(...p.records);offset=next(p)}while(offset);return rows};
-  return createDailyCampaign({command:redisCommand,execute:input=>createGoogleAdkTeam().run(input),
-    campaign:async()=>{const prepared=await(await createRsi01PreparationWorker()).status();if(prepared.state!=='READY'||prepared.selected.length!==5)return {reviewed:0,approvedTotal:prepared.selected.length,eligible:0,cycleStatus:'NO_APPROVED_LEADS',results:[]};const {validateSdrCandidate}=await import('../lib/sdr_dispatch.js');return runExactlyFiveCampaign({selected:prepared.selected,listLeads,validate:validateSdrCandidate,send:c=>sender.run(c),reconcile:id=>sender.reconcile(id)});}});
 }
 
 function cleanText(value, maxLength = 5000) {
@@ -229,26 +188,6 @@ export default async function partnersHandler(req, res) {
             runtimeIdentityPresent,sendingEnabled:false}});
       } catch(error) {return json(res,503,{success:false,code:/^UPWORK_[A-Z0-9_]+$/.test(error.code||'')?error.code:'UPWORK_CONNECTION_UNCONFIRMED'});}
     }
-    if(action==='marketing-multi-source-import') {
-      if(!requireOperationalAuth(req,res))return;
-      if(req.method!=='POST')return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
-      try {
-        return json(res,200,await createMultiSourceLeadImport().run(req.body));
-      }catch(error) {
-        return json(res,400,{success:false,code:/^MARKETING_IMPORT_[A-Z_]+$/.test(error?.code||'')?error.code:'MARKETING_IMPORT_INVALID_BATCH'});
-      }
-    }
-    if(action==='marketing-crm-intake') {
-      if(!requireOperationalAuth(req,res))return;
-      if(req.method!=='POST')return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
-      try {
-        const result=await createMarketingCrmExecutor().intake(req.body);
-        return json(res,result.created?201:200,result);
-      }catch(e){
-        const allowed=/^MARKETING_CRM_[A-Z_]+$/;
-        return json(res,/INVALID_|UPWORK_/.test(e?.code||'')?400:503,{success:false,code:allowed.test(e?.code||'')?e.code:'MARKETING_CRM_UNCONFIRMED'});
-      }
-    }
     if(action==='commercial-engine-status') {
       // Read-only identity and existing coordinator status. No new worker or scheduler.
       if(req.method!=='GET')return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
@@ -267,133 +206,6 @@ export default async function partnersHandler(req, res) {
         endToEndPaymentCertified:false
       });
     }
-    if(action==='rsi01-prepare') {
-      if(!requireOperationalAuth(req,res))return;
-      if(!['GET','POST'].includes(req.method))return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
-      try{const worker=await createRsi01PreparationWorker();return json(res,200,{success:true,deploymentCommit:process.env.VERCEL_GIT_COMMIT_SHA||null,preparation:await(req.method==='GET'?worker.status():worker.run())});}
-      catch(error){return json(res,503,{success:false,code:/^[A-Z0-9_]+$/.test(error.code||'')?error.code:'PREPARATION_UNCONFIRMED'});}
-    }
-    if(action==='rsi01-daily') {
-      if(!requireOperationalAuth(req,res))return;
-      if(!['GET','POST'].includes(req.method))return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
-      try {
-        const daily=await createRsi01DailyWorker();
-        return json(res,200,{success:true,deploymentCommit:process.env.VERCEL_GIT_COMMIT_SHA||null,dailyCampaign:await(req.method==='GET'?daily.status():daily.run())});
-      }catch{return json(res,503,{success:false,code:'RSI01_DAILY_RECONCILIATION_REQUIRED'});}
-    }
-    if(action==='commercial-activation') {
-      // Vercel native cron uses a separate secret; no user-supplied query can bypass auth.
-      const cronRun=req.method==='GET'&&String(req.query?.run||'')==='1';
-      if(cronRun){
-        const expected=String(process.env.CRON_SECRET||''),auth=String(req.headers?.authorization||'');
-        const actual=/^Bearer /i.test(auth)?auth.slice(7).trim():'';
-        const a=Buffer.from(actual),b=Buffer.from(expected);
-        if(!b.length||a.length!==b.length||!crypto.timingSafeEqual(a,b))return json(res,401,{success:false,code:'CRON_AUTH_REQUIRED'});
-      }else if(!requireOperationalAuth(req,res))return;
-      if(!['GET','POST'].includes(req.method))return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
-      try {
-        // Vercel's existing 09:00 cron is the primary trigger. GitHub invokes
-        // this same durable executor as backup, never a separate send loop.
-        let dailyCampaign;
-        if(cronRun){
-          try { dailyCampaign=await(await createRsi01DailyWorker()).run(); }
-          catch { dailyCampaign={status:'FAILED',code:'RSI01_DAILY_RECONCILIATION_REQUIRED'}; }
-          console.info('[RSI01_DAILY_CAMPAIGN]',JSON.stringify(dailyCampaign));
-        }
-        const worker=createInteragentCoordinator();
-        const [sales,marketing]=await Promise.all([worker.queue('RSI-01'),worker.queue('MARKETING')]);
-        if(req.method==='GET'&&!cronRun)return json(res,200,{success:true,roles:{'RSI-01':{pending:sales.pending.length},MARKETING:{pending:marketing.pending.length}},autonomousSendingEnabled:false});
-        // Reuse the existing commercial coordinator: progress authorised sales work,
-        // reconcile prior Gmail receipts and deliver marketing support without bulk mail.
-        const cycle=createRsiMarketingCycle(worker);
-        // Isolate inbox processing so a marketing/Apollo outage cannot block customer replies.
-        let rsi02rsi03;
-        try { rsi02rsi03=await createRsi02InboxExecutor().run(); }
-        catch(error) { rsi02rsi03={success:false,code:error?.code||'RSI02_CYCLE_BLOCKED'}; }
-        const salesCycle=await cycle('RSI-01');
-        const marketingCycle=await cycle('MARKETING');
-        // Isolate prospect intake: upstream outages never block the existing commercial cycle.
-        let dailyLeads;
-        try { dailyLeads=await createDailyLeadExecutor().run(); }
-        catch(error) { dailyLeads={state:'BLOCKED',newResearchCandidates:0,blockers:['DAILY_LEADS_EXECUTION_UNCONFIRMED']}; }
-        return json(res,200,{success:true,existingMarketingProcessed:true,salesCycle,marketingCycle,rsi02rsi03,dailyLeads,dailyCampaign,
-          autonomousSendingEnabled:false,commercialSaleInferred:false});
-      }catch(e){return json(res,503,{success:false,code:marketingErrorCode(e)});}
-    }
-    if(action==='marketing-maintenance') {
-      if(!requireOperationalAuth(req,res))return;
-      if(!['GET','POST'].includes(req.method))return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
-      try {
-        const worker=createMarketingMaintenance();
-        return json(res,200,await (req.method==='POST'?worker.repair():worker.inspect()));
-      }catch(error){return json(res,error.statusCode||503,{success:false,code:marketingErrorCode(error)});}
-    }
-    if (action==='interagent') {
-      if(req.method!=='POST')return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
-      try {
-        const body=typeof req.body==='string'?JSON.parse(req.body):req.body||{};
-        const actor=authenticateInteragent(body,req.headers?.['x-boltech-signature']);
-        const worker=createInteragentCoordinator();
-        const marketingOperations={'marketing-revise':'revise','marketing-manage':'manage','marketing-review':'review','marketing-use':'use','marketing-result':'result','marketing-reconcile':'reconcile'};
-        if(marketingOperations[body.operation])return json(res,200,await worker.marketing[marketingOperations[body.operation]](body));
-        if(body.operation==='marketing-metrics'){if(actor!=='MARKETING'&&actor!=='DIRECTORA')return json(res,403,{success:false,code:'MARKETING_METRICS_OWNER_REQUIRED'});return json(res,200,{success:true,...await worker.marketing.metrics()});}
-        if(body.operation==='alternative-execute')return json(res,200,await worker.executePending(body));
-        const result=body.operation==='queue'?await worker.queue(actor):body.operation==='receipt'?await worker.receipt(body):body.operation==='acknowledge'?await worker.acknowledge(body):await worker.submit(body);
-        return json(res,200,{success:true,...result});
-      }catch(error){return json(res,error.statusCode||503,{success:false,code:/^[A-Z_]+$/.test(error.code||'')?error.code:'INTERAGENT_UNCONFIRMED'});}
-    }
-    if (['apollo-leads-status', 'apollo-leads-saved'].includes(action)) {
-      if (!requireOperationalAuth(req, res)) return;
-      if (req.method !== 'GET') return json(res, 405, { success: false, code: 'METHOD_NOT_ALLOWED' });
-      const apiKey = getApolloApiKey();
-      if (action === 'apollo-leads-status') {
-        return json(res, 200, { success: true, integration: 'APOLLO_LEAD_AGENT',
-          apiKeyConfigured: Boolean(apiKey), readOnly: true, creditConsumingOperationsEnabled: false, sendingEnabled: false });
-      }
-      if (!apiKey) return json(res, 503, { success: false, code: 'APOLLO_NOT_CONFIGURED' });
-      try {
-        const batch = await createApolloClient({ apiKey }).listSavedContacts({ perPage: 100, maxPages: 20, budgetMs: 20000 });
-        return json(res, 200, { success: true, source: 'APOLLO_SAVED_CONTACT',
-          leads: batch.contacts.map(contact => ({ ...contact, contactEligible: false, researchOnly: true })),
-          complete: batch.complete, observedAt: batch.observedAt, emailSendingAuthorized: false });
-      } catch (error) {
-        const code = String(error?.code || '');
-        return json(res, 503, { success: false, code: /^APOLLO_[A-Z_]+$/.test(code) ? code : 'APOLLO_REQUEST_UNCONFIRMED' });
-      }
-    }
-    if(action==='sdr-campaign') {
-      if(!requireOperationalAuth(req,res))return;
-      if(req.method!=='POST')return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
-      try {
-        const {runApprovedCampaign}=await import('../lib/sdr_campaign.js');
-        const {agentTableRequest}=await import('../lib/rsi_agent_executor.js');
-        const {paginationGuard}=await import('../lib/store_pagination.js');
-        const {createSdrDispatch}=await import('../lib/sdr_dispatch.js');
-        const sender=createSdrDispatch();
-        const listLeads=async()=>{const rows=[];let offset;const next=paginationGuard(1000,20);do{const p=await agentTableRequest('tblZaox2MX5uYA5PZ',{offset});rows.push(...p.records);offset=next(p)}while(offset);return rows};
-        return json(res,200,{success:true,...await runApprovedCampaign({listLeads,send:c=>sender.run(c),reconcile:id=>sender.reconcile(id)})});
-      }catch(error){return json(res,503,{success:false,code:'SDR_CAMPAIGN_UNCONFIRMED'});}
-    }
-    if (['sdr-status','sdr-verify','sdr-metrics','sdr-send','sdr-reconcile'].includes(action)) {
-      if (!requireOperationalAuth(req, res)) return;
-      const worker = createSdrDispatch();
-      try {
-        if (action === 'sdr-status' && req.method === 'GET') return json(res, 200, { success:true, ...worker.status() });
-        if (action === 'sdr-metrics' && req.method === 'GET') return json(res, 200, { success:true, ...await worker.metrics() });
-        if (req.method !== 'POST') return json(res, 405, {success:false,code:'METHOD_NOT_ALLOWED'});
-        const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-        const result = action === 'sdr-verify' ? await worker.verify() : action === 'sdr-send' ? await worker.run(body.candidate) : await worker.reconcile(body.id);
-        return json(res, 200, {success:true,...result});
-      } catch (error) {
-        return json(res, 503, {success:false,code:/^(SDR_|GMAIL_)[A-Z_]+$/.test(error.code || '') ? error.code : 'SDR_OPERATION_UNCONFIRMED'});
-      }
-    }
-    if(action==='director-notify'){
-      if(!requireOperationalAuth(req,res))return;
-      if(req.method!=='POST')return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
-      try{return json(res,200,{success:true,...await createDirectorNotifications().run()});}
-      catch(error){return json(res,409,{success:false,code:error.code||'DIRECTOR_NOTICE_UNCONFIRMED'});}
-    }
     if(action==='client-order'){
       if(!requireOperationalAuth(req,res))return;
       if(!['GET','POST'].includes(req.method))return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
@@ -408,22 +220,6 @@ export default async function partnersHandler(req, res) {
         if(!record)return json(res,404,{success:false,code:'DELIVERY_ORDER_NOT_FOUND'});
         return json(res,200,{success:true,record});
       }catch(error){return json(res,error.statusCode||503,{success:false,code:/^DELIVERY_[A-Z_]+$/.test(error.code||'')?error.code:'DELIVERY_OPERATION_UNCONFIRMED'});}
-    }
-    if(action==='rsi03-readiness'){
-      if(!requireOperationalAuth(req,res))return;
-      if(req.method!=='GET')return json(res,405,{success:false,code:'METHOD_NOT_ALLOWED'});
-      try{return json(res,200,{success:true,...await createRsi03Closing().readiness()});}
-      catch(error){return json(res,503,{success:false,code:error.code||'CLOSE_READINESS_UNAVAILABLE'});}
-    }
-    if (action === 'rsi-execute') {
-      if (!requireOperationalAuth(req, res)) return;
-      if (req.method !== 'POST') return json(res, 405, { success: false, code: 'METHOD_NOT_ALLOWED' });
-      try {
-        const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-        return json(res, 200, { success: true, ...await createGoogleAdkTeam().run(body) });
-      } catch (error) {
-        return json(res, error.statusCode || 503, { success: false, code: /^[A-Z_]+$/.test(error.code || '') ? error.code : 'RSI_EXECUTION_FAILED' });
-      }
     }
     if (action === 'rsi-agents') {
       if (!requireOperationalAuth(req, res)) return;
