@@ -24,6 +24,7 @@ on:
       - 'docs/commercial/MERCADEO_APOYO_VENTAS.md'
       - 'tests/test_legacy_commercial_retirement.mjs'
       - 'vercel.json'
+      - 'tests/test_hobby_cpu_route_shield.mjs'
       - 'tests/test_marketplace_strategy.mjs'
       - 'tests/test_cpu_efficiency.mjs'
       - 'tests/test_leo_wompi_lean_mode.mjs'
@@ -42,4 +43,4 @@ jobs:
         with:
           node-version: '22'
       - run: npm ci --ignore-scripts
-      - run: node --test tests/test_leo_idle_ai_cost.mjs tests/test_leo_wompi_lean_mode.mjs tests/test_cpu_efficiency.mjs tests/test_marketplace_strategy.mjs tests/test_legacy_commercial_retirement.mjs tests/test_marketing_review_dashboard.mjs tests/test_marketing_email_login.mjs
+      - run: node --test tests/test_hobby_cpu_route_shield.mjs tests/test_leo_idle_ai_cost.mjs tests/test_leo_wompi_lean_mode.mjs tests/test_cpu_efficiency.mjs tests/test_marketplace_strategy.mjs tests/test_legacy_commercial_retirement.mjs tests/test_marketing_review_dashboard.mjs tests/test_marketing_email_login.mjs
