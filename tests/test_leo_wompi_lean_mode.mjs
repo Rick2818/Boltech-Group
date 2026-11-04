@@ -14,7 +14,8 @@ test('Leo API, its autonomous worker, channels and Rodrigo voice remain availabl
     '/api/leo-objectives',
     '/api/leo-channels',
     '/api/leo-meta-whatsapp',
-    '/api/catalog'
+    '/api/catalog',
+    '/api/index?catalog=1'
   ];
   for (const path of allowed) {
     assert.equal(allowedLeoWompiIndexRoute(new URL(path, 'https://boltech-group.vercel.app')), true, path);
@@ -29,7 +30,7 @@ test('Agent 1, marketing, old crons, MCP, retired outreach and specialist action
     '/api/index?specialist_chat=1', '/api/index?maria_speech=1',
     '/api/index?mcp=1', '/api/index?explee_hot_leads_sync=1',
     '/api/index?upwork_oauth=start',
-    '/api/index?leo_sales=0',
+    '/api/index?leo_sales=0', '/api/index?catalog=0',
     '/api/cron/master-dispatcher', '/api/index?leo_worker=0',
     '/api/dashboard/metrics', '/api/index?telegram=1',
     '/api/partners?action=metrics', '/api/ai', '/api/lead'
@@ -57,4 +58,12 @@ test('noncore Vercel production and preview requests fail closed without executi
   const res = { setHeader() { throw Error('unexpected'); } };
   assert.equal(pauseNoncoreVercelFunction({}, res, 'test'), false);
   assert.equal(pauseNoncoreVercelFunction({}, res, 'development'), false);
+});
+
+test('Vercel redirects public catalog to explicit allowlisted API route',async()=>{
+  const fs=await import('node:fs');
+  const config=JSON.parse(fs.readFileSync(new URL('../vercel.json',import.meta.url),'utf8'));
+  assert.deepEqual(config.rewrites.find(r=>r.source==='/api/catalog'),{
+    source:'/api/catalog',destination:'/api/index?catalog=1'
+  });
 });

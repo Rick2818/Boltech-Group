@@ -54,7 +54,7 @@ export default async function handler(req,res) {
       const {handleLeoObjective} = await import('../lib/leo_objectives_http.js');
       return handleLeoObjective(req,res);
     }
-    if (req.method === 'GET' && (pathname === '/api/catalog' || pathname.endsWith('/catalog'))) {
+    if (req.method === 'GET' && (pathname === '/api/catalog' || pathname.endsWith('/catalog') || url.searchParams.get('catalog') === '1')) {
       // Prices are only indicative; no payment or fulfillment is performed here.
       const {CATALOGO_PRECIOS_USD} = await import('../lib/payment_security.js');
       return res.status(200).json({
