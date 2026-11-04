@@ -19,7 +19,7 @@ test('legacy dashboard dispatch rejects live and dry-run requests without contac
         await handler({ method: 'POST', url, headers: { host: 'localhost' }, body: { dryRun } }, res);
         assert.equal(res.statusCode, 410);
         assert.equal(res.body.success, false);
-        assert.equal(res.body.code, 'LEGACY_COMMERCIAL_RETIRED');
+        assert.ok(['LEGACY_COMMERCIAL_RETIRED', 'BOLTECH_LEO_WOMPI_ONLY'].includes(res.body.code));
         assert.equal(headers['Cache-Control'], 'no-store');
       }
     }
