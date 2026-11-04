@@ -1,3 +1,4 @@
+import { pauseNoncoreVercelFunction } from '../lib/leo_wompi_lean_mode.js';
 // Vercel Serverless Function: Escáner REAL de cabeceras de seguridad y certificado TLS
 // Solo lectura pública: una petición GET / por HTTPS al dominio indicado.
 import { scanDomain, normalizeDomain } from '../lib/header_scanner.js';
@@ -18,6 +19,7 @@ function readBody(req) {
 }
 
 export default async function handler(req, res) {
+  if (pauseNoncoreVercelFunction(req, res)) return;
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
