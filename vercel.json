@@ -4,6 +4,10 @@
   "trailingSlash": false,
   "rewrites": [
     {
+      "source": "/api/catalog",
+      "destination": "/api/index?catalog=1"
+    },
+    {
       "source": "/api/a2a-outbound",
       "destination": "/api/a2a?outbound=1"
     },
@@ -111,7 +115,12 @@
   "headers": [
     {
       "source": "/sales-agent.html",
-      "headers": [{ "key": "Cache-Control", "value": "no-store, max-age=0" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, max-age=0"
+        }
+      ]
     },
     {
       "source": "/assets/css/(.*)",

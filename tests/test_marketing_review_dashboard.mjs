@@ -71,5 +71,6 @@ test('review page uses code login, no technical token, and cockpit targets worki
  assert.doesNotMatch(page,/localStorage|sessionStorage|Pega tu token|SUPABASE_SERVICE_ROLE_KEY/);
  assert.match(page,/textContent/);
  assert.match(routing,/marketing_login=1/);
- assert.match(handler,/handleMarketingLogin/);
+ assert.match(handler,/BOLTECH_LEO_WOMPI_ONLY/);
+ assert.doesNotMatch(handler,/handleMarketingLogin/);
 });

@@ -6,6 +6,7 @@ import crypto from 'node:crypto';
 
 import { resolveProductPricing } from '../lib/payment_catalog.js';
 import { verifyHmacHex } from '../lib/payment_providers.js';
+import minimalRouter from '../api/index.js';
 
 const ROOT = path.resolve(process.cwd());
 const read = rel => fs.readFileSync(path.join(ROOT, rel), 'utf8');
@@ -32,11 +33,25 @@ test('HMAC verification is timing-safe compatible and rejects altered payloads',
   assert.equal(verifyHmacHex(body, 'not-a-signature', secret), false);
 });
 
-test('legacy public payment confirmation routes are explicitly retired', () => {
+test('legacy public payment confirmation routes are blocked without executing providers', async () => {
   const api = read('api/index.js');
-  assert.match(api, /LEGACY_PAYMENT_ROUTE_RETIRED/);
-  assert.match(api, /LEGACY_WEBHOOK_ROUTE_RETIRED/);
+  assert.match(api, /BOLTECH_LEO_WOMPI_ONLY/);
   assert.doesNotMatch(api, /status:\s*['"]SETTLED['"]/);
+  const oldFetch = globalThis.fetch;
+  let outboundCalls = 0;
+  globalThis.fetch = () => { outboundCalls++; throw Error('No external provider call allowed'); };
+  try {
+    for (const url of ['/api/payment/confirm', '/api/verify-lightning', '/api/wompi-webhook']) {
+      const res = { setHeader() {}, status(code) { this.statusCode = code; return this; },
+        json(value) { this.body = value; return this; } };
+      await minimalRouter({ method:'POST', url, headers: { host:'localhost' } }, res);
+      assert.equal(res.statusCode, 410, url);
+      assert.equal(res.body.code, 'BOLTECH_LEO_WOMPI_ONLY');
+    }
+  } finally {
+    globalThis.fetch = oldFetch;
+  }
+  assert.equal(outboundCalls, 0);
 });
 
 test('production payment code contains no synthetic paid/approved fallback', () => {
