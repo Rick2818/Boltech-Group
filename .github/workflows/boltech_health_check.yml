@@ -2,23 +2,7 @@ name: Boltech Production Health Watch
 run-name: "Production health | ${{ github.event.schedule || github.event_name }}"
 
 on:
-  schedule:
-    - cron: '30 12 * * 1-5'
-    - cron: '17 * * * *'
-    - cron: '47 * * * *'
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/boltech_health_check.yml'
-      - 'scripts/ops/production_watch.mjs'
-      - 'tests/test_operational_privacy.mjs'
-      - 'tests/test_production_watch.mjs'
-      - 'api/partners.js'
-      - 'api/payments.js'
-      - 'lib/operational_auth.js'
-      - 'lib/payment_providers.js'
-  pull_request:
-    branches: [main]
+  # Emergency low-CPU mode (2026-11-04): manual only; preserve Leo + Wompi.
   workflow_dispatch:
 
 permissions:
