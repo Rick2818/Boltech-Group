@@ -2,45 +2,64 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {classifyPayments,scheduleEvidence,runWatch,triggerEvidence} from '../scripts/ops/production_watch.mjs';
 
-test('monitor does not query retired campaign or infer current sales success',async()=>{
- const r=await runWatch({now:new Date('2026-10-22T23:00:00Z'),env:{PARTNER_API_TOKEN:'admin'},fetcher:async(url)=>{
-  assert.ok(!url.includes('rsi01-daily'));
-  return new Response('{}',{status:503});
+test('monitor preserves pending sales receipts and uses safe GET only for retired routes',async()=>{
+ const retired=new Set(['sdr-send','sdr-campaign','rsi01-daily','commercial-activation','rsi-execute']);
+ const observed=[];
+ const r=await runWatch({now:new Date('2026-10-22T23:00:00Z'),env:{PARTNER_API_TOKEN:'admin'},fetcher:async(url,options)=>{
+   const parsed=new URL(url); const action=parsed.searchParams.get('action');
+   if(retired.has(action)){
+     assert.equal(options?.method,undefined,'No POST or email send for '+action);
+     assert.equal(options?.headers?.Authorization,'Bearer admin');
+     observed.push(action);
+     return Response.json({code:'LEGACY_COMMERCIAL_TRACTION_RETIRED',sendingEnabled:false},{status:410});
+   }
+   if(parsed.pathname==='/api/leo-channels')return Response.json({success:true,gmail:{configured:true}});
+   return new Response('{}',{status:503});
  }});
- assert.equal(r.checks.find(x=>x.name==='commercial_execution').status,'PENDING');
+ assert.deepEqual(observed,[...retired]);
+ assert.equal(r.checks.find(x=>x.name==='retired_cold_email_routes').status,'PASSED');
  assert.equal(r.checks.find(x=>x.name==='commercial_execution').code,'CANONICAL_COMMERCIAL_RECEIPTS_REQUIRED');
- assert.ok(!r.checks.some(x=>x.name==='rsi01_daily_campaign'));
+ assert.equal(r.checks.find(x=>x.name==='leo_customer_email').status,'PENDING');
+ assert.ok(!r.checks.some(x=>x.name==='gmail_oauth'));
 });
 
-test('existing monitor renews Gmail and validates the corporate sender without sending',async()=>{
- let calls=0;
- const fetcher=async(url,options)=>{
-  if(url.includes('action=sdr-verify')){
-   calls++;assert.equal(options.method,'POST');assert.equal(options.headers.Authorization,'Bearer admin');
-   assert.equal(options.body,undefined);
-   return Response.json({success:true,verified:true,sender:'ricardo.boltechgroup@gmail.com'});
-  }
-  assert.ok(!url.includes('sdr-send')&&!url.includes('messages/send'));
-  return new Response('{}',{status:503});
- };
- const r=await runWatch({fetcher,env:{PARTNER_API_TOKEN:'admin'}});
- assert.equal(calls,1);assert.deepEqual(r.checks.find(x=>x.name==='gmail_oauth'),{name:'gmail_oauth',status:'PASSED',code:'GMAIL_OAUTH_AND_SENDER_VERIFIED',http:200});
+test('cold email verification fails closed when an old sender endpoint is reachable',async()=>{
+ const r=await runWatch({env:{PARTNER_API_TOKEN:'admin'},fetcher:async(url)=>{
+   if(url.includes('action=sdr-send'))return Response.json({success:true,sendingEnabled:true});
+   return new Response('{}',{status:503});
+ }});
+ assert.deepEqual(r.checks.find(x=>x.name==='retired_cold_email_routes'),
+   {name:'retired_cold_email_routes',status:'FAILED',code:'LEGACY_OUTBOUND_ROUTE_NOT_RETIRED',http:200});
 });
-test('Gmail monitor fails on revoked, wrong sender, missing evidence and unsafe error text',async()=>{
- for(const [status,body,code] of [
-  [503,{code:'GMAIL_OAUTH_INVALID_GRANT'},'GMAIL_OAUTH_INVALID_GRANT'],
-  [200,{success:true,verified:true,sender:'other@example.com'},'GMAIL_VERIFICATION_FAILED'],
-  [200,{success:true},'GMAIL_VERIFICATION_FAILED'],
-  [503,{code:'SECRET_CANARY',error_description:'SECRET_CANARY'},'GMAIL_VERIFICATION_FAILED']
- ]){
-  const r=await runWatch({env:{PARTNER_API_TOKEN:'admin'},fetcher:async url=>url.includes('action=sdr-verify')?Response.json(body,{status}):new Response('{}',{status:503})});
-  const gmail=r.checks.find(x=>x.name==='gmail_oauth');assert.equal(gmail.status,'FAILED');assert.equal(gmail.code,code);
-  assert.doesNotMatch(JSON.stringify(r),/SECRET_CANARY|other@example.com|Bearer admin/);
+
+test('legacy route verification rejects incorrect retired responses without leaking details',async()=>{
+ const r=await runWatch({env:{PARTNER_API_TOKEN:'admin'},fetcher:async(url)=>{
+   if(url.includes('action=sdr-send'))return Response.json({code:'SECRET_CANARY',error_description:'SECRET_CANARY',sendingEnabled:false},{status:410});
+   return new Response('{}',{status:503});
+ }});
+ const check=r.checks.find(x=>x.name==='retired_cold_email_routes');
+ assert.equal(check.status,'FAILED');
+ assert.doesNotMatch(JSON.stringify(r),/SECRET_CANARY|Bearer admin/);
+});
+
+test('monitor does not contact protected outbound routes without a credential',async()=>{
+ const r=await runWatch({env:{},fetcher:async url=>{
+   assert.ok(!url.includes('/api/partners?action=sdr-'));
+   assert.ok(!url.includes('/api/leo-channels'));
+   return new Response('{}',{status:503});
+ }});
+ assert.equal(r.checks.find(x=>x.name==='retired_cold_email_routes').code,'ADMIN_MONITOR_CREDENTIAL_MISSING');
+ assert.equal(r.checks.find(x=>x.name==='leo_customer_email').code,'ADMIN_MONITOR_CREDENTIAL_MISSING');
+});
+
+test('Leo email monitoring reports configuration but never claims a completed email delivery',async()=>{
+ for(const configured of [true,false]){
+  const r=await runWatch({env:{PARTNER_API_TOKEN:'admin'},fetcher:async url=>
+   url.includes('/api/leo-channels')?Response.json({success:true,gmail:{configured}}):new Response('{}',{status:503})});
+  const check=r.checks.find(x=>x.name==='leo_customer_email');
+  assert.equal(check.status,configured?'PENDING':'FAILED');
+  assert.equal(check.code,configured?'LEO_GMAIL_DELIVERY_NOT_CERTIFIED':'LEO_GMAIL_CONFIGURATION_MISSING');
  }
-});
-test('Gmail monitor requires operational authorization before contacting the endpoint',async()=>{
- const r=await runWatch({env:{},fetcher:async url=>{assert.ok(!url.includes('action=sdr-verify'));return new Response('{}',{status:503})}});
- assert.equal(r.checks.find(x=>x.name==='gmail_oauth').code,'ADMIN_MONITOR_CREDENTIAL_MISSING');
 });
 
 test('configured payments remain pending verification, missing storage is failure',()=>{

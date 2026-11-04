@@ -78,18 +78,26 @@ export async function runWatch({ fetcher = fetch, env = process.env, now = new D
   checks.push({ name: 'commercial_execution', status: 'PENDING',
     code: 'CANONICAL_COMMERCIAL_RECEIPTS_REQUIRED',
     scope: 'Sales campaign, continuous research and follow-up require current executor receipts.' });
-  await check('gmail_oauth', async () => {
+  // Legacy campaigns have been removed. Verify their routes fail CLOSED using
+  // safe GET requests, never a POST that could send if a future regression occurs.
+  await check('retired_cold_email_routes', async () => {
     if (!token) return { status: 'FAILED', code: 'ADMIN_MONITOR_CREDENTIAL_MISSING' };
-    // A new production worker exchanges the refresh token and reads only the profile.
-    const r = await request(BASE + '/api/partners?action=sdr-verify', { method: 'POST', headers: adminHeaders });
-    if (r.status === 200 && r.data?.success === true && r.data?.verified === true && r.data?.sender === 'ricardo.boltechgroup@gmail.com') {
-      return { status: 'PASSED', code: 'GMAIL_OAUTH_AND_SENDER_VERIFIED', http: r.status };
+    for (const action of ['sdr-send', 'sdr-campaign', 'rsi01-daily', 'commercial-activation', 'rsi-execute']) {
+      const r = await request(BASE + '/api/partners?action=' + action, { headers: adminHeaders });
+      if (r.status !== 410 || r.data?.code !== 'LEGACY_COMMERCIAL_TRACTION_RETIRED' || r.data?.sendingEnabled !== false) {
+        return { status: 'FAILED', code: 'LEGACY_OUTBOUND_ROUTE_NOT_RETIRED', http: r.status };
+      }
     }
-    const known = ['GMAIL_OAUTH_NOT_CONFIGURED', 'GMAIL_OAUTH_REFRESH_TOKEN_IS_CLIENT_ID', 'GMAIL_OAUTH_NETWORK_ERROR',
-      'GMAIL_OAUTH_INVALID_GRANT', 'GMAIL_OAUTH_INVALID_CLIENT', 'GMAIL_OAUTH_UNAUTHORIZED_CLIENT', 'GMAIL_OAUTH_AUTH_FAILED',
-      'GMAIL_OAUTH_INVALID_RESPONSE', 'GMAIL_SENDER_MISMATCH', 'GMAIL_READ_UNAVAILABLE', 'GMAIL_RATE_LIMITED',
-      'GMAIL_API_REJECTED', 'GMAIL_INVALID_RESPONSE'];
-    return { status: 'FAILED', code: known.includes(r.data?.code) ? r.data.code : 'GMAIL_VERIFICATION_FAILED', http: r.status };
+    return { status: 'PASSED', code: 'LEGACY_COLD_EMAIL_DISABLED' };
+  });
+  // The customer-requested quote channel is separate from historical SDR mail.
+  // Configuration is evidence of readiness only, not proof of email delivery.
+  await check('leo_customer_email', async () => {
+    if (!token) return { status: 'FAILED', code: 'ADMIN_MONITOR_CREDENTIAL_MISSING' };
+    const r = await request(BASE + '/api/leo-channels', { headers: adminHeaders });
+    if (r.status !== 200 || r.data?.success !== true) return { status: 'FAILED', code: 'LEO_CHANNEL_STATUS_UNAVAILABLE', http: r.status };
+    if (r.data?.gmail?.configured !== true) return { status: 'FAILED', code: 'LEO_GMAIL_CONFIGURATION_MISSING', http: r.status };
+    return { status: 'PENDING', code: 'LEO_GMAIL_DELIVERY_NOT_CERTIFIED', http: r.status };
   });
   await check('website', async () => {
     const r = await request(BASE);

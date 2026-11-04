@@ -70,3 +70,18 @@ test('historical Apollo CRM and master hunter are retired without disabling cust
  assert.doesNotMatch(cloud,/boltech_cron_sec_2026_prod/);
  assert.match(cloud,/task === 'settlement'/);
 });
+
+test('partner API does not retain executable cold-email campaign handlers',()=>{
+ const src=readFileSync(new URL('api/partners.js',base),'utf8');
+ for(const marker of [
+  'createRsi01PreparationWorker', 'createRsi01DailyWorker', 'createSdrDispatch',
+  'runApprovedCampaign', 'createMarketingCrmExecutor', 'createMultiSourceLeadImport',
+  'createApolloClient', 'createDirectorNotifications'
+ ])assert.doesNotMatch(src,new RegExp(marker),marker);
+ assert.match(src,/LEGACY_COMMERCIAL_TRACTION_RETIRED/);
+ assert.match(src,/UPWORK_FREELANCER_ONLY/);
+ assert.match(src,/action==='client-order'/);
+ const channels=readFileSync(new URL('lib/leo_channels.js',base),'utf8');
+ assert.match(channels,/send_approved_quote/);
+ assert.match(channels,/ownerApproved!==true\|\|b.recipientConsent!==true/);
+});
