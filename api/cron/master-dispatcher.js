@@ -1,3 +1,4 @@
+import { pauseNoncoreVercelFunction } from '../../lib/leo_wompi_lean_mode.js';
 /**
  * =============================================================================
  * MASTER CLOUD DISPATCHER: ENRUTADOR MAESTRO DE TAREAS CRON EN LA NUBE 24/7
@@ -15,6 +16,7 @@ import {
 import { ExecutiveAssistantMCPHub } from '../../lib/mcp_executive_assistant.js';
 
 export default async function handler(req, res) {
+  if (pauseNoncoreVercelFunction(req, res)) return;
   applyStrictBankingHeaders(res);
 
   if (req.method === 'OPTIONS') {
