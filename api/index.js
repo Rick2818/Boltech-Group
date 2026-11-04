@@ -1,70 +1,48 @@
 
 import fs from 'fs';
 import path from 'path';
-import {
-  StrikeLightningGateway,
-  WompiGateway,
-  CATALOGO_PRECIOS_USD,
-  applyBankingSecurityHeaders,
-  checkRateLimit,
-  recordAndVerifyIdempotency,
-  recordAndVerifyDistributedIdempotency
-} from '../lib/payment_security.js';
-import {
-  verifyUnsubscribeToken,
-  addToDncBlacklist
-} from '../lib/compliance_dnc.js';
-import { ExecutiveAssistantMCPHub } from '../lib/mcp_executive_assistant.js';
-import { handleBoltechMcpHttp } from '../mcp/server/http_handler.mjs';
+import { CATALOGO_PRECIOS_USD, checkRateLimit } from '../lib/payment_security.js';
 
-// Instancias reutilizadas entre invocaciones cálidas (evita recrear el cliente en cada request)
-const strike = new StrikeLightningGateway({ lightningAddress: 'rick2818@strike.me' });
-const wompi = new WompiGateway({
-  appId: process.env.WOMPI_APP_ID || '',
-  apiSecret: process.env.WOMPI_API_SECRET || '',
-  webhookSecret: process.env.WOMPI_WEBHOOK_SECRET || ''
-});
-const mcpHub = new ExecutiveAssistantMCPHub({ strikeAddress: 'rick2818@strike.me' });
+const handleBoltechMcpHttp = async (...args) => (await import('../mcp/server/http_handler.mjs')).handleBoltechMcpHttp(...args);
+
+let mcpHub;
+async function getMcpHub() {
+  const { ExecutiveAssistantMCPHub } = await import('../lib/mcp_executive_assistant.js');
+  return mcpHub ??= new ExecutiveAssistantMCPHub({ strikeAddress: 'rick2818@strike.me' });
+}
 
 import {
   applyStrictBankingHeaders,
   resolveCorsOrigin
 } from '../lib/fiduciary_core.js';
-import {
-  sendCustomerDeliveryEmail,
-  sendExecutiveTelegramAlert
-} from '../lib/fiduciary_delivery.js';
-import {
-  dispatchUniversalEmail,
-  inspectResendAccount,
-  maskSecret
-} from '../lib/universal_email_engine.js';
-import telegramHandler from './telegram.js';
-import cronHandler from './cron/master-dispatcher.js';
-import expleeHotLeadsHandler from '../lib/explee_hot_leads_sync.js';
-import marketingCycleHandler from '../lib/marketing_sales_cycle_v2.js';
-import {handleMarketingReview} from '../lib/marketing_review_dashboard.js';
-import {handleMarketingLogin} from '../lib/marketing_passwordless_auth.js';
-import salesCycleHandler from '../lib/agent1_marketplace_cycle.js';
-import evidenceExecutorHandler from '../lib/agent1_evidence_executor.js';
-import inboundSalesHandler from '../lib/agent1_autonomous_inbox.js';
-import aiHandler from './ai.js';
-import {leoHttpHandler} from '../lib/leo_sales_runtime.js';
-import {handleMetaWhatsApp} from '../lib/leo_meta_whatsapp.js';
-import {handleLeoChannels} from '../lib/leo_channels.js';
-import {handleSpecialistChat} from '../lib/specialist_chat.js';
-import {handleMariaSpeech} from '../lib/maria_speech_http.js';
-import {handleLeoObjective,handleLeoAutonomyWorker} from '../lib/leo_objectives_http.js';
-import crmHandler from './crm.js';
-import whatsappHandler from './whatsapp.js';
-import intelHandler from './intel.js';
-import leadHandler from './lead.js';
-import scanHandler from './scan.js';
-import partnersHandler from './partners.js';
-import { createUpworkOAuthHandler } from '../lib/upwork_oauth.js';
-import { getRedisClient } from '../lib/distributed_cache.js';
-import { requireOperationalAuth } from '../lib/operational_auth.js';
-const upworkOAuthHandler = createUpworkOAuthHandler({ getRedis:getRedisClient, requireAuth:requireOperationalAuth });
+
+const telegramHandler = async (...args) => (await import('./telegram.js')).default(...args);
+const cronHandler = async (...args) => (await import('./cron/master-dispatcher.js')).default(...args);
+const marketingCycleHandler = async (...args) => (await import('../lib/marketing_sales_cycle_v2.js')).default(...args);
+const handleMarketingReview = async (...args) => (await import('../lib/marketing_review_dashboard.js')).handleMarketingReview(...args);
+const handleMarketingLogin = async (...args) => (await import('../lib/marketing_passwordless_auth.js')).handleMarketingLogin(...args);
+const salesCycleHandler = async (...args) => (await import('../lib/agent1_marketplace_cycle.js')).default(...args);
+const aiHandler = async (...args) => (await import('./ai.js')).default(...args);
+const leoHttpHandler = async (...args) => (await import('../lib/leo_sales_runtime.js')).leoHttpHandler(...args);
+const handleMetaWhatsApp = async (...args) => (await import('../lib/leo_meta_whatsapp.js')).handleMetaWhatsApp(...args);
+const handleLeoChannels = async (...args) => (await import('../lib/leo_channels.js')).handleLeoChannels(...args);
+const handleSpecialistChat = async (...args) => (await import('../lib/specialist_chat.js')).handleSpecialistChat(...args);
+const handleMariaSpeech = async (...args) => (await import('../lib/maria_speech_http.js')).handleMariaSpeech(...args);
+const handleLeoObjective = async (...args) => (await import('../lib/leo_objectives_http.js')).handleLeoObjective(...args);
+const handleLeoAutonomyWorker = async (...args) => (await import('../lib/leo_objectives_http.js')).handleLeoAutonomyWorker(...args);
+const crmHandler = async (...args) => (await import('./crm.js')).default(...args);
+const whatsappHandler = async (...args) => (await import('./whatsapp.js')).default(...args);
+const intelHandler = async (...args) => (await import('./intel.js')).default(...args);
+const leadHandler = async (...args) => (await import('./lead.js')).default(...args);
+const scanHandler = async (...args) => (await import('./scan.js')).default(...args);
+const partnersHandler = async (...args) => (await import('./partners.js')).default(...args);
+let upworkOAuthHandler;
+async function getUpworkOAuthHandler() {
+  const [{ createUpworkOAuthHandler }, { getRedisClient }, { requireOperationalAuth }] = await Promise.all([
+    import('../lib/upwork_oauth.js'), import('../lib/distributed_cache.js'), import('../lib/operational_auth.js')
+  ]);
+  return upworkOAuthHandler ??= createUpworkOAuthHandler({ getRedis:getRedisClient, requireAuth:requireOperationalAuth });
+}
 
 export default async function handler(req, res) {
   applyStrictBankingHeaders(res);
@@ -96,7 +74,7 @@ export default async function handler(req, res) {
     const upworkOAuthAction = pathname === '/api/upwork/callback' ? 'callback' :
       pathname === '/api/upwork/authorize' ? 'start' : url.searchParams.get('upwork_oauth');
     if (['callback','start'].includes(upworkOAuthAction)) {
-      return await upworkOAuthHandler(req,res,upworkOAuthAction);
+      return await (await getUpworkOAuthHandler())(req,res,upworkOAuthAction);
     }
 
     if (url.searchParams.get('explee_hot_leads_sync') === '1' || pathname === '/api/explee-hot-leads-sync' || pathname.endsWith('/explee-hot-leads-sync')) return res.status(200).json({status:'RETIRED_BY_MARKETPLACE_STRATEGY',sendingEnabled:false});
@@ -163,6 +141,7 @@ export default async function handler(req, res) {
 
     // --- ENDPOINT FIDUCIARIO DE DESUSCRIPCIÓN Y CUMPLIMIENTO DNC (CAN-SPAM / GDPR) ---
     if (pathname === '/api/unsubscribe' || pathname.endsWith('/unsubscribe')) {
+      const { verifyUnsubscribeToken, addToDncBlacklist } = await import('../lib/compliance_dnc.js');
       const token = url.searchParams.get('token') || req.body?.token;
       const verification = verifyUnsubscribeToken(token);
 
@@ -190,6 +169,7 @@ export default async function handler(req, res) {
 
     // --- ENDPOINTS UNIVERSALES DE CORREO: ESTADO Y DESPACHO ---
     if (req.method === 'GET' && (pathname === '/api/email/status' || pathname.endsWith('/email/status'))) {
+      const { inspectResendAccount, maskSecret } = await import('../lib/universal_email_engine.js');
       const resendKey = process.env.RESEND_API_KEY || process.env.RESFND_APT_KEY;
       const resendAudit = await inspectResendAccount(resendKey);
       const isSmtpReady = Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS && process.env.SMTP_PASS.trim().length >= 8);
@@ -225,6 +205,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ success: false, error: 'Faltan campos requeridos: to, subject, body/html' });
       }
 
+      const { dispatchUniversalEmail } = await import('../lib/universal_email_engine.js');
       const dispatchResult = await dispatchUniversalEmail({
         to,
         subject,
@@ -268,6 +249,7 @@ export default async function handler(req, res) {
 
     // --- MCP TOOL HUB: Asistente Personal Ejecutivo ---
     if ((req.method === 'POST' || req.method === 'GET') && (pathname === '/api/mcp/executive' || pathname.endsWith('/mcp/executive'))) {
+      const mcpHub = await getMcpHub();
       const action = (req.method === 'POST' ? req.body?.action : url.searchParams.get('action')) || 'all';
       const destination = (req.method === 'POST' ? req.body?.destination : url.searchParams.get('destination')) || 'Madrid';
       const category = (req.method === 'POST' ? req.body?.category : url.searchParams.get('category')) || 'cinema';
@@ -335,6 +317,7 @@ export default async function handler(req, res) {
 
     // --- ENDPOINTS FIDUCIARIOS DEL DASHBOARD EJECUTIVO (COCKPIT LOCAL & CLOUD) ---
     if (req.method === 'GET' && (pathname === '/api/dashboard/metrics' || pathname.endsWith('/dashboard/metrics'))) {
+      const mcpHub = await getMcpHub();
       let btcData = { price_usd: 76210, satoshis_per_usd: 1312 };
       try {
         btcData = await mcpHub.getBitcoinData();

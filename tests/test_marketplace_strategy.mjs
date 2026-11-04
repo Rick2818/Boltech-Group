@@ -84,7 +84,7 @@ test('no scheduled Gmail cron and sales API routes cannot reach old senders',()=
  const config=JSON.parse(readFileSync(new URL('../vercel.json',import.meta.url)));
  assert.equal(config.crons.length,0);
  const api=readFileSync(new URL('../api/index.js',import.meta.url),'utf8');
- assert.match(api,/import salesCycleHandler from '..\/lib\/agent1_marketplace_cycle.js'/);
+ assert.match(api,/const salesCycleHandler = async .*import\('\.\.\/lib\/agent1_marketplace_cycle\.js'\)/);
  assert.match(api,/RETIRED_BY_MARKETPLACE_STRATEGY/);
 });
 

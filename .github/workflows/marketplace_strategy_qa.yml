@@ -23,6 +23,7 @@ on:
       - 'tests/test_legacy_commercial_retirement.mjs'
       - 'vercel.json'
       - 'tests/test_marketplace_strategy.mjs'
+      - 'tests/test_cpu_efficiency.mjs'
       - '.github/workflows/marketplace_strategy_qa.yml'
   workflow_dispatch:
 permissions:
@@ -37,4 +38,4 @@ jobs:
         with:
           node-version: '22'
       - run: npm ci --ignore-scripts
-      - run: node --test tests/test_marketplace_strategy.mjs tests/test_legacy_commercial_retirement.mjs tests/test_marketing_review_dashboard.mjs tests/test_marketing_email_login.mjs
+      - run: node --test tests/test_cpu_efficiency.mjs tests/test_marketplace_strategy.mjs tests/test_legacy_commercial_retirement.mjs tests/test_marketing_review_dashboard.mjs tests/test_marketing_email_login.mjs
