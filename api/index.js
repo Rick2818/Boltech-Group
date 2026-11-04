@@ -85,7 +85,7 @@ export default async function handler(req, res) {
   try {
     const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
     const pathname = url.pathname;
-    if (url.searchParams.get('maria_speech') === '1') return await handleMariaSpeech(req,res);
+    if (url.searchParams.get('maria_speech') === '1' || url.searchParams.get('rodrigo_speech') === '1') return await handleMariaSpeech(req,res);
     if (url.searchParams.get('specialist_chat') === '1') return await handleSpecialistChat(req,res);
     if (url.searchParams.get('leo_channels') === '1') return await handleLeoChannels(req,res);
     if (url.searchParams.get('leo_meta_whatsapp') === '1') return await handleMetaWhatsApp(req,res);
