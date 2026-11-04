@@ -13,6 +13,8 @@ on:
       - 'tests/test_marketing_email_login.mjs'
       - 'lib/marketing_passwordless_auth.js'
       - 'api/index.js'
+      - 'lib/leo_sales_runtime.js'
+      - 'tests/test_leo_idle_ai_cost.mjs'
       - 'api/partners.js'
       - 'api/crm.js'
       - 'api/cron/master-dispatcher.js'
@@ -40,4 +42,4 @@ jobs:
         with:
           node-version: '22'
       - run: npm ci --ignore-scripts
-      - run: node --test tests/test_leo_wompi_lean_mode.mjs tests/test_cpu_efficiency.mjs tests/test_marketplace_strategy.mjs tests/test_legacy_commercial_retirement.mjs tests/test_marketing_review_dashboard.mjs tests/test_marketing_email_login.mjs
+      - run: node --test tests/test_leo_idle_ai_cost.mjs tests/test_leo_wompi_lean_mode.mjs tests/test_cpu_efficiency.mjs tests/test_marketplace_strategy.mjs tests/test_legacy_commercial_retirement.mjs tests/test_marketing_review_dashboard.mjs tests/test_marketing_email_login.mjs

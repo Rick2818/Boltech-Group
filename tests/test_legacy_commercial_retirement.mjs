@@ -54,14 +54,14 @@ test('historical workflows can no longer be triggered manually or by schedule',(
 test('marketplace and customer-initiated web orders remain in the repository',()=>{
  const api=readFileSync(new URL('api/index.js',base),'utf8');
  const partners=readFileSync(new URL('api/partners.js',base),'utf8');
- assert.match(api,/agent1_marketplace_cycle/);
- assert.match(api,/marketing_sales_cycle_v2/);
+ assert.doesNotMatch(api,/import\([^\n]*agent1_marketplace_cycle/);
+ assert.doesNotMatch(api,/import\([^\n]*marketing_sales_cycle_v2/);
  assert.match(partners,/action==='client-order'/);
  // Real Wompi handling lives in api/payments; the router constructor was an unused legacy stub.
  const payments=readFileSync(new URL('api/payments.js',base),'utf8');
  assert.match(payments,/action === 'wompi-webhook'/);
  assert.match(payments,/verifyWompiWebhookSignature\(rawBody, signature\)/);
- assert.match(api,/LEGACY_PAYMENT_ROUTE_RETIRED/);
+ assert.match(api,/BOLTECH_LEO_WOMPI_ONLY/);
  assert.match(api,/leo_sales/);
 });
 
