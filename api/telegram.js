@@ -1,3 +1,4 @@
+import { pauseNoncoreVercelFunction } from '../lib/leo_wompi_lean_mode.js';
 /**
  * =============================================================================
  * ENDPOINT SERVERLESS: TELEGRAM CLOUD WEBHOOK 24/7 (VERCEL & AWS LAMBDA)
@@ -32,6 +33,7 @@ function isUpdateDuplicate(updateId) {
 }
 
 export default async function handler(req, res) {
+  if (pauseNoncoreVercelFunction(req, res)) return;
   applyStrictBankingHeaders(res);
 
   // Manejo de pre-flight OPTIONS
