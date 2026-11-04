@@ -41,6 +41,12 @@ test('bootstrap reconstructs the latest main result and never calls the producer
   assert.equal(r.tracked,1);assert.ok(f.body().includes('failure'));assert.ok(f.body().includes('SIN_EVIDENCIA'));
   assert.ok(f.calls.filter(c=>c.method==='POST').every(c=>c.path.endsWith('/issues/86/comments')));
 });
+test('scheduled daily checkpoints rebuild workflow evidence without needing external events',async()=>{
+  const f=fixture();const result=await updateHarness({api:f.api,repository:repo,eventName:'schedule',event:{}});
+  assert.equal(result.status,'UPDATED_AND_READBACK_VERIFIED');
+  assert.equal(result.tracked,1);
+  assert.ok(f.body().includes('failure'));
+});
 test('coalesced workflow events reconstruct other workflow results instead of losing them',async()=>{
   const f=fixture(),other=run({id:124,path:'.github/workflows/boltech_validation.yml'});
   await updateHarness({api:f.api,repository:repo,eventName:'workflow_run',event:{workflow_run:other}});
