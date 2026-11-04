@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { allowedLeoWompiIndexRoute } from '../lib/leo_wompi_lean_mode.js';
+import { allowedLeoWompiIndexRoute, pauseNoncoreVercelFunction } from '../lib/leo_wompi_lean_mode.js';
 
 test('Leo API, its autonomous worker, channels and Rodrigo voice remain available', () => {
   const allowed = [
@@ -37,4 +37,24 @@ test('Agent 1, marketing, old crons, MCP, retired outreach and specialist action
   for (const path of blocked) {
     assert.equal(allowedLeoWompiIndexRoute(new URL(path, 'https://boltech-group.vercel.app')), false, path);
   }
+});
+
+test('noncore Vercel production and preview requests fail closed without executing handlers', () => {
+  for (const environment of ['production', 'preview']) {
+    const events = [];
+    const res = {
+      setHeader: (k, v) => events.push(['header', k, v]),
+      status(code) { events.push(['status', code]); return this; },
+      json(data) { events.push(['json', data.code]); return this; }
+    };
+    assert.equal(pauseNoncoreVercelFunction({}, res, environment), true);
+    assert.deepEqual(events, [
+      ['header', 'Cache-Control', 'no-store'],
+      ['status', 410],
+      ['json', 'BOLTECH_LEO_WOMPI_ONLY']
+    ]);
+  }
+  const res = { setHeader() { throw Error('unexpected'); } };
+  assert.equal(pauseNoncoreVercelFunction({}, res, undefined), false);
+  assert.equal(pauseNoncoreVercelFunction({}, res, 'development'), false);
 });
