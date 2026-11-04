@@ -1,27 +1,8 @@
 name: Harness AutoDoc
 on:
-  deployment_status:
-  workflow_run:
-    workflows:
-      - SDR connection verification (no outreach)
-      - Client delivery certification (GitHub + Vercel)
-      - Boltech Governance Validation
-      - ASMAS RSI-01 09:00 SV watchdog
-      - Boltech Production Health Watch
-      - Boltech CRM Recovery and Integrity
-      - RSI Traction Validation
-      - Followup Safety
-      - CRM Regression Tests
-      - Apollo Production Acceptance
-      - Audit production Apollo lead connector
-      - Boltech 05:30 PM Executive Report
-      - Telegram diagnose
-      - Telegram incident recovery 2026-10-06
-      - Wompi authorized verification recovery
-    types: [completed]
-    branches: [main]
-  push:
-    branches: [main]
+  # El Salvador uses UTC-6 year-round; GitHub schedules are evaluated in UTC.
+  schedule:
+    - cron: '0 6,18 * * *' # 00:00 and 12:00 local time, every day
   pull_request:
     paths:
       - '.github/workflows/harness_autodoc.yml'
@@ -69,7 +50,7 @@ jobs:
       - name: Verify exact Vercel revision and Gmail (no outreach)
         id: probe
         continue-on-error: true
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || (github.event_name == 'deployment_status' && github.event.deployment_status.state == 'success')
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         env:
           PARTNER_API_TOKEN: ${{ secrets.PARTNER_API_TOKEN }}
         run: node scripts/ops/probe_harness_vercel.mjs
