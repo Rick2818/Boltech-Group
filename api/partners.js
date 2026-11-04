@@ -1,3 +1,4 @@
+import { pauseNoncoreVercelFunction } from '../lib/leo_wompi_lean_mode.js';
 import crypto from 'node:crypto';
 import { createHandoffStore } from '../lib/rsi_handoff_store.js';
 import { requireOperationalAuth } from '../lib/operational_auth.js';
@@ -149,6 +150,7 @@ async function findReferral(recordId) {
 }
 
 export default async function partnersHandler(req, res) {
+  if (pauseNoncoreVercelFunction(req, res)) return;
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
 
