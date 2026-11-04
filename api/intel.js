@@ -1,3 +1,4 @@
+import { pauseNoncoreVercelFunction } from '../lib/leo_wompi_lean_mode.js';
 /**
  * =============================================================================
  * ENDPOINT SERVERLESS: LEAD & CORPORATE INTELLIGENCE (TAVILY)
@@ -19,6 +20,7 @@ import {
 } from '../lib/lead_intelligence.js';
 
 export default async function handler(req, res) {
+  if (pauseNoncoreVercelFunction(req, res)) return;
   applyStrictBankingHeaders(res);
 
   const requestOrigin = req.headers.origin;

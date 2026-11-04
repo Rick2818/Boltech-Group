@@ -1,3 +1,4 @@
+import { pauseNoncoreVercelFunction } from '../lib/leo_wompi_lean_mode.js';
 /**
  * =============================================================================
  * ENDPOINT SERVERLESS: VERCEL AI SDK (VERCEL & EXPRESS RUNTIME)
@@ -21,6 +22,7 @@ import {
 } from '../lib/ai_sdk.js';
 
 export default async function handler(req, res) {
+  if (pauseNoncoreVercelFunction(req, res)) return;
   applyStrictBankingHeaders(res);
 
   const requestOrigin = req.headers.origin;

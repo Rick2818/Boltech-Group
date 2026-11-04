@@ -1,8 +1,7 @@
 name: Boltech 05:30 PM Executive Report
 
 on:
-  schedule:
-    - cron: '30 23 * * 1-5'
+  # Emergency low-CPU mode (2026-11-04): manual only; preserve Leo + Wompi.
   workflow_dispatch:
 
 jobs:

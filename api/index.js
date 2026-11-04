@@ -1,4 +1,5 @@
 
+import { allowedLeoWompiIndexRoute } from '../lib/leo_wompi_lean_mode.js';
 import fs from 'fs';
 import path from 'path';
 import { CATALOGO_PRECIOS_USD, checkRateLimit } from '../lib/payment_security.js';
@@ -63,6 +64,17 @@ export default async function handler(req, res) {
   try {
     const url = new URL(req.url, `https://${req.headers.host || 'localhost'}`);
     const pathname = url.pathname;
+    // Emergency November 2026 low-CPU operation: only customer-facing Leo and
+    // Wompi catalog endpoints execute. All paused commercial/legacy processes
+    // fail before loading their SDKs or performing database/network work.
+    if (!allowedLeoWompiIndexRoute(url)) {
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(410).json({
+        success: false,
+        code: 'BOLTECH_LEO_WOMPI_ONLY',
+        error: 'This nonessential API is temporarily disabled to reduce compute usage.'
+      });
+    }
     if (url.searchParams.get('maria_speech') === '1' || url.searchParams.get('rodrigo_speech') === '1') return await handleMariaSpeech(req,res);
     if (url.searchParams.get('specialist_chat') === '1') return await handleSpecialistChat(req,res);
     if (url.searchParams.get('leo_channels') === '1') return await handleLeoChannels(req,res);

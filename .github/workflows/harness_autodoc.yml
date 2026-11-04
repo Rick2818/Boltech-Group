@@ -1,17 +1,8 @@
 name: Harness AutoDoc
 on:
-  # El Salvador uses UTC-6 year-round; GitHub schedules are evaluated in UTC.
-  schedule:
-    - cron: '0 6,18 * * *' # 00:00 and 12:00 local time, every day
-  pull_request:
-    paths:
-      - '.github/workflows/harness_autodoc.yml'
-      - 'lib/harness_autodoc.js'
-      - 'scripts/ops/update_harness_autodoc.mjs'
-      - 'tests/test_harness_autodoc.mjs'
-      - 'lib/verify_deployed_revision.js'
-      - 'scripts/ops/probe_harness_vercel.mjs'
+  # Emergency low-CPU mode (2026-11-04): manual only; preserve Leo + Wompi.
   workflow_dispatch:
+
 permissions:
   contents: read
 concurrency:

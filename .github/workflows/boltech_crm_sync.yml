@@ -1,14 +1,7 @@
 name: Boltech CRM Recovery and Integrity
 
 on:
-  schedule:
-    - cron: '0 23 * * 1-5'
-    - cron: '*/5 * * * *'
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/boltech_crm_sync.yml'
-      - 'scripts/ops/crm_recovery_runner.mjs'
+  # Emergency low-CPU mode (2026-11-04): manual only; preserve Leo + Wompi.
   workflow_dispatch:
 
 permissions:

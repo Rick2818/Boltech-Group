@@ -7,7 +7,7 @@ function response(){return {headers:{},setHeader(k,v){this.headers[k]=v;},status
 test('lightweight routes work without loading SDKs or contacting providers',async()=>{
  const original=globalThis.fetch;globalThis.fetch=()=>{throw Error('Unexpected network');};
  try{
-  for(const [method,url,status] of [['OPTIONS','/api/index',200],['GET','/api/catalog',200],['POST','/api/agent1-autonomous-inbox',200],['POST','/api/agent1-evidence-executor',200],['POST','/api/explee-hot-leads-sync',200],['POST','/api/dashboard/trigger-dispatch',410],['GET','/api/payment/confirm',410],['GET','/api/unknown',404]]){
+  for(const [method,url,status] of [['OPTIONS','/api/index',200],['GET','/api/catalog',200],['POST','/api/agent1-autonomous-inbox',410],['POST','/api/agent1-evidence-executor',410],['POST','/api/explee-hot-leads-sync',410],['POST','/api/dashboard/trigger-dispatch',410],['GET','/api/payment/confirm',410],['GET','/api/unknown',410]]){
    const res=response();await handler({method,url,headers:{host:'localhost'}},res);
    assert.equal(res.code,status,url);assert.ok(res.headers['X-Content-Type-Options']);
   }

@@ -1,3 +1,4 @@
+import { pauseNoncoreVercelFunction } from '../lib/leo_wompi_lean_mode.js';
 /**
  * =============================================================================
  * ENDPOINT SERVERLESS: CRM INTEGRATIONS (HUBSPOT & SALESFORCE)
@@ -24,6 +25,7 @@ import { createCrmRecovery } from '../lib/crm_recovery.js';
 export const config = { maxDuration: 60 };
 
 export default async function handler(req, res) {
+  if (pauseNoncoreVercelFunction(req, res)) return;
   applyStrictBankingHeaders(res);
 
   const requestOrigin = req.headers.origin;
