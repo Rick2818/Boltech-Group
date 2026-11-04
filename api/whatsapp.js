@@ -1,3 +1,4 @@
+import { pauseNoncoreVercelFunction } from '../lib/leo_wompi_lean_mode.js';
 /**
  * =============================================================================
  * ENDPOINT SERVERLESS: WHATSAPP BUSINESS & SOPORTE CON GEMINI 2.5 FLASH
@@ -23,6 +24,7 @@ import {
 } from '../lib/whatsapp_engine.js';
 
 export default async function handler(req, res) {
+  if (pauseNoncoreVercelFunction(req, res)) return;
   applyStrictBankingHeaders(res);
 
   const requestOrigin = req.headers.origin;
