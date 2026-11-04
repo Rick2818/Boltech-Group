@@ -212,7 +212,8 @@
       "headers": {
         "cache-control": "no-store",
         "x-boltech-paused": "1"
-      }
+      },
+      "dest": "/boltech-api-retired.json"
     },
     {
       "src": "^/api/cron/master-dispatcher/?$",
@@ -220,7 +221,8 @@
       "headers": {
         "cache-control": "no-store",
         "x-boltech-paused": "1"
-      }
+      },
+      "dest": "/boltech-api-retired.json"
     },
     {
       "src": "^/api/(?:a2a-outbound|agent1-evidence-executor|agent1-autonomous-inbox|agent1-continuous-cycle|marketing-sales-cycle|explee-hot-leads-sync|marketing-login|marketing-review|upwork/authorize|upwork/callback|mcp)/?$",
@@ -228,7 +230,8 @@
       "headers": {
         "cache-control": "no-store",
         "x-boltech-paused": "1"
-      }
+      },
+      "dest": "/boltech-api-retired.json"
     },
     {
       "src": "^/api(?:/index)?$",
@@ -242,7 +245,8 @@
       "headers": {
         "cache-control": "no-store",
         "x-boltech-paused": "1"
-      }
+      },
+      "dest": "/boltech-api-retired.json"
     },
     {
       "src": "^/api(?:/index)?$",
@@ -256,7 +260,8 @@
       "headers": {
         "cache-control": "no-store",
         "x-boltech-paused": "1"
-      }
+      },
+      "dest": "/boltech-api-retired.json"
     },
     {
       "src": "^/api(?:/index)?$",
@@ -270,7 +275,8 @@
       "headers": {
         "cache-control": "no-store",
         "x-boltech-paused": "1"
-      }
+      },
+      "dest": "/boltech-api-retired.json"
     },
     {
       "src": "^/api(?:/index)?$",
@@ -284,7 +290,8 @@
       "headers": {
         "cache-control": "no-store",
         "x-boltech-paused": "1"
-      }
+      },
+      "dest": "/boltech-api-retired.json"
     },
     {
       "src": "^/api(?:/index)?$",
@@ -298,7 +305,8 @@
       "headers": {
         "cache-control": "no-store",
         "x-boltech-paused": "1"
-      }
+      },
+      "dest": "/boltech-api-retired.json"
     },
     {
       "src": "^/api(?:/index)?$",
@@ -312,7 +320,8 @@
       "headers": {
         "cache-control": "no-store",
         "x-boltech-paused": "1"
-      }
+      },
+      "dest": "/boltech-api-retired.json"
     },
     {
       "src": "^/api(?:/index)?$",
@@ -326,7 +335,8 @@
       "headers": {
         "cache-control": "no-store",
         "x-boltech-paused": "1"
-      }
+      },
+      "dest": "/boltech-api-retired.json"
     },
     {
       "src": "^/api(?:/index)?$",
@@ -340,7 +350,8 @@
       "headers": {
         "cache-control": "no-store",
         "x-boltech-paused": "1"
-      }
+      },
+      "dest": "/boltech-api-retired.json"
     },
     {
       "src": "^/api(?:/index)?$",
@@ -354,7 +365,8 @@
       "headers": {
         "cache-control": "no-store",
         "x-boltech-paused": "1"
-      }
+      },
+      "dest": "/boltech-api-retired.json"
     },
     {
       "src": "^/api(?:/index)?$",
@@ -368,7 +380,8 @@
       "headers": {
         "cache-control": "no-store",
         "x-boltech-paused": "1"
-      }
+      },
+      "dest": "/boltech-api-retired.json"
     },
     {
       "src": "^/api(?:/index)?$",
@@ -382,7 +395,8 @@
       "headers": {
         "cache-control": "no-store",
         "x-boltech-paused": "1"
-      }
+      },
+      "dest": "/boltech-api-retired.json"
     },
     {
       "src": "^/api(?:/index)?$",
@@ -396,7 +410,8 @@
       "headers": {
         "cache-control": "no-store",
         "x-boltech-paused": "1"
-      }
+      },
+      "dest": "/boltech-api-retired.json"
     }
   ]
 }

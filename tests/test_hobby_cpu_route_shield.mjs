@@ -36,7 +36,7 @@ test('all removed commercial and specialized routes are blocked by Vercel routin
   for(const [path,query] of samples){
     const rules=matched(path,query);
     assert.ok(rules.length>=1, 'retired route escaped edge: '+path+' '+JSON.stringify(query));
-    assert.ok(rules.every(rule=>rule.status===410 && !rule.dest && rule.headers?.['cache-control']==='no-store'),
+    assert.ok(rules.every(rule=>rule.status===410 && rule.dest==='/boltech-api-retired.json' && rule.headers?.['cache-control']==='no-store'),
       'retired route not direct edge HTTP 410: '+path);
   }
 });
@@ -56,4 +56,10 @@ test('old query flags are guarded by edge rules in both normalized and unnormali
       assert.ok(matched(path,{[key]:'1'}).length>=1,'edge did not shield '+key+' '+path);
     }
   }
+});
+
+test('static retirement payload exists and proves a non-function destination',()=>{
+ const payload=JSON.parse(readFileSync(new URL('../boltech-api-retired.json',import.meta.url),'utf8'));
+ assert.equal(payload.code,'BOLTECH_LEO_WOMPI_ONLY');
+ assert.equal(payload.source,'VERCEL_STATIC_ROUTE');
 });
