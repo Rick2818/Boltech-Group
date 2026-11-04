@@ -1,3 +1,4 @@
+import { pauseNoncoreVercelFunction } from '../lib/leo_wompi_lean_mode.js';
 import crypto from 'node:crypto';
 import outboundHandler from '../lib/a2a_outbound_handler.js';
 import { taskIdentity, claimTask, completeTask, readTask } from '../lib/a2a_task_store.js';
@@ -268,6 +269,7 @@ function legacyTask(task) {
 }
 
 export default async function handler(req, res) {
+  if (pauseNoncoreVercelFunction(req, res)) return;
   // Private outbound route lives in the existing A2A function to respect Vercel Hobby limits.
   if (req.query?.outbound === '1') return outboundHandler(req, res);
   try {
