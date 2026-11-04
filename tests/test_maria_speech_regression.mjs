@@ -17,6 +17,11 @@ test('Leo uses Salvadoran Rodrigo voice without browser fallback',()=>{
  assert.doesNotMatch(html,/maria_speech=1/);
  assert.match(html,/Preparando voz de Rodrigo/);
  assert.match(html,/Rodrigo Azure no disponible/);
+ assert.match(html,/id="voice-test"/);
+ assert.match(html,/X-Boltech-Voice-Id/);
+ assert.match(html,/VOICE_MISMATCH/);
+ assert.match(html,/Desde sus seis años mostró talento para la música/);
+ assert.doesNotMatch(html,/es_MX-claude-high|diffusionstudio\/vits-web/);
  assert.doesNotMatch(html,/loadLeoVoice\(\);|loadMexicanVoice\(\);/);
 });
 
@@ -37,6 +42,8 @@ test('Azure Spanish voices stay allowlisted, server-side and fail-closed',()=>{
  const src=readFileSync('lib/maria_speech_http.js','utf8');
  assert.match(src,/AZURE_SPEECH_F0_CONFIRMED!=='true'/);
  assert.match(src,/es-SV-RodrigoNeural/);
+ assert.match(src,/X-Boltech-Voice-Id/);
+ assert.match(src,/Content-Language/);
  assert.match(src,/es-CR-MariaNeural/);
  assert.match(src,/isRodrigo\?'es-SV':'es-CR'/);
  assert.match(src,/isRodrigo\?'es-SV-RodrigoNeural':'es-CR-MariaNeural'/);
