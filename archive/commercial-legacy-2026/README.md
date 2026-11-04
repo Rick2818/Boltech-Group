@@ -19,3 +19,9 @@ La preparación y revisión de borradores es interna. Envíos NO habilitados has
 
 ## Preservación adicional (2026-10-21)
 Se copiaron al archivo los ocho módulos históricos `lib/rsi01_*` de campaña, preparación, búsqueda y seguimiento y los ejecutores `scripts/rsi01-gmail-dispatch.cjs` y `scripts/rsi01-outreach-executor.cjs`. Estas copias son históricas y no son componentes autorizados del sistema actual. Los archivos originales aún existen por compatibilidad de pruebas y referencias; su eliminación definitiva requiere un PR separado con inventario de dependencias. Las únicas programaciones comerciales cron habilitadas en Supabase son boltech-research, boltech-inbox, boltech-explee, boltech-receipts y boltech-marketing.
+
+## Eliminación de manejadores API (2026-11-03)
+
+El API de socios ya no importa ni define ejecutores de campañas SDR/RSI-01, integraciones Apollo heredadas ni los bucles de cold email. Las rutas históricas conservan una respuesta autenticada HTTP 410 sin ejecutar código de envío. El monitor solo comprueba su bloqueo con solicitudes GET seguras; el antiguo test `sdr-verify` dejó de usarse como falso indicador de la disponibilidad de Gmail.
+
+Los módulos históricos restantes del directorio `lib/` continúan como compatibilidad de pruebas y para facilitar auditoría de referencias. No están autorizados como servicio comercial vigente. El transporte Gmail que utiliza Leo para cotizaciones solicitadas por clientes permanece separado y está sujeto a aprobación y consentimiento. No se reactivan campañas, cron comerciales ni envío automático.
