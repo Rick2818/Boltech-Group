@@ -55,6 +55,6 @@ test('noncore Vercel production and preview requests fail closed without executi
     ]);
   }
   const res = { setHeader() { throw Error('unexpected'); } };
-  assert.equal(pauseNoncoreVercelFunction({}, res, undefined), false);
+  assert.equal(pauseNoncoreVercelFunction({}, res, 'test'), false);
   assert.equal(pauseNoncoreVercelFunction({}, res, 'development'), false);
 });
