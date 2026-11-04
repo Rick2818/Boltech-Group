@@ -57,7 +57,11 @@ test('marketplace and customer-initiated web orders remain in the repository',()
  assert.match(api,/agent1_marketplace_cycle/);
  assert.match(api,/marketing_sales_cycle_v2/);
  assert.match(partners,/action==='client-order'/);
- assert.match(api,/new WompiGateway/);
+ // Real Wompi handling lives in api/payments; the router constructor was an unused legacy stub.
+ const payments=readFileSync(new URL('api/payments.js',base),'utf8');
+ assert.match(payments,/action === 'wompi-webhook'/);
+ assert.match(payments,/verifyWompiWebhookSignature\(rawBody, signature\)/);
+ assert.match(api,/LEGACY_PAYMENT_ROUTE_RETIRED/);
  assert.match(api,/leo_sales/);
 });
 
