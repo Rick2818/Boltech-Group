@@ -1,4 +1,3 @@
-import { pauseNoncoreVercelFunction } from '../lib/leo_wompi_lean_mode.js';
 // Vercel Serverless Function: Lead Capture, Instant Forensic Report & Fiduciary Dispatch
 import { commercialOfferContext } from '../lib/commercial_offer.js';
 import { confirmIntake } from '../lib/intake_confirmation.js';
@@ -21,7 +20,6 @@ function getClientIp(req) {
 }
 
 export default async function handler(req, res) {
-  if (pauseNoncoreVercelFunction(req, res)) return;
   // Allow only POST
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
