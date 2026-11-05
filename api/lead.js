@@ -53,6 +53,23 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Dirección de correo electrónico no válida' });
     }
 
+
+    // Consentimiento explícito obligatorio (plan comercial Boltech Group).
+    if (req.body?.consent !== true) {
+      return res.status(400).json({ ok: false, error: 'CONSENT_REQUIRED', message: 'Se requiere consentimiento explícito.' });
+    }
+    const consentRecord = {
+      granted: true,
+      grantedAt: String(req.body?.consentAt || new Date().toISOString()).slice(0, 40),
+      text: String(req.body?.consentText || '').slice(0, 300),
+      source: String(req.body?.source || 'web_solicitud').slice(0, 60),
+      assetId: String(req.body?.assetId || 'operaciones-general').slice(0, 60),
+      pageUrl: String(req.body?.pageUrl || '').slice(0, 500),
+      language: req.body?.language === 'en' ? 'en' : 'es',
+      contactName: String(req.body?.contactName || '').trim().substring(0, 120),
+      jobTitle: String(req.body?.jobTitle || '').trim().substring(0, 120)
+    };
+
     const cleanEmail = String(email).trim().toLowerCase();
     const cleanDomain = String(domain || 'tu empresa').trim().replace(/[^a-zA-Z0-9.-]/g, '') || 'tu empresa';
     const cleanMessage = String(message || '').trim().substring(0, 1000);
@@ -60,7 +77,7 @@ export default async function handler(req, res) {
     const cleanCompany = String(req.body?.companyName || cleanDomain || 'tu empresa').trim().substring(0, 120);
     const leadTime = timestamp || new Date().toISOString();
 
-    console.log(`[FIDUCIARY INTAKE] Email: ${cleanEmail} | Company: ${cleanCompany} | Pain: ${cleanPainPoint ? 'YES' : 'NO'}`);
+    console.log(`[FIDUCIARY INTAKE] Email: ${cleanEmail} | Company: ${cleanCompany} | Pain: ${cleanPainPoint ? 'YES' : 'NO'} | Asset: ${consentRecord.assetId} | Consent: ${consentRecord.grantedAt}`);
 
     const isCustomAgentRequest = Boolean(cleanPainPoint && cleanPainPoint.length > 3);
     const isCustomSupportInquiry = Boolean(!isCustomAgentRequest && cleanMessage && cleanMessage.length > 5);
@@ -228,6 +245,7 @@ BolTech Group`;
       crmSync = await syncInboundLeadToHubSpotAndExplee({
         email: cleanEmail, companyName: cleanCompany,
         painPoint: cleanPainPoint, message: cleanMessage, domain: cleanDomain,
+        consent: consentRecord,
         service: isCustomAgentRequest ? 'Registro, asignación y seguimiento de solicitudes' : isCustomSupportInquiry ? 'Support' : 'Unblock AI Shield'
       });
       if (!crmSync?.hubspot?.jobId) throw new Error('CRM_RECORD_UNCONFIRMED');

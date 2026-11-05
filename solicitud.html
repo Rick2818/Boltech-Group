@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Solicitar evaluación por escrito | Boltech Group</title>
+<meta name="description" content="Cuéntanos qué tarea quieres automatizar. Recibes una evaluación por escrito, sin demo obligatoria. No pedimos presupuesto, teléfono ni plazo.">
+<link rel="canonical" href="https://boltech-group.vercel.app/solicitud">
+<meta name="robots" content="index,follow">
+<link rel="icon" type="image/png" href="/assets/brand/app-icon-192.png">
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:#090b0d;color:#f5f4f0}
+a{color:#e1bf70;text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{width:min(760px,calc(100% - 40px));margin:auto}
+header{border-bottom:1px solid #2b2926;padding:18px 0}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.wordmark{color:#e2bc67;font-weight:800;letter-spacing:.18em;font-size:13px}
+.lang{border:1px solid #655338;border-radius:20px;background:transparent;color:#ddd2ba;padding:8px 12px;font:inherit;font-size:13px;cursor:pointer}
+main{padding:52px 0 72px}
+.kicker{color:#d6b36a;font-size:12px;font-weight:750;letter-spacing:.22em;text-transform:uppercase}
+h1{font-size:clamp(30px,4.4vw,44px);line-height:1.12;letter-spacing:-.04em;margin:14px 0 16px;font-weight:680}
+p.lead{color:#b3b2ae;font-size:17px;line-height:1.65;margin:0 0 8px}
+form{margin-top:34px;border:1px solid #302f2d;border-radius:16px;background:#141619;padding:26px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field.full{grid-column:1/-1}
+label{font-size:13px;color:#ddd2ba;font-weight:600}
+label .req{color:#e1bf70}
+input,textarea{width:100%;padding:13px 14px;border-radius:10px;border:1px solid #4a4538;background:#101215;color:#f5f4f0;font:inherit;font-size:15px}
+input:focus,textarea:focus{outline:2px solid #c9a45c;outline-offset:1px}
+textarea{min-height:120px;resize:vertical}
+.consent{display:flex;gap:11px;align-items:flex-start;margin-top:20px;padding-top:20px;border-top:1px solid #2b2a27}
+.consent input{width:18px;height:18px;margin-top:2px;flex-shrink:0}
+.consent label{font-weight:400;font-size:13px;line-height:1.55;color:#b9b7b1}
+.fine{color:#92918d;font-size:12px;line-height:1.6;margin-top:16px}
+button.submit{margin-top:22px;width:100%;min-height:52px;border:0;border-radius:10px;background:linear-gradient(120deg,#efcd7a,#c0933b);color:#14100b;font:inherit;font-weight:750;font-size:15px;cursor:pointer}
+button.submit:disabled{opacity:.6;cursor:progress}
+.status{margin-top:16px;font-size:14px;line-height:1.6;min-height:1.4em}
+.status.ok{color:#bfe3bd}
+.status.err{color:#f0b3a8}
+.back{display:inline-block;margin-bottom:24px;font-size:13px;color:#c5b28d}
+footer{border-top:1px solid #2b2a27;padding:26px 0 40px;color:#959591;font-size:12px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
+@media(max-width:620px){.grid{grid-template-columns:1fr}form{padding:20px}main{padding:36px 0 56px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a href="/" class="wordmark">BOLTECH GROUP</a>
+  <button class="lang" id="lang" type="button" aria-label="Change language">EN</button>
+</div></header>
+<main><div class="wrap">
+  <a class="back" href="/" data-es="← Volver al inicio" data-en="← Back to home">← Volver al inicio</a>
+  <div class="kicker" data-es="Evaluación por escrito" data-en="Written assessment">Evaluación por escrito</div>
+  <h1 data-es="Cuéntanos qué tarea quieres automatizar" data-en="Tell us which task you want to automate">Cuéntanos qué tarea quieres automatizar</h1>
+  <p class="lead" data-es="Con esto evaluamos el alcance y te respondemos por escrito. No hay demo obligatoria y no pedimos presupuesto en el primer contacto." data-en="We use this to assess scope and reply in writing. No mandatory demo and no budget request on first contact.">Con esto evaluamos el alcance y te respondemos por escrito. No hay demo obligatoria y no pedimos presupuesto en el primer contacto.</p>
+
+  <form id="f" novalidate>
+    <div class="grid">
+      <div class="field">
+        <label for="firstname" data-es="Nombre" data-en="First name">Nombre <span class="req">*</span></label>
+        <input id="firstname" name="firstname" autocomplete="given-name" required>
+      </div>
+      <div class="field">
+        <label for="lastname" data-es="Apellido" data-en="Last name">Apellido <span class="req">*</span></label>
+        <input id="lastname" name="lastname" autocomplete="family-name" required>
+      </div>
+      <div class="field">
+        <label for="email" data-es="Correo de trabajo" data-en="Work email">Correo de trabajo <span class="req">*</span></label>
+        <input id="email" name="email" type="email" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label for="company" data-es="Empresa" data-en="Company">Empresa <span class="req">*</span></label>
+        <input id="company" name="company" autocomplete="organization" required>
+      </div>
+      <div class="field full">
+        <label for="jobtitle" data-es="Cargo" data-en="Job title">Cargo <span class="req">*</span></label>
+        <input id="jobtitle" name="jobtitle" autocomplete="organization-title" required>
+      </div>
+      <div class="field full">
+        <label for="outcome" data-es="¿Qué tarea quieres automatizar?" data-en="Which task do you want to automate?">¿Qué tarea quieres automatizar? <span class="req">*</span></label>
+        <textarea id="outcome" name="outcome" required data-es-placeholder="Ejemplo: registrar los pedidos que llegan por correo en una tabla." data-en-placeholder="Example: log orders that arrive by email into a table." placeholder="Ejemplo: registrar los pedidos que llegan por correo en una tabla."></textarea>
+      </div>
+    </div>
+
+    <div class="consent">
+      <input id="consent" name="consent" type="checkbox" required>
+      <label for="consent">
+        <span data-es="Autorizo que me contacten por este medio. Entiendo que puedo retirar el consentimiento cuando quiera." data-en="I agree to be contacted through this channel. I understand I can withdraw consent at any time.">Autorizo que me contacten por este medio. Entiendo que puedo retirar el consentimiento cuando quiera.</span>
+        <br>
+        <a href="/privacidad" data-es="Aviso de privacidad" data-en="Privacy notice">Aviso de privacidad</a> ·
+        <a href="/retiro" data-es="Cómo retirar el consentimiento" data-en="How to withdraw consent">Cómo retirar el consentimiento</a>
+      </label>
+    </div>
+
+    <button class="submit" id="send" type="submit" data-es="Solicitar evaluación por escrito" data-en="Request a written assessment">Solicitar evaluación por escrito</button>
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+    <p class="fine" data-es="No pedimos presupuesto, teléfono, tamaño de la empresa ni plazo. Si hacen falta para evaluar el alcance, los pedimos después y explicamos para qué." data-en="We do not ask for budget, phone, company size or timeline. If needed for scope, we ask later and explain why.">No pedimos presupuesto, teléfono, tamaño de la empresa ni plazo. Si hacen falta para evaluar el alcance, los pedimos después y explicamos para qué.</p>
+    <p class="fine"><a href="/conservacion" data-es="Cuánto tiempo guardamos tus datos" data-en="How long we keep your data">Cuánto tiempo guardamos tus datos</a></p>
+  </form>
+</div></main>
+<footer><div class="wrap">
+  <span>© 2026 Boltech Group · El Salvador</span>
+  <span><a href="/privacidad">Privacidad</a> · <a href="/retiro">Retiro</a> · <a href="/conservacion">Conservación</a> · <a href="mailto:ricardo.boltechgroup@gmail.com">ricardo.boltechgroup@gmail.com</a></span>
+</div></footer>
+
+<script>
+const params = new URLSearchParams(location.search);
+const assetId = params.get('tarea') || 'general';
+const selected = { pedidos: 'operaciones-pedidos', facturas: 'operaciones-facturas', stock: 'operaciones-stock' }[assetId] || 'operaciones-general';
+let lang = 'es'; // El sitio es español primero; el botón cambia a inglés.
+const btn = document.getElementById('lang');
+function setLang() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-es]').forEach(el => { el.textContent = el.dataset[lang]; });
+  document.querySelectorAll('[data-es-placeholder]').forEach(el => { el.placeholder = el.dataset[lang + 'Placeholder']; });
+  btn.textContent = lang === 'es' ? 'EN' : 'ES';
+}
+btn.addEventListener('click', () => { lang = lang === 'es' ? 'en' : 'es'; setLang(); });
+setLang();
+
+const form = document.getElementById('f');
+const status = document.getElementById('status');
+const send = document.getElementById('send');
+const msg = {
+  es: {
+    consent: 'Marca la casilla de consentimiento para enviar la solicitud.',
+    invalid: 'Revisa los campos marcados: todos son obligatorios.',
+    sending: 'Enviando…',
+    ok: 'Solicitud registrada. Te responderemos por correo con la evaluación por escrito.',
+    fail: 'No pudimos registrar la solicitud. Escríbenos directamente y la registramos a mano.'
+  },
+  en: {
+    consent: 'Please tick the consent box to submit the request.',
+    invalid: 'Check the marked fields: all are required.',
+    sending: 'Sending…',
+    ok: 'Request recorded. We will reply by email with the written assessment.',
+    fail: 'We could not record the request. Email us directly and we will log it manually.'
+  }
+};
+
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+  const t = msg[lang];
+  status.className = 'status';
+  if (!form.querySelector('#consent').checked) { status.textContent = t.consent; status.classList.add('err'); return; }
+  if (!form.checkValidity()) { form.reportValidity(); status.textContent = t.invalid; status.classList.add('err'); return; }
+  const data = new FormData(form);
+  const payload = {
+    email: String(data.get('email')).trim(),
+    companyName: String(data.get('company')).trim(),
+    painPoint: String(data.get('outcome')).trim(),
+    contactName: `${String(data.get('firstname')).trim()} ${String(data.get('lastname')).trim()}`.trim(),
+    jobTitle: String(data.get('jobtitle')).trim(),
+    consent: true,
+    consentText: 'Autorizo que me contacten por este medio.',
+    consentAt: new Date().toISOString(),
+    source: 'web_solicitud',
+    assetId: selected,
+    language: lang,
+    pageUrl: location.href
+  };
+  send.disabled = true;
+  status.textContent = t.sending;
+  try {
+    const res = await fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    status.textContent = t.ok;
+    status.classList.add('ok');
+    form.reset();
+  } catch (error) {
+    status.innerHTML = t.fail + ' <a href="mailto:ricardo.boltechgroup@gmail.com?subject=Solicitud%20de%20evaluaci%C3%B3n">ricardo.boltechgroup@gmail.com</a>';
+    status.classList.add('err');
+  } finally {
+    send.disabled = false;
+  }
+});
+</script>
+
+</body>
+</html>
