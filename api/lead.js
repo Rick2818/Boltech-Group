@@ -83,6 +83,7 @@ export default async function handler(req, res) {
       let requestId = 'WEB-' + Date.now();
       const supabaseUrl = process.env.SUPABASE_URL;
       const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      let supabaseOk = false;
       if (supabaseUrl && supabaseKey) {
         try {
           const { createClient } = await import('@supabase/supabase-js');
@@ -102,7 +103,7 @@ export default async function handler(req, res) {
             consent_at: consentRecord.grantedAt
           }).select('id').single();
           if (error) throw error;
-          if (data?.id) requestId = String(data.id);
+          if (data?.id) { requestId = String(data.id); supabaseOk = true; }
         } catch (e) {
           console.error('[WEB LEAD] supabase insert failed:', e?.message || e);
         }
@@ -130,7 +131,7 @@ export default async function handler(req, res) {
       } catch (e) {
         console.error('[WEB LEAD] email dispatch failed:', e?.message || e);
       }
-      return res.status(200).json({ success: true, registration: { status: 'RECORDED', requestId, contactSyncStatus: (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) ? 'SUPABASE_RECORDED' : 'EMAIL_NOTIFIED' } });
+      return res.status(200).json({ success: true, registration: { status: 'RECORDED', requestId, contactSyncStatus: supabaseOk ? 'SUPABASE_RECORDED' : 'EMAIL_NOTIFIED' } });
     }
 
     const isCustomAgentRequest = Boolean(cleanPainPoint && cleanPainPoint.length > 3);
