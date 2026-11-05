@@ -78,8 +78,35 @@ export default async function handler(req, res) {
     console.log(`[FIDUCIARY INTAKE] Email: ${cleanEmail} | Company: ${cleanCompany} | Pain: ${cleanPainPoint ? 'YES' : 'NO'} | Asset: ${consentRecord.assetId} | Consent: ${consentRecord.grantedAt}`);
 
 
-    // Flujo del formulario web (plan comercial): notificacion al propietario, sin CRM externo.
+    // Flujo del formulario web (plan comercial): captura en Supabase + notificacion al propietario.
     if (req.body?.source === 'web_solicitud') {
+      let requestId = 'WEB-' + Date.now();
+      const supabaseUrl = process.env.SUPABASE_URL;
+      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      if (supabaseUrl && supabaseKey) {
+        try {
+          const { createClient } = await import('@supabase/supabase-js');
+          const sb = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false, autoRefreshToken: false } });
+          const { data, error } = await sb.from('leads').insert({
+            email: cleanEmail,
+            company: cleanCompany,
+            job_title: consentRecord.jobTitle,
+            contact_name: consentRecord.contactName,
+            pain_point: cleanPainPoint,
+            asset_id: consentRecord.assetId,
+            language: consentRecord.language,
+            page_url: consentRecord.pageUrl,
+            source: consentRecord.source,
+            consent_granted: consentRecord.granted,
+            consent_text: consentRecord.text,
+            consent_at: consentRecord.grantedAt
+          }).select('id').single();
+          if (error) throw error;
+          if (data?.id) requestId = String(data.id);
+        } catch (e) {
+          console.error('[WEB LEAD] supabase insert failed:', e?.message || e);
+        }
+      }
       const subject = 'Nueva solicitud de evaluacion - ' + cleanCompany + ' (' + consentRecord.assetId + ')';
       const text = [
         'Nueva solicitud de evaluacion por escrito',
@@ -93,6 +120,7 @@ export default async function handler(req, res) {
         'Idioma: ' + consentRecord.language,
         'Pagina: ' + consentRecord.pageUrl,
         'Consentimiento: ' + consentRecord.grantedAt,
+        'ID: ' + requestId,
         '',
         'Responder a: ' + cleanEmail
       ].join('\n');
@@ -102,8 +130,7 @@ export default async function handler(req, res) {
       } catch (e) {
         console.error('[WEB LEAD] email dispatch failed:', e?.message || e);
       }
-      const requestId = 'WEB-' + Date.now();
-      return res.status(200).json({ success: true, registration: { status: 'RECORDED', requestId, contactSyncStatus: 'EMAIL_NOTIFIED' } });
+      return res.status(200).json({ success: true, registration: { status: 'RECORDED', requestId, contactSyncStatus: (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) ? 'SUPABASE_RECORDED' : 'EMAIL_NOTIFIED' } });
     }
 
     const isCustomAgentRequest = Boolean(cleanPainPoint && cleanPainPoint.length > 3);
