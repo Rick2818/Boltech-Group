@@ -241,7 +241,7 @@ form.addEventListener('submit', async event => {
     const typing = addMsg('Escribiendo...','bot typing');
     send.disabled=true;
     try {
-      const r = await fetch('/api/advisor',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,history:history.slice(-8),language:document.documentElement.lang||'es'})});
+      const r = await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,history:history.slice(-8),language:document.documentElement.lang||'es',source:'advisor_chat'})});
       const data = await r.json();
       typing.remove();
       const reply = data.reply || 'Gracias. Para atención personalizada: ricardo.boltechgroup@gmail.com';

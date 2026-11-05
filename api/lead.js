@@ -1,5 +1,6 @@
 // Vercel Serverless Function: Lead Capture, Instant Forensic Report & Fiduciary Dispatch
 import { commercialOfferContext } from '../lib/commercial_offer.js';
+import { generateAIResponse } from '../lib/ai_sdk.js';
 import { confirmIntake } from '../lib/intake_confirmation.js';
 import { dispatchUniversalEmail } from '../lib/universal_email_engine.js';
 import { scanDomain, normalizeDomain } from '../lib/header_scanner.js';
@@ -31,6 +32,24 @@ export default async function handler(req, res) {
   if (!rl.allowed) {
     res.setHeader('Retry-After', String(rl.remainingSeconds));
     return res.status(429).json({ error: `Demasiadas solicitudes. Intenta de nuevo en ${Math.ceil(rl.remainingSeconds / 60)} min.` });
+  }
+
+  // Advisor chat (reutiliza este endpoint para no exceder el limite de funciones de Vercel).
+  if (req.body?.source === 'advisor_chat') {
+    const { message, history = [], language = 'es' } = req.body || {};
+    if (!message || typeof message !== 'string' || !message.trim()) {
+      return res.status(400).json({ error: 'Mensaje requerido.' });
+    }
+    const sys = 'Eres Asesor Boltech Group, asesor comercial de Boltech Group (agentes de IA para empresas). Objetivo: ayudar al visitante a entender que tarea puede automatizar y guiarlo a solicitar una evaluacion por escrito. Canal web. Responde en el idioma del usuario (espanol por defecto, ingles si escribe en ingles). CONOCIMIENTO: 1. Tres servicios: implementacion de un flujo, agente a medida, soporte y seguimiento. Todos a cotizacion segun alcance. Sin precios publicos. 2. Primera puerta Operaciones: registro de pedidos (20 pedidos sin duplicados), conciliacion de facturas (30 facturas, todas las diferencias detectadas), alertas de stock (30 dias sin quiebres). 3. Formulario: 6 campos (nombre, apellido, correo, empresa, cargo, tarea). Nunca pide presupuesto, telefono, tamano ni plazo. 4. Evaluacion por escrito, sin demo obligatoria, sin precio en el primer contacto. 5. Cada tarea tiene criterio de aceptacion escrito. No se prometen resultados ni hay testimonios. 6. Datos en hoja privada, acceso solo del responsable. Consentimiento explicito y retirable. REGLAS: 2-4 parrafos cortos. Si preguntan precio: cotizacion segun alcance. Si no sabes: escalar a ricardo.boltechgroup@gmail.com. Si muestra interes: invitar a https://boltech-group.vercel.app/solicitud. Nunca inventar casos, cifras ni certificaciones.' + (language === 'en' ? ' Respond in English.' : ' Responde en espanol.');
+    const histText = Array.isArray(history) ? history.slice(-6).map(function(m){ return (m.role === 'user' ? 'Usuario' : 'Asesor') + ': ' + m.content; }).join('\n') : '';
+    const prompt = histText ? histText + '\nUsuario: ' + message.trim() : message.trim();
+    try {
+      const aiRes = await generateAIResponse({ prompt: prompt, system: sys, provider: 'google', modelName: 'gemini-2.0-flash', temperature: 0.5, maxTokens: 512 });
+      return res.status(200).json({ success: true, reply: (aiRes.text || aiRes.content || ''), agent: 'Asesor Boltech Group' });
+    } catch (err) {
+      console.error('[ADVISOR] error:', err && err.message ? err.message : err);
+      return res.status(200).json({ success: true, reply: 'Gracias por tu mensaje. Para atencion personalizada: ricardo.boltechgroup@gmail.com o https://boltech-group.vercel.app/solicitud', agent: 'Asesor Boltech Group (modo resiliente)' });
+    }
   }
 
   try {
