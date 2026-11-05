@@ -44,7 +44,7 @@ export default async function handler(req, res) {
     const histText = Array.isArray(history) ? history.slice(-6).map(function(m){ return (m.role === 'user' ? 'Usuario' : 'Asesor') + ': ' + m.content; }).join('\n') : '';
     const prompt = histText ? histText + '\nUsuario: ' + message.trim() : message.trim();
     try {
-      const aiRes = await generateAIResponse({ prompt: prompt, system: sys, provider: 'google', modelName: 'gemini-2.0-flash', temperature: 0.5, maxTokens: 512 });
+      const aiRes = await generateAIResponse({ prompt: prompt, system: sys, provider: 'google', modelName: 'gemini-3.8-flash', temperature: 0.5, maxTokens: 512 });
       return res.status(200).json({ success: true, reply: (aiRes.text || aiRes.content || ''), agent: 'Asesor Boltech Group' });
     } catch (err) {
       console.error('[ADVISOR] error:', err && err.message ? err.message : err);
