@@ -79,6 +79,35 @@ export default async function handler(req, res) {
 
     console.log(`[FIDUCIARY INTAKE] Email: ${cleanEmail} | Company: ${cleanCompany} | Pain: ${cleanPainPoint ? 'YES' : 'NO'} | Asset: ${consentRecord.assetId} | Consent: ${consentRecord.grantedAt}`);
 
+
+    // Flujo del formulario web (plan comercial): notificacion al propietario, sin CRM externo.
+    if (req.body?.source === 'web_solicitud') {
+      const subject = 'Nueva solicitud de evaluacion - ' + cleanCompany + ' (' + consentRecord.assetId + ')';
+      const text = [
+        'Nueva solicitud de evaluacion por escrito',
+        '',
+        'Nombre: ' + consentRecord.contactName,
+        'Correo: ' + cleanEmail,
+        'Empresa: ' + cleanCompany,
+        'Cargo: ' + consentRecord.jobTitle,
+        'Tarea: ' + cleanPainPoint,
+        'Activo: ' + consentRecord.assetId,
+        'Idioma: ' + consentRecord.language,
+        'Pagina: ' + consentRecord.pageUrl,
+        'Consentimiento: ' + consentRecord.grantedAt,
+        '',
+        'Responder a: ' + cleanEmail
+      ].join('\n');
+      const html = '<pre style="font-family:monospace;white-space:pre-wrap">' + text.replace(/</g, '&lt;') + '</pre>';
+      try {
+        await dispatchUniversalEmail({ to: 'ricardo.boltechgroup@gmail.com', subject, text, html });
+      } catch (e) {
+        console.error('[WEB LEAD] email dispatch failed:', e?.message || e);
+      }
+      const requestId = 'WEB-' + Date.now();
+      return res.status(200).json({ success: true, registration: { status: 'RECORDED', requestId, contactSyncStatus: 'EMAIL_NOTIFIED' } });
+    }
+
     const isCustomAgentRequest = Boolean(cleanPainPoint && cleanPainPoint.length > 3);
     const isCustomSupportInquiry = Boolean(!isCustomAgentRequest && cleanMessage && cleanMessage.length > 5);
 
