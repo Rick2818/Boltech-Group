@@ -184,5 +184,87 @@ form.addEventListener('submit', async event => {
 });
 </script>
 
+<!-- ASESOR FLOTANTE BOLTECH -->
+<style id="advisor-widget-style">
+#boltech-advisor-btn{position:fixed;bottom:22px;right:22px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#06b6d4);color:#fff;border:0;cursor:pointer;box-shadow:0 8px 24px rgba(99,102,241,.45);z-index:9999;font-size:26px;display:flex;align-items:center;justify-content:center;transition:transform .2s}
+#boltech-advisor-btn:hover{transform:scale(1.08)}
+#boltech-advisor-panel{position:fixed;bottom:92px;right:22px;width:360px;max-width:calc(100vw - 44px);height:520px;max-height:calc(100vh - 120px);background:#0b1120;border:1px solid #1e293b;border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.6);z-index:9998;display:none;flex-direction:column;overflow:hidden;font-family:Inter,ui-sans-serif,system-ui,sans-serif}
+#boltech-advisor-panel.open{display:flex}
+#advisor-header{padding:14px 16px;background:#0f172a;border-bottom:1px solid #1e293b;display:flex;align-items:center;justify-content:space-between}
+#advisor-header strong{color:#f8fafc;font-size:14px}
+#advisor-header span{color:#94a3b8;font-size:11px}
+#advisor-close{background:none;border:0;color:#94a3b8;cursor:pointer;font-size:18px}
+#advisor-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.advisor-msg{max-width:85%;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word}
+.advisor-msg.bot{background:#1e293b;color:#e2e8f0;align-self:flex-start;border-bottom-left-radius:4px}
+.advisor-msg.user{background:linear-gradient(135deg,#6366f1,#06b6d4);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.advisor-msg.typing{color:#94a3b8;font-style:italic}
+#advisor-input-row{padding:10px;border-top:1px solid #1e293b;display:flex;gap:8px;background:#0f172a}
+#advisor-input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid #334155;background:#05070e;color:#f8fafc;font-size:13px;font-family:inherit}
+#advisor-send{padding:10px 14px;border-radius:10px;border:0;background:linear-gradient(135deg,#6366f1,#06b6d4);color:#fff;font-weight:700;cursor:pointer;font-size:13px}
+#advisor-send:disabled{opacity:.5;cursor:progress}
+@media(max-width:480px){#boltech-advisor-panel{width:calc(100vw - 20px);right:10px;bottom:80px}}
+</style>
+<button id="boltech-advisor-btn" aria-label="Abrir asesor">💬</button>
+<div id="boltech-advisor-panel" role="dialog" aria-label="Asesor Boltech Group">
+  <div id="advisor-header">
+    <div><strong>Asesor Boltech Group</strong><br><span>Evaluación por escrito, sin demo obligatoria</span></div>
+    <button id="advisor-close" aria-label="Cerrar">×</button>
+  </div>
+  <div id="advisor-messages"></div>
+  <div id="advisor-input-row">
+    <input id="advisor-input" type="text" placeholder="Escribe tu pregunta..." autocomplete="off">
+    <button id="advisor-send">Enviar</button>
+  </div>
+</div>
+<script>
+(function(){
+  const btn = document.getElementById('boltech-advisor-btn');
+  const panel = document.getElementById('boltech-advisor-panel');
+  const close = document.getElementById('advisor-close');
+  const msgs = document.getElementById('advisor-messages');
+  const input = document.getElementById('advisor-input');
+  const send = document.getElementById('advisor-send');
+  const history = [];
+  let open = false;
+  function toggle(){ open = !open; panel.classList.toggle('open', open); if(open && msgs.childElementCount===0){ addBot('Hola, soy el asesor de Boltech Group. Puedo ayudarte a evaluar qué tarea de tu operación se puede automatizar (pedidos, facturas, stock). ¿Qué proceso te quita más tiempo?'); } if(open) input.focus(); }
+  btn.addEventListener('click', toggle);
+  close.addEventListener('click', toggle);
+  function addMsg(text, role){ const d=document.createElement('div'); d.className='advisor-msg '+role; d.textContent=text; msgs.appendChild(d); msgs.scrollTop=msgs.scrollHeight; return d; }
+  function addBot(text){ return addMsg(text,'bot'); }
+  async function ask(){
+    const q = input.value.trim();
+    if(!q) return;
+    input.value='';
+    addMsg(q,'user');
+    history.push({role:'user',content:q});
+    const typing = addMsg('Escribiendo...','bot typing');
+    send.disabled=true;
+    try {
+      const r = await fetch('/api/advisor',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,history:history.slice(-8),language:document.documentElement.lang||'es'})});
+      const data = await r.json();
+      typing.remove();
+      const reply = data.reply || 'Gracias. Para atención personalizada: ricardo.boltechgroup@gmail.com';
+      addBot(reply);
+      history.push({role:'assistant',content:reply});
+    } catch(e){
+      typing.remove();
+      addBot('No pude responder ahora. Escríbenos a ricardo.boltechgroup@gmail.com');
+    } finally { send.disabled=false; input.focus(); }
+  }
+  send.addEventListener('click', ask);
+  input.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); ask(); } });
+  // Lead capture: if user provides email, offer to register
+  window.boltechAdvisorCapture = async (name,email,company,jobtitle,outcome)=>{
+    try {
+      const r = await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,companyName:company,painPoint:outcome,contactName:name,jobTitle:jobtitle,consent:true,consentText:'Autorizo que me contacten por este medio.',consentAt:new Date().toISOString(),source:'web_advisor',assetId:'operaciones-general',language:document.documentElement.lang||'es',pageUrl:location.href})});
+      const d = await r.json();
+      return d.success===true;
+    } catch(e){ return false; }
+  };
+})();
+</script>
+<!-- FIN ASESOR FLOTANTE -->
+
 </body>
 </html>
