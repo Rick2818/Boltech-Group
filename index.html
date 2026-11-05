@@ -92,7 +92,13 @@
   <div id="advisor-input-row">
     <input id="advisor-input" type="text" placeholder="Escribe tu pregunta..." autocomplete="off">
     <button id="advisor-send">Enviar</button>
+  <div id="advisor-wa-row" style="padding:10px;border-top:1px solid #1e293b;display:flex;gap:8px;background:#05070e">
+    <a id="advisor-wa" href="#" style="flex:1;padding:10px 12px;border-radius:10px;border:1px solid #25d366;background:#25d366;color:#fff;font-weight:700;text-align:center;font-size:13px;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px">💬 WhatsApp</a>
   </div>
+  </div>
+</div>
+<script>
+(function(){  </div>
 </div>
 <script>
 (function(){
@@ -141,6 +147,19 @@
   };
 })();
 </script>
+<script>
+(function(){
+  const waBtn = document.getElementById('advisor-wa');
+  if (waBtn) {
+    const phone = '50375743444';
+    const text = encodeURIComponent('Hola Ricardo, me interesa una evaluación por escrito para automatizar una tarea de mi operación. Vi su landing en boltech-group.vercel.app');
+    waBtn.href = 'https://wa.me/' + phone + '?text=' + text;
+    waBtn.target = '_blank';
+    waBtn.rel = 'noopener';
+  }
+})();
+</script>
+
 <!-- FIN ASESOR FLOTANTE -->
 
 </body></html>
