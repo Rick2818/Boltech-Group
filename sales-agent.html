@@ -38,6 +38,7 @@ async function speak(text){
   try{
     const response=await fetch('/api?leo_speech=1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text.replace(/[*_`#]/g,'').trim().slice(0,800)})});
     if(!response.ok||!response.headers.get('content-type')?.startsWith('audio/'))throw Error('HTTP '+response.status);
+    if(response.headers.get('X-Boltech-Voice-Id')!=='es-SV-RodrigoNeural')throw Error('VOICE_MISMATCH');
     const blob=await response.blob();
     if(request!==generation)return;
     objectUrl=URL.createObjectURL(blob);
