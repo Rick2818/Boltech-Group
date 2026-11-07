@@ -1,0 +1,117 @@
+{
+  "captured_at": "2026-11-07T23:27:46.798452+00:00",
+  "origin": "https://boltech-group.pages.dev",
+  "files": {
+    "index.html": {
+      "url": "https://boltech-group.pages.dev/",
+      "sha256": "244ac54b649b6b4ea10c26755be518bce9c377907b8cdb8c819690183cf938ca",
+      "bytes": 31246,
+      "type": "text/html; charset=utf-8"
+    },
+    "sales-agent.html": {
+      "url": "https://boltech-group.pages.dev/sales-agent.html",
+      "sha256": "d3ae1c22111e4adfc4771fc546bc1ba5590f685780beb0d9191279fb2f2cf364",
+      "bytes": 13390,
+      "type": "text/html; charset=utf-8"
+    },
+    "commerce-admin.html": {
+      "url": "https://boltech-group.pages.dev/commerce-admin.html",
+      "sha256": "822eace2a48d9831ea605f3dd998199fc4bf46536434cc5abfce9cd7170c8e9c",
+      "bytes": 3943,
+      "type": "text/html; charset=utf-8"
+    },
+    "conservacion.html": {
+      "url": "https://boltech-group.pages.dev/conservacion.html",
+      "sha256": "3ea8a295bbb83951877ec897c66f49e804868ab5b38de072709ac9b1ac18b8d7",
+      "bytes": 7872,
+      "type": "text/html; charset=utf-8"
+    },
+    "privacidad.html": {
+      "url": "https://boltech-group.pages.dev/privacidad.html",
+      "sha256": "107d349089682b0c86f81d2f9e33e68f7bb72461ceb41377d7ec2da6b4f05a1f",
+      "bytes": 8921,
+      "type": "text/html; charset=utf-8"
+    },
+    "retiro.html": {
+      "url": "https://boltech-group.pages.dev/retiro.html",
+      "sha256": "49c21430c64d875fa4c4af78765003bdcc55dd1971d86c39914c1c118fed4d2e",
+      "bytes": 6833,
+      "type": "text/html; charset=utf-8"
+    },
+    "solicitud.html": {
+      "url": "https://boltech-group.pages.dev/solicitud.html",
+      "sha256": "6ac4c9a55df48d838e6dcc30628dbbb120834c8e90fc4a08a67c50529c5efa59",
+      "bytes": 22563,
+      "type": "text/html; charset=utf-8"
+    },
+    "factory-preview.html": {
+      "url": "https://boltech-group.pages.dev/factory-preview.html",
+      "sha256": "0c9513c131d63ec7c91785189ebe36565ba10bbeb7d16beef8472946d8644816",
+      "bytes": 7671,
+      "type": "text/html; charset=utf-8"
+    },
+    "specialist.html": {
+      "url": "https://boltech-group.pages.dev/specialist.html",
+      "sha256": "6101527080b94f2f8834f77cd20b48fe94eedddc80235c0bcc591238df931e90",
+      "bytes": 14959,
+      "type": "text/html; charset=utf-8"
+    },
+    "robots.txt": {
+      "url": "https://boltech-group.pages.dev/robots.txt",
+      "sha256": "473b8f30e06e17b00bd7395f6f8548ea4f75ad16c3bc0d74d672238baed6ac4f",
+      "bytes": 380,
+      "type": "text/plain; charset=utf-8"
+    },
+    "sitemap.xml": {
+      "url": "https://boltech-group.pages.dev/sitemap.xml",
+      "sha256": "cd5a602c2785d923f41946079e968c40c564f74c7bf0322e3299efd760bee8a6",
+      "bytes": 803,
+      "type": "application/xml"
+    },
+    "manifest.webmanifest": {
+      "url": "https://boltech-group.pages.dev/manifest.webmanifest",
+      "sha256": "ba67e6ffc929bbd8a286e08d8e4ef83764074e77c486ab55f727ca3d7fc3d205",
+      "bytes": 845,
+      "type": "application/manifest+json"
+    },
+    "assets/brand/app-icon-192.png": {
+      "url": "https://boltech-group.pages.dev/assets/brand/app-icon-192.png",
+      "sha256": "7f0bd14ac96285eb2cc3d29b694198b01675af8b0ac1b921814d1aedae6c5b47",
+      "bytes": 13124,
+      "type": "image/png"
+    },
+    "assets/js/web-reception.js": {
+      "url": "https://boltech-group.pages.dev/assets/js/web-reception.js",
+      "sha256": "438dadc4f7acedaca444b5204a2193f7c98524228305a6ca637aa9b47e8faaf1",
+      "bytes": 11498,
+      "type": "application/javascript"
+    },
+    "assets/css/web-reception.css": {
+      "url": "https://boltech-group.pages.dev/assets/css/web-reception.css",
+      "sha256": "28d2e90d936cecf8db69cd6d802de439e851ec9ae6d8c8a34562a45479fa8831",
+      "bytes": 2306,
+      "type": "text/css; charset=utf-8"
+    },
+    "assets/js/reception-guidance.js": {
+      "url": "https://boltech-group.pages.dev/assets/js/reception-guidance.js",
+      "sha256": "3ff05200a80a036a19fcf12423783ba0d45faa007ff75264322393ad5cb7cb09",
+      "bytes": 4101,
+      "type": "application/javascript"
+    }
+  },
+  "failed_requests": [
+    {
+      "path": "/gmail-privacy.html",
+      "error": "HTTP Error 308: The HTTP server returned a redirect error that would lead to an infinite loop.\nThe last 30x error message was:\nPermanent Redirect"
+    },
+    {
+      "path": "/gmail-terms.html",
+      "error": "HTTP Error 308: The HTTP server returned a redirect error that would lead to an infinite loop.\nThe last 30x error message was:\nPermanent Redirect"
+    }
+  ],
+  "limitations": [
+    "Only publicly served files were recoverable. Cloudflare Worker/Functions source, environment variables and deployment settings are not included.",
+    "This directory is a backup and is not a complete deployable Pages bundle.",
+    "The repository files outside this backup remain the historical Git baseline."
+  ]
+}

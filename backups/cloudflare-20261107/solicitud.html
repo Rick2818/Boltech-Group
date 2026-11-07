@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Solicitar evaluación por escrito | Boltech Group</title>
+<meta name="description" content="Cuéntanos qué tarea quieres automatizar. Recibes una evaluación por escrito, sin demo obligatoria. No pedimos presupuesto, teléfono ni plazo.">
+<link rel="canonical" href="https://plan-comercial-tipo-relevance-ai.pages.dev/solicitud">
+<meta name="robots" content="index,follow">
+<link rel="icon" type="image/png" href="/assets/brand/app-icon-192.png">
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:#090b0d;color:#f5f4f0}
+a{color:#e1bf70;text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{width:min(760px,calc(100% - 40px));margin:auto}
+header{border-bottom:1px solid #2b2926;padding:18px 0}
+header .wrap{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.wordmark{color:#e2bc67;font-weight:800;letter-spacing:.18em;font-size:13px}
+.lang{border:1px solid #655338;border-radius:20px;background:transparent;color:#ddd2ba;padding:8px 12px;font:inherit;font-size:13px;cursor:pointer}
+main{padding:52px 0 72px}
+.kicker{color:#d6b36a;font-size:12px;font-weight:750;letter-spacing:.22em;text-transform:uppercase}
+h1{font-size:clamp(30px,4.4vw,44px);line-height:1.12;letter-spacing:-.04em;margin:14px 0 16px;font-weight:680}
+p.lead{color:#b3b2ae;font-size:17px;line-height:1.65;margin:0 0 8px}
+form{margin-top:34px;border:1px solid #302f2d;border-radius:16px;background:#141619;padding:26px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field.full{grid-column:1/-1}
+label{font-size:13px;color:#ddd2ba;font-weight:600}
+label .req{color:#e1bf70}
+input,textarea{width:100%;padding:13px 14px;border-radius:10px;border:1px solid #4a4538;background:#101215;color:#f5f4f0;font:inherit;font-size:15px}
+input:focus,textarea:focus{outline:2px solid #c9a45c;outline-offset:1px}
+textarea{min-height:120px;resize:vertical}
+.consent{display:flex;gap:11px;align-items:flex-start;margin-top:20px;padding-top:20px;border-top:1px solid #2b2a27}
+.consent input{width:18px;height:18px;margin-top:2px;flex-shrink:0}
+.consent label{font-weight:400;font-size:13px;line-height:1.55;color:#b9b7b1}
+.fine{color:#92918d;font-size:12px;line-height:1.6;margin-top:16px}
+button.submit{margin-top:22px;width:100%;min-height:52px;border:0;border-radius:10px;background:linear-gradient(120deg,#efcd7a,#c0933b);color:#14100b;font:inherit;font-weight:750;font-size:15px;cursor:pointer}
+button.submit:disabled{opacity:.6;cursor:progress}
+.status{margin-top:16px;font-size:14px;line-height:1.6;min-height:1.4em}
+.status.ok{color:#bfe3bd}
+.status.err{color:#f0b3a8}
+.back{display:inline-block;margin-bottom:24px;font-size:13px;color:#c5b28d}
+footer{border-top:1px solid #2b2a27;padding:26px 0 40px;color:#959591;font-size:12px}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px}
+@media(max-width:620px){.grid{grid-template-columns:1fr}form{padding:20px}main{padding:36px 0 56px}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <a href="/" class="wordmark">BOLTECH GROUP</a>
+  <button class="lang" id="lang" type="button" aria-label="Change language">EN</button>
+</div></header>
+<main><div class="wrap">
+  <a class="back" href="/" data-es="← Volver al inicio" data-en="← Back to home">← Volver al inicio</a>
+  <div class="kicker" data-es="Evaluación por escrito" data-en="Written assessment">Evaluación por escrito</div>
+  <h1 data-es="Cuéntanos qué tarea quieres automatizar" data-en="Tell us which task you want to automate">Cuéntanos qué tarea quieres automatizar</h1>
+  <p class="lead" data-es="Con esto evaluamos el alcance y te respondemos por escrito. No hay demo obligatoria y no pedimos presupuesto en el primer contacto." data-en="We use this to assess scope and reply in writing. No mandatory demo and no budget request on first contact.">Con esto evaluamos el alcance y te respondemos por escrito. No hay demo obligatoria y no pedimos presupuesto en el primer contacto.</p>
+
+  <form id="f" novalidate>
+    <div class="grid">
+      <div class="field">
+        <label for="firstname" data-es="Nombre" data-en="First name">Nombre <span class="req">*</span></label>
+        <input id="firstname" name="firstname" autocomplete="given-name" required>
+      </div>
+      <div class="field">
+        <label for="lastname" data-es="Apellido" data-en="Last name">Apellido <span class="req">*</span></label>
+        <input id="lastname" name="lastname" autocomplete="family-name" required>
+      </div>
+      <div class="field">
+        <label for="email" data-es="Correo de trabajo" data-en="Work email">Correo de trabajo <span class="req">*</span></label>
+        <input id="email" name="email" type="email" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label for="company" data-es="Empresa" data-en="Company">Empresa <span class="req">*</span></label>
+        <input id="company" name="company" autocomplete="organization" required>
+      </div>
+      <div class="field full">
+        <label for="jobtitle" data-es="Cargo" data-en="Job title">Cargo <span class="req">*</span></label>
+        <input id="jobtitle" name="jobtitle" autocomplete="organization-title" required>
+      </div>
+      <div class="field full">
+        <label for="outcome" data-es="¿Qué tarea quieres automatizar?" data-en="Which task do you want to automate?">¿Qué tarea quieres automatizar? <span class="req">*</span></label>
+        <textarea id="outcome" name="outcome" required data-es-placeholder="Ejemplo: registrar los pedidos que llegan por correo en una tabla." data-en-placeholder="Example: log orders that arrive by email into a table." placeholder="Ejemplo: registrar los pedidos que llegan por correo en una tabla."></textarea>
+      </div>
+    </div>
+
+    <div class="consent">
+      <input id="consent" name="consent" type="checkbox" required>
+      <label for="consent">
+        <span data-es="Autorizo que me contacten por este medio. Entiendo que puedo retirar el consentimiento cuando quiera." data-en="I agree to be contacted through this channel. I understand I can withdraw consent at any time.">Autorizo que me contacten por este medio. Entiendo que puedo retirar el consentimiento cuando quiera.</span>
+        <br>
+        <a href="/privacidad" data-es="Aviso de privacidad" data-en="Privacy notice">Aviso de privacidad</a> ·
+        <a href="/retiro" data-es="Cómo retirar el consentimiento" data-en="How to withdraw consent">Cómo retirar el consentimiento</a>
+      </label>
+    </div>
+
+    <button class="submit" id="send" type="submit" data-es="Solicitar evaluación por escrito" data-en="Request a written assessment">Solicitar evaluación por escrito</button>
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+    <p class="fine" data-es="No pedimos presupuesto, teléfono, tamaño de la empresa ni plazo. Si hacen falta para evaluar el alcance, los pedimos después y explicamos para qué." data-en="We do not ask for budget, phone, company size or timeline. If needed for scope, we ask later and explain why.">No pedimos presupuesto, teléfono, tamaño de la empresa ni plazo. Si hacen falta para evaluar el alcance, los pedimos después y explicamos para qué.</p>
+    <p class="fine"><a href="/conservacion" data-es="Cuánto tiempo guardamos tus datos" data-en="How long we keep your data">Cuánto tiempo guardamos tus datos</a></p>
+  </form>
+</div></main>
+<footer><div class="wrap">
+  <span>© 2026 Boltech Group · El Salvador</span>
+  <span><a href="/privacidad">Privacidad</a> · <a href="/retiro">Retiro</a> · <a href="/conservacion">Conservación</a> · <a href="mailto:ricardo.boltechgroup@gmail.com">ricardo.boltechgroup@gmail.com</a></span>
+</div></footer>
+
+<script>
+const params = new URLSearchParams(location.search);
+const assetId = params.get('tarea') || 'general';
+const selected = { pedidos: 'operaciones-pedidos', facturas: 'operaciones-facturas', stock: 'operaciones-stock' }[assetId] || 'operaciones-general';
+let lang = 'es'; // El sitio es español primero; el botón cambia a inglés.
+const btn = document.getElementById('lang');
+function setLang() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-es]').forEach(el => { el.textContent = el.dataset[lang]; });
+  document.querySelectorAll('[data-es-placeholder]').forEach(el => { el.placeholder = el.dataset[lang + 'Placeholder']; });
+  btn.textContent = lang === 'es' ? 'EN' : 'ES';
+}
+btn.addEventListener('click', () => { lang = lang === 'es' ? 'en' : 'es'; setLang(); });
+setLang();
+
+const form = document.getElementById('f');
+const status = document.getElementById('status');
+const send = document.getElementById('send');
+const msg = {
+  es: {
+    consent: 'Marca la casilla de consentimiento para enviar la solicitud.',
+    invalid: 'Revisa los campos marcados: todos son obligatorios.',
+    sending: 'Enviando…',
+    ok: 'Solicitud registrada. Te responderemos por correo con la evaluación por escrito.',
+    fail: 'No pudimos registrar la solicitud. Escríbenos directamente y la registramos a mano.'
+  },
+  en: {
+    consent: 'Please tick the consent box to submit the request.',
+    invalid: 'Check the marked fields: all are required.',
+    sending: 'Sending…',
+    ok: 'Request recorded. We will reply by email with the written assessment.',
+    fail: 'We could not record the request. Email us directly and we will log it manually.'
+  }
+};
+
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+  const t = msg[lang];
+  status.className = 'status';
+  if (!form.querySelector('#consent').checked) { status.textContent = t.consent; status.classList.add('err'); return; }
+  if (!form.checkValidity()) { form.reportValidity(); status.textContent = t.invalid; status.classList.add('err'); return; }
+  const data = new FormData(form);
+  const payload = {
+    email: String(data.get('email')).trim(),
+    companyName: String(data.get('company')).trim(),
+    painPoint: String(data.get('outcome')).trim(),
+    contactName: `${String(data.get('firstname')).trim()} ${String(data.get('lastname')).trim()}`.trim(),
+    jobTitle: String(data.get('jobtitle')).trim(),
+    consent: true,
+    consentText: 'Autorizo que me contacten por este medio.',
+    consentAt: new Date().toISOString(),
+    source: 'web_solicitud',
+    assetId: selected,
+    language: lang,
+    pageUrl: location.href
+  };
+  send.disabled = true;
+  status.textContent = t.sending;
+  try {
+    const res = await fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    status.textContent = t.ok;
+    status.classList.add('ok');
+    form.reset();
+  } catch (error) {
+    status.innerHTML = t.fail + ' <a href="mailto:ricardo.boltechgroup@gmail.com?subject=Solicitud%20de%20evaluaci%C3%B3n">ricardo.boltechgroup@gmail.com</a>';
+    status.classList.add('err');
+  } finally {
+    send.disabled = false;
+  }
+});
+</script>
+
+<!-- ASESOR FLOTANTE BOLTECH -->
+<style id="advisor-widget-style">
+#boltech-advisor-btn{position:fixed;left:22px;bottom:22px;width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#06b6d4);color:#fff;border:0;cursor:pointer;box-shadow:0 8px 24px rgba(99,102,241,.45);z-index:9999;font-size:24px;display:flex;align-items:center;justify-content:center;transition:transform .2s}
+#boltech-advisor-btn:hover{transform:scale(1.08)}
+#boltech-advisor-panel{position:fixed;left:22px;bottom:92px;width:360px;max-width:calc(100vw - 44px);height:540px;max-height:calc(100vh - 120px);background:#0b1120;border:1px solid #1e293b;border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.6);z-index:9998;display:none;flex-direction:column;overflow:hidden;font-family:Inter,ui-sans-serif,system-ui,sans-serif}
+#boltech-advisor-panel.open{display:flex}
+#advisor-header{padding:14px 16px;background:#0f172a;border-bottom:1px solid #1e293b;display:flex;align-items:center;justify-content:space-between;gap:10px}
+#advisor-header strong{color:#f8fafc;font-size:14px}
+#advisor-header span{color:#94a3b8;font-size:11px}
+#advisor-close{background:none;border:0;color:#94a3b8;cursor:pointer;font-size:20px;line-height:1}
+#advisor-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
+.advisor-msg{max-width:85%;padding:10px 12px;border-radius:12px;font-size:13px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word}
+.advisor-msg.bot{background:#1e293b;color:#e2e8f0;align-self:flex-start;border-bottom-left-radius:4px}
+.advisor-msg.user{background:linear-gradient(135deg,#6366f1,#06b6d4);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.advisor-msg.typing{color:#94a3b8;font-style:italic}
+#advisor-input-row{padding:10px;border-top:1px solid #1e293b;display:flex;gap:8px;background:#0f172a}
+#advisor-input{flex:1;min-width:0;padding:10px 12px;border-radius:10px;border:1px solid #334155;background:#05070e;color:#f8fafc;font-size:13px;font-family:inherit}
+#advisor-send{padding:10px 14px;border-radius:10px;border:0;background:linear-gradient(135deg,#6366f1,#06b6d4);color:#fff;font-weight:700;cursor:pointer;font-size:13px}
+#advisor-send:disabled{opacity:.5;cursor:progress}
+#advisor-actions{display:flex;gap:8px;padding:10px;border-top:1px solid #1e293b;background:#05070e}
+#advisor-lead{flex:1;padding:10px 12px;border-radius:10px;border:1px solid #6366f1;background:transparent;color:#c7d2fe;font-weight:700;font-size:12px;cursor:pointer}
+#advisor-wa{flex:1;padding:10px 12px;border-radius:10px;border:1px solid #25d366;background:#25d366;color:#fff;font-weight:700;text-align:center;font-size:12px;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px}
+#advisor-capture{padding:12px;border-top:1px solid #1e293b;background:#0f172a;display:flex;flex-direction:column;gap:8px}
+#advisor-capture[hidden]{display:none}
+#advisor-capture input[type=text],#advisor-capture input[type=email]{width:100%;box-sizing:border-box;padding:9px 11px;border-radius:9px;border:1px solid #334155;background:#05070e;color:#f8fafc;font-size:12px;font-family:inherit}
+#advisor-capture label{color:#94a3b8;font-size:11px;line-height:1.45;display:flex;gap:8px;align-items:flex-start}
+#advisor-capture input[type=checkbox]{margin-top:2px}
+#advisor-capture button{padding:9px 12px;border-radius:9px;border:0;background:#e6c47b;color:#14100b;font-weight:750;font-size:12px;cursor:pointer}
+#advisor-capture-status{font-size:11px;color:#94a3b8;margin:0;line-height:1.4}
+@media(max-width:480px){#boltech-advisor-panel{width:calc(100vw - 24px);left:12px;bottom:84px}#boltech-advisor-btn{left:14px;bottom:14px}}
+</style>
+<button id="boltech-advisor-btn" type="button" aria-label="Abrir asesor" aria-expanded="false" aria-controls="boltech-advisor-panel">💬</button>
+<div id="boltech-advisor-panel" role="dialog" aria-label="Asesor Boltech Group">
+  <div id="advisor-header">
+    <div><strong>Asesor Boltech Group</strong><br><span>Evaluación por escrito, sin demo obligatoria</span></div>
+    <button id="advisor-close" type="button" aria-label="Cerrar">×</button>
+  </div>
+  <div id="advisor-messages" role="log" aria-live="polite"></div>
+  <form id="advisor-capture" hidden novalidate>
+    <input id="advisor-name" type="text" placeholder="Tu nombre" autocomplete="name" maxlength="120" required>
+    <input id="advisor-email" type="email" placeholder="Tu correo de trabajo" autocomplete="email" maxlength="160" required>
+    <label><input id="advisor-consent" type="checkbox" required> Autorizo que me contacten por este medio. Puedo retirar el consentimiento cuando quiera.</label>
+    <button type="submit">Enviar mis datos</button>
+    <p id="advisor-capture-status" role="status" aria-live="polite"></p>
+  </form>
+  <div id="advisor-input-row">
+    <input id="advisor-input" type="text" placeholder="Escribe tu pregunta..." autocomplete="off" maxlength="1000" aria-label="Escribe tu pregunta">
+    <button id="advisor-send" type="button">Enviar</button>
+  </div>
+  <div id="advisor-actions">
+    <button id="advisor-lead" type="button">Dejar mis datos</button>
+    <a id="advisor-wa" href="#" target="_blank" rel="noopener">WhatsApp</a>
+  </div>
+</div>
+<script>
+(function(){
+  var btn = document.getElementById('boltech-advisor-btn');
+  var panel = document.getElementById('boltech-advisor-panel');
+  var closeBtn = document.getElementById('advisor-close');
+  var msgs = document.getElementById('advisor-messages');
+  var input = document.getElementById('advisor-input');
+  var send = document.getElementById('advisor-send');
+  var leadBtn = document.getElementById('advisor-lead');
+  var capture = document.getElementById('advisor-capture');
+  var captureStatus = document.getElementById('advisor-capture-status');
+  var history = [];
+  var open = false;
+  var lastQuestion = '';
+  var EMAIL = 'ricardo.boltechgroup@gmail.com';
+
+  function addMsg(text, role){
+    var d = document.createElement('div');
+    d.className = 'advisor-msg ' + role;
+    d.textContent = text;
+    msgs.appendChild(d);
+    msgs.scrollTop = msgs.scrollHeight;
+    return d;
+  }
+  function toggle(){
+    open = !open;
+    panel.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', String(open));
+    if(open && msgs.childElementCount === 0){
+      addMsg('Hola, soy el asesor de Boltech Group. Evalúo qué tarea de tu operación se puede automatizar (pedidos, facturas, stock). ¿Qué proceso te quita más tiempo?', 'bot');
+    }
+    if(open) input.focus();
+  }
+  btn.addEventListener('click', toggle);
+  closeBtn.addEventListener('click', toggle);
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && open) toggle(); });
+
+  async function ask(){
+    var q = input.value.trim();
+    if(!q) return;
+    input.value = '';
+    lastQuestion = q;
+    addMsg(q, 'user');
+    history.push({role: 'user', content: q});
+    var typing = addMsg('Escribiendo...', 'bot typing');
+    send.disabled = true;
+    try {
+      var r = await fetch('/api/lead', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          message: q,
+          history: history.slice(-8),
+          language: (document.documentElement.lang || 'es').slice(0, 2),
+          pageUrl: location.href,
+          source: 'advisor_chat'
+        })
+      });
+      var data = await r.json().catch(function(){ return {}; });
+      typing.remove();
+      var reply = data.reply || ('No pude responder ahora. Escríbenos a ' + EMAIL + ' y te respondemos por escrito.');
+      addMsg(reply, 'bot');
+      history.push({role: 'assistant', content: reply});
+    } catch(e){
+      typing.remove();
+      addMsg('No pude responder ahora. Escríbenos a ' + EMAIL, 'bot');
+    } finally {
+      send.disabled = false;
+      input.focus();
+    }
+  }
+  send.addEventListener('click', ask);
+  input.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ e.preventDefault(); ask(); } });
+
+  leadBtn.addEventListener('click', function(){
+    capture.hidden = !capture.hidden;
+    if(!capture.hidden) document.getElementById('advisor-name').focus();
+  });
+
+  capture.addEventListener('submit', async function(event){
+    event.preventDefault();
+    var name = document.getElementById('advisor-name').value.trim();
+    var email = document.getElementById('advisor-email').value.trim();
+    var consent = document.getElementById('advisor-consent').checked;
+    if(!name || !email){ captureStatus.textContent = 'Escribe tu nombre y tu correo.'; return; }
+    if(!consent){ captureStatus.textContent = 'Marca la casilla de consentimiento para enviar.'; return; }
+    captureStatus.textContent = 'Enviando...';
+    try {
+      var r = await fetch('/api/lead', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          email: email,
+          companyName: '',
+          painPoint: lastQuestion || 'Consulta desde el asesor del sitio',
+          contactName: name,
+          jobTitle: '',
+          consent: true,
+          consentText: 'Autorizo que me contacten por este medio.',
+          consentAt: new Date().toISOString(),
+          source: 'web_advisor',
+          assetId: 'operaciones-general',
+          language: (document.documentElement.lang || 'es').slice(0, 2),
+          pageUrl: location.href
+        })
+      });
+      var data = await r.json().catch(function(){ return {}; });
+      if(!r.ok || data.success !== true) throw new Error((data && data.message) || 'No se pudo registrar.');
+      capture.reset();
+      capture.hidden = true;
+      addMsg('Datos recibidos. Referencia: ' + (data.registration && data.registration.requestId ? data.registration.requestId : 'registrada') + '. Ricardo te responderá por correo con la evaluación por escrito.', 'bot');
+    } catch(e){
+      captureStatus.textContent = 'No pudimos registrar tus datos. Escríbenos a ' + EMAIL;
+    }
+  });
+
+  window.boltechAdvisorCapture = async function(name, email, company, jobtitle, outcome){
+    try {
+      var r = await fetch('/api/lead', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          email: email,
+          companyName: company,
+          painPoint: outcome,
+          contactName: name,
+          jobTitle: jobtitle,
+          consent: true,
+          consentText: 'Autorizo que me contacten por este medio.',
+          consentAt: new Date().toISOString(),
+          source: 'web_advisor',
+          assetId: 'operaciones-general',
+          language: (document.documentElement.lang || 'es').slice(0, 2),
+          pageUrl: location.href
+        })
+      });
+      var d = await r.json();
+      return d.success === true;
+    } catch(e){ return false; }
+  };
+
+  var wa = document.getElementById('advisor-wa');
+  if(wa){
+    wa.href = 'https://wa.me/50375743444?text=' + encodeURIComponent('Hola Ricardo, me interesa una evaluación por escrito para automatizar una tarea de mi operación.');
+  }
+})();
+</script>
+<!-- FIN ASESOR FLOTANTE -->
+
+
+</body>
+</html>

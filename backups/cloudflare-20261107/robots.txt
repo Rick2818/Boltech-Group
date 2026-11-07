@@ -1,0 +1,23 @@
+# Boltech Group — robots.txt
+# Dominio de producción: https://plan-comercial-tipo-relevance-ai.pages.dev
+
+User-agent: *
+Allow: /
+Disallow: /api/
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+Sitemap: https://plan-comercial-tipo-relevance-ai.pages.dev/sitemap.xml
