@@ -4,6 +4,12 @@ on:
     paths:
       - 'lib/sales_dot_pilot.js'
       - 'lib/leo_sales_runtime.js'
+      - 'lib/leo_conversion_guide.js'
+      - 'lib/leo_conversion_store.js'
+      - 'tests/test_leo_conversion_guide.mjs'
+      - 'tests/test_leo_conversion_http.mjs'
+      - 'tests/test_leo_conversion_frontend.mjs'
+      - 'cloudflare/**'
       - 'tests/test_leo_sales_runtime.mjs'
       - 'lib/factory_order_executors.js'
       - 'sales-agent.html'
@@ -23,4 +29,4 @@ jobs:
         with:
           node-version: '24'
       - name: Test Boltech synthetic client and full handoff
-        run: npm ci --ignore-scripts && node --test tests/test_sales_dot_pilot.mjs tests/test_sales_factory_synthetic_circuit.mjs tests/test_leo_sales_runtime.mjs
+        run: npm ci --ignore-scripts && node --test tests/test_sales_dot_pilot.mjs tests/test_sales_factory_synthetic_circuit.mjs tests/test_leo_sales_runtime.mjs tests/test_leo_conversion_guide.mjs tests/test_leo_conversion_http.mjs tests/test_leo_conversion_frontend.mjs tests/test_leo_idle_ai_cost.mjs tests/test_leo_language_session_regression.mjs

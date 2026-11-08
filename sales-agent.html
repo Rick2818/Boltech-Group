@@ -35,10 +35,12 @@ try{
 const controller=new AbortController();
 const timeout=setTimeout(()=>controller.abort(),20000);
 let resp;
-try{resp=await fetch('/api/index?leo_sales=1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,language,history:history.slice(-12)}),signal:controller.signal})}
+try{resp=await fetch('/api/index?leo_sales=1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,language,history:history.slice(-12),messageId:crypto.randomUUID().replace(/-/g,'')}),signal:controller.signal})}
 finally{clearTimeout(timeout)}
 const data=await resp.json().catch(()=>null);
 if(!resp.ok||!data?.success||typeof data.reply!=='string'||!data.reply.trim())throw Error('LEO_HTTP_'+resp.status);
+const progress=data.conversion;
+if(progress){document.getElementById('summary').textContent=progress.stage==='TECHNICAL_REVIEW'?(language==='es'?'Diagnóstico listo para revisión técnica y comercial. La propuesta aún requiere aprobación.':'Your intake is ready for technical and commercial review. A proposal still requires approval.') : progress.stage==='STOPPED'?(language==='es'?'Solicitud en pausa.':'Request paused.') : ''; }
 const reply=data.reply.trim();add(reply,'agent');speak(reply);history.push({role:'user',text:msg},{role:'assistant',text:reply});history=history.slice(-12)
 }catch(err){
 const code=err?.name==='AbortError'?'TIMEOUT':String(err?.message||'NETWORK_ERROR').replace(/[^A-Z0-9_]/gi,'').slice(0,35);
