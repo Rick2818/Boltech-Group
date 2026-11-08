@@ -1,6 +1,8 @@
 import { appendFile, mkdir, writeFile } from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 const mode=process.argv[2],base='https://boltech-group.vercel.app/api/partners?action=client-order';
+const npmCommand = process.platform === 'win32' ? (process.env.ComSpec || 'cmd.exe') : 'npm';
+const npmArgs = args => process.platform === 'win32' ? ['/d', '/s', '/c', ['npm.cmd', ...args].join(' ')] : args;
 const orderId=process.env.ORDER_ID;
 if(!/^[A-Za-z0-9_.:-]{1,120}$/.test(orderId||''))throw Error('DELIVERY_INVALID_ORDER');
 async function api(body){
@@ -17,7 +19,7 @@ if(mode==='prepare'){
  const actual=spawnSync('git',['rev-parse','HEAD'],{encoding:'utf8'});if(actual.stdout.trim()!==plan.commit)throw Error('DELIVERY_COMMIT_MISMATCH');
  const receipts=[];
  const childEnv={...process.env};delete childEnv.NODE_TEST_CONTEXT;delete childEnv.NODE_OPTIONS;
- for(const [stage,command,args] of [['dependencies','npm',['ci','--ignore-scripts','--no-audit','--no-fund']],['implementation','npm',['run','build']],['qa',process.execPath,['--test','--test-reporter=tap',...plan.tests]]]){
+ for(const [stage,command,args] of [['dependencies',npmCommand,npmArgs(['ci','--ignore-scripts','--no-audit','--no-fund'])],['implementation',npmCommand,npmArgs(['run','build'])],['qa',process.execPath,['--test','--test-reporter=tap',...plan.tests]]]){
   const r=spawnSync(command,args,{encoding:'utf8',timeout:240000,maxBuffer:10*1024*1024,env:childEnv});
   receipts.push({stage,exitCode:r.status,stdout:r.stdout,stderr:r.stderr});
   await mkdir('ops-output',{recursive:true});await writeFile('ops-output/client-order-build.json',JSON.stringify({orderId,commit:plan.commit,criteria:plan.criteria,tests:plan.tests,receipts},null,2));
