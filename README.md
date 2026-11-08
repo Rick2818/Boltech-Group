@@ -371,3 +371,8 @@ Authenticated administrative GET/POST/PATCH at `/api/partners?action=rsi-handoff
 
 [Informe técnico: recuperación CRM y ejecutores pendientes](docs/audits/CRM_RECOVERY_2026-10-03.md). La sincronización entrante HubSpot guarda tareas en Redis, evita falsos éxitos y recupera fallos temporales mediante el workflow CRM existente. Tareas sin credenciales/evidencia quedan BLOCKED. Esta infraestructura no equivale a tres ejecutores RSI completos; Salesforce queda fuera de este cambio. La reparación posterior de Airtable está documentada en la auditoría enlazada arriba. Verificación productiva del recuperador: cola vacía y sin credencial HubSpot; no acredita sincronización al proveedor.
 
+
+## Plan comercial consolidado 2027
+
+El plan único está en [docs/commercial/plan-comercial-2027/](docs/commercial/plan-comercial-2027/). Su runtime usa la arquitectura existente de Boltech Group; no crea ejecutores paralelos ni reactiva cold email.
+
