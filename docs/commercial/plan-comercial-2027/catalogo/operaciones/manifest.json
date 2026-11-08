@@ -1,0 +1,57 @@
+{
+  "kind": "operations-first-door",
+  "approval": {
+    "date": "2026-11-05",
+    "approvedBy": "Ricardo (propietario)",
+    "scope": "Tres tareas de operaciones y su copy bilingüe",
+    "status": "APPROVED",
+    "legal": "PENDING_EXTERNAL_REVIEW"
+  },
+  "assets": [
+    {
+      "id": "operaciones-pedidos",
+      "slug": "01-pedidos",
+      "offerId": "implementation",
+      "integrations": [
+        "gmail",
+        "google-sheets",
+        "airtable"
+      ],
+      "files": {
+        "es": "01-pedidos.md",
+        "en": "en/01-pedidos.md",
+        "submission": "submissions/operaciones-pedidos.submission.json"
+      }
+    },
+    {
+      "id": "operaciones-facturas",
+      "slug": "02-facturas",
+      "offerId": "implementation",
+      "integrations": [
+        "gmail",
+        "google-drive",
+        "google-sheets"
+      ],
+      "files": {
+        "es": "02-facturas.md",
+        "en": "en/02-facturas.md",
+        "submission": "submissions/operaciones-facturas.submission.json"
+      }
+    },
+    {
+      "id": "operaciones-stock",
+      "slug": "03-stock",
+      "offerId": "custom-agent",
+      "integrations": [
+        "google-sheets",
+        "airtable",
+        "supabase"
+      ],
+      "files": {
+        "es": "03-stock.md",
+        "en": "en/03-stock.md",
+        "submission": "submissions/operaciones-stock.submission.json"
+      }
+    }
+  ]
+}

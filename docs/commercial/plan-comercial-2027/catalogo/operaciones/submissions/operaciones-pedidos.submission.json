@@ -1,0 +1,17 @@
+{
+  "tenantId": "boltech",
+  "provenance": "synthetic",
+  "playbookId": "solution-led",
+  "assetId": "operaciones-pedidos",
+  "offerId": "implementation",
+  "channel": "demo_request",
+  "payload": {
+    "requestId": "REPLACE-WITH-UNIQUE-REQUEST-ID",
+    "company": "REPLACE-WITH-COMPANY",
+    "name": "REPLACE-WITH-NAME",
+    "email": "example@example.test",
+    "consent": false,
+    "topic": "Pedidos de correo y WhatsApp a una tabla",
+    "pageUrl": "https://boltech-group.vercel.app"
+  }
+}

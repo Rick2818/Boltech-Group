@@ -1,0 +1,168 @@
+{
+  "kind": "integration-sheets",
+  "generatedAt": "2026-11-05",
+  "status": "PROPOSED_REQUIRES_TECHNICAL_VALIDATION",
+  "note": "Source availability verified only. No connection, credential or data transfer was performed.",
+  "items": [
+    {
+      "id": "airtable",
+      "name": "Airtable",
+      "source": "https://airtable.com/developers/web/api/introduction",
+      "sourceCheckedAt": "2026-11-05",
+      "sourceHttpStatus": 200,
+      "technicalStatus": "PROPOSED_REQUIRES_TECHNICAL_VALIDATION",
+      "operationTasks": [
+        "pedidos",
+        "stock"
+      ],
+      "files": {
+        "es": "airtable.md",
+        "en": "en/airtable.md"
+      }
+    },
+    {
+      "id": "google-sheets",
+      "name": "Google Sheets",
+      "source": "https://developers.google.com/sheets/api",
+      "sourceCheckedAt": "2026-11-05",
+      "sourceHttpStatus": 200,
+      "technicalStatus": "PROPOSED_REQUIRES_TECHNICAL_VALIDATION",
+      "operationTasks": [
+        "pedidos",
+        "facturas",
+        "stock"
+      ],
+      "files": {
+        "es": "google-sheets.md",
+        "en": "en/google-sheets.md"
+      }
+    },
+    {
+      "id": "gmail",
+      "name": "Gmail",
+      "source": "https://developers.google.com/gmail/api",
+      "sourceCheckedAt": "2026-11-05",
+      "sourceHttpStatus": 200,
+      "technicalStatus": "PROPOSED_REQUIRES_TECHNICAL_VALIDATION",
+      "operationTasks": [
+        "pedidos",
+        "facturas"
+      ],
+      "files": {
+        "es": "gmail.md",
+        "en": "en/gmail.md"
+      }
+    },
+    {
+      "id": "google-drive",
+      "name": "Google Drive",
+      "source": "https://developers.google.com/drive/api",
+      "sourceCheckedAt": "2026-11-05",
+      "sourceHttpStatus": 200,
+      "technicalStatus": "PROPOSED_REQUIRES_TECHNICAL_VALIDATION",
+      "operationTasks": [
+        "facturas"
+      ],
+      "files": {
+        "es": "google-drive.md",
+        "en": "en/google-drive.md"
+      }
+    },
+    {
+      "id": "telegram",
+      "name": "Telegram",
+      "source": "https://core.telegram.org/bots/api",
+      "sourceCheckedAt": "2026-11-05",
+      "sourceHttpStatus": 200,
+      "technicalStatus": "PROPOSED_REQUIRES_TECHNICAL_VALIDATION",
+      "operationTasks": [
+        "pedidos",
+        "stock"
+      ],
+      "files": {
+        "es": "telegram.md",
+        "en": "en/telegram.md"
+      }
+    },
+    {
+      "id": "supabase",
+      "name": "Supabase",
+      "source": "https://supabase.com/docs/guides/api",
+      "sourceCheckedAt": "2026-11-05",
+      "sourceHttpStatus": 200,
+      "technicalStatus": "PROPOSED_REQUIRES_TECHNICAL_VALIDATION",
+      "operationTasks": [
+        "pedidos",
+        "stock"
+      ],
+      "files": {
+        "es": "supabase.md",
+        "en": "en/supabase.md"
+      }
+    },
+    {
+      "id": "n8n",
+      "name": "n8n",
+      "source": "https://docs.n8n.io/",
+      "sourceCheckedAt": "2026-11-05",
+      "sourceHttpStatus": 200,
+      "technicalStatus": "PROPOSED_REQUIRES_TECHNICAL_VALIDATION",
+      "operationTasks": [
+        "pedidos",
+        "facturas",
+        "stock"
+      ],
+      "files": {
+        "es": "n8n.md",
+        "en": "en/n8n.md"
+      }
+    },
+    {
+      "id": "hubspot",
+      "name": "HubSpot",
+      "source": "https://developers.hubspot.com/docs/api-reference/latest/overview",
+      "sourceCheckedAt": "2026-11-05",
+      "sourceHttpStatus": 200,
+      "technicalStatus": "PROPOSED_REQUIRES_TECHNICAL_VALIDATION",
+      "operationTasks": [],
+      "files": {
+        "es": "hubspot.md",
+        "en": "en/hubspot.md"
+      }
+    },
+    {
+      "id": "slack",
+      "name": "Slack",
+      "source": "https://api.slack.com/",
+      "sourceCheckedAt": "2026-11-05",
+      "sourceHttpStatus": 200,
+      "technicalStatus": "PROPOSED_REQUIRES_TECHNICAL_VALIDATION",
+      "operationTasks": [
+        "pedidos",
+        "facturas",
+        "stock"
+      ],
+      "files": {
+        "es": "slack.md",
+        "en": "en/slack.md"
+      }
+    },
+    {
+      "id": "notion",
+      "name": "Notion",
+      "source": "https://developers.notion.com/guides/notion-api/quick-start",
+      "sourceCheckedAt": "2026-11-05",
+      "sourceHttpStatus": 200,
+      "technicalStatus": "PROPOSED_REQUIRES_TECHNICAL_VALIDATION",
+      "operationTasks": [
+        "pedidos",
+        "facturas",
+        "stock"
+      ],
+      "files": {
+        "es": "notion.md",
+        "en": "en/notion.md"
+      }
+    }
+  ]
+}
