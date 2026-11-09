@@ -9,7 +9,19 @@ let recognition=null,listening=false,autoListen=false,voiceEnabled=true,playing=
 const sound=document.getElementById('sound');
 const player=new Audio();
 let generation=0, objectUrl=null;
+let restartTimer=null, emptyEnds=0, heardSpeech=false, speechRequest=null;
 const message=(es,en)=>language==='es'?es:en;
+function clearRestart(){clearTimeout(restartTimer);restartTimer=null;}
+function disableListening(reason=''){
+  autoListen=false;clearRestart();stopVoice();
+  mic.setAttribute('aria-pressed','false');updateLanguageControls();
+  if(reason)voiceStatus.textContent=reason;
+}
+function scheduleListening(delay=700){
+  clearRestart();
+  if(!autoListen||busy||playing||document.hidden)return;
+  restartTimer=setTimeout(()=>{restartTimer=null;startAutoListening();},delay);
+}
 function unlockLeoAudio(){
   if(player.src || playing)return;
   player.src='data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQIAAACAgA==';
@@ -17,17 +29,19 @@ function unlockLeoAudio(){
 }
 function stopLeoSpeech(){
   generation++;
+  speechRequest?.abort();speechRequest=null;
   player.onended=player.onerror=null;
   player.pause();
   if(objectUrl){player.removeAttribute('src');URL.revokeObjectURL(objectUrl);objectUrl=null;}
   playing=false;
   document.querySelector('.mascot').classList.remove('speaking');
 }
-function stopVoice(){if(listening){try{recognition.abort();}catch{}}}
+function stopVoice(){clearRestart();if(listening){try{recognition.abort();}catch{}}}
 function startAutoListening(){
-  if(!autoListen||!recognition||listening||busy||playing)return;
+  if(!autoListen||!recognition||listening||busy||playing||document.hidden)return;
+  clearRestart();heardSpeech=false;
   recognition.lang=language==='es'?'es-SV':'en-US';
-  try{recognition.start();listening=true;}catch(e){voiceStatus.textContent=e.message;}
+  try{recognition.start();listening=true;}catch(e){disableListening(message('Toca Hablar para reintentar. ','Tap Speak to retry. ')+e.message);}
 }
 async function speak(text){
   if(!voiceEnabled)return;
@@ -35,16 +49,18 @@ async function speak(text){
   const request=generation;
   playing=true;
   stopVoice();
+  const controller=new AbortController();speechRequest=controller;
+  const timeout=setTimeout(()=>controller.abort(),20000);
   try{
-    const response=await fetch('/api?leo_speech=1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text.replace(/[*_`#]/g,'').trim().slice(0,800)})});
+    const response=await fetch('/api?leo_speech=1',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:text.replace(/[*_`#]/g,'').trim().slice(0,800)}),signal:controller.signal});
     if(!response.ok||!response.headers.get('content-type')?.startsWith('audio/'))throw Error('HTTP '+response.status);
     if(response.headers.get('X-Boltech-Voice-Id')!=='es-SV-RodrigoNeural')throw Error('VOICE_MISMATCH');
     const blob=await response.blob();
     if(request!==generation)return;
     objectUrl=URL.createObjectURL(blob);
     player.src=objectUrl;
-    player.onended=()=>{stopLeoSpeech();startAutoListening();};
-    player.onerror=()=>{stopLeoSpeech();voiceStatus.textContent=message('Error al reproducir audio.','Audio playback failed.');startAutoListening();};
+    player.onended=()=>{stopLeoSpeech();scheduleListening();};
+    player.onerror=()=>{stopLeoSpeech();disableListening(message('Error de audio. Toca Probar voz para reintentar.','Audio failed. Tap Test voice to retry.'));};
     await player.play();
     if(request!==generation)return;
     document.querySelector('.mascot').classList.add('speaking');
@@ -53,8 +69,8 @@ async function speak(text){
     if(request!==generation)return;
     stopLeoSpeech();
     voiceStatus.textContent=message('No se pudo reproducir la voz. ','Playback failed. ')+(e.message||'');
-    startAutoListening();
-  }
+    disableListening(message('Toca Probar voz para reintentar. ','Tap Test voice to retry. ')+(e.message||''));
+  }finally{clearTimeout(timeout);if(speechRequest===controller)speechRequest=null;}
 }
 sound.onclick=()=>{
   voiceEnabled=!voiceEnabled;
@@ -68,24 +84,31 @@ document.getElementById('voice-test').onclick=()=>{
 };
 if(SpeechRecognition){
   recognition=new SpeechRecognition();
+  recognition.continuous=true;recognition.interimResults=false;
   recognition.onresult=e=>{
     if(!autoListen||playing||busy)return;
-    const transcript=e.results[e.resultIndex][0].transcript.trim();
-    if(transcript){input.value=transcript;document.getElementById('form').requestSubmit();}
+    const result=e.results[e.resultIndex];if(!result?.isFinal)return;
+    const transcript=result[0].transcript.trim();
+    if(transcript){heardSpeech=true;emptyEnds=0;input.value=transcript;document.getElementById('form').requestSubmit();}
   };
   recognition.onerror=e=>{
     if(e.error==='aborted'||e.error==='no-speech')return;
-    autoListen=false;
-    mic.setAttribute('aria-pressed','false');updateLanguageControls();
-    voiceStatus.textContent=message('Revisa el permiso del micrófono. ','Check microphone permission. ')+e.error;
+    disableListening(message('No se pudo escuchar. Toca Hablar para reintentar. ','Could not listen. Tap Speak to retry. ')+e.error);
   };
-  recognition.onend=()=>{listening=false;if(autoListen)setTimeout(startAutoListening,350);};
+  recognition.onend=()=>{
+    listening=false;
+    if(!autoListen||busy||playing||document.hidden)return;
+    emptyEnds=heardSpeech?0:emptyEnds+1;
+    if(emptyEnds>=3){disableListening(message('La escucha se pausó al no recibir voz. Toca Hablar para continuar.','Listening paused without speech. Tap Speak to continue.'));return;}
+    scheduleListening(heardSpeech?700:1500*2**(emptyEnds-1));
+  };
   mic.onclick=()=>{
     unlockLeoAudio();autoListen=!autoListen;
     mic.setAttribute('aria-pressed',String(autoListen));updateLanguageControls();
-    if(autoListen){voiceStatus.textContent='';stopLeoSpeech();startAutoListening();}else stopVoice();
+    if(autoListen){emptyEnds=0;voiceStatus.textContent='';stopLeoSpeech();startAutoListening();}else stopVoice();
   };
 }else{mic.disabled=true;voiceStatus.textContent=message('Dictado no disponible en este navegador.','Voice input unavailable in this browser.');}
+document.addEventListener('visibilitychange',()=>{if(document.hidden){disableListening();stopLeoSpeech();}});
 const objectiveToken=document.getElementById('objective-token');
 const objectivePattern=/^(?:objetivo|objective):\\s*(.+?)\\s*\\|\\s*(.+)$/i;
 const intentPattern=/(?:quiero|necesito|ay[uú]dame a|puedes|pod[eé]s|please|i want|i need|help me)\\s+.{0,140}(?:automatiz|integr|conect|configur|habilit|implement|whatsapp|automate|integrate|connect|configure|enable)/i;
@@ -101,7 +124,7 @@ function updateLanguageControls(){mic.textContent=autoListen?message('Detener mi
 function start(){stopVoice();stopLeoSpeech();history=[];pendingObjective=null;chat.replaceChildren();add(startText[language],'agent');updateLanguageControls();document.getElementById('summary').textContent='';}
 document.getElementById('lang').onclick=()=>{if(busy)return;stopVoice();stopLeoSpeech();language=language==='es'?'en':'es';updateLanguageControls();if(history.length===0&&chat.children.length===1)chat.firstElementChild.textContent=startText[language];};
 document.getElementById('form').onsubmit=async e=>{
-e.preventDefault();if(busy)return;unlockLeoAudio();const msg=input.value.trim();if(!msg)return;input.value='';add(msg,'user');busy=true;send.disabled=true;
+e.preventDefault();if(busy)return;unlockLeoAudio();const msg=input.value.trim();if(!msg)return;input.value='';add(msg,'user');busy=true;stopVoice();stopLeoSpeech();send.disabled=true;
 try{
 const controller=new AbortController();
 const timeout=setTimeout(()=>controller.abort(),20000);
@@ -118,3 +141,4 @@ add((language==='es'?'Leo no pudo responder en este momento. Inténtalo de nuevo
 finally{busy=false;send.disabled=false;input.focus();startAutoListening()}
 };document.addEventListener('keydown',unlockLeoAudio,{once:true});start();
 </script></body></html>
+
