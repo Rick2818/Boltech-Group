@@ -22,10 +22,15 @@ test('language selection does not reset conversation or discard pending objectiv
 });
 
 test('Leo voice and mic adapt to the selected language',()=>{
- assert.match(html,/rodrigo_speech=1/);
+ assert.match(html,/leo_speech=1/);
+ assert.match(html,/X-Boltech-Voice-Id/);
+ assert.match(html,/es-SV-RodrigoNeural/);
  assert.match(html,/language==='es'/);
- assert.match(html,/new Audio\(leoObjectUrl\)/);
- assert.match(html,/speechSynthesis\.speak\(u\)/);
+ assert.match(html,/const player=new Audio\(\)/);
+ assert.match(html,/player\.src=objectUrl/);
+ assert.match(html,/await player\.play\(\)/);
+ assert.match(html,/listening\|\|busy\|\|playing/);
+ assert.match(html,/player\.onended=\(\)=>\{stopLeoSpeech\(\);startAutoListening\(\);\}/);
  assert.match(html,/recognition\.lang=language==='es'\?'es-SV':'en-US'/);
  assert.match(html,/requestSubmit\(\)/);
  assert.match(html,/🔊 Voice/);
