@@ -70,3 +70,7 @@ data/airtable_metrics.csv
 
 # Isolated synthetic QA runtime state
 ops-output/synthetic-qa/
+
+# Generated Cloudflare public bundle and local Wrangler state
+.cloudflare/
+.wrangler/
