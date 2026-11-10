@@ -46,3 +46,17 @@ Live publication confirmed the Lorena HTML hash but speech returned 502. Root ca
 Workers rejects redirect:error before network I/O. Use redirect:manual and reject non-2xx
 provider responses, preserving the no-credential-forwarding policy. Corrected ZIP v2
 still requires live publication verification. Updated the language regression to Lorena.
+
+## Gentle welcome patch (awaiting listening validation)
+
+The user finds Lorena's neutral delivery too stern. This patch retains her Salvadoran
+voice identity and uses supported SSML prosody: rate -8%, volume -2dB, and 180ms pauses
+after sentence punctuation. It does not pretend Lorena supports an emotional style.
+The audio response includes X-Boltech-Voice-Profile: lorena-gentle-v1. Subjective warmth
+requires the user's listening check; valid MP3 and a voice ID cannot prove preference.
+
+The previous private API answered a live Hola with a forced choice between email/WhatsApp
+orders, invoice review and inventory. Only first greeting-only turns now receive a
+neutral welcome, without qualification, actions or a forced checklist. Real requests
+and ongoing conversations keep the original backend. The page and voice-test use the
+same welcome in ES/EN. No payment or subscription settings are modified.

@@ -86,6 +86,8 @@ test('Lorena uses existing Azure credentials, escaped SSML and genuine MP3; erro
       assert.equal(init.headers['Ocp-Apim-Subscription-Key'],'qa-only');
       assert.equal(init.redirect,'manual');
       assert.match(init.body,/name="es-SV-LorenaNeural"/);
+      assert.match(init.body,/<prosody rate="-8%" volume="-2dB">/);
+      assert.doesNotMatch(init.body,/express-as/);
       assert.match(init.body,/Hola &lt;audio src=&quot;x&quot;&gt;&amp;/);
       return new Response(new Uint8Array([73,68,51]),{headers:{'Content-Type':'audio/mpeg'}});
     };
@@ -106,5 +108,28 @@ test('Lorena uses existing Azure credentials, escaped SSML and genuine MP3; erro
     assert.equal((await worker.fetch(request('hola'),env)).status,502);
     globalThis.fetch=async()=>{throw Error('network');};
     assert.equal((await worker.fetch(request('hola'),env)).status,502);
+  }finally{globalThis.fetch=saved;}
+});
+
+test('first greeting is welcoming, never a forced business checklist; substantive and ongoing turns keep the backend', async () => {
+  const {firstGreeting,WELCOME}=await import('../cloudflare/pages-leo-audio-worker.mjs');
+  const request=data=>new Request('https://boltech-group.pages.dev/api?leo_sales=1',{method:'POST',body:JSON.stringify(data)});
+  for(const message of ['Hola','¡Hola, Leo!','Buenos días','Hola Leo, ¿cómo estás?','Hello Leo']) {
+    const response=await firstGreeting(request({message,history:[],language:'es'}));
+    assert.ok(response);const data=await response.json();
+    assert.equal(data.reply,WELCOME.es);assert.deepEqual(data.authorizedActions,[]);assert.equal(data.qualified,false);
+    assert.doesNotMatch(data.reply,/facturas|inventarios|proceso repetitivo/i);
+  }
+  assert.equal((await (await firstGreeting(request({message:'Hello',language:'en'}))).json()).reply,WELCOME.en);
+  for(const data of [
+    {message:'Hola, necesito facturar'}, {message:'Hola, paga esta factura'},
+    {message:'Hola',history:[{role:'user',text:'Ayuda con mi pedido'}]},
+    {message:'Hola',history:'bad'}, {message:123}, null
+  ]) assert.equal(await firstGreeting(request(data)),null);
+  const saved=globalThis.fetch;
+  try {
+    globalThis.fetch=async(url,init)=>{assert.equal(new URL(url).host,BACKEND_HOST);assert.equal(JSON.parse(await new Response(init.body).text()).message,'Hola, necesito facturar');return Response.json({success:true,reply:'existing response'});};
+    const result=await worker.fetch(request({message:'Hola, necesito facturar',history:[]}),{});
+    assert.equal((await result.json()).reply,'existing response');
   }finally{globalThis.fetch=saved;}
 });

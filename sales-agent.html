@@ -80,7 +80,7 @@ sound.onclick=()=>{
 };
 document.getElementById('voice-test').onclick=()=>{
   unlockLeoAudio();voiceEnabled=true;sound.setAttribute('aria-pressed','true');
-  updateLanguageControls();speak('Hola, soy Leo.');
+  updateLanguageControls();speak(startText[language]);
 };
 if(SpeechRecognition){
   recognition=new SpeechRecognition();
@@ -118,7 +118,7 @@ async function registerObjective(description,criteria){
  const response=await fetch('/api/leo-objectives',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({operation:'create',objective:{id:'obj_'+crypto.randomUUID().replace(/-/g,'').slice(0,24),description,criteria,source:'customer'}})});
  const data=await response.json().catch(()=>null);if(!response.ok||!data?.success)throw Error(data?.error||'OBJECTIVE_UNAVAILABLE');return data.record;
 }
-const startText={es:'¡Hola! Soy Leo, asesor de Ventas de Boltech. ¿Qué proceso te gustaría automatizar?',en:'Hi! I’m Leo, Boltech’s Sales assistant. What workflow would you like to automate?'};
+const startText={es:'Hola, soy Leo. Qué gusto saludarte. Cuéntame, ¿en qué te puedo ayudar?',en:'Hi, I’m Leo. It’s lovely to meet you. Tell me, how can I help?'};
 function add(text,who){const p=document.createElement('div');p.className='line '+(who==='user'?'user':'agent');p.textContent=text;chat.appendChild(p);p.scrollIntoView({block:'nearest'})}
 function updateLanguageControls(){mic.textContent=autoListen?message('Detener micrófono','Stop microphone'):message('🎙 Hablar','🎙 Speak');document.getElementById('heading').textContent=language==='es'?'Habla con Leo':'Talk to Leo';send.textContent=language==='es'?'Enviar':'Send';document.getElementById('lang').textContent=language==='es'?'EN':'ES';sound.textContent=voiceEnabled?(language==='es'?'🔊 Voz':'🔊 Voice'):(language==='es'?'🔇 Silencio':'🔇 Muted');document.getElementById('note').textContent=language==='es'?'Leo orienta y prepara el diagnóstico. No confirma pedidos, envía correos ni procesa pagos. Las cotizaciones necesitan aprobación.':'Leo provides guidance and scoping. No orders, emails or payments are processed. Quotes require approval.';}
 function start(){stopVoice();stopLeoSpeech();history=[];pendingObjective=null;chat.replaceChildren();add(startText[language],'agent');updateLanguageControls();document.getElementById('summary').textContent='';}
