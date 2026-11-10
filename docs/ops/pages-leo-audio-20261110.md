@@ -50,7 +50,7 @@ still requires live publication verification. Updated the language regression to
 ## Gentle welcome patch (awaiting listening validation)
 
 The user finds Lorena's neutral delivery too stern. This patch retains her Salvadoran
-voice identity and uses supported SSML prosody: rate -8%, volume -2dB, and 180ms pauses
+voice identity and uses supported SSML prosody: rate -8%, volume -10%, and 180ms pauses
 after sentence punctuation. It does not pretend Lorena supports an emotional style.
 The audio response includes X-Boltech-Voice-Profile: lorena-gentle-v1. Subjective warmth
 requires the user's listening check; valid MP3 and a voice ID cannot prove preference.
@@ -60,3 +60,9 @@ orders, invoice review and inventory. Only first greeting-only turns now receive
 neutral welcome, without qualification, actions or a forced checklist. Real requests
 and ongoing conversations keep the original backend. The page and voice-test use the
 same welcome in ES/EN. No payment or subscription settings are modified.
+
+Publication check: the new welcome works, but synthesis returned provider failure.
+Azure SSML prosody volume uses a number/percentage or named value; use -10%, not
+-2dB. Added the standard synthesis namespace and safe numeric provider HTTP error
+reporting (never provider response text or credentials). Corrected artifact awaits
+new deployment and actual audio validation.

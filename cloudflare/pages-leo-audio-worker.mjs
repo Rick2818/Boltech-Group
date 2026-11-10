@@ -23,9 +23,9 @@ async function speech(request, env) {
       method:'POST', redirect:'manual', signal:AbortSignal.timeout(12000),
       headers:{'Ocp-Apim-Subscription-Key':env.AZURE_SPEECH_KEY,'Content-Type':'application/ssml+xml',
         'X-Microsoft-OutputFormat':'audio-24khz-48kbitrate-mono-mp3','User-Agent':'Boltech-Leo'},
-      body:`<speak version="1.0" xml:lang="es-SV"><voice name="${LEO_VOICE}"><prosody rate="-8%" volume="-2dB">${xml(text).replace(/([.!?])\s+/g, '$1<break time="180ms"/>')}</prosody></voice></speak>`
+      body:`<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="es-SV"><voice name="${LEO_VOICE}"><prosody rate="-8%" volume="-10%">${xml(text).replace(/([.!?])\s+/g, '$1<break time="180ms"/>')}</prosody></voice></speak>`
     });
-    if(!result.ok) return fail('SPEECH_PROVIDER_FAILED',502);
+    if(!result.ok) return fail('SPEECH_PROVIDER_HTTP_'+result.status,502);
     const audio=await result.arrayBuffer();
     if(!audio.byteLength || audio.byteLength > 2000000) return fail('INVALID_AUDIO',502);
     return new Response(audio,{headers:{'Content-Type':'audio/mpeg','Cache-Control':'no-store','X-Boltech-Voice-Id':LEO_VOICE,'X-Boltech-Voice-Profile':VOICE_PROFILE}});

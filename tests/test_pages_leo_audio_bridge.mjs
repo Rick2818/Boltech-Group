@@ -86,8 +86,9 @@ test('Lorena uses existing Azure credentials, escaped SSML and genuine MP3; erro
       assert.equal(init.headers['Ocp-Apim-Subscription-Key'],'qa-only');
       assert.equal(init.redirect,'manual');
       assert.match(init.body,/name="es-SV-LorenaNeural"/);
-      assert.match(init.body,/<prosody rate="-8%" volume="-2dB">/);
-      assert.doesNotMatch(init.body,/express-as/);
+      assert.match(init.body,/<prosody rate="-8%" volume="-10%">/);
+      assert.doesNotMatch(init.body,/express-as|volume="[^"]*dB"/);
+      assert.match(init.body,/xmlns="http:\/\/www.w3.org\/2001\/10\/synthesis"/);
       assert.match(init.body,/Hola &lt;audio src=&quot;x&quot;&gt;&amp;/);
       return new Response(new Uint8Array([73,68,51]),{headers:{'Content-Type':'audio/mpeg'}});
     };
