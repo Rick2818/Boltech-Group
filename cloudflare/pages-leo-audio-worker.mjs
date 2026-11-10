@@ -2,6 +2,8 @@
 // Retain this immutable deployment: it owns the existing API and its bindings.
 export const BACKEND_HOST = 'e912df66.boltech-group.pages.dev';
 export const LEO_VOICE = 'es-SV-LorenaNeural';
+export const VOICE_PROFILE = 'lorena-gentle-v1';
+export const WELCOME = {es:'Hola, soy Leo. Qué gusto saludarte. Cuéntame, ¿en qué te puedo ayudar?',en:'Hi, I’m Leo. It’s lovely to meet you. Tell me, how can I help?'};
 const xml = value => value.replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[ch]));
 async function speech(request, env) {
   const fail = (error, status) => Response.json({success:false,error}, {status,headers:{'Cache-Control':'no-store'}});
@@ -21,25 +23,45 @@ async function speech(request, env) {
       method:'POST', redirect:'manual', signal:AbortSignal.timeout(12000),
       headers:{'Ocp-Apim-Subscription-Key':env.AZURE_SPEECH_KEY,'Content-Type':'application/ssml+xml',
         'X-Microsoft-OutputFormat':'audio-24khz-48kbitrate-mono-mp3','User-Agent':'Boltech-Leo'},
-      body:`<speak version="1.0" xml:lang="es-SV"><voice name="${LEO_VOICE}">${xml(text)}</voice></speak>`
+      body:`<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="es-SV"><voice name="${LEO_VOICE}"><prosody rate="-8%" volume="-10%">${xml(text).replace(/([.!?])\s+/g, '$1<break time="180ms"/>')}</prosody></voice></speak>`
     });
-    if(!result.ok) return fail('SPEECH_PROVIDER_FAILED',502);
+    if(!result.ok) return fail('SPEECH_PROVIDER_HTTP_'+result.status,502);
     const audio=await result.arrayBuffer();
     if(!audio.byteLength || audio.byteLength > 2000000) return fail('INVALID_AUDIO',502);
-    return new Response(audio,{headers:{'Content-Type':'audio/mpeg','Cache-Control':'no-store','X-Boltech-Voice-Id':LEO_VOICE}});
+    return new Response(audio,{headers:{'Content-Type':'audio/mpeg','Cache-Control':'no-store','X-Boltech-Voice-Id':LEO_VOICE,'X-Boltech-Voice-Profile':VOICE_PROFILE}});
   } catch { return fail('SPEECH_PROVIDER_UNAVAILABLE',502); }
+}
+// Only a first, greeting-only turn is handled here. Actual requests and ongoing
+// conversations retain the existing backend and its authorization rules.
+export async function firstGreeting(request) {
+  if(Number(request.headers.get('Content-Length')) > 10000) return null;
+  try {
+    const raw=await request.clone().text();
+    if(raw.length > 10000) return null;
+    const data=JSON.parse(raw);
+    if(!data || typeof data.message !== 'string' || data.message.length > 120 ||
+       (data.history !== undefined && (!Array.isArray(data.history) || data.history.length))) return null;
+    const normalized=data.message.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()
+      .replace(/[¿?¡!.,;:]/g,' ').replace(/\s+/g,' ').trim();
+    if(!/^(hola|buenas|buenos dias|buenas tardes|buenas noches|hi|hello|hey)( leo)?( como estas| que tal| how are you)?$/.test(normalized)) return null;
+    return Response.json({success:true,mode:'WELCOME',reply:WELCOME[data.language==='en'?'en':'es'],
+      authorizedActions:[],qualified:false,provider:'boltech-welcome'}, {headers:{'Cache-Control':'no-store'}});
+  } catch { return null; }
 }
 const LEO_PATHS = new Set(['/sales-agent', '/sales-agent.html', '/sales-agent/']);
 
 export default {
   async fetch(request, env) {
     const incoming = new URL(request.url);
+    if(incoming.pathname === '/api' && incoming.searchParams.get('leo_sales') === '1' && request.method === 'POST') {
+      const greeting=await firstGreeting(request); if(greeting) return greeting;
+    }
     if (incoming.pathname === '/api' && incoming.searchParams.get('leo_speech') === '1' && request.method === 'POST') return speech(request,env);
     if (['GET', 'HEAD'].includes(request.method) && LEO_PATHS.has(incoming.pathname)) {
       const asset = await env.ASSETS.fetch(request);
       const response = new Response(asset.body, asset);
       response.headers.set('Cache-Control', 'no-store');
-      response.headers.set('X-Boltech-Leo-Release', 'audio-20261110');
+      response.headers.set('X-Boltech-Leo-Release', 'gentle-20261110');
       return response;
     }
     // Never resolve user-controlled paths against the host or follow redirects
