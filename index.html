@@ -256,10 +256,7 @@
     } catch(e){ return false; }
   };
 
-  var wa = document.getElementById('advisor-wa');
-  if(wa){
-    wa.href = 'https://wa.me/50375743444?text=' + encodeURIComponent('Hola Ricardo, me interesa una evaluación por escrito para automatizar una tarea de mi operación.');
-  }
+  document.getElementById('advisor-wa')?.remove();
 })();
 </script>
 <!-- FIN ASESOR FLOTANTE -->
