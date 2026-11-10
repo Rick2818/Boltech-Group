@@ -1,0 +1,27 @@
+name: Boltech positioning and CTA
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'lib/boltech_positioning.js'
+      - 'lib/leo_sales_runtime.js'
+      - 'cloudflare/leo-marketing-worker.mjs'
+      - 'tests/test_boltech_positioning.mjs'
+      - 'index.html'
+      - 'sales-agent.html'
+      - 'por-que-boltech.html'
+      - '.github/workflows/boltech-positioning-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  positioning:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: node --check lib/leo_sales_runtime.js
+      - run: node --test tests/test_boltech_positioning.mjs
