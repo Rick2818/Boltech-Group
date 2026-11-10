@@ -26,3 +26,23 @@ missing objective/autonomy handlers. Future backend changes must either update
 this explicit pin after verification or bring the deployed Functions source
 and its bindings under the repository's deployment process. Future frontend
 changes require rebuilding and deploying this ZIP as well as the Git Worker.
+
+## Female Salvadoran voice patch (pending publication)
+
+The user clarified the desired voice is female Salvadoran. The previous backend returns
+Rodrigo even when Lorena is supplied in JSON or query. The advanced-mode gateway now
+handles only POST `/api?leo_speech=1` using the existing runtime Azure Speech key/region
+and fixes SSML to `es-SV-LorenaNeural`; the frontend verifies that same ID. Other APIs
+continue to use the immutable backend, including payments. No subscription is created.
+The synthesis uses the existing resource and remains subject to its billing/quota; a
+free tier has not been verified. Requests are limited to 800 characters, XML escaped,
+same-origin checked when an Origin is supplied, and timed out at 12 seconds. There is
+no browser robotic/male fallback. This patch does not certify monthly usage controls.
+
+16 local tests passed. Live Lorena output and the user's listening check remain
+pending a new Pages deployment. Do not claim this voice is restored before those checks.
+
+Live publication confirmed the Lorena HTML hash but speech returned 502. Root cause:
+Workers rejects redirect:error before network I/O. Use redirect:manual and reject non-2xx
+provider responses, preserving the no-credential-forwarding policy. Corrected ZIP v2
+still requires live publication verification. Updated the language regression to Lorena.

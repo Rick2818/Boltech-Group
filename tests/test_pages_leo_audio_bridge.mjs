@@ -73,3 +73,38 @@ test('same-site redirects retain visitor host, external payment redirects remain
     assert.equal((await worker.fetch(new Request('https://boltech-group.pages.dev/api'), {})).status, 502);
   } finally { globalThis.fetch = saved; }
 });
+
+test('Lorena uses existing Azure credentials, escaped SSML and genuine MP3; errors never substitute another voice', async () => {
+  const saved=globalThis.fetch;
+  const env={AZURE_SPEECH_KEY:'qa-only',AZURE_SPEECH_REGION:'eastus'};
+  const request=(text,headers={})=>new Request('https://boltech-group.pages.dev/api?leo_speech=1',{method:'POST',headers,body:JSON.stringify({text,voice:'attacker-controlled'})});
+  try {
+    let calls=0;
+    globalThis.fetch=async (url,init)=>{
+      calls++;
+      assert.equal(url,'https://eastus.tts.speech.microsoft.com/cognitiveservices/v1');
+      assert.equal(init.headers['Ocp-Apim-Subscription-Key'],'qa-only');
+      assert.equal(init.redirect,'manual');
+      assert.match(init.body,/name="es-SV-LorenaNeural"/);
+      assert.match(init.body,/Hola &lt;audio src=&quot;x&quot;&gt;&amp;/);
+      return new Response(new Uint8Array([73,68,51]),{headers:{'Content-Type':'audio/mpeg'}});
+    };
+    let result=await worker.fetch(request('Hola <audio src="x">&'),env);
+    assert.equal(result.status,200);
+    assert.equal(result.headers.get('X-Boltech-Voice-Id'),'es-SV-LorenaNeural');
+    assert.deepEqual(new Uint8Array(await result.arrayBuffer()),new Uint8Array([73,68,51]));
+    for(const [req,configuration,status] of [
+      [request('hola',{Origin:'https://attacker.example'}),env,403],
+      [request('x'.repeat(801)),env,400], [request(''),env,400],
+      [request('hola'),{},503], [request('hola'),{...env,AZURE_SPEECH_REGION:'evil.example/'},503]
+    ]) assert.equal((await worker.fetch(req,configuration)).status,status);
+    assert.equal(calls,1);
+    globalThis.fetch=async()=>new Response('sensitive provider error',{status:401});
+    result=await worker.fetch(request('hola'),env);
+    assert.equal(result.status,502);assert.doesNotMatch(await result.text(),/sensitive|qa-only/);
+    globalThis.fetch=async()=>new Response(null,{status:302,headers:{Location:'https://attacker.example'}});
+    assert.equal((await worker.fetch(request('hola'),env)).status,502);
+    globalThis.fetch=async()=>{throw Error('network');};
+    assert.equal((await worker.fetch(request('hola'),env)).status,502);
+  }finally{globalThis.fetch=saved;}
+});
