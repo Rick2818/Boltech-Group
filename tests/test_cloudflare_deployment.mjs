@@ -40,13 +40,18 @@ test('API bridge preserves raw signed payloads, query, audio headers and failure
     const response=await worker.fetch(new Request('https://boltech.example/api/index?rodrigo_speech=1',{
       method:'POST',body:raw,headers:{'Content-Type':'application/json','wompi_hash':'signature','X-Forwarded-For':'forged','CF-Connecting-IP':'192.0.2.1'}
     }),{});
-    assert.equal(observed.url,'https://boltech-group.vercel.app/api/index?rodrigo_speech=1');
+    assert.equal(observed.url,'https://boltech-group.pages.dev/api?leo_speech=1');
     assert.equal(observed.body,raw);
     assert.equal(observed.options.headers.get('wompi_hash'),'signature');
     assert.equal(observed.options.headers.get('x-forwarded-for'),'192.0.2.1');
     assert.equal(observed.options.redirect,'manual');
     assert.equal(response.headers.get('X-Boltech-Voice-Id'),'es-SV-RodrigoNeural');
     assert.equal(response.headers.get('Cache-Control'),'no-store');
+    assert.equal(response.headers.get('X-Boltech-API-Origin'),'cloudflare-pages');
+    await worker.fetch(new Request('https://boltech.example/api/index?leo_sales=1'),{});
+    assert.equal(observed.url,'https://boltech-group.pages.dev/api?leo_sales=1');
+    await worker.fetch(new Request('https://boltech.example/api/payments?action=status&orderId=existing'),{});
+    assert.equal(observed.url,'https://boltech-group.pages.dev/api/payments?action=status&orderId=existing');
     globalThis.fetch=async()=>new Response('Unauthorized',{status:401});
     assert.equal((await worker.fetch(new Request('https://boltech.example/api/payments'),{})).status,401);
     globalThis.fetch=async()=>{throw Error('offline');};

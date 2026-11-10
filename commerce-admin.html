@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Commerce Admin | Boltech</title>
+<style>
+:root{font-family:system-ui,sans-serif;color:#f5f4f0;background:#090b0d}*{box-sizing:border-box}body{margin:0}.wrap{width:min(760px,calc(100% - 32px));margin:48px auto}.card{background:#141619;border:1px solid #3b3529;border-radius:16px;padding:28px}h1{margin-top:0;color:#e6c675}p,label{color:#b9b6ae;line-height:1.5}label{display:block;margin:16px 0 6px;font-size:14px}input,select,button{width:100%;padding:12px;border-radius:8px;border:1px solid #5d523d;background:#0e1012;color:#f5f4f0;font:inherit}button{margin-top:20px;background:#d5ae58;color:#17130b;font-weight:700;cursor:pointer}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.notice{border-left:3px solid #d5ae58;padding-left:12px;font-size:13px}.result{white-space:pre-wrap;background:#0a0c0e;border-radius:8px;padding:14px;margin-top:20px;overflow:auto}@media(max-width:600px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main class="wrap"><section class="card">
+<h1>Cotización aprobada</h1>
+<p class="notice">Uso interno. El token se mantiene únicamente en memoria de esta página y no se guarda en el navegador. No ingreses credenciales de clientes.</p>
+<form id="quote-form" autocomplete="off">
+<label for="token">COMMERCE_ADMIN_TOKEN</label><input id="token" type="password" required autocomplete="new-password">
+<div class="grid"><div><label for="productId">Producto</label><select id="productId"><option value="prebuilt">Agentes preelaborados — mínimo US$600</option><option value="custom">Agente a medida — mínimo US$900</option></select></div><div><label for="amount">Monto aprobado (USD)</label><input id="amount" type="number" min="600" step="0.01" value="600" required></div></div>
+<label for="reference">Referencia de cotización</label><input id="reference" maxlength="160" required placeholder="Q-2026-001">
+<label for="email">Correo del cliente</label><input id="email" type="email" maxlength="320" required>
+<label><input id="approved" type="checkbox" required style="width:auto;margin-right:8px"> Confirmo que la cotización fue aprobada y los términos fueron revisados.</label>
+<button type="submit">Emitir enlace de pago</button>
+</form><pre id="result" class="result" hidden></pre>
+<hr style="margin:28px 0;border-color:#302d27">
+<form id="status-form" autocomplete="off"><label for="order">Consultar orderId</label><input id="order" required><button type="submit">Consultar estado</button></form>
+</section></main>
+<script>
+const result=document.getElementById('result');
+function show(value){result.hidden=false;result.textContent=typeof value==='string'?value:JSON.stringify(value,null,2)}
+async function call(url,options){const response=await fetch(url,options);const data=await response.json().catch(()=>({code:'INVALID_SERVER_RESPONSE'}));if(!response.ok)throw data;return data}
+document.getElementById('quote-form').addEventListener('submit',async event=>{event.preventDefault();const token=document.getElementById('token').value;show('Procesando...');try{const data=await call('/api/payments?action=create-approved',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},body:JSON.stringify({approved:true,productId:document.getElementById('productId').value,approvedAmountUsd:Number(document.getElementById('amount').value),quoteReference:document.getElementById('reference').value,customerEmail:document.getElementById('email').value})});show(data)}catch(error){show(error)}finally{document.getElementById('token').value=''}});
+document.getElementById('status-form').addEventListener('submit',async event=>{event.preventDefault();try{show(await call('/api/payments?action=status&orderId='+encodeURIComponent(document.getElementById('order').value)))}catch(error){show(error)}});
+</script></body></html>

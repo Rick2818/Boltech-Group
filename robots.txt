@@ -1,23 +1,14 @@
-# =============================================================================
-# Boltech Group / UNBLOCK AI — ROBOTS.TXT FIDUCIARIO
-# https://rick2818.github.io/Agents/
-# =============================================================================
+# Boltech Group — robots.txt
+# Dominio de producción: https://plan-comercial-tipo-relevance-ai.pages.dev
 
 User-agent: *
 Allow: /
-Disallow: /api/webhooks/
-Disallow: /tests/
-Disallow: /scripts/
-Disallow: /pipeline/
+Disallow: /api/
 
-# Rastreadores de Motores de Búsqueda y Modelos de Inteligencia Artificial
 User-agent: Googlebot
 Allow: /
 
 User-agent: Bingbot
-Allow: /
-
-User-agent: Google-Extended
 Allow: /
 
 User-agent: GPTBot
@@ -29,5 +20,4 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
-# Sitemap Oficial
-Sitemap: https://rick2818.github.io/Agents/sitemap.xml
+Sitemap: https://plan-comercial-tipo-relevance-ai.pages.dev/sitemap.xml
