@@ -14,7 +14,7 @@ function setup(){
   const context=vm.createContext({window:{SpeechRecognition:Recognition},document,Audio,AbortController,
     URL:{createObjectURL:()=> 'blob:test',revokeObjectURL(){}},
     setTimeout(fn,ms){const id=++timerId;timers.set(id,{fn,ms});return id;},clearTimeout:id=>timers.delete(id),
-    fetch:async()=>({ok:true,headers:{get:k=>k==='content-type'?'audio/mpeg':'es-SV-RodrigoNeural'},blob:async()=>({})}),
+    fetch:async()=>({ok:true,headers:{get:k=>k==='content-type'?'audio/mpeg':'es-SV-LorenaNeural'},blob:async()=>({})}),
     updateLanguageControls(){},
   });
   vm.runInContext(source,context);
