@@ -1,3 +1,4 @@
+import {handleLeoIntegrations} from './leo-integrations.mjs';
 // Direct Upload compatibility layer for the original Pages address.
 // Retain this immutable deployment: it owns the existing API and its bindings.
 export const BACKEND_HOST = 'e912df66.boltech-group.pages.dev';
@@ -53,6 +54,7 @@ const LEO_PATHS = new Set(['/sales-agent', '/sales-agent.html', '/sales-agent/']
 export default {
   async fetch(request, env) {
     const incoming = new URL(request.url);
+    if(incoming.pathname === '/api/leo-integrations') return handleLeoIntegrations(request,env);
     if(incoming.pathname === '/api' && incoming.searchParams.get('leo_sales') === '1' && request.method === 'POST') {
       const greeting=await firstGreeting(request); if(greeting) return greeting;
     }

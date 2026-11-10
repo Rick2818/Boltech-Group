@@ -7,8 +7,11 @@ import zipfile
 root = Path(__file__).resolve().parent.parent
 output = root / '.cloudflare' / 'pages-leo-audio.zip'
 output.parent.mkdir(exist_ok=True)
+worker_source = (root / 'cloudflare/pages-leo-audio-worker.mjs').read_text()
+integrations = (root / 'cloudflare/leo-integrations.mjs').read_text().replace('export async function handleLeoIntegrations', 'async function handleLeoIntegrations')
+worker_source = worker_source.replace("import {handleLeoIntegrations} from './leo-integrations.mjs';", integrations)
 files = {
-    '_worker.js': (root / 'cloudflare/pages-leo-audio-worker.mjs').read_bytes(),
+    '_worker.js': worker_source.encode(),
     'sales-agent.html': (root / 'sales-agent.html').read_bytes(),
     '_routes.json': json.dumps({'version': 1, 'include': ['/*'], 'exclude': []}).encode(),
 }
