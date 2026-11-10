@@ -24,7 +24,7 @@ test('language selection does not reset conversation or discard pending objectiv
 test('Leo voice and mic adapt to the selected language',()=>{
  assert.match(html,/leo_speech=1/);
  assert.match(html,/X-Boltech-Voice-Id/);
- assert.match(html,/es-SV-RodrigoNeural/);
+ assert.match(html,/es-SV-LorenaNeural/);
  assert.match(html,/language==='es'/);
  assert.match(html,/const player=new Audio\(\)/);
  assert.match(html,/player\.src=objectUrl/);

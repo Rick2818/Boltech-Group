@@ -41,3 +41,8 @@ no browser robotic/male fallback. This patch does not certify monthly usage cont
 
 16 local tests passed. Live Lorena output and the user's listening check remain
 pending a new Pages deployment. Do not claim this voice is restored before those checks.
+
+Live publication confirmed the Lorena HTML hash but speech returned 502. Root cause:
+Workers rejects redirect:error before network I/O. Use redirect:manual and reject non-2xx
+provider responses, preserving the no-credential-forwarding policy. Corrected ZIP v2
+still requires live publication verification. Updated the language regression to Lorena.

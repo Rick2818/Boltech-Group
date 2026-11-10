@@ -84,7 +84,7 @@ test('Lorena uses existing Azure credentials, escaped SSML and genuine MP3; erro
       calls++;
       assert.equal(url,'https://eastus.tts.speech.microsoft.com/cognitiveservices/v1');
       assert.equal(init.headers['Ocp-Apim-Subscription-Key'],'qa-only');
-      assert.equal(init.redirect,'error');
+      assert.equal(init.redirect,'manual');
       assert.match(init.body,/name="es-SV-LorenaNeural"/);
       assert.match(init.body,/Hola &lt;audio src=&quot;x&quot;&gt;&amp;/);
       return new Response(new Uint8Array([73,68,51]),{headers:{'Content-Type':'audio/mpeg'}});
@@ -102,6 +102,8 @@ test('Lorena uses existing Azure credentials, escaped SSML and genuine MP3; erro
     globalThis.fetch=async()=>new Response('sensitive provider error',{status:401});
     result=await worker.fetch(request('hola'),env);
     assert.equal(result.status,502);assert.doesNotMatch(await result.text(),/sensitive|qa-only/);
+    globalThis.fetch=async()=>new Response(null,{status:302,headers:{Location:'https://attacker.example'}});
+    assert.equal((await worker.fetch(request('hola'),env)).status,502);
     globalThis.fetch=async()=>{throw Error('network');};
     assert.equal((await worker.fetch(request('hola'),env)).status,502);
   }finally{globalThis.fetch=saved;}

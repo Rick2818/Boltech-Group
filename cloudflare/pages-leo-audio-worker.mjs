@@ -18,7 +18,7 @@ async function speech(request, env) {
   try {
     // Reuse the already configured Speech resource; no provider or subscription is created.
     const result = await fetch(`https://${env.AZURE_SPEECH_REGION}.tts.speech.microsoft.com/cognitiveservices/v1`, {
-      method:'POST', redirect:'error', signal:AbortSignal.timeout(12000),
+      method:'POST', redirect:'manual', signal:AbortSignal.timeout(12000),
       headers:{'Ocp-Apim-Subscription-Key':env.AZURE_SPEECH_KEY,'Content-Type':'application/ssml+xml',
         'X-Microsoft-OutputFormat':'audio-24khz-48kbitrate-mono-mp3','User-Agent':'Boltech-Leo'},
       body:`<speak version="1.0" xml:lang="es-SV"><voice name="${LEO_VOICE}">${xml(text)}</voice></speak>`
