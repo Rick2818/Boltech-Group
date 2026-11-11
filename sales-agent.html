@@ -190,7 +190,7 @@ document.getElementById('integration-check').onclick=async()=>{
    const config=status[platform];
    if(!config?.configured){lines.push(platform+': '+(config?.missing?.length?'Falta configurar / Missing: '+config.missing.join(', '):'PROVIDER_SECRET_MISSING'));continue;}
    if(platform==='freelancer'&&!config.enabled){lines.push(platform+': FREELANCER_API_ENABLED debe ser true / must be true');continue;}
-   try{const result=await integrationRequest({action:'check',platform});lines.push(platform+': '+result.status+' ('+result.checkedAt+')'+(result.searchReadiness==='POSITIVE_BALANCE_REQUIRED'?' · Saldo positivo requerido para búsquedas / Positive balance required for searches':''));}
+   try{const result=await integrationRequest({action:'check',platform});lines.push(platform+': '+result.status+' ('+result.checkedAt+')'+(result.searchReadiness==='POSITIVE_BALANCE_REQUIRED'?' · Saldo positivo requerido para búsquedas / Positive balance required for searches':result.searchReadiness==='BALANCE_NOT_REPORTED'?' · Saldo no informado; búsquedas pendientes de verificar / Balance not reported; searches not verified':''));}
    catch(error){lines.push(platform+': '+error.message);}
   }
   output.textContent=lines.join('\n');

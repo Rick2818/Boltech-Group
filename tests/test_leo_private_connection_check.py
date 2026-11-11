@@ -104,6 +104,13 @@ class PrivateConnectionChecks(unittest.TestCase):
         self.assertEqual(result['accountShape'], {'organizationId': 'number', 'balance': 'object', 'jsonContentType': True})
         self.assertNotIn(TOKEN, json.dumps(result))
 
+    def test_connected_account_with_unreported_balance_does_not_certify_search(self):
+        result = checks.safe_result('explee', 200, {'success': True, 'platform': 'explee', 'status': 'CONNECTED', 'mode': 'READ_ONLY', 'accountCheck': 'GET_ME', 'searchReadiness': 'BALANCE_NOT_REPORTED'})
+        self.assertTrue(result['connected'])
+        self.assertEqual(result['searchReadiness'], 'BALANCE_NOT_REPORTED')
+        self.assertFalse(result['searchVerified'])
+        self.assertFalse(result['autonomyVerified'])
+
     def test_written_summary_contains_only_sanitized_statuses(self):
         result = checks.check_connections('', lambda *args: self.fail('network'))
         with tempfile.TemporaryDirectory() as directory:

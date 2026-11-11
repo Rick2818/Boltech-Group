@@ -52,3 +52,7 @@ Después de desplegar, repetir la comprobación privada desde el workflow y cons
 ### Resultado tras desplegar el GET de cuenta
 
 El intento 2 de 43108514341, a las 22:05:43 UTC (16:05, El Salvador), conservó Freelancer conectado y Upwork sin autorización propia de Leo. Explee cambió de 403 a `PROVIDER_RESPONSE_INVALID` durante la validación de la respuesta. No se da por conectado: se añade diagnóstico de tipos de campos fijos, sin valores, para comprobar qué parte del esquema difiere antes de ajustar el adaptador.
+
+### Causa de la validación de Explee identificada
+
+El intento 2 de 43109461043, a las 22:11:41 UTC (16:11, El Salvador), confirmó respuesta HTTP 200 y JSON con organización e identificador de texto y clave como objeto. La única discrepancia con la validación era `balance: null`, sin `balance.remain`. El adaptador debe aceptar el saldo nulo/ausente como metadato no informado, conservando los requisitos de cuenta y clave. Se informa `BALANCE_NOT_REPORTED`; nunca se sustituye por cero, saldo positivo o búsqueda verificada.

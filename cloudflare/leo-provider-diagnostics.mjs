@@ -18,7 +18,9 @@ export async function expleeAccountCheck(env,fetchFn=fetch){
    :response.status===429?'RATE_LIMITED':'ACCESS_DENIED_UNCLASSIFIED';
   throw error;
  }
- if(!data||typeof data.organization?.id!=='string'||!data.organization.id||!data.key||typeof data.key!=='object'||Array.isArray(data.key)||typeof data.balance?.remain!=='number'||!Number.isFinite(data.balance.remain)){
+ if(data?.success===false||data?.status==='error'||data?.error)throw Error('PROVIDER_REJECTED');
+ const balanceUnknown=data?.balance==null;
+ if(!data||typeof data.organization?.id!=='string'||!data.organization.id||!data.key||typeof data.key!=='object'||Array.isArray(data.key)||(!balanceUnknown&&(typeof data.balance?.remain!=='number'||!Number.isFinite(data.balance.remain)))){
   const type=value=>value===undefined?'missing':value===null?'null':Array.isArray(value)?'array':typeof value;
   const error=Error('PROVIDER_RESPONSE_INVALID');error.providerReason='ACCOUNT_SCHEMA_MISMATCH';error.providerHttpStatus=response.status;
   // Fixed field names and primitive type labels only. Never emit values or keys
@@ -27,5 +29,5 @@ export async function expleeAccountCheck(env,fetchFn=fetch){
   throw error;
  }
  return {success:true,platform:'explee',status:'CONNECTED',checkedAt:new Date().toISOString(),mode:'READ_ONLY',accountCheck:'GET_ME',
-  searchReadiness:data.balance.remain>0?'POSITIVE_BALANCE_NOT_SEARCH_VERIFIED':'POSITIVE_BALANCE_REQUIRED'};
+  searchReadiness:balanceUnknown?'BALANCE_NOT_REPORTED':data.balance.remain>0?'POSITIVE_BALANCE_NOT_SEARCH_VERIFIED':'POSITIVE_BALANCE_REQUIRED'};
 }
