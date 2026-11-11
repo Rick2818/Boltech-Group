@@ -29,5 +29,7 @@ export async function expleeAccountCheck(env,fetchFn=fetch){
   throw error;
  }
  return {success:true,platform:'explee',status:'CONNECTED',checkedAt:new Date().toISOString(),mode:'READ_ONLY',accountCheck:'GET_ME',
+  keyReadOnly:typeof data.key.read_only==='boolean'?data.key.read_only:undefined,
+  projectRestricted:data.key.project_ids==null?false:Array.isArray(data.key.project_ids)?true:undefined,
   searchReadiness:balanceUnknown?'BALANCE_NOT_REPORTED':data.balance.remain>0?'POSITIVE_BALANCE_NOT_SEARCH_VERIFIED':'POSITIVE_BALANCE_REQUIRED'};
 }
