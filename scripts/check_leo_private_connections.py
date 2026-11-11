@@ -1,6 +1,7 @@
 """Check existing production connections; emit allowlisted status fields only."""
 import datetime
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -35,9 +36,9 @@ def now():
     return datetime.datetime.now(datetime.timezone.utc).isoformat()
 
 
-def api_check(platform, token):
+def api_operation(operation, token):
     request = urllib.request.Request(ENDPOINT,
-        data=json.dumps({'action': 'check', 'platform': platform}).encode(),
+        data=json.dumps(operation).encode(),
         headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json',
                  'Accept': 'application/json', 'User-Agent': 'Boltech-Private-Connection-Check/1.0'},
         method='POST')
@@ -61,6 +62,40 @@ def api_check(platform, token):
             return response.status, data
     except Exception:
         return 0, {'error': 'PRIVATE_API_UNAVAILABLE'}
+
+
+def api_check(platform, token):
+    return api_operation({'action': 'check', 'platform': platform}, token)
+
+
+def probe_explee_free_search(token, requester=api_operation):
+    # This fixed operation maps to page=1,page_size=10 on the Worker. No
+    # enrichment, suppression lists, pagination, messages or paid result zone.
+    result = {'status': 'FAILED', 'searchVerified': False, 'autonomyVerified': False,
+              'scope': 'ONE_FIRST_PAGE_MAX_10', 'query': 'clinics in El Salvador'}
+    if not isinstance(token, str) or len(token) < 24 or any(c in token for c in '\r\n'):
+        return {**result, 'status': 'NOT_CHECKED', 'error': 'DIAGNOSTIC_TOKEN_MISSING'}
+    try:
+        status, data = requester({'action': 'search', 'platform': 'explee', 'query': result['query']}, token)
+    except Exception:
+        return {**result, 'error': 'PRIVATE_API_UNAVAILABLE'}
+    result['httpStatus'] = status
+    if not (200 <= status < 300 and isinstance(data, dict) and data.get('success') is True
+            and data.get('platform') == 'explee' and data.get('mode') == 'READ_ONLY'):
+        safe = safe_result('explee', status, data)
+        return {**result, **{key: safe[key] for key in ('error', 'providerReason') if key in safe}}
+    items = data.get('items')
+    receipt = data.get('receiptId')
+    if not isinstance(items, list) or len(items) > 10 or not isinstance(receipt, str) or not re.fullmatch(r'[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}', receipt):
+        return {**result, 'error': 'PRIVATE_API_RESPONSE_INVALID'}
+    meta = data.get('meta')
+    charged = meta.get('creditsCharged') if isinstance(meta, dict) else None
+    if charged is not None and (type(charged) not in (int, float) or not math.isfinite(charged) or charged < 0):
+        return {**result, 'error': 'PRIVATE_API_RESPONSE_INVALID'}
+    if charged is not None and charged != 0:
+        return {**result, 'error': 'UNEXPECTED_PROVIDER_CREDIT_CHARGE', 'providerChargeReported': True}
+    return {**result, 'status': 'VERIFIED', 'searchVerified': True, 'itemsCount': len(items),
+            'receiptRecorded': True, 'creditsCharged': charged}
 
 
 def safe_result(platform, status, data):
@@ -130,13 +165,25 @@ def write_report(report, output=OUTPUT):
         if row.get('providerReason'):
             error += ' / ' + row['providerReason']
         lines.append(f"| {row['platform']} | {row['status']} | {row['httpStatus']} | {error} |")
-    lines += ['', 'Alcance: autenticación y consulta de cuenta. No certifica búsqueda de proyectos, operación 24/7 ni ventas.',
+    lines += ['', 'Alcance: autenticación y consulta de cuenta; una prueba adicional de Explee se informa por separado si está habilitada. No certifica operación 24/7 ni ventas.',
               'Sin postulaciones, mensajes, campañas ni compra de créditos.', '']
+    if report.get('expleeSearch'):
+        search = report['expleeSearch']
+        lines += ['### Explee: prueba única de búsqueda', '',
+                  f"Estado: {search['status']}. Resultados: {search.get('itemsCount', 'N/D')}. Error: {search.get('error', '')}.",
+                  'Solo primera página, hasta diez empresas; sin enriquecimiento ni paginación. No acredita autonomía 24/7.', '']
     (output / 'summary.md').write_text('\n'.join(lines))
 
 
 if __name__ == '__main__':
     result = check_connections(os.environ.get('LEO_PLATFORM_TOKEN', ''))
+    if '--explee-free-search' in sys.argv:
+        account = next(row for row in result['results'] if row['platform'] == 'explee')
+        if account['connected']:
+            result['expleeSearch'] = probe_explee_free_search(os.environ.get('LEO_PLATFORM_TOKEN', ''))
+            account['searchVerified'] = result['expleeSearch']['searchVerified']
+        else:
+            result['expleeSearch'] = {'status': 'NOT_CHECKED', 'searchVerified': False, 'error': 'ACCOUNT_CONNECTION_REQUIRED'}
     write_report(result)
     print(json.dumps(result))
-    sys.exit(0 if result['allConnected'] else 1)
+    sys.exit(0 if result['allConnected'] and result.get('expleeSearch', {}).get('status', 'VERIFIED') == 'VERIFIED' else 1)
