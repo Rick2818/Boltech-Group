@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'lib/customer_support_policy.js'
+      - 'lib/pdro_test_business.js'
+      - 'scripts/ops/pdro_business_acceptance.mjs'
       - 'lib/customer_support_sandbox.js'
       - 'scripts/ops/pdro_imports_sandbox.mjs'
       - 'scripts/ops/build_pdro_delivery_preview.mjs'

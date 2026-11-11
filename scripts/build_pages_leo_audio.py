@@ -10,9 +10,14 @@ output.parent.mkdir(exist_ok=True)
 worker = (root / 'cloudflare/pages-leo-audio-worker.mjs').read_text()
 owner = (root / 'cloudflare/leo-owner-session.mjs').read_text().replace('export ', '')
 worker = worker.replace("import {handleOwnerSession, ownerRequest, withoutOwnerCookie} from './leo-owner-session.mjs';", owner)
+validator = (root / 'lib/customer_onboarding.js').read_text().replace('export ', '')
+setup = (root / 'cloudflare/customer-setup.mjs').read_text().replace("import {validateCustomerOnboarding} from '../lib/customer_onboarding.js';", validator).replace('export ', '')
+worker = worker.replace("import {handleCustomerSetup} from './customer-setup.mjs';", setup)
+setup_html = (root / 'cloudflare/customer-setup.template.html').read_text().replace('__CUSTOMER_ONBOARDING_VALIDATOR__', validator)
 files = {
     '_worker.js': worker.encode(),
     'sales-agent.html': (root / 'sales-agent.html').read_bytes(),
+    'customer-setup.html': setup_html.encode(),
     '_routes.json': json.dumps({'version': 1, 'include': ['/*'], 'exclude': []}).encode(),
 }
 with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as archive:

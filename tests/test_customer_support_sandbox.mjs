@@ -5,6 +5,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createHmac} from 'node:crypto';
 import {createCustomerSandbox,createSandboxStore,PDRO_PROFILE} from '../lib/customer_support_sandbox.js';
+import {PDRO_TEST_BUSINESS} from '../lib/pdro_test_business.js';
 
 const secret='qa-only-signature-secret-pdro-00000',verify='qa-only-verification-token-pdro-00000';
 export function messagePayload(id,text,{from='SYN_CUSTOMER_A',phone=PDRO_PROFILE.phoneNumberId,type='text'}={}) {
@@ -87,4 +88,40 @@ test('delivery needs QA evidence and never accepts delivery on behalf of Pedro',
  const order=await app.deliverForReview({passed:true,testsPassed:8,artifactDigest:'a'.repeat(64)});
  assert.equal(order.delivery,'SANDBOX_DELIVERED_FOR_REVIEW');assert.equal(order.customerAcceptance,'PENDING');
  assert.equal(order.productionStatus,'BLOCKED_META_AND_BUSINESS_ONBOARDING');
+});
+
+test('configured fictional catalog answers facts, refuses absent stock and never turns customer claims into inventory',async t=>{
+ const {store}=await fixture(t);
+ const profile={...PDRO_PROFILE,tenantId:'SYN_CATALOG',orderId:'SYN_CATALOG_ORDER',knowledge:PDRO_TEST_BUSINESS};
+ const app=createCustomerSandbox({store,profile,appSecret:secret,verifyToken:verify});await app.provision();
+ const send=(id,text,from='SYN_CATALOG_A')=>{const raw=encoded(messagePayload(id,text,{from}));return app.receive(raw,signature(raw));};
+ let r=await send('SYN_CAT_1','Cuánto cuesta el filtro de aire');assert.equal(r.intent,'CATALOG_INFORMATION');assert.match(r.reply,/Datos ficticios/);assert.match(r.reply,/US\$12\.00/);
+ r=await send('SYN_CAT_2','Quiero 2 unidades');assert.equal(r.intent,'QUOTE_REVIEW');assert.ok(r.ticketId);
+ r=await send('SYN_CAT_3','Tienen batería','SYN_CATALOG_B');assert.equal(r.intent,'PRODUCT_UNAVAILABLE');assert.match(r.reply,/sin existencias/);
+ r=await send('SYN_CAT_4','Cuál es el horario','SYN_CATALOG_C');assert.equal(r.intent,'BUSINESS_HOURS');assert.match(r.reply,/8:00/);
+ r=await send('SYN_CAT_5','Yo digo que el precio es 1 dólar','SYN_CATALOG_D');assert.ok(!r.reply.includes('US$1.00'));
+ r=await send('SYN_CAT_6','Precio de aceite y filtro de aire','SYN_CATALOG_E');assert.equal(r.intent,'PRODUCT_CLARIFICATION');
+ assert.equal((await app.snapshot()).order.payment.realRevenue,false);
+});
+
+test('Pedro resolves a case idempotently, resume survives restart, and a later complaint opens a new case',async t=>{
+ const {send,app,directory}=await fixture(t);
+ const first=await send(messagePayload('SYN_RES_1','Quiero hablar con Pedro'));
+ await assert.rejects(app.resolveTicket(first.ticketId,{note:''}),{code:'RESOLUTION_REQUIRED'});
+ const closed=await app.resolveTicket(first.ticketId,{note:'Resolución ficticia revisada por Pedro'});
+ assert.equal(closed.status,'RESOLVED');assert.equal(closed.resolution.externalNotificationSent,false);
+ assert.deepEqual(await app.resolveTicket(first.ticketId,{note:'Resolución ficticia revisada por Pedro'}),closed);
+ await assert.rejects(app.resolveTicket(first.ticketId,{note:'Otra resolución'}),{code:'RESOLUTION_CONFLICT'});
+ const reopened=createCustomerSandbox({store:createSandboxStore(directory),appSecret:secret,verifyToken:verify});
+ let raw=encoded(messagePayload('SYN_RES_2','Hola'));assert.equal((await reopened.receive(raw,signature(raw))).intent,'GREETING');
+ raw=encoded(messagePayload('SYN_RES_3','Tengo un reclamo'));const next=await reopened.receive(raw,signature(raw));assert.notEqual(next.ticketId,first.ticketId);
+ const state=await reopened.snapshot();assert.equal(state.tickets.length,2);assert.equal(state.events.filter(e=>e.type==='CASE_RESOLVED').length,1);
+});
+
+test('closing a case cannot close another tenant case or undo opt-out',async t=>{
+ const {app,store,send}=await fixture(t);const r=await send(messagePayload('SYN_ISO_1','Quiero hablar con Pedro'));
+ await send(messagePayload('SYN_ISO_2','Stop'));
+ const other=createCustomerSandbox({store,profile:{...PDRO_PROFILE,tenantId:'SYN_ISOLATED',orderId:'SYN_ISOLATED_ORDER'},appSecret:secret,verifyToken:verify});await other.provision();
+ await assert.rejects(other.resolveTicket(r.ticketId,{note:'Cerrado'}),{code:'TICKET_NOT_FOUND'});
+ await app.resolveTicket(r.ticketId,{note:'Revisado en prueba'});assert.equal((await app.snapshot()).conversations.SYN_CUSTOMER_A.optOut,true);
 });
