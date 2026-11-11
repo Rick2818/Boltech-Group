@@ -38,3 +38,8 @@ test('live Worker routing uses the account GET and retains owner authorization',
  assert.equal((await worker.fetch(request(false),env)).status,401);assert.equal(calls,0);
  const result=await(await worker.fetch(request(true),env)).json();assert.equal(result.accountCheck,'GET_ME');assert.equal(calls,1);
 });
+
+test('schema mismatch exposes only fixed field types, never provider values or arbitrary field names',async()=>{
+ const body={organization:{id:777,name:secret},balance:{remain:12},key:{read_only:true},[secret]:secret};
+ await assert.rejects(expleeAccountCheck({EXPLEE_API_KEY:secret},async()=>json(body)),error=>{assert.equal(error.providerReason,'ACCOUNT_SCHEMA_MISMATCH');assert.equal(error.providerHttpStatus,200);assert.equal(error.accountShape.organizationId,'number');assert.ok(!JSON.stringify(error.accountShape).includes(secret));assert.ok(!JSON.stringify(error.accountShape).includes('777'));return true;});
+});

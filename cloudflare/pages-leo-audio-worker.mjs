@@ -342,9 +342,10 @@ async function handleLeoIntegrations(request,env) {
       'UPWORK_TOOL_REJECTED','UPWORK_TOOL_RESPONSE_INVALID','UPWORK_SEARCH_RESPONSE_INVALID','UPWORK_RESPONSE_TOO_LARGE'];
     const code=/^(PROVIDER_HTTP_\d{3}|PROVIDER_REJECTED|PROVIDER_RESPONSE_INVALID|UPWORK_(TOKEN|MCP)_HTTP_\d{3})$/.test(error.message) || known.includes(error.message)
       ? error.message : 'INTEGRATION_REQUEST_FAILED';
-    const providerReason=['EDGE_ACCESS_DENIED','API_KEY_REJECTED','ACCESS_DENIED_UNCLASSIFIED','IP_RESTRICTED','API_SCOPE_DENIED','RATE_LIMITED'].includes(error.providerReason) ? error.providerReason : undefined;
+    const providerReason=['EDGE_ACCESS_DENIED','API_KEY_REJECTED','ACCESS_DENIED_UNCLASSIFIED','IP_RESTRICTED','API_SCOPE_DENIED','RATE_LIMITED','ACCOUNT_SCHEMA_MISMATCH'].includes(error.providerReason) ? error.providerReason : undefined;
     if(activeReceipt) try {await env.COMMERCE.put(activeReceipt.key,JSON.stringify({...activeReceipt.value,status:'FAILED',error:code,completedAt:new Date().toISOString()}),{expirationTtl:2592000});} catch {}
-    return integrationJSON({success:false,platform,error:code,providerReason},502);
+    const schemaDiagnostic=platform==='explee'&&providerReason==='ACCOUNT_SCHEMA_MISMATCH'?{providerHttpStatus:error.providerHttpStatus,accountShape:error.accountShape}:{};
+    return integrationJSON({success:false,platform,error:code,providerReason,...schemaDiagnostic},502);
   }
 }
 

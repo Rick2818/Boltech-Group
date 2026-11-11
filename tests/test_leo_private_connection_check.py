@@ -97,6 +97,13 @@ class PrivateConnectionChecks(unittest.TestCase):
             result = checks.safe_result('explee', 200, {**good, 'searchReadiness': value})
             self.assertNotIn('searchReadiness', result)
 
+    def test_schema_diagnostic_keeps_only_fixed_type_labels(self):
+        data = {'error': 'PROVIDER_RESPONSE_INVALID', 'providerReason': 'ACCOUNT_SCHEMA_MISMATCH', 'providerHttpStatus': 200, 'accountShape': {'organizationId': 'number', 'balance': 'object', 'key': TOKEN, TOKEN: TOKEN, 'jsonContentType': True}}
+        result = checks.safe_result('explee', 502, data)
+        self.assertEqual(result['providerHttpStatus'], 200)
+        self.assertEqual(result['accountShape'], {'organizationId': 'number', 'balance': 'object', 'jsonContentType': True})
+        self.assertNotIn(TOKEN, json.dumps(result))
+
     def test_written_summary_contains_only_sanitized_statuses(self):
         result = checks.check_connections('', lambda *args: self.fail('network'))
         with tempfile.TemporaryDirectory() as directory:

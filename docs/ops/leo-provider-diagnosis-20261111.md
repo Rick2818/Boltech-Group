@@ -48,3 +48,7 @@ Después de desplegar, repetir la comprobación privada desde el workflow y cons
 - https://api.explee.com/public/api/docs — GET `/public/api/v1/me`, autenticación y requisitos de búsquedas.
 - https://www.upwork.com/ai/mcp — OAuth, aprobación de callbacks y permisos.
 - https://support.upwork.com/hc/en-us/articles/55446516654611-How-to-use-Upwork-with-AI-agents-through-MCP — información a incluir al contactar soporte.
+
+### Resultado tras desplegar el GET de cuenta
+
+El intento 2 de 43108514341, a las 22:05:43 UTC (16:05, El Salvador), conservó Freelancer conectado y Upwork sin autorización propia de Leo. Explee cambió de 403 a `PROVIDER_RESPONSE_INVALID` durante la validación de la respuesta. No se da por conectado: se añade diagnóstico de tipos de campos fijos, sin valores, para comprobar qué parte del esquema difiere antes de ajustar el adaptador.
