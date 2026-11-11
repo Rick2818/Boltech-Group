@@ -11,7 +11,7 @@ import urllib.request
 ENDPOINT = 'https://boltech-group.pages.dev/api/leo-integrations'
 PLATFORMS = ('upwork', 'freelancer', 'explee')
 OUTPUT = Path('ops-output/leo-private-connections')
-REASONS = {'EDGE_ACCESS_DENIED', 'API_KEY_REJECTED', 'ACCESS_DENIED_UNCLASSIFIED'}
+REASONS = {'EDGE_ACCESS_DENIED', 'API_KEY_REJECTED', 'ACCESS_DENIED_UNCLASSIFIED', 'IP_RESTRICTED', 'API_SCOPE_DENIED', 'RATE_LIMITED'}
 ERRORS = {
     'DIAGNOSTIC_TOKEN_MISSING', 'OWNER_ACCESS_REQUIRED', 'OWNER_ACCESS_NOT_CONFIGURED',
     'ORIGIN_NOT_ALLOWED', 'PROVIDER_SECRET_MISSING', 'FREELANCER_API_DISABLED',
@@ -73,6 +73,10 @@ def safe_result(platform, status, data):
             and data.get('platform') == platform and data.get('status') == 'CONNECTED'
             and data.get('mode') == 'READ_ONLY'):
         row.update(connected=True, status='CONNECTED')
+        if platform == 'explee' and data.get('accountCheck') == 'GET_ME':
+            row['accountCheck'] = 'GET_ME'
+            if isinstance(data.get('searchReadiness'), str) and data['searchReadiness'] in {'POSITIVE_BALANCE_NOT_SEARCH_VERIFIED', 'POSITIVE_BALANCE_REQUIRED'}:
+                row['searchReadiness'] = data['searchReadiness']
         return row
     code = data.get('error')
     # Never put untrusted/provider text, tokens, account names or identifiers in logs.

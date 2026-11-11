@@ -175,7 +175,7 @@ document.getElementById('upwork-connect').onclick=async()=>{
   output.textContent='Abre Autorizar en Upwork. Después vuelve aquí y pulsa Verificar conexiones. / Open Authorize on Upwork, then return and check connections.';
  }catch(error){
   const reasons={
-   UPWORK_CLIENT_REGISTRATION_DENIED:message('Upwork rechazó el registro de Leo con su dirección de Cloudflare. La conexión sigue pendiente; iniciar sesión otra vez no resuelve este bloqueo.','Upwork rejected Leo’s registration with its Cloudflare callback. The connection remains pending; signing in again will not resolve this block.'),
+   UPWORK_CLIENT_REGISTRATION_DENIED:message('Upwork rechazó el registro de Leo con su dirección de Cloudflare. La conexión sigue pendiente; iniciar sesión otra vez no resuelve este bloqueo. Solicita a soporte de Upwork la aprobación de https://boltech-group.pages.dev/api/upwork/callback.','Upwork rejected Leo’s registration with its Cloudflare callback. The connection remains pending; signing in again will not resolve this block. Ask Upwork Support to approve https://boltech-group.pages.dev/api/upwork/callback.'),
    UPWORK_CLIENT_REGISTRATION_UNAVAILABLE:message('No se pudo registrar a Leo en Upwork. La conexión sigue pendiente.','Could not register Leo with Upwork. The connection remains pending.'),
    UPWORK_CLIENT_REGISTRATION_INVALID:message('Upwork no devolvió un registro de aplicación válido. La conexión sigue pendiente.','Upwork did not return a valid application registration. The connection remains pending.')
   };
@@ -190,7 +190,7 @@ document.getElementById('integration-check').onclick=async()=>{
    const config=status[platform];
    if(!config?.configured){lines.push(platform+': '+(config?.missing?.length?'Falta configurar / Missing: '+config.missing.join(', '):'PROVIDER_SECRET_MISSING'));continue;}
    if(platform==='freelancer'&&!config.enabled){lines.push(platform+': FREELANCER_API_ENABLED debe ser true / must be true');continue;}
-   try{const result=await integrationRequest({action:'check',platform});lines.push(platform+': '+result.status+' ('+result.checkedAt+')');}
+   try{const result=await integrationRequest({action:'check',platform});lines.push(platform+': '+result.status+' ('+result.checkedAt+')'+(result.searchReadiness==='POSITIVE_BALANCE_REQUIRED'?' · Saldo positivo requerido para búsquedas / Positive balance required for searches':''));}
    catch(error){lines.push(platform+': '+error.message);}
   }
   output.textContent=lines.join('\n');

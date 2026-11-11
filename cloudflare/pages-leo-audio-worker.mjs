@@ -1,5 +1,6 @@
 import {handleOwnerSession, ownerRequest, withoutOwnerCookie} from './leo-owner-session.mjs';
 import {handleCustomerSetup} from './customer-setup.mjs';
+import {expleeAccountCheck} from './leo-provider-diagnostics.mjs';
 // Direct Upwork OAuth for the canonical Cloudflare Pages origin. No broker.
 const OAUTH_ORIGIN = 'https://boltech-group.pages.dev';
 const OAUTH_RESOURCE = 'https://mcp.upwork.com/mcp';
@@ -299,11 +300,9 @@ async function handleLeoIntegrations(request,env) {
   try {
     if(input.action==='check') {
       if(platform==='upwork') return integrationJSON(await upworkRead(env,'check'));
-      const data=platform==='freelancer'
-        ? await integrationProvider('https://www.freelancer.com/api/users/0.1/self/',{headers})
-        : await integrationProvider('https://api.explee.com/public/api/v1/search/nl-to-filters',{method:'POST',headers,body:JSON.stringify({query:'Business workflow automation companies'})});
-      if(platform==='freelancer' && !data.result?.id) throw Error('PROVIDER_RESPONSE_INVALID');
-      if(platform==='explee' && (!data.companies_filters || typeof data.companies_filters!=='object')) throw Error('PROVIDER_RESPONSE_INVALID');
+      if(platform==='explee') return integrationJSON(await expleeAccountCheck(env));
+      const data=await integrationProvider('https://www.freelancer.com/api/users/0.1/self/',{headers});
+      if(!data.result?.id) throw Error('PROVIDER_RESPONSE_INVALID');
       return integrationJSON({success:true,platform,status:'CONNECTED',checkedAt:new Date().toISOString(),mode:'READ_ONLY'});
     }
     const query=integrationText(input.query);
@@ -343,7 +342,7 @@ async function handleLeoIntegrations(request,env) {
       'UPWORK_TOOL_REJECTED','UPWORK_TOOL_RESPONSE_INVALID','UPWORK_SEARCH_RESPONSE_INVALID','UPWORK_RESPONSE_TOO_LARGE'];
     const code=/^(PROVIDER_HTTP_\d{3}|PROVIDER_REJECTED|PROVIDER_RESPONSE_INVALID|UPWORK_(TOKEN|MCP)_HTTP_\d{3})$/.test(error.message) || known.includes(error.message)
       ? error.message : 'INTEGRATION_REQUEST_FAILED';
-    const providerReason=['EDGE_ACCESS_DENIED','API_KEY_REJECTED','ACCESS_DENIED_UNCLASSIFIED'].includes(error.providerReason) ? error.providerReason : undefined;
+    const providerReason=['EDGE_ACCESS_DENIED','API_KEY_REJECTED','ACCESS_DENIED_UNCLASSIFIED','IP_RESTRICTED','API_SCOPE_DENIED','RATE_LIMITED'].includes(error.providerReason) ? error.providerReason : undefined;
     if(activeReceipt) try {await env.COMMERCE.put(activeReceipt.key,JSON.stringify({...activeReceipt.value,status:'FAILED',error:code,completedAt:new Date().toISOString()}),{expirationTtl:2592000});} catch {}
     return integrationJSON({success:false,platform,error:code,providerReason},502);
   }

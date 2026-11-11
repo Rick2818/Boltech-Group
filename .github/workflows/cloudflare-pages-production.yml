@@ -9,6 +9,8 @@ on:
       - 'cloudflare/pages-leo-audio-worker.mjs'
       - 'cloudflare/leo-owner-session.mjs'
       - 'cloudflare/customer-setup.mjs'
+      - 'cloudflare/leo-provider-diagnostics.mjs'
+      - 'tests/test_leo_provider_diagnostics.mjs'
       - 'cloudflare/customer-setup.template.html'
       - 'lib/customer_onboarding.js'
       - 'tests/test_customer_onboarding.mjs'
@@ -28,6 +30,8 @@ on:
       - 'cloudflare/pages-leo-audio-worker.mjs'
       - 'cloudflare/leo-owner-session.mjs'
       - 'cloudflare/customer-setup.mjs'
+      - 'cloudflare/leo-provider-diagnostics.mjs'
+      - 'tests/test_leo_provider_diagnostics.mjs'
       - 'cloudflare/customer-setup.template.html'
       - 'lib/customer_onboarding.js'
       - 'tests/test_customer_onboarding.mjs'
@@ -60,7 +64,7 @@ jobs:
         with:
           node-version: '22'
       - name: Validate owner session and preserve payment gateway
-        run: node --test tests/test_leo_owner_session.mjs tests/test_pages_leo_audio_bridge.mjs tests/test_leo_upwork_registration.mjs tests/test_customer_onboarding.mjs tests/test_customer_setup_gateway.mjs
+        run: node --test tests/test_leo_owner_session.mjs tests/test_pages_leo_audio_bridge.mjs tests/test_leo_upwork_registration.mjs tests/test_customer_onboarding.mjs tests/test_customer_setup_gateway.mjs tests/test_leo_provider_diagnostics.mjs
       - name: Build only public Pages assets
         run: python3 scripts/pages_ci.py build
       - name: Check deployable Worker and browser JavaScript
