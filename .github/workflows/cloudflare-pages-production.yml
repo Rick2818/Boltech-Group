@@ -12,6 +12,7 @@ on:
       - 'scripts/pages_ci.py'
       - 'tests/test_leo_owner_session.mjs'
       - 'tests/test_pages_leo_audio_bridge.mjs'
+      - 'tests/test_leo_upwork_registration.mjs'
       - '.github/workflows/cloudflare-pages-production.yml'
   pull_request:
     branches: [main]
@@ -23,6 +24,7 @@ on:
       - 'scripts/pages_ci.py'
       - 'tests/test_leo_owner_session.mjs'
       - 'tests/test_pages_leo_audio_bridge.mjs'
+      - 'tests/test_leo_upwork_registration.mjs'
       - '.github/workflows/cloudflare-pages-production.yml'
 
 permissions:
@@ -44,7 +46,7 @@ jobs:
         with:
           node-version: '22'
       - name: Validate owner session and preserve payment gateway
-        run: node --test tests/test_leo_owner_session.mjs tests/test_pages_leo_audio_bridge.mjs
+        run: node --test tests/test_leo_owner_session.mjs tests/test_pages_leo_audio_bridge.mjs tests/test_leo_upwork_registration.mjs
       - name: Build only public Pages assets
         run: python3 scripts/pages_ci.py build
       - name: Check deployable Worker and browser JavaScript

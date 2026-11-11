@@ -4,7 +4,11 @@ const OAUTH_ORIGIN = 'https://boltech-group.pages.dev';
 const OAUTH_RESOURCE = 'https://mcp.upwork.com/mcp';
 const OAUTH_AUTHORIZE = 'https://www.upwork.com/ab/account-security/oauth2/authorize';
 const OAUTH_TOKEN = 'https://www.upwork.com/api/v3/oauth2/token';
-const OAUTH_CLIENT = OAUTH_ORIGIN + '/api/upwork/client-metadata';
+// Use the identifier actually issued by Upwork, never a locally invented URL.
+// Upwork discovery advertises this RFC 7591 endpoint. It may reject custom
+// hosted callbacks; that rejection must stop the flow before browser login.
+const OAUTH_REGISTER = 'https://www.upwork.com/register';
+const OAUTH_CLIENT_STORE = 'leo:upwork:client:v1';
 const OAUTH_CALLBACK = OAUTH_ORIGIN + '/api/upwork/callback';
 const OAUTH_COOKIE = '__Host-leo_upwork';
 const OAUTH_STORE = 'leo:upwork:oauth:v1';
@@ -32,16 +36,46 @@ async function unseal(value,env,purpose) {
   } catch { oauthError('UPWORK_AUTH_STATE_INVALID'); }
 }
 const cookieHeader = value => `${OAUTH_COOKIE}=${value}; Path=/; Secure; HttpOnly; SameSite=Lax; Max-Age=${value?'600':'0'}`;
-async function tokenRequest(fields,fetchFn) {
+function validClient(client) {
+  return client && typeof client.client_id==='string' && /^[\x21-\x7e]{1,2048}$/.test(client.client_id)
+    && client.client_id!==OAUTH_ORIGIN+'/api/upwork/client-metadata'
+    && client.token_endpoint_auth_method==='none'
+    && Array.isArray(client.redirect_uris) && client.redirect_uris.length===1 && client.redirect_uris[0]===OAUTH_CALLBACK;
+}
+async function registeredClient(env,fetchFn,register=false) {
+  if(!env.COMMERCE?.get || !env.COMMERCE?.put) oauthError('UPWORK_AUTH_STORAGE_MISSING');
+  const stored=await env.COMMERCE.get(OAUTH_CLIENT_STORE);
+  if(stored) {
+    let client; try {client=JSON.parse(stored);} catch {oauthError('UPWORK_CLIENT_REGISTRATION_INVALID');}
+    if(!validClient(client)) oauthError('UPWORK_CLIENT_REGISTRATION_INVALID');
+    return client;
+  }
+  if(!register) oauthError('UPWORK_CLIENT_REGISTRATION_REQUIRED');
+  let response;
+  try {
+    response=await fetchFn(OAUTH_REGISTER,{method:'POST',redirect:'manual',signal:AbortSignal.timeout(10000),
+      headers:{'Content-Type':'application/json',Accept:'application/json'},
+      body:JSON.stringify({client_name:'Boltech Group — Leo',client_uri:OAUTH_ORIGIN,redirect_uris:[OAUTH_CALLBACK],
+        grant_types:['authorization_code','refresh_token'],response_types:['code'],token_endpoint_auth_method:'none'})});
+  } catch {oauthError('UPWORK_CLIENT_REGISTRATION_UNAVAILABLE');}
+  if([400,401,403].includes(response.status)) oauthError('UPWORK_CLIENT_REGISTRATION_DENIED');
+  if(response.status!==201) oauthError('UPWORK_CLIENT_REGISTRATION_UNAVAILABLE');
+  let data; try {data=await response.json();} catch {oauthError('UPWORK_CLIENT_REGISTRATION_INVALID');}
+  if(!validClient(data)) oauthError('UPWORK_CLIENT_REGISTRATION_INVALID');
+  const client={client_id:data.client_id,redirect_uris:[OAUTH_CALLBACK],token_endpoint_auth_method:'none'};
+  await env.COMMERCE.put(OAUTH_CLIENT_STORE,JSON.stringify(client));
+  return client;
+}
+async function tokenRequest(fields,fetchFn,clientId) {
   const response = await fetchFn(OAUTH_TOKEN,{method:'POST',redirect:'manual',signal:AbortSignal.timeout(10000),
     headers:{'Content-Type':'application/x-www-form-urlencoded',Accept:'application/json'},
-    body:new URLSearchParams({...fields,client_id:OAUTH_CLIENT,resource:OAUTH_RESOURCE})});
+    body:new URLSearchParams({...fields,client_id:clientId,resource:OAUTH_RESOURCE})});
   if(!response.ok) oauthError(response.status===400 || response.status===401 ? 'UPWORK_REAUTHORIZATION_REQUIRED' : 'UPWORK_TOKEN_HTTP_'+response.status);
   let data; try { data = await response.json(); } catch { oauthError('UPWORK_TOKEN_RESPONSE_INVALID'); }
   if(typeof data.access_token !== 'string' || !data.access_token || data.access_token.length>16000 || /[\r\n]/.test(data.access_token)
     || String(data.token_type).toLowerCase() !== 'bearer' || !Number.isFinite(Number(data.expires_in)) || Number(data.expires_in)<=0) oauthError('UPWORK_TOKEN_RESPONSE_INVALID');
   if(data.refresh_token !== undefined && (typeof data.refresh_token !== 'string' || data.refresh_token.length>16000 || /[\r\n]/.test(data.refresh_token))) oauthError('UPWORK_TOKEN_RESPONSE_INVALID');
-  return {access_token:data.access_token,refresh_token:typeof data.refresh_token==='string'?data.refresh_token:undefined,
+  return {clientId,access_token:data.access_token,refresh_token:typeof data.refresh_token==='string'?data.refresh_token:undefined,
     expiresAt:Date.now()+Number(data.expires_in)*1000};
 }
 async function saveTokens(data,env) {
@@ -65,8 +99,10 @@ export async function getUpworkToken(env,fetchFn=fetch) {
   if(typeof tokens.access_token!=='string' || !tokens.expiresAt) oauthError('UPWORK_REAUTHORIZATION_REQUIRED');
   if(tokens.expiresAt>Date.now()+60000) return tokens.access_token;
   if(!tokens.refresh_token) oauthError('UPWORK_REAUTHORIZATION_REQUIRED');
+  const client=await registeredClient(env,fetchFn);
+  if(tokens.clientId!==client.client_id) oauthError('UPWORK_REAUTHORIZATION_REQUIRED');
   // Provider refresh is authoritative; failures never overwrite a newer token.
-  const refreshed=await tokenRequest({grant_type:'refresh_token',refresh_token:tokens.refresh_token},fetchFn);
+  const refreshed=await tokenRequest({grant_type:'refresh_token',refresh_token:tokens.refresh_token},fetchFn,client.client_id);
   refreshed.refresh_token ||= tokens.refresh_token;
   await saveTokens(refreshed,env); return refreshed.access_token;
 }
@@ -74,8 +110,7 @@ export async function handleUpworkOAuth(request,env,authorize,fetchFn=fetch) {
   const url=new URL(request.url);
   if(url.pathname==='/api/upwork/client-metadata') {
     if(request.method!=='GET') return oauthJSON({success:false,error:'METHOD_NOT_ALLOWED'},405);
-    return oauthJSON({client_id:OAUTH_CLIENT,client_name:'Boltech Group — Leo',client_uri:OAUTH_ORIGIN,
-      redirect_uris:[OAUTH_CALLBACK],grant_types:['authorization_code','refresh_token'],response_types:['code'],token_endpoint_auth_method:'none'});
+    return oauthJSON({success:false,error:'UPWORK_CLIENT_METADATA_RETIRED'},410);
   }
   if(url.origin!==OAUTH_ORIGIN) return oauthJSON({success:false,error:'CANONICAL_ORIGIN_REQUIRED'},403);
   if(url.pathname==='/api/upwork/start') {
@@ -83,11 +118,18 @@ export async function handleUpworkOAuth(request,env,authorize,fetchFn=fetch) {
     if(!authorize(request,env)) return oauthJSON({success:false,error:'OWNER_ACCESS_REQUIRED'},401);
     if(request.headers.get('Origin') && request.headers.get('Origin')!==OAUTH_ORIGIN) return oauthJSON({success:false,error:'ORIGIN_NOT_ALLOWED'},403);
     if(!env.COMMERCE?.get || !env.COMMERCE?.put) return oauthJSON({success:false,error:'UPWORK_AUTH_STORAGE_MISSING'},503);
+    let client;
+    try {client=await registeredClient(env,fetchFn,true);}
+    catch(error) {
+      const known=['UPWORK_CLIENT_REGISTRATION_DENIED','UPWORK_CLIENT_REGISTRATION_UNAVAILABLE','UPWORK_CLIENT_REGISTRATION_INVALID'];
+      const code=known.includes(error.message)?error.message:'UPWORK_AUTH_STORAGE_UNAVAILABLE';
+      return oauthJSON({success:false,error:code},code==='UPWORK_CLIENT_REGISTRATION_DENIED'?403:503);
+    }
     const state=nonce(),verifier=nonce();
     const challenge=b64u(await crypto.subtle.digest('SHA-256',encoder.encode(verifier)));
-    const envelope=await seal({state,verifier,expiresAt:Date.now()+600000},env,'browser-state');
+    const envelope=await seal({state,verifier,clientId:client.client_id,expiresAt:Date.now()+600000},env,'browser-state');
     const target=new URL(OAUTH_AUTHORIZE);
-    for(const [key,value]of Object.entries({response_type:'code',client_id:OAUTH_CLIENT,redirect_uri:OAUTH_CALLBACK,
+    for(const [key,value]of Object.entries({response_type:'code',client_id:client.client_id,redirect_uri:OAUTH_CALLBACK,
       state,code_challenge:challenge,code_challenge_method:'S256',resource:OAUTH_RESOURCE})) target.searchParams.set(key,value);
     return oauthJSON({success:true,authorizationUrl:target.href},200,{'Set-Cookie':cookieHeader(envelope)});
   }
@@ -104,8 +146,10 @@ export async function handleUpworkOAuth(request,env,authorize,fetchFn=fetch) {
     if(url.searchParams.has('error')) oauthError('UPWORK_AUTHORIZATION_DECLINED');
     const code=url.searchParams.get('code');
     if(!code || code.length>2048 || /[\x00-\x1f]/.test(code)) oauthError('UPWORK_AUTH_CODE_INVALID');
+    const client=await registeredClient(env,fetchFn);
+    if(state.clientId!==client.client_id) oauthError('UPWORK_AUTH_STATE_INVALID');
     // Authorization codes are single use at Upwork; PKCE binds exchange to this browser.
-    const tokens=await tokenRequest({grant_type:'authorization_code',code,code_verifier:state.verifier,redirect_uri:OAUTH_CALLBACK},fetchFn);
+    const tokens=await tokenRequest({grant_type:'authorization_code',code,code_verifier:state.verifier,redirect_uri:OAUTH_CALLBACK},fetchFn,client.client_id);
     await saveTokens(tokens,env);
     return new Response('Upwork autorizado. Puedes cerrar esta pestaña y pulsar Verificar conexiones en Leo.',{
       headers:{...cleared,'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff'}});
@@ -293,6 +337,7 @@ async function handleLeoIntegrations(request,env) {
     return integrationJSON({success:true,platform,items,meta,receiptId:id,mode:'READ_ONLY',authorizedActions:[]});
   } catch(error) {
     const known=['UPWORK_ACTION_NOT_ALLOWED','UPWORK_AUTHORIZATION_REQUIRED','UPWORK_REAUTHORIZATION_REQUIRED','UPWORK_AUTH_STORAGE_MISSING','UPWORK_OWNER_KEY_MISSING',
+      'UPWORK_CLIENT_REGISTRATION_REQUIRED','UPWORK_CLIENT_REGISTRATION_INVALID',
       'UPWORK_CONNECT_RESPONSE_INVALID','UPWORK_MCP_RESPONSE_INVALID','UPWORK_MCP_REJECTED','UPWORK_MCP_PROTOCOL_UNSUPPORTED',
       'UPWORK_TOOL_REJECTED','UPWORK_TOOL_RESPONSE_INVALID','UPWORK_SEARCH_RESPONSE_INVALID','UPWORK_RESPONSE_TOO_LARGE'];
     const code=/^(PROVIDER_HTTP_\d{3}|PROVIDER_REJECTED|PROVIDER_RESPONSE_INVALID|UPWORK_(TOKEN|MCP)_HTTP_\d{3})$/.test(error.message) || known.includes(error.message)
