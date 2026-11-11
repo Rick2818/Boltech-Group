@@ -86,6 +86,17 @@ class PrivateConnectionChecks(unittest.TestCase):
             self.assertEqual(status, 302)
             self.assertNotIn('private', json.dumps(data))
 
+    def test_account_check_reports_only_allowlisted_search_readiness(self):
+        good = {'success': True, 'platform': 'explee', 'status': 'CONNECTED', 'mode': 'READ_ONLY', 'accountCheck': 'GET_ME', 'searchReadiness': 'POSITIVE_BALANCE_REQUIRED', 'organization': TOKEN}
+        result = checks.safe_result('explee', 200, good)
+        self.assertEqual(result['accountCheck'], 'GET_ME')
+        self.assertEqual(result['searchReadiness'], 'POSITIVE_BALANCE_REQUIRED')
+        self.assertFalse(result['searchVerified'])
+        self.assertNotIn(TOKEN, json.dumps(result))
+        for value in [TOKEN, [], None]:
+            result = checks.safe_result('explee', 200, {**good, 'searchReadiness': value})
+            self.assertNotIn('searchReadiness', result)
+
     def test_written_summary_contains_only_sanitized_statuses(self):
         result = checks.check_connections('', lambda *args: self.fail('network'))
         with tempfile.TemporaryDirectory() as directory:
