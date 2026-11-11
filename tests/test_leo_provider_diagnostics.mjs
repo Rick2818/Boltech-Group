@@ -54,3 +54,17 @@ test('observed Explee null or omitted balance authenticates without guessing fun
 test('a 200 error envelope cannot pass even if account-like fields exist',async()=>{
  for(const extra of [{success:false},{status:'error'},{error:{private:secret}}])await assert.rejects(expleeAccountCheck({EXPLEE_API_KEY:secret},async()=>json({...account(1),...extra})),{message:'PROVIDER_REJECTED'});
 });
+
+test('account scope hints are booleans only, without project identifiers',async()=>{
+ const result=await expleeAccountCheck({EXPLEE_API_KEY:secret},async()=>json({...account(0),key:{read_only:true,project_ids:[secret]}}));
+ assert.equal(result.keyReadOnly,true);assert.equal(result.projectRestricted,true);assert.ok(!JSON.stringify(result).includes(secret));
+ const unknown=await expleeAccountCheck({EXPLEE_API_KEY:secret},async()=>json({...account(0),key:{read_only:secret,project_ids:secret}}));assert.equal(unknown.keyReadOnly,undefined);assert.equal(unknown.projectRestricted,undefined);
+});
+
+test('company search identifies an explicit project-scope denial without returning provider text',async t=>{
+ const original=globalThis.fetch;t.after(()=>{globalThis.fetch=original;});
+ globalThis.fetch=async(url)=>{assert.equal(url,'https://api.explee.com/public/api/v1/search/companies');return json({detail:'API key restricted to projects '+secret},403);};
+ const env={EXPLEE_API_KEY:secret,LEO_PLATFORM_TOKEN:'qa-private-owner-diagnostic-scope-token',COMMERCE:{get:async()=>null,put:async()=>{}}};
+ const request=new Request('https://boltech-group.pages.dev/api/leo-integrations',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+env.LEO_PLATFORM_TOKEN},body:JSON.stringify({action:'search',platform:'explee',query:'clinics in El Salvador'})});
+ const response=await worker.fetch(request,env);const data=await response.json();assert.equal(data.error,'PROVIDER_HTTP_403');assert.equal(data.providerReason,'API_SCOPE_DENIED');assert.ok(!JSON.stringify(data).includes(secret));
+});

@@ -110,6 +110,9 @@ def safe_result(platform, status, data):
         row.update(connected=True, status='CONNECTED')
         if platform == 'explee' and data.get('accountCheck') == 'GET_ME':
             row['accountCheck'] = 'GET_ME'
+            for key in ('keyReadOnly', 'projectRestricted'):
+                if type(data.get(key)) is bool:
+                    row[key] = data[key]
             if isinstance(data.get('searchReadiness'), str) and data['searchReadiness'] in {'POSITIVE_BALANCE_NOT_SEARCH_VERIFIED', 'POSITIVE_BALANCE_REQUIRED', 'BALANCE_NOT_REPORTED'}:
                 row['searchReadiness'] = data['searchReadiness']
         return row

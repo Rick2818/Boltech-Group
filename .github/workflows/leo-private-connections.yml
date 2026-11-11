@@ -2,6 +2,11 @@ name: Leo private connection checks
 
 on:
   workflow_dispatch:
+    inputs:
+      verify_explee_search:
+        description: 'One first-page Explee search (up to 10 free results); use after correcting access'
+        type: boolean
+        default: false
   push:
     branches: [main]
     paths:
@@ -45,7 +50,13 @@ jobs:
       - name: Check existing production integrations without a browser
         env:
           LEO_PLATFORM_TOKEN: ${{ secrets.LEO_PLATFORM_TOKEN }}
-        run: python3 scripts/check_leo_private_connections.py --explee-free-search
+          LEO_VERIFY_EXPLEE_SEARCH: ${{ github.event_name == 'workflow_dispatch' && inputs.verify_explee_search && 'true' || 'false' }}
+        run: |
+          if [ "$LEO_VERIFY_EXPLEE_SEARCH" = "true" ]; then
+            python3 scripts/check_leo_private_connections.py --explee-free-search
+          else
+            python3 scripts/check_leo_private_connections.py
+          fi
       - name: Publish sanitized status summary
         if: always()
         run: |

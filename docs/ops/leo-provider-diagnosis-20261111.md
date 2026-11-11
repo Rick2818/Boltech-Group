@@ -62,3 +62,9 @@ El intento 2 de 43109461043, a las 22:11:41 UTC (16:11, El Salvador), confirmó 
 El intento 2 de 43110182065, a las 22:17:54 UTC (16:17, El Salvador), confirmó Freelancer y Explee conectados con HTTP 200. Explee informó `accountCheck: GET_ME` y `searchReadiness: BALANCE_NOT_REPORTED`. Upwork conservó `UPWORK_AUTHORIZATION_REQUIRED`. La conexión de Explee ya no requiere cambiar la clave por el saldo no informado.
 
 La opción explícita `--explee-free-search` del diagnóstico añade una sola búsqueda de clínicas en El Salvador, únicamente cuando la cuenta está conectada. El Worker fija página 1 y diez resultados, sin enriquecimiento, listas de exclusión ni paginación; la documentación define esa zona como gratuita y rechaza las solicitudes completamente gratuitas que superan su cupo. Se conserva solo número de resultados, recibo registrado y cargo cero si el proveedor lo declara, sin empresas ni datos de contactos en logs. No se activa operación continua. Un rechazo o límite no se reintenta automáticamente.
+
+### Búsqueda comprobada y siguiente bloqueo
+
+La ejecución 43111055219 a las 22:21:39 UTC (16:21, El Salvador) confirmó de nuevo ambas cuentas conectadas, pero la búsqueda única de clínicas en El Salvador fue rechazada por Explee con 403. No se acredita búsqueda funcional. Se añaden únicamente dos indicadores booleanos de alcance de la clave (`keyReadOnly`, `projectRestricted`), sin identificadores de proyectos, y se clasifica una denegación explícita por permisos cuando el cuerpo del proveedor lo indica.
+
+Después del rechazo, las ejecuciones automáticas vuelven a comprobar solo la cuenta. La prueba de búsqueda queda como opción manual desactivada por defecto, `verify_explee_search`, para volver a usarla después de corregir el acceso; no se repite una búsqueda rechazada automáticamente.

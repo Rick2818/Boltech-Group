@@ -135,6 +135,16 @@ class PrivateConnectionChecks(unittest.TestCase):
         for data in [{**base, 'items': [{}] * 11}, {**base, 'receiptId': TOKEN}, {**base, 'meta': {'creditsCharged': 1}}, {**base, 'meta': {'creditsCharged': True}}]:
             self.assertFalse(checks.probe_explee_free_search(TOKEN, lambda *args: (200, data))['searchVerified'])
 
+    def test_scope_hints_never_expose_project_identifiers_or_untrusted_text(self):
+        good = {'success': True, 'platform': 'explee', 'status': 'CONNECTED', 'mode': 'READ_ONLY', 'accountCheck': 'GET_ME', 'keyReadOnly': True, 'projectRestricted': True, 'project_ids': [TOKEN]}
+        result = checks.safe_result('explee', 200, good)
+        self.assertTrue(result['keyReadOnly'])
+        self.assertTrue(result['projectRestricted'])
+        self.assertNotIn(TOKEN, json.dumps(result))
+        result = checks.safe_result('explee', 200, {**good, 'keyReadOnly': TOKEN, 'projectRestricted': []})
+        self.assertNotIn('keyReadOnly', result)
+        self.assertNotIn('projectRestricted', result)
+
     def test_written_summary_contains_only_sanitized_statuses(self):
         result = checks.check_connections('', lambda *args: self.fail('network'))
         with tempfile.TemporaryDirectory() as directory:

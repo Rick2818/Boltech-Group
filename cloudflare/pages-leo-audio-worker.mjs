@@ -268,6 +268,7 @@ async function integrationProvider(url,options) {
       const body=(await response.text()).slice(0,2000).toLowerCase();
       error.providerReason = /cloudflare|challenge|error code: 10/.test(body) ? 'EDGE_ACCESS_DENIED'
         : /invalid.{0,20}(api.key|token)|not authenticated/.test(body) ? 'API_KEY_REJECTED'
+        : /scope|permission|project_ids|project.scoped|restricted.{0,40}project|read.only/.test(body) ? 'API_SCOPE_DENIED'
         : 'ACCESS_DENIED_UNCLASSIFIED';
     }
     throw error;
