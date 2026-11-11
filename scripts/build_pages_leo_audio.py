@@ -7,8 +7,11 @@ import zipfile
 root = Path(__file__).resolve().parent.parent
 output = root / '.cloudflare' / 'pages-leo-audio.zip'
 output.parent.mkdir(exist_ok=True)
+worker = (root / 'cloudflare/pages-leo-audio-worker.mjs').read_text()
+owner = (root / 'cloudflare/leo-owner-session.mjs').read_text().replace('export ', '')
+worker = worker.replace("import {handleOwnerSession, ownerRequest, withoutOwnerCookie} from './leo-owner-session.mjs';", owner)
 files = {
-    '_worker.js': (root / 'cloudflare/pages-leo-audio-worker.mjs').read_bytes(),
+    '_worker.js': worker.encode(),
     'sales-agent.html': (root / 'sales-agent.html').read_bytes(),
     '_routes.json': json.dumps({'version': 1, 'include': ['/*'], 'exclude': []}).encode(),
 }
