@@ -1,0 +1,54 @@
+name: Leo private connection checks
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/leo-private-connections.yml'
+      - 'scripts/check_leo_private_connections.py'
+      - 'tests/test_leo_private_connection_check.py'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/leo-private-connections.yml'
+      - 'scripts/check_leo_private_connections.py'
+      - 'tests/test_leo_private_connection_check.py'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: leo-private-checks-${{ github.event_name == 'pull_request' && github.ref || 'production' }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Test isolation, authorization and report privacy
+        run: python3 -m unittest discover -s tests -p test_leo_private_connection_check.py -v
+
+  check-production:
+    needs: validate
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Check existing production integrations without a browser
+        env:
+          LEO_PLATFORM_TOKEN: ${{ secrets.LEO_PLATFORM_TOKEN }}
+        run: python3 scripts/check_leo_private_connections.py
+      - name: Publish sanitized status summary
+        if: always()
+        run: |
+          if [ -f ops-output/leo-private-connections/summary.md ]; then
+            cat ops-output/leo-private-connections/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
