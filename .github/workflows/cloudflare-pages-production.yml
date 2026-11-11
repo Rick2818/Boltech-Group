@@ -1,0 +1,82 @@
+name: Cloudflare Pages — Leo production
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'sales-agent.html'
+      - 'cloudflare/pages-leo-audio-worker.mjs'
+      - 'cloudflare/leo-owner-session.mjs'
+      - 'scripts/build_pages_leo_audio.py'
+      - 'scripts/pages_ci.py'
+      - 'tests/test_leo_owner_session.mjs'
+      - 'tests/test_pages_leo_audio_bridge.mjs'
+      - '.github/workflows/cloudflare-pages-production.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sales-agent.html'
+      - 'cloudflare/pages-leo-audio-worker.mjs'
+      - 'cloudflare/leo-owner-session.mjs'
+      - 'scripts/build_pages_leo_audio.py'
+      - 'scripts/pages_ci.py'
+      - 'tests/test_leo_owner_session.mjs'
+      - 'tests/test_pages_leo_audio_bridge.mjs'
+      - '.github/workflows/cloudflare-pages-production.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudflare-pages-leo-${{ github.event_name == 'pull_request' && github.ref || 'production' }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+      - name: Validate owner session and preserve payment gateway
+        run: node --test tests/test_leo_owner_session.mjs tests/test_pages_leo_audio_bridge.mjs
+      - name: Build only public Pages assets
+        run: python3 scripts/pages_ci.py build
+      - name: Check deployable Worker and browser JavaScript
+        run: |
+          node --check .cloudflare/pages-release/_worker.js
+          node --check .cloudflare/pages-release-check.js
+
+  deploy:
+    needs: validate
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+      - name: Confirm token and exact existing corporate Pages project
+        run: python3 scripts/pages_ci.py target
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Build Pages assets
+        run: python3 scripts/pages_ci.py build
+      - name: Publish to the existing Pages project
+        working-directory: .cloudflare/pages-release
+        run: npx --yes wrangler@4.99.0 pages deploy . --project-name=boltech-group --branch=main --commit-hash="$GITHUB_SHA"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: f8c7c411bffaade3f6f0af4384db42e0
+          WRANGLER_SEND_METRICS: 'false'
+          CI: 'true'
+      - name: Verify actual production release
+        run: python3 scripts/pages_ci.py verify
