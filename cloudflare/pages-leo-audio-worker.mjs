@@ -1,4 +1,5 @@
 import {handleOwnerSession, ownerRequest, withoutOwnerCookie} from './leo-owner-session.mjs';
+import {handleCustomerSetup} from './customer-setup.mjs';
 // Direct Upwork OAuth for the canonical Cloudflare Pages origin. No broker.
 const OAUTH_ORIGIN = 'https://boltech-group.pages.dev';
 const OAUTH_RESOURCE = 'https://mcp.upwork.com/mcp';
@@ -403,6 +404,14 @@ const LEO_PATHS = new Set(['/sales-agent', '/sales-agent.html', '/sales-agent/']
 export default {
   async fetch(request, env) {
     const incoming = new URL(request.url);
+    if(incoming.pathname==='/api/customer-setup')return handleCustomerSetup(request,env,{ownerRequest,authorize:integrationAuthorized,seal,unseal});
+    if(['GET','HEAD'].includes(request.method)&&['/customer-setup','/customer-setup/','/customer-setup.html'].includes(incoming.pathname)){
+      const assetURL=new URL(request.url);assetURL.pathname='/customer-setup.html';
+      const asset=await env.ASSETS.fetch(new Request(assetURL,request));
+      const response=new Response(asset.body,asset);response.headers.set('Cache-Control','no-store');
+      response.headers.set('Referrer-Policy','no-referrer');response.headers.set('X-Content-Type-Options','nosniff');
+      response.headers.set('X-Frame-Options','DENY');response.headers.set('X-Boltech-Setup-Release','customer-setup-20261111-v1');return response;
+    }
     if(incoming.pathname === '/api/leo-owner-session') return handleOwnerSession(request,env,integrationAuthorized);
     if(incoming.pathname === '/api/leo-integrations' || incoming.pathname === '/api/upwork/start') {
       const authorized = await ownerRequest(request,env);

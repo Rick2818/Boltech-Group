@@ -5,6 +5,7 @@ import {join,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {spawnSync} from 'node:child_process';
 import {createCustomerSandbox,createSandboxStore,PDRO_PROFILE} from '../../lib/customer_support_sandbox.js';
+import {runBusinessAcceptance} from './pdro_business_acceptance.mjs';
 
 const root=resolve(fileURLToPath(new URL('../..',import.meta.url)));
 export const payload=(id,text,from='SYN_CUSTOMER_DEMO')=>({object:'whatsapp_business_account',entry:[{id:'SYN_WABA',changes:[{field:'messages',value:{metadata:{phone_number_id:PDRO_PROFILE.phoneNumberId},messages:[{id,from,type:'text',text:{body:text}}]}}]}]});
@@ -40,7 +41,7 @@ export async function runAcceptance() {
  await writeFile(join(output,'qa.tap'),qa.stdout+'\n'+qa.stderr);
  const testsPassed=Number(qa.stdout.match(/^# pass (\d+)$/m)?.[1]||0);
  if(qa.status!==0||testsPassed<1)throw Error('CUSTOMER_QA_FAILED');
- const files=['lib/customer_support_policy.js','lib/customer_support_sandbox.js','scripts/ops/pdro_imports_sandbox.mjs'];
+ const files=['lib/customer_support_policy.js','lib/customer_support_sandbox.js','lib/pdro_test_business.js','scripts/ops/pdro_imports_sandbox.mjs','scripts/ops/pdro_business_acceptance.mjs'];
  const source=createHash('sha256');for(const file of files)source.update(await readFile(join(root,file)));const artifactDigest=source.digest('hex');
  const directory=await mkdtemp(join(output,'run-'));const sandbox=await startSandbox({directory});const transcript=[];
  try{
@@ -73,10 +74,12 @@ export async function runAcceptance() {
  const reopened=createCustomerSandbox({store:createSandboxStore(directory),appSecret:'qa-unused-restart-signature-00000',verifyToken:'qa-unused-restart-verify-000000'});
  const state=await reopened.snapshot();
  if(state.outbox.length!==8||state.tickets.length!==3)throw Error('PERSISTENT_READBACK_FAILED');
- const report={schemaVersion:1,mode:'SYNTHETIC_ONLY',at:new Date().toISOString(),order:state.order,
+ const businessScenario=await runBusinessAcceptance(await mkdtemp(join(output,'business-')));
+ const report={schemaVersion:2,mode:'SYNTHETIC_ONLY',at:new Date().toISOString(),order:state.order,businessScenario,
   evidence:{testsPassed,httpInboundMessages:8,capturedReplies:state.outbox.length,humanCases:state.tickets.length,signatureValidation:true,duplicateSuppression:true,restartReadback:true,artifactDigest},
   externalServicesUsed:[],realPaymentReceived:false,realWhatsAppConnected:false,liveAiInferenceVerified:false,
-  pending:['Pedro debe revisar y aceptar la demostración','Definir catálogo, precios, horarios y políticas de atención','Autorizar número de prueba Meta y destinatario','Configurar Meta App Secret, token y webhook HTTPS de prueba','Conectar y verificar el modelo IA elegido antes de certificación generativa'],transcript,events:state.events};
+  channelTest:{status:'SKIPPED_USER_REPORTED_PREVIOUSLY_COMPLETED',verifiedByThisRun:false},
+  pending:['Pedro debe revisar y aceptar la demostración','Sustituir datos ficticios por información aprobada para operación real','Conectar y verificar el modelo IA elegido antes de certificación generativa'],transcript,events:state.events};
  await writeFile(join(output,'report.json'),JSON.stringify(report,null,2));
  const lines=['# Entrega de prueba — Pdro Imports','', '**Cliente ficticio:** Pedro. **Canal solicitado:** WhatsApp.','',
   '**Estado:** agente de atención y recorrido local implementados; entrega de sandbox para revisión. WhatsApp real e inferencia IA no conectados.','',
@@ -85,7 +88,7 @@ export async function runAcceptance() {
   '- 3 casos abiertos para Pedro. Duplicado bloqueado. Firma inválida rechazada.', '- Historial y pedido recuperados después de cerrar y reconstruir el runtime.',
   '- Aceptación de entrega por Pedro: PENDIENTE. No se ha declarado una entrega productiva.', '', '## Conversaciones de prueba',''];
  for(const row of transcript)lines.push(`**Cliente:** ${row.message}`,`\n**Agente:** ${row.reply}`,`\nEstado: ${row.intent}${row.ticketId?' · '+row.ticketId:''}.\n`);
- lines.push('## Pendiente para WhatsApp real','',...report.pending.map(p=>'- '+p),'','Las respuestas verificadas usan reglas seguras de clasificación. No son una prueba de un modelo generativo.');
+ lines.push('## Configuración del negocio ficticio y cierre de casos','',`- ${businessScenario.messages} mensajes adicionales de configuración; ${businessScenario.resolvedCases} caso resuelto y ${businessScenario.openCases} pendiente.`, '- Catálogo y horarios identificados como ficticios en cada respuesta.', '- Atención retomada después de cerrar el caso y reiniciar. Sin notificación externa.', '', 'La repetición de la prueba de WhatsApp se omite por indicación del usuario; este informe no vuelve a certificarla.', '', '## Pendiente','',...report.pending.map(p=>'- '+p),'','Las respuestas verificadas usan reglas seguras de clasificación. No son una prueba de un modelo generativo.');
  await writeFile(join(output,'Entrega_Pdro_Imports.md'),lines.join('\n'));
  console.log(JSON.stringify({output,orderId:state.order.orderId,testsPassed,httpInboundMessages:8,realWhatsAppConnected:false,customerAcceptance:'PENDING'}));
  return report;

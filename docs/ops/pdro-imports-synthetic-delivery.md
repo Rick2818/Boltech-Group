@@ -66,3 +66,9 @@ Para certificar IA generativa falta conectar y evaluar el modelo elegido. Para
 operación comercial faltan catálogo y políticas aprobadas, almacenamiento de
 producción, monitoreo y aceptación del cliente. No convertir el pago simulado,
 las respuestas capturadas o una prueba verde en ingresos o entrega productiva.
+
+## Client-owned knowledge and case resolution
+
+The sandbox now includes an explicitly fictional catalog/hours fixture and a separate five-message business acceptance scenario. All fixture facts are labeled in replies. The trusted local owner operation resolves a case idempotently; resumed attention survives restart, without sending an external closure notification. Customer channel verification is skipped on the owner’s instruction that it was previously completed; it is not certified again by this run.
+
+Real client information is collected separately at `/customer-setup` using the production intake described in `docs/ops/customer-setup.md`. Fictional fixture data is never inserted into a real client configuration.

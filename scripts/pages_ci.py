@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parent.parent
 ACCOUNT = 'f8c7c411bffaade3f6f0af4384db42e0'
 PROJECT = 'boltech-group'
 ORIGIN = 'https://boltech-group.pages.dev'
-FILES = {'_worker.js', '_routes.json', 'sales-agent.html'}
+FILES = {'_worker.js', '_routes.json', 'sales-agent.html', 'customer-setup.html'}
 
 
 def build():
@@ -25,7 +25,7 @@ def build():
     if any(p.name not in FILES or not p.is_file() for p in output.iterdir()):
         raise RuntimeError('Unexpected release output; refusing to upload unrelated files')
     with zipfile.ZipFile(ROOT / '.cloudflare/pages-leo-audio.zip') as archive:
-        if len(archive.namelist()) != 3 or set(archive.namelist()) != FILES or archive.testzip():
+        if len(archive.namelist()) != len(FILES) or set(archive.namelist()) != FILES or archive.testzip():
             raise RuntimeError('Invalid Pages archive')
         for name in FILES:
             (output / name).write_bytes(archive.read(name))
@@ -39,7 +39,12 @@ def build():
     if len(scripts) != 1 or 'owner-session-status' not in html:
         raise RuntimeError('Unexpected Leo UI release')
     (ROOT / '.cloudflare/pages-release-check.js').write_text(scripts[0])
-    print('Prepared three public Pages assets; no secrets or repository files included')
+    setup_html = (output / 'customer-setup.html').read_text()
+    setup_scripts = re.findall(r'<script\b[^>]*>(.*?)</script>', setup_html, re.S)
+    if len(setup_scripts) != 1 or '__CUSTOMER_ONBOARDING_VALIDATOR__' in setup_html:
+        raise RuntimeError('Invalid customer setup UI')
+    (ROOT / '.cloudflare/customer-setup-check.js').write_text(setup_scripts[0])
+    print('Prepared four public Pages assets; no secrets or repository files included')
 
 
 def target():
@@ -67,6 +72,7 @@ def target():
 
 def verify():
     expected = hashlib.sha256((ROOT / 'sales-agent.html').read_bytes()).digest()
+    setup_expected = hashlib.sha256((ROOT / '.cloudflare/pages-release/customer-setup.html').read_bytes()).digest()
     reason = 'No response'
     for attempt in range(6):
         try:
@@ -79,10 +85,14 @@ def verify():
                 correct = hashlib.sha256(response.read()).digest() == expected
             with urllib.request.urlopen(public_request('/api/leo-owner-session', 'application/json'), timeout=15) as response:
                 state = json.load(response)
-            if correct and state.get('success') is True and state.get('authenticated') is False:
-                print('Verified production HTML matches this commit and owner-session endpoint is live')
+            with urllib.request.urlopen(public_request('/customer-setup', 'text/html'), timeout=15) as response:
+                setup_correct = hashlib.sha256(response.read()).digest() == setup_expected
+            with urllib.request.urlopen(public_request('/api/customer-setup', 'application/json'), timeout=15) as response:
+                setup_state = json.load(response)
+            if correct and setup_correct and setup_state.get('configured') is True and setup_state.get('release') == 'customer-setup-20261111-v1' and state.get('success') is True and state.get('authenticated') is False:
+                print('Verified production Leo and customer setup HTML match this commit; storage and session endpoints are ready')
                 return
-            reason = 'HTML differs from commit' if not correct else 'Owner session readiness check failed'
+            reason = 'HTML differs from commit' if not correct or not setup_correct else 'Owner session or customer setup readiness check failed'
         except urllib.error.HTTPError as error:
             reason = f'Public verification returned HTTP {error.code}'
         except (urllib.error.URLError, ValueError):
