@@ -67,20 +67,29 @@ def target():
 
 def verify():
     expected = hashlib.sha256((ROOT / 'sales-agent.html').read_bytes()).digest()
+    reason = 'No response'
     for attempt in range(6):
         try:
-            with urllib.request.urlopen(ORIGIN + '/sales-agent', timeout=15) as response:
+            def public_request(path, accept):
+                # Identify our own release probe, rather than the default urllib
+                # client blocked by the public edge. No browser impersonation.
+                return urllib.request.Request(ORIGIN + path, headers={
+                    'User-Agent': 'Boltech-Release-Verification/1.0', 'Accept': accept})
+            with urllib.request.urlopen(public_request('/sales-agent', 'text/html'), timeout=15) as response:
                 correct = hashlib.sha256(response.read()).digest() == expected
-            with urllib.request.urlopen(ORIGIN + '/api/leo-owner-session', timeout=15) as response:
+            with urllib.request.urlopen(public_request('/api/leo-owner-session', 'application/json'), timeout=15) as response:
                 state = json.load(response)
             if correct and state.get('success') is True and state.get('authenticated') is False:
                 print('Verified production HTML matches this commit and owner-session endpoint is live')
                 return
+            reason = 'HTML differs from commit' if not correct else 'Owner session readiness check failed'
+        except urllib.error.HTTPError as error:
+            reason = f'Public verification returned HTTP {error.code}'
         except (urllib.error.URLError, ValueError):
-            pass
+            reason = 'Public verification network or JSON response error'
         if attempt < 5:
             time.sleep(5)
-    raise RuntimeError('Production verification failed; inspect deployment before retrying')
+    raise RuntimeError('Production verification failed: ' + reason)
 
 
 if __name__ == '__main__':
