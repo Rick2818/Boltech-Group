@@ -11,7 +11,7 @@ import urllib.request
 ENDPOINT = 'https://boltech-group.pages.dev/api/leo-integrations'
 PLATFORMS = ('upwork', 'freelancer', 'explee')
 OUTPUT = Path('ops-output/leo-private-connections')
-REASONS = {'EDGE_ACCESS_DENIED', 'API_KEY_REJECTED', 'ACCESS_DENIED_UNCLASSIFIED', 'IP_RESTRICTED', 'API_SCOPE_DENIED', 'RATE_LIMITED'}
+REASONS = {'EDGE_ACCESS_DENIED', 'API_KEY_REJECTED', 'ACCESS_DENIED_UNCLASSIFIED', 'IP_RESTRICTED', 'API_SCOPE_DENIED', 'RATE_LIMITED', 'ACCOUNT_SCHEMA_MISMATCH'}
 ERRORS = {
     'DIAGNOSTIC_TOKEN_MISSING', 'OWNER_ACCESS_REQUIRED', 'OWNER_ACCESS_NOT_CONFIGURED',
     'ORIGIN_NOT_ALLOWED', 'PROVIDER_SECRET_MISSING', 'FREELANCER_API_DISABLED',
@@ -85,6 +85,18 @@ def safe_result(platform, status, data):
     row['error'] = code
     if isinstance(data.get('providerReason'), str) and data['providerReason'] in REASONS:
         row['providerReason'] = data['providerReason']
+    if platform == 'explee' and row.get('providerReason') == 'ACCOUNT_SCHEMA_MISMATCH':
+        if type(data.get('providerHttpStatus')) is int and 100 <= data['providerHttpStatus'] <= 599:
+            row['providerHttpStatus'] = data['providerHttpStatus']
+        shape = data.get('accountShape')
+        if isinstance(shape, dict):
+            safe = {}
+            for key in ('body', 'organization', 'organizationId', 'key', 'balance', 'balanceRemain', 'data', 'result', 'organization_id', 'org', 'org_id', 'api_key'):
+                if isinstance(shape.get(key), str) and shape[key] in {'missing', 'null', 'object', 'array', 'string', 'number', 'boolean'}:
+                    safe[key] = shape[key]
+            if type(shape.get('jsonContentType')) is bool:
+                safe['jsonContentType'] = shape['jsonContentType']
+            row['accountShape'] = safe
     return row
 
 

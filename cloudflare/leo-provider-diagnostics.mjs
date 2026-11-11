@@ -18,7 +18,14 @@ export async function expleeAccountCheck(env,fetchFn=fetch){
    :response.status===429?'RATE_LIMITED':'ACCESS_DENIED_UNCLASSIFIED';
   throw error;
  }
- if(!data||typeof data.organization?.id!=='string'||!data.organization.id||!data.key||typeof data.key!=='object'||Array.isArray(data.key)||typeof data.balance?.remain!=='number'||!Number.isFinite(data.balance.remain))throw Error('PROVIDER_RESPONSE_INVALID');
+ if(!data||typeof data.organization?.id!=='string'||!data.organization.id||!data.key||typeof data.key!=='object'||Array.isArray(data.key)||typeof data.balance?.remain!=='number'||!Number.isFinite(data.balance.remain)){
+  const type=value=>value===undefined?'missing':value===null?'null':Array.isArray(value)?'array':typeof value;
+  const error=Error('PROVIDER_RESPONSE_INVALID');error.providerReason='ACCOUNT_SCHEMA_MISMATCH';error.providerHttpStatus=response.status;
+  // Fixed field names and primitive type labels only. Never emit values or keys
+  // discovered in provider data, account identifiers, balances or raw responses.
+  error.accountShape={body:type(data),organization:type(data?.organization),organizationId:type(data?.organization?.id),key:type(data?.key),balance:type(data?.balance),balanceRemain:type(data?.balance?.remain),data:type(data?.data),result:type(data?.result),organization_id:type(data?.organization_id),org:type(data?.org),org_id:type(data?.org_id),api_key:type(data?.api_key),jsonContentType:(response.headers.get('Content-Type')||'').includes('application/json')};
+  throw error;
+ }
  return {success:true,platform:'explee',status:'CONNECTED',checkedAt:new Date().toISOString(),mode:'READ_ONLY',accountCheck:'GET_ME',
   searchReadiness:data.balance.remain>0?'POSITIVE_BALANCE_NOT_SEARCH_VERIFIED':'POSITIVE_BALANCE_REQUIRED'};
 }
