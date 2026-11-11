@@ -3,6 +3,7 @@ from pathlib import Path
 import hashlib
 import json
 import zipfile
+import runpy
 
 root = Path(__file__).resolve().parent.parent
 output = root / '.cloudflare' / 'pages-leo-audio.zip'
@@ -14,10 +15,13 @@ validator = (root / 'lib/customer_onboarding.js').read_text().replace('export ',
 setup = (root / 'cloudflare/customer-setup.mjs').read_text().replace("import {validateCustomerOnboarding} from '../lib/customer_onboarding.js';", validator).replace('export ', '')
 worker = worker.replace("import {handleCustomerSetup} from './customer-setup.mjs';", setup)
 setup_html = (root / 'cloudflare/customer-setup.template.html').read_text().replace('__CUSTOMER_ONBOARDING_VALIDATOR__', validator)
+render_manual = runpy.run_path(str(root / 'scripts/render_user_manual.py'))['render_manual']
+manual_html = render_manual((root / 'docs/Manual_de_usuario.md').read_text())
 files = {
     '_worker.js': worker.encode(),
     'sales-agent.html': (root / 'sales-agent.html').read_bytes(),
     'customer-setup.html': setup_html.encode(),
+    'manual-usuario.html': manual_html.encode(),
     '_routes.json': json.dumps({'version': 1, 'include': ['/*'], 'exclude': []}).encode(),
 }
 with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as archive:

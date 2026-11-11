@@ -1,373 +1,79 @@
-## Campaña freelance n8n — 10 de octubre de 2026
-
-[Registro de cinco presentaciones enviadas y conciliación con RSI/Airtable](docs/commercial/N8N_FREELANCE_OUTREACH_2026-10-10.md). Evidencia Gmail: cinco mensajes aceptados (uno el 9 de octubre, cuatro el 10). Pendiente verificar registro en Airtable y ejecución real del flujo RSI; HubSpot no es condición obligatoria según la arquitectura comercial documentada. Seguimiento preparado para el 12 de octubre. **No se acreditan respuestas, contratos ni ventas por estos envíos.**
-
-## Oferta vigente — 4 de octubre de 2026
-
-Confirmada por Ricardo: **Agentes preelaborados** (`prebuilt`) y **Custom agents / agentes a medida** (`custom`). Los precios y entregables requieren una cotización aprobada. Los identificadores antiguos `flash`, `pro` y `enterprise` no pueden crear nuevas órdenes (HTTP 410). No se reutilizan las tarifas históricas de $19/$69/$490. Las órdenes existentes conservan su conciliación y confirmación de pago.
-
-El checkout público exige cotización aprobada (`APPROVED_QUOTE_REQUIRED`, 409). El endpoint administrativo `POST /api/payments?action=create-approved` permite crear un enlace Wompi con aprobación explícita, referencia de cotización e importe USD; requiere autenticación operacional. El importe público no puede modificar una cotización. Los reintentos reutilizan la orden y el enlace; los resultados inciertos exigen conciliación.
-
-El 5 de octubre se cobró una prueba real de US$1 mediante un enlace creado en Wompi. Su orden se importó como `payment-verification` y se recupera consultando al proveedor con `POST /api/payments?action=wompi-recover` (administrativo). El evento original de discrepancia se conserva. Esta prueba se excluye de ventas de agentes y no dispara entrega de servicio. El abono bancario requiere verificación adicional. Un correo de confirmación de pago no equivale a entrega del agente. Las secciones históricas que siguen debajo no definen la oferta actual.
-
 # Boltech Group
 
-## HubSpot CRM: prueba productiva aprobada — 3 octubre 2026
+Agentes preelaborados y agentes a medida para atender consultas y automatizar procesos de empresas. Los alcances y precios se definen mediante cotización aprobada.
 
-[Auditoría de recuperación y duplicados](docs/audits/CRM_PRODUCTION_VERIFICATION_2026-10-03.md). Responsable: ChatGPT / Codex. Verificada a las 21:04 SV: prueba real PASS, trabajo COMPLETED, contacto 252891994553 y un solo registro por correo exacto. Los envíos idénticos conservan el mismo job/contact ID. Incluye diagnóstico, corrección de transporte HTTPS, 26 pruebas locales y límites del alcance.
+**Actualizado: 11 de noviembre de 2026.** El destino vigente es **Cloudflare Pages**. Vercel no es el destino de nuevos despliegues. La Fábrica de Agentes y Agente 1 están retirados por decisión del propietario; su código y documentos antiguos no autorizan reactivarlos.
 
-## Tres agentes RSI: ejecución y trazabilidad — 3 octubre 2026
+## Accesos
 
-[Configuración productiva de los tres roles](docs/commercial/rsi_execution.md) · [Verificación de ejecución](docs/audits/RSI_EXECUTION_2026-10-03.md).
+| Recurso | Enlace |
+|---|---|
+| Sitio de Boltech | [boltech-group.pages.dev](https://boltech-group.pages.dev) |
+| Leo, atención web | [Hablar con Leo](https://boltech-group.pages.dev/sales-agent) |
+| Catálogo y preguntas frecuentes del cliente | [Configurar mi agente](https://boltech-group.pages.dev/customer-setup) |
+| Manual de usuario | [Manual en la web](https://boltech-group.pages.dev/manual-usuario) · [Fuente en Git](docs/Manual_de_usuario.md) |
+| Implementación de la ficha | [Notas operativas](docs/ops/customer-setup.md) |
+| Prueba ficticia de Pdro Imports | [Alcance y resultados reproducibles](docs/ops/pdro-imports-synthetic-delivery.md) |
 
-Verificación productiva aprobada el 3 octubre 2026 a las 14:17 SV: deployment READY, 131 pruebas locales aprobadas y tres recibos técnicos COMPLETED leídos desde Airtable mediante el diagnóstico privado. La auditoría enlazada conserva evidencia y dependencias comerciales pendientes.
+## Recorrido del cliente
 
-Los tres agentes consultivos de ChatGPT ya estaban habilitados; se actualizan sus instrucciones para registrar inicio, fin, herramientas, resultados y bloqueos en Airtable. Se añaden tres ejecutores técnicos Vercel con lease/idempotencia Redis, lectura de fuentes reales y recibos privados. El control MIT existente ejecuta un ciclo técnico de cada RSI a las 09:00 SV. No se añade cron ni se aprovisionan DOTS. RSI-02 analiza únicamente registros de respuesta con aceptación y datos explícitos; si faltan, registra la dependencia. Los agentes consultivos conservan las acciones comerciales previamente autorizadas.
+1. Boltech y el cliente acuerdan el alcance y la cotización. El pago se comprueba por su procedimiento correspondiente; llenar una ficha no acredita pago.
+2. El propietario abre la ficha, despliega **Boltech · Gestión del pedido**, introduce la referencia y genera un enlace privado para ese cliente. Requiere sesión de propietario iniciada en Leo.
+3. El cliente carga descripción, catálogo o servicios, FAQ, horarios, políticas y responsable de atención humana. Los datos desconocidos se dejan pendientes.
+4. La ficha se guarda cifrada, vinculada al pedido y con una versión propia. El cliente puede descargar una copia JSON.
+5. Boltech revisa la versión; el cliente prueba sus respuestas y acepta la configuración revisada.
+6. La conexión del canal, la verificación del modelo de IA, las pruebas con proveedores y la entrega operativa se comprueban por separado. La aceptación de la ficha no los certifica.
 
-Diagnóstico privado: `GET /api/partners?action=rsi-agents`. Ejecución administrativa: `POST /api/partners?action=rsi-execute` con `rsi` y `cycleId`. Un ciclo COMPLETED acredita trabajo técnico registrado; no implica campaña enviada, auditoría contratada, socio aprobado o cobro. La protección transaccional del ejecutor no cubre los marcadores de todas las plataformas; resultados inciertos exigen conciliación. El detalle y límites se documentan en los enlaces anteriores.
+El enlace privado vence a los siete días. La ficha se conserva hasta 30 días desde su guardado. Cada enlace permite acceder únicamente a su ficha; no otorga permisos de propietario.
 
-## Auditoría técnica vigente
+## Alcance implementado
 
-[Auditoría de arquitectura, código y coordinación RSI — 3 octubre 2026, 11:54:43 (El Salvador)](docs/audits/AUDITORIA_TECNICA_RSI_2026-10-03.md)  
-Auditor: ChatGPT / Codex · Solicitante: Ricardo Ernesto Bolaños Hernández. Actualizada el 3 octubre 2026 a las 12:14:56 (El Salvador): PR 28 integrado y desplegado; 97 pruebas locales y 24 comprobaciones productivas aprobadas, incluida persistencia tras redespliegue. Evidencia y límites en la auditoría. No acredita todavía una nota de 9.5.
+| Componente | Comportamiento |
+|---|---|
+| Ficha de configuración | Formulario vacío, con catálogo/servicios, FAQ y políticas proporcionados por el cliente |
+| Guardado | Validación en servidor y cifrado AES-GCM en el binding COMMERCE existente |
+| Revisión | Aprobación del propietario sobre una versión inmutable |
+| Prueba de conocimiento | Consulta de FAQ exactas, nombres/SKU de productos y horario; datos ausentes se derivan al responsable |
+| Aceptación | Aceptación de esa configuración, sin declarar pago ni activación |
+| Pdro Imports | Prueba ficticia separada de ventas, contactos y pagos reales |
 
-[Reparación de Airtable — 3 octubre 2026, 12:40:42 (El Salvador)](docs/audits/AIRTABLE_REPAIR_2026-10-03.md): clasificación de leads, retiro de importes QA y reconstrucción de Chatbase/pendiente RSI-03; responsable ChatGPT / Codex.
+La prueba de conocimiento actual usa reglas; no acredita inferencia generativa ni sincronización de inventario. La verificación previa de WhatsApp se omite por instrucción del propietario, quien indicó que ya se realizó; este cambio no vuelve a certificarla. El estado de Upwork, Freelancer y Explee se comprueba mediante los controles privados de Leo, no por una afirmación histórica de este README.
 
-**Autonomous Agents for Business**  
-**Automate. Respond. Scale.**
+## Desarrollo y comprobación
 
-Production: https://boltech-group.vercel.app
-
-Boltech Group builds autonomous and custom AI agents for business bottlenecks such as quotations, customer questions, support, lead qualification, repetitive follow-up and workflow automation.
-
----
-
-## Current production status — 2026-09-29
-
-| Area | Status | Notes |
-|---|---|---|
-| Main Vercel application | Production | `boltech-group.vercel.app` |
-| MCP gateway | Production | Authenticated read-only MCP endpoint at `/api/mcp` |
-| A2A referral exchange | Production core | Agent Card + authenticated referral intake + PII masking |
-| A2A partner identity binding | Production | Bearer credentials are SHA-256 bound to the Airtable partner record |
-| A2A QA evidence | Historical baseline | Prior Airtable registration does not certify the current release; see `docs/audits/A2A_VERIFICATION_2026-09-30.md` |
-| Provider candidate matching | In rollout | Validated providers remain PROSPECT until real approval/access is received |
-| Telegram cloud agent | ONLINE; basic messaging verified | Webhook registered; deep health passed; Ricardo verified replies to `/start` and `Hola` |
-| Airtable partner CRM | Active | Partners, Referrals, Partner Activities, Commission Ledger, Payment Orders and Payment Events |
-| Payment hardening | Active | Provider-confirmed payment state, server-side amount derivation and HMAC safeguards |
-
----
-
-## Architecture
-
-```text
-Customer / Partner / Operator
-          |
-          +--> Boltech Web App
-          |
-          +--> MCP Gateway
-          |
-          +--> A2A Referral Exchange
-          |       |
-          |       +--> Airtable Partner Network
-          |
-          +--> Telegram Cloud Agent
-                  |
-                  +--> Vercel Serverless
-```
-
-The production design is cloud-first. Core serverless endpoints do not require Ricardo's laptop to remain powered on.
-
----
-
-## MCP
-
-Boltech exposes a remote MCP gateway through the existing Vercel API router:
-
-```text
-POST /api/mcp
-Authorization: Bearer <BOLTECH_MCP_API_KEY>
-```
-
-Current read-only tools:
-
-- `boltech_status`
-- `get_bitcoin_market_data`
-- `research_b2b_lead`
-
-Authentication behavior:
-
-- Missing server configuration: `503 MCP_AUTH_NOT_CONFIGURED`
-- Missing or invalid bearer credential: `401 MCP_UNAUTHORIZED`
-- Credentials are stored as environment secrets and are not committed to Git.
-
----
-
-## A2A Referral Exchange
-
-Agent Card:
-
-```text
-/.well-known/agent-card.json
-```
-
-A2A endpoint:
-
-```text
-POST /api/a2a
-```
-
-Implemented controls:
-
-- JSON-RPC `SendMessage` intake with v1 `result.task`, plus legacy `message/send`.
-- Partner-scoped `GetTask` retrieval.
-- Persistent Upstash Redis replay protection keyed by authenticated partner and message ID.
-- Partner-specific Bearer authentication.
-- SHA-256 lookup against the partner's `A2A Key Hash` in Airtable.
-- Authenticated partner identity is resolved server-side.
-- Incoming requests cannot impersonate another partner using a supplied record ID.
-- Structured customer identity fields are masked unless `clientConsent` is the JSON boolean `true`. Partners must keep free-text summaries and notes free of unauthorized PII.
-- Referrals are written to Airtable.
-- A corresponding `REFERRAL_RECEIVED` activity is written to Partner Activities.
-- Matching considers capabilities, market and language.
-- Unapproved providers can be surfaced as candidates without being granted A2A peer access.
-
-Controlled QA validation created a real referral in Airtable with `WAITING_CONSENT` and masked PII.
-
-### Partner onboarding states
-
-Boltech currently tracks Apollo, Hunter, Lusha, Reply.io, Instantly, Atom and lemlist as provider/partner candidates.
-
-They must remain `PROSPECT` and `A2A Enabled = false` until there is real evidence of approval/enrollment and, where required, technical credentials.
-
-The intended lifecycle is:
-
-```text
-PROSPECT
-   -> application/enrollment
-   -> provider approval
-   -> technical credentials/API access
-   -> configuration
-   -> A2A validation
-   -> ACTIVE
-```
-
----
-
-## Telegram Cloud Agent
-
-The Telegram agent runs through Vercel at:
-
-```text
-/api/telegram
-```
-
-Health endpoint:
-
-```text
-GET /api/telegram
-```
-
-Deep health mode:
-
-```text
-GET /api/telegram?deep=1
-```
-
-Security controls include:
-
-- `TELEGRAM_BOT_TOKEN` stored in environment variables.
-- `TELEGRAM_WEBHOOK_SECRET` required for webhook POSTs.
-- Timing-safe secret verification.
-- No hard-coded production webhook secret fallback.
-- Deduplication of repeated Telegram updates.
-- Authorized-user filtering.
-- Cloud operation independent of the local laptop.
-
-A secure webhook registration path is available after deployment and uses the server-side Bot Token without exposing it in client-side code.
-
-### Production verification — 2026-09-29
-
-- Production variables: `TELEGRAM_BOT_TOKEN` and `TELEGRAM_WEBHOOK_SECRET`, stored as Vercel secrets. Their values are never included in GitHub.
-- Registered webhook: `https://boltech-group.vercel.app/api/telegram`.
-- Registration returned `ok: true` and `status: REGISTERED`.
-- Deep health checked at `2026-09-29T23:13:06.777Z` (17:13 El Salvador): HTTP 200, `ONLINE`, `telegramConfigured: true`, `webhookConfigured: true`, `pendingUpdates: 0`, `lastError: null`.
-- Ricardo's Telegram screenshot confirmed responses to `/start` and `Hola` at 17:11 El Salvador. This verifies basic incoming and outgoing messaging.
-- Voice, agenda and other advertised commands still require their own functional tests. A greeting acknowledgement does not prove that an instruction was persisted or executed.
-
-### Configuration ownership and future changes
-
-GitHub versions application code, variable names and these operating instructions. Vercel stores production secret values; Telegram stores the webhook registration. A Git push does not copy Vercel secrets or register a Telegram webhook.
-
-After changing a Vercel secret, save it for Production and redeploy. After changing the webhook secret, register the webhook using the same secret and verify deep health again. Registration uses `POST /api/telegram?action=register-webhook` with the `X-Telegram-Bot-Api-Secret-Token` header. The server uses its Bot Token internally.
-
-Do not upload screenshots containing credentials, real `.env` files or PowerShell transcripts containing secret values to GitHub.
-
-
----
-
-## Commercial control tower — 09:00 El Salvador
-
-GitHub Actions includes a daily MIT commercial control workflow:
-
-```text
-.github/workflows/mit_commercial_9am.yml
-```
-
-Schedule:
-
-```text
-09:00 America/El_Salvador
-15:00 UTC
-```
-
-It runs a read-only commercial control script:
-
-```text
-scripts/commercial/mit_daily_control_tower.mjs
-```
-
-The daily control tower checks:
-
-1. Boltech/Telegram production health.
-2. Explee availability and visible hot-lead count when the GitHub secret is configured.
-3. Apollo saved-contact availability when the GitHub secret is configured.
-4. Authenticated production checkout totals from provider-confirmed paid orders, when `PARTNER_API_TOKEN` is configured in GitHub Secrets.
-
-The 09:00 report selects one commercial priority for reaching the first verified payment, records a measurement hypothesis, and retains an aggregate diagnosis as a 30-day Actions artifact. It stays within GitHub Actions and does not transmit commercial figures by Telegram. Missing API responses display **N/D**, never zero. Hot leads and saved contacts are inventory; they are not replies, meetings, proposals or collected revenue. The current systems do not provide verified counts for those middle funnel stages, so the report shows N/D until a genuine source is connected. Test referrals and sample lead records must not be treated as commercial pipeline.
-
-The integrated 09:00 MIT + RSI-01 agenda, initial five-day experiment, owners, evidence and daily decision rules are in [`docs/commercial/primer_cobro.md`](docs/commercial/primer_cobro.md).
-The first researched cohort and individual draft messages are in [`docs/commercial/rsi_01_prospectos.md`](docs/commercial/rsi_01_prospectos.md). The authenticated daily metrics now include aggregate CRM stages for `RSI-01`; these stages are operator-entered and remain separate from provider-confirmed cash.
-It does **not** automatically spend Apollo credits or send prospect emails. Commercial outreach remains governed by validated targeting and real provider access.
-
-### Daily MIT priorities
-
-- **MIT 1:** Review genuine hot leads; otherwise validate buyer and problem for the five `RSI-01` researched companies.
-- **MIT 2:** Review the five drafted messages and pilot scope with Ricardo before any contact.
-- **MIT 3:** Record real replies, meetings, proposals and provider-confirmed payments; change one variable per iteration.
-
-Responsibilities:
-
-- **Ricardo:** payments, commercial decisions, meetings and approvals.
-- **Boltech:** monitoring, qualification, routing and operational automation.
-- **Explee:** outbound campaign execution after account reactivation.
-- **Apollo:** prospect sourcing and enrichment.
-- **Airtable:** system of record for the partner/referral network.
-
----
-
-## Payment security
-
-Production payment logic follows these controls:
-
-- Amounts are derived from the server-side catalog rather than trusted from the browser.
-- Payment confirmation requires provider verification.
-- HMAC validation is used where applicable.
-- Legacy public payment-confirmation routes are retired.
-- Production code does not use synthetic `PAID` or `APPROVED` fallbacks.
-- Commission entries follow the cash-collected policy and require real payment evidence.
-
-Secrets and payment credentials must only be stored in provider secret stores such as Vercel or GitHub Actions Secrets.
-
----
-
-## Airtable data model
-
-Current operational tables include:
-
-- Leads
-- Partners
-- Referrals
-- Partner Activities
-- Commission Ledger
-- Payment Orders
-- Payment Events
-
-The Partner table stores operational state, capabilities, markets, languages, referral mode, A2A enablement and the A2A key hash.
-
----
-
-## Development and validation
-
-Install dependencies:
+Node.js 22 o posterior y Python 3. Las pruebas de la ficha y el build reducido no requieren instalar las dependencias de la aplicación histórica.
 
 ```bash
-npm install
+node --test tests/test_customer_onboarding.mjs tests/test_customer_setup_gateway.mjs tests/test_customer_support_sandbox.mjs tests/test_leo_owner_session.mjs tests/test_pages_leo_audio_bridge.mjs tests/test_leo_upwork_registration.mjs
+python3 scripts/pages_ci.py build
+node --check .cloudflare/pages-release/_worker.js
+node --check .cloudflare/pages-release-check.js
+node --check .cloudflare/customer-setup-check.js
 ```
 
-Run the repository test suite:
+Prueba ficticia reproducible:
 
 ```bash
-npm test
+node scripts/ops/pdro_imports_sandbox.mjs
+node scripts/ops/build_pdro_delivery_preview.mjs
 ```
 
-Production changes should follow the repository governance workflow:
+Los archivos de `ops-output` son evidencia local de prueba, no registros de clientes reales ni respuestas de Meta. No se publican como activos del sitio.
 
-```text
-branch -> tests/CI -> pull request -> merge -> Vercel production deployment -> live verification
-```
+Para trabajar con el resto del repositorio, consultar `package.json`, `AGENTS.md`, `.agents/rules/AGENTS.md` y las instrucciones vigentes del propietario. Los scripts históricos de campañas no deben ejecutarse por el solo hecho de existir.
 
-### Measured improvement cycle
+## Despliegue
 
-For each proposed improvement, record the initial problem and metric in the pull request template, make one focused change, and run `npm run improve:check`. The governance workflow executes the same checks on every PR and saves a JSON report and individual test logs as a GitHub Actions artifact for 30 days. Compare the observed result with the acceptance criterion, then keep, revise, or discard the change. These checks cover partner logic, operational truth, payments, and MCP authentication; they do not prove production health, deliverability, or revenue. External results need provider evidence and a separate production check. No workflow automatically edits code, merges PRs, or deploys based on a score.
+El workflow **Cloudflare Pages — Leo production** valida PRs sin secretos y despliega los cambios autorizados de `main` al proyecto existente `boltech-group`. Requiere el secreto de Actions `CLOUDFLARE_API_TOKEN` con el alcance documentado. No crea otro proyecto, cron ni suscripción.
 
-Never commit API keys, Bot Tokens, webhook secrets or payment credentials to the repository.
+Después de publicar, verifica hashes del HTML de Leo y de la ficha, además de la disponibilidad de almacenamiento y sesión. Un PR aprobado o un build local no equivalen por sí solos a producción verificada. Ver [procedimiento de Pages](docs/ops/cloudflare-pages-actions.md).
 
----
+## Límites de operación
 
-## Operational principle
+- Wompi y su verificación de pagos conservan su flujo; las fichas no cobran ni reembolsan.
+- No se activan campañas, cold email, postulaciones ni gastos por completar una ficha.
+- No se guardan secretos, tokens, contraseñas ni datos de tarjetas en Git, el catálogo o las FAQ.
+- Los datos de prueba permanecen identificados como ficticios; no cuentan como ingresos ni clientes reales.
+- La entrega final requiere comprobar las integraciones y el alcance contratado, además de la aceptación que corresponda.
 
-Boltech distinguishes clearly between:
-
-- **configured** systems,
-- **tested** systems,
-- **production-active** systems, and
-- **external relationships still awaiting approval**.
-
-A provider is not marked ACTIVE merely because it offers a public affiliate or partner program. Production status requires real evidence and, for technical integrations, verified credentials and an end-to-end test.
-
-## Wompi bidirectional health — 2 October 2026
-
-The Vercel administrative endpoint `GET /api/payments?action=readiness-internal` authenticates with Wompi and reads `GET /Aplicativo`. It returns sanitized connection/productive status and requires the existing administrative bearer token. It never returns credentials, access tokens, business IDs or bank account details.
-
-The GitHub production health workflow checks these Vercel routes hourly and retains `production-health-<run_id>` for 14 days:
-
-| Direction | Automatic check | Meaning |
-|---|---|---|
-| Boltech → Wompi | OAuth + GET /Aplicativo | Credentials accepted and business reachable |
-| Boltech → Wompi | Productive mode | Business is in real-payment mode |
-| Incoming callback boundary | GET webhook returns 405 | Only POST is accepted |
-| Incoming callback boundary | Unsigned/invalid-HMAC callback returns 401 | Rejected before storage, provider calls or reconciliation |
-| Wompi → Boltech genuine callback | PENDING | Requires a genuine controlled transaction |
-| Complete payment, reconciliation and fulfillment | PENDING | Requires amount/environment verification, real callback, duplicate handling and final delivery evidence |
-
-Negative callback probes do not originate from Wompi and do not prove genuine webhook delivery. They do not create payment records. CI also validates HMAC tampering and rejection before external access. Invalid unauthenticated callbacks are now rejected at the API boundary; signed callbacks retain the reconciliation/audit process.
-
-Confirmed on 2 October at 09:08 SV: Wompi authentication and business query PASSED, `estaProductivo=true`. This is not evidence of a completed payment or bank settlement. No health check creates links, charges, refunds or signed synthetic successful payments.
-
-Official references: https://docs.wompi.sv/metodos-api/datos-aplicativo and https://docs.wompi.sv/webhook/validar-webhook.
-
-
-## Dos nuevas estrategias RSI — 2 octubre 2026
-
-Se mantiene la prospección Apollo de RSI-01. Se añaden:
-
-- [RSI-02: auditoría gratuita](docs/commercial/rsi_02_auditoria_gratuita.md): oferta transparente, pruebas acordadas con el cliente, informe, demostración y piloto pagado; cohortes sin contactos duplicados.
-- [RSI-03: A2A conjunto, costos y primer cobro](docs/commercial/rsi_03_costos_primer_cobro.md): adquisición conjunta con socios, atribución y deduplicación de referidos, plan de acción de diez jornadas, responsabilidad operativa para Boltech / asistente y medición de costos, comisiones y primer cobro real confirmado.
-
-Integración de código: el endpoint autenticado `commercial-metrics` añade `cohorts` RSI-01/02, `a2a`, `operatingCosts` y `componentStatus`, preservando `cohort` para compatibilidad. El control existente de 09:00 genera acciones para los tres RSI; no hay cron adicional. Airtable `Operating Costs` registra totales mensuales por proveedor con evidencia. Una partida desconocida o duplicada mantiene el total en N/D. Los referidos de socios QA se excluyen del resumen A2A; cobros atribuibles a socios siguen N/D sin vínculo de orden verificado. Las fallas de costos/cohortes no ocultan cobros disponibles.
-
-La verificación local pasó 23 pruebas; CI incluye las pruebas comerciales dentro de governance. Se crearon nueve partidas pendientes de costos para octubre 2026. Socios comerciales activos, facturas de proveedores, auditorías aceptadas y campañas de auditoría requieren evidencia externa. La integración de código no los crea ni garantiza ventas. No se activaron envíos o nuevos gastos.
-
-Correcciones de auditoría del 2 octubre: el coordinador mantiene `WAITING_VERIFIED_CASH` ante cobros ausentes/no finitos y `WAITING_DATA` si no está verificada la activación de la campaña de auditoría. El cálculo documentado de efectivo neto incluye comisiones una sola vez dentro de gastos pagados del mismo período. Las pruebas locales de governance pasaron 66 casos: 26 comerciales, 15 A2A, 6 socios, 5 veracidad, 11 seguridad de pagos y 3 autenticación MCP. Estas pruebas no acreditan cobros, rentabilidad ni DOTS aprovisionados.
-
-## RSI durable handoffs — 3 October 2026
-
-Authenticated administrative GET/POST/PATCH at `/api/partners?action=rsi-handoff` now records handoff state, owner, evidence references and an event history in the existing Upstash Redis store. Creation is idempotent by stable handoff ID; atomic version checks prevent concurrent overwrites. Storage failures return explicit errors without an in-memory success fallback. See `docs/commercial/arquitectura_rsi.md` for the contract and remaining live acceptance checks. No campaign execution or DOTS provisioning is implied.
-
-`npm run build` now checks JavaScript syntax across API, library and script modules instead of returning a placeholder success. Governance includes handoff failure/concurrency tests and operational privacy/monitoring regression tests. Local tests do not certify live provider configuration or uninterrupted production monitoring.
-
-## Recuperación CRM y ejecutores RSI — 3 octubre 2026
-
-[Informe técnico: recuperación CRM y ejecutores pendientes](docs/audits/CRM_RECOVERY_2026-10-03.md). La sincronización entrante HubSpot guarda tareas en Redis, evita falsos éxitos y recupera fallos temporales mediante el workflow CRM existente. Tareas sin credenciales/evidencia quedan BLOCKED. Esta infraestructura no equivale a tres ejecutores RSI completos; Salesforce queda fuera de este cambio. La reparación posterior de Airtable está documentada en la auditoría enlazada arriba. Verificación productiva del recuperador: cola vacía y sin credencial HubSpot; no acredita sincronización al proveedor.
-
+Los informes anteriores se conservan en Git y en `docs` como historial. [README anterior](https://github.com/Rick2818/Boltech-Group/blob/a283faf5ba0de2567cddc876c176674448c4baf5/README.md): sus referencias a Vercel, RSI o campañas retiradas no describen la operación vigente.
