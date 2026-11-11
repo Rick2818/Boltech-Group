@@ -43,3 +43,14 @@ test('schema mismatch exposes only fixed field types, never provider values or a
  const body={organization:{id:777,name:secret},balance:{remain:12},key:{read_only:true},[secret]:secret};
  await assert.rejects(expleeAccountCheck({EXPLEE_API_KEY:secret},async()=>json(body)),error=>{assert.equal(error.providerReason,'ACCOUNT_SCHEMA_MISMATCH');assert.equal(error.providerHttpStatus,200);assert.equal(error.accountShape.organizationId,'number');assert.ok(!JSON.stringify(error.accountShape).includes(secret));assert.ok(!JSON.stringify(error.accountShape).includes('777'));return true;});
 });
+
+test('observed Explee null or omitted balance authenticates without guessing funds or search availability',async()=>{
+ for(const balance of [null,undefined]){
+  const result=await expleeAccountCheck({EXPLEE_API_KEY:secret},async()=>json({...account(10),balance}));
+  assert.equal(result.status,'CONNECTED');assert.equal(result.searchReadiness,'BALANCE_NOT_REPORTED');assert.equal(result.accountCheck,'GET_ME');assert.ok(!('balance' in result));
+ }
+});
+
+test('a 200 error envelope cannot pass even if account-like fields exist',async()=>{
+ for(const extra of [{success:false},{status:'error'},{error:{private:secret}}])await assert.rejects(expleeAccountCheck({EXPLEE_API_KEY:secret},async()=>json({...account(1),...extra})),{message:'PROVIDER_REJECTED'});
+});
