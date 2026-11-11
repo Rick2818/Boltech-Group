@@ -45,7 +45,7 @@ jobs:
       - name: Check existing production integrations without a browser
         env:
           LEO_PLATFORM_TOKEN: ${{ secrets.LEO_PLATFORM_TOKEN }}
-        run: python3 scripts/check_leo_private_connections.py
+        run: python3 scripts/check_leo_private_connections.py --explee-free-search
       - name: Publish sanitized status summary
         if: always()
         run: |

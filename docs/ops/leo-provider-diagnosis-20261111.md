@@ -56,3 +56,9 @@ El intento 2 de 43108514341, a las 22:05:43 UTC (16:05, El Salvador), conservó 
 ### Causa de la validación de Explee identificada
 
 El intento 2 de 43109461043, a las 22:11:41 UTC (16:11, El Salvador), confirmó respuesta HTTP 200 y JSON con organización e identificador de texto y clave como objeto. La única discrepancia con la validación era `balance: null`, sin `balance.remain`. El adaptador debe aceptar el saldo nulo/ausente como metadato no informado, conservando los requisitos de cuenta y clave. Se informa `BALANCE_NOT_REPORTED`; nunca se sustituye por cero, saldo positivo o búsqueda verificada.
+
+### Autenticación de Explee corregida y verificada
+
+El intento 2 de 43110182065, a las 22:17:54 UTC (16:17, El Salvador), confirmó Freelancer y Explee conectados con HTTP 200. Explee informó `accountCheck: GET_ME` y `searchReadiness: BALANCE_NOT_REPORTED`. Upwork conservó `UPWORK_AUTHORIZATION_REQUIRED`. La conexión de Explee ya no requiere cambiar la clave por el saldo no informado.
+
+La opción explícita `--explee-free-search` del diagnóstico añade una sola búsqueda de clínicas en El Salvador, únicamente cuando la cuenta está conectada. El Worker fija página 1 y diez resultados, sin enriquecimiento, listas de exclusión ni paginación; la documentación define esa zona como gratuita y rechaza las solicitudes completamente gratuitas que superan su cupo. Se conserva solo número de resultados, recibo registrado y cargo cero si el proveedor lo declara, sin empresas ni datos de contactos en logs. No se activa operación continua. Un rechazo o límite no se reintenta automáticamente.

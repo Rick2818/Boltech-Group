@@ -111,6 +111,30 @@ class PrivateConnectionChecks(unittest.TestCase):
         self.assertFalse(result['searchVerified'])
         self.assertFalse(result['autonomyVerified'])
 
+    def test_free_first_page_probe_never_emits_company_data_or_receipt_id(self):
+        receipt = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee'
+        def requester(operation, token):
+            self.assertEqual(operation, {'action': 'search', 'platform': 'explee', 'query': 'clinics in El Salvador'})
+            self.assertEqual(token, TOKEN)
+            return 200, {'success': True, 'platform': 'explee', 'mode': 'READ_ONLY', 'items': [{'title': TOKEN}], 'receiptId': receipt, 'meta': {'creditsCharged': 0}}
+        result = checks.probe_explee_free_search(TOKEN, requester)
+        self.assertTrue(result['searchVerified'])
+        self.assertEqual(result['itemsCount'], 1)
+        self.assertEqual(result['creditsCharged'], 0)
+        self.assertFalse(result['autonomyVerified'])
+        self.assertNotIn(TOKEN, json.dumps(result))
+        self.assertNotIn(receipt, json.dumps(result))
+
+    def test_free_probe_refuses_missing_credentials_provider_errors_and_out_of_contract_results(self):
+        result = checks.probe_explee_free_search('', lambda *args: self.fail('network'))
+        self.assertEqual(result['status'], 'NOT_CHECKED')
+        r = checks.probe_explee_free_search(TOKEN, lambda *args: (502, {'error': 'PROVIDER_HTTP_403', 'providerReason': 'ACCESS_DENIED_UNCLASSIFIED', 'private': TOKEN}))
+        self.assertEqual(r['error'], 'PROVIDER_HTTP_403')
+        self.assertNotIn(TOKEN, json.dumps(r))
+        base = {'success': True, 'platform': 'explee', 'mode': 'READ_ONLY', 'items': [], 'receiptId': 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee', 'meta': {'creditsCharged': 0}}
+        for data in [{**base, 'items': [{}] * 11}, {**base, 'receiptId': TOKEN}, {**base, 'meta': {'creditsCharged': 1}}, {**base, 'meta': {'creditsCharged': True}}]:
+            self.assertFalse(checks.probe_explee_free_search(TOKEN, lambda *args: (200, data))['searchVerified'])
+
     def test_written_summary_contains_only_sanitized_statuses(self):
         result = checks.check_connections('', lambda *args: self.fail('network'))
         with tempfile.TemporaryDirectory() as directory:
