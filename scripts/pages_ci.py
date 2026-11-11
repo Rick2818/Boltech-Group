@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parent.parent
 ACCOUNT = 'f8c7c411bffaade3f6f0af4384db42e0'
 PROJECT = 'boltech-group'
 ORIGIN = 'https://boltech-group.pages.dev'
-FILES = {'_worker.js', '_routes.json', 'sales-agent.html', 'customer-setup.html'}
+FILES = {'_worker.js', '_routes.json', 'sales-agent.html', 'customer-setup.html', 'manual-usuario.html'}
 
 
 def build():
@@ -44,7 +44,7 @@ def build():
     if len(setup_scripts) != 1 or '__CUSTOMER_ONBOARDING_VALIDATOR__' in setup_html:
         raise RuntimeError('Invalid customer setup UI')
     (ROOT / '.cloudflare/customer-setup-check.js').write_text(setup_scripts[0])
-    print('Prepared four public Pages assets; no secrets or repository files included')
+    print('Prepared five public Pages assets; no secrets or repository files included')
 
 
 def target():
@@ -73,6 +73,7 @@ def target():
 def verify():
     expected = hashlib.sha256((ROOT / 'sales-agent.html').read_bytes()).digest()
     setup_expected = hashlib.sha256((ROOT / '.cloudflare/pages-release/customer-setup.html').read_bytes()).digest()
+    manual_expected = hashlib.sha256((ROOT / '.cloudflare/pages-release/manual-usuario.html').read_bytes()).digest()
     reason = 'No response'
     for attempt in range(6):
         try:
@@ -89,10 +90,12 @@ def verify():
                 setup_correct = hashlib.sha256(response.read()).digest() == setup_expected
             with urllib.request.urlopen(public_request('/api/customer-setup', 'application/json'), timeout=15) as response:
                 setup_state = json.load(response)
-            if correct and setup_correct and setup_state.get('configured') is True and setup_state.get('release') == 'customer-setup-20261111-v1' and state.get('success') is True and state.get('authenticated') is False:
-                print('Verified production Leo and customer setup HTML match this commit; storage and session endpoints are ready')
+            with urllib.request.urlopen(public_request('/manual-usuario', 'text/html'), timeout=15) as response:
+                manual_correct = hashlib.sha256(response.read()).digest() == manual_expected
+            if correct and setup_correct and manual_correct and setup_state.get('configured') is True and setup_state.get('release') == 'customer-setup-20261111-v1' and state.get('success') is True and state.get('authenticated') is False:
+                print('Verified production Leo, customer setup and user manual HTML match this commit; storage and session endpoints are ready')
                 return
-            reason = 'HTML differs from commit' if not correct or not setup_correct else 'Owner session or customer setup readiness check failed'
+            reason = 'HTML differs from commit' if not correct or not setup_correct or not manual_correct else 'Owner session or customer setup readiness check failed'
         except urllib.error.HTTPError as error:
             reason = f'Public verification returned HTTP {error.code}'
         except (urllib.error.URLError, ValueError):

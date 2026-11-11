@@ -406,11 +406,17 @@ export default {
     const incoming = new URL(request.url);
     if(incoming.pathname==='/api/customer-setup')return handleCustomerSetup(request,env,{ownerRequest,authorize:integrationAuthorized,seal,unseal});
     if(['GET','HEAD'].includes(request.method)&&['/customer-setup','/customer-setup/','/customer-setup.html'].includes(incoming.pathname)){
-      const assetURL=new URL(request.url);assetURL.pathname='/customer-setup.html';
+      const assetURL=new URL(request.url);assetURL.pathname='/customer-setup';
       const asset=await env.ASSETS.fetch(new Request(assetURL,request));
       const response=new Response(asset.body,asset);response.headers.set('Cache-Control','no-store');
       response.headers.set('Referrer-Policy','no-referrer');response.headers.set('X-Content-Type-Options','nosniff');
       response.headers.set('X-Frame-Options','DENY');response.headers.set('X-Boltech-Setup-Release','customer-setup-20261111-v1');return response;
+    }
+    if(['GET','HEAD'].includes(request.method)&&['/manual-usuario','/manual-usuario/','/manual-usuario.html'].includes(incoming.pathname)){
+      const assetURL=new URL(request.url);assetURL.pathname='/manual-usuario';
+      const asset=await env.ASSETS.fetch(new Request(assetURL,request));
+      const response=new Response(asset.body,asset);response.headers.set('Cache-Control','no-store');
+      response.headers.set('X-Content-Type-Options','nosniff');return response;
     }
     if(incoming.pathname === '/api/leo-owner-session') return handleOwnerSession(request,env,integrationAuthorized);
     if(incoming.pathname === '/api/leo-integrations' || incoming.pathname === '/api/upwork/start') {

@@ -53,5 +53,6 @@ test('storage failures, invalid fields and oversized bodies never produce a save
 test('new public setup route serves only its asset and payment gateway remains separate',async()=>{
  const {env}=context();let seen;
  env.ASSETS={fetch:async request=>{seen=new URL(request.url).pathname;return new Response('<!doctype html>setup');}};
- const response=await worker.fetch(new Request(origin+'/customer-setup'),env);assert.equal(seen,'/customer-setup.html');assert.equal(response.headers.get('Referrer-Policy'),'no-referrer');assert.match(await response.text(),/setup/);
+ const response=await worker.fetch(new Request(origin+'/customer-setup'),env);assert.equal(seen,'/customer-setup');assert.equal(response.headers.get('Referrer-Policy'),'no-referrer');assert.match(await response.text(),/setup/);
+ const guide=await worker.fetch(new Request(origin+'/manual-usuario'),env);assert.equal(guide.status,200);assert.equal(seen,'/manual-usuario');
 });
