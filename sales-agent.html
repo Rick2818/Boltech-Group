@@ -165,14 +165,22 @@ async function integrationRequest(body){
 }
 document.getElementById('upwork-connect').onclick=async()=>{
  const output=document.getElementById('integration-status'),target=document.getElementById('upwork-authorization');
- target.replaceChildren();
+ const button=document.getElementById('upwork-connect');button.disabled=true;
+ target.replaceChildren();output.textContent=message('Comprobando el registro de Leo en Upwork…','Checking Leo’s Upwork registration…');
  try{
   const response=await ownerFetch('/api/upwork/start',{method:'POST',signal:AbortSignal.timeout(15000)});
   const data=await response.json();if(!response.ok||!data.success)throw Error(data.error||'UPWORK_AUTHORIZATION_FAILED');
   const url=new URL(data.authorizationUrl);if(url.origin!=='https://www.upwork.com'||url.pathname!=='/ab/account-security/oauth2/authorize')throw Error('UPWORK_AUTHORIZATION_URL_INVALID');
   const link=document.createElement('a');link.href=url.href;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Autorizar en Upwork / Authorize on Upwork';target.appendChild(link);
   output.textContent='Abre Autorizar en Upwork. Después vuelve aquí y pulsa Verificar conexiones. / Open Authorize on Upwork, then return and check connections.';
- }catch(error){output.textContent=error.message;}
+ }catch(error){
+  const reasons={
+   UPWORK_CLIENT_REGISTRATION_DENIED:message('Upwork rechazó el registro de Leo con su dirección de Cloudflare. La conexión sigue pendiente; iniciar sesión otra vez no resuelve este bloqueo.','Upwork rejected Leo’s registration with its Cloudflare callback. The connection remains pending; signing in again will not resolve this block.'),
+   UPWORK_CLIENT_REGISTRATION_UNAVAILABLE:message('No se pudo registrar a Leo en Upwork. La conexión sigue pendiente.','Could not register Leo with Upwork. The connection remains pending.'),
+   UPWORK_CLIENT_REGISTRATION_INVALID:message('Upwork no devolvió un registro de aplicación válido. La conexión sigue pendiente.','Upwork did not return a valid application registration. The connection remains pending.')
+  };
+  output.textContent=reasons[error.message]||error.message;
+ }finally{button.disabled=false;}
 };
 document.getElementById('integration-check').onclick=async()=>{
  const output=document.getElementById('integration-status');output.textContent='Verificando / Checking...';

@@ -37,9 +37,16 @@ test('cookie authorizes integration status and Upwork start without a Bearer hea
   const {send,login}=fixture();const Cookie=cookieFrom(await login());
   const status=await send('/api/leo-integrations','POST',{Cookie,Origin:origin},JSON.stringify({action:'status'}));
   assert.equal(status.status,200);assert.equal((await status.json()).success,true);
-  const upwork=await send('/api/upwork/start','POST',{Cookie,Origin:origin});
-  assert.equal(upwork.status,200);
-  assert.equal(new URL((await upwork.json()).authorizationUrl).hostname,'www.upwork.com');
+  const saved=globalThis.fetch;
+  globalThis.fetch=async url=>{
+    assert.equal(String(url),'https://www.upwork.com/register');
+    return Response.json({client_id:'qa-upwork-issued-client',redirect_uris:[origin+'/api/upwork/callback'],token_endpoint_auth_method:'none'},{status:201});
+  };
+  try {
+    const upwork=await send('/api/upwork/start','POST',{Cookie,Origin:origin});
+    assert.equal(upwork.status,200);
+    assert.equal(new URL((await upwork.json()).authorizationUrl).hostname,'www.upwork.com');
+  }finally{globalThis.fetch=saved;}
 });
 
 test('wrong keys, missing keys and cross-origin login cannot create sessions',async()=>{
