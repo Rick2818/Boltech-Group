@@ -17,6 +17,7 @@ on:
       - 'lib/sales_dot_pilot.js'
       - 'scripts/ops/build_pdro_delivery_preview.mjs'
       - 'tests/test_customer_support_sandbox.mjs'
+      - 'tests/test_pdro_real_handlers_e2e.mjs'
       - '.github/workflows/pdro-imports-synthetic-acceptance.yml'
 permissions:
   contents: read
@@ -31,6 +32,8 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '22'
+      - name: Exercise actual commercial and after-sales handlers with Pedro fixture
+        run: node --test tests/test_pdro_real_handlers_e2e.mjs
       - name: Rehearse fictional discovery, intake, commercial fixtures and delivery
         run: node scripts/ops/pdro_commercial_rehearsal.mjs
       - name: Build customer review preview
