@@ -92,10 +92,16 @@ def verify():
                 setup_state = json.load(response)
             with urllib.request.urlopen(public_request('/manual-usuario', 'text/html'), timeout=15) as response:
                 manual_correct = hashlib.sha256(response.read()).digest() == manual_expected
-            if correct and setup_correct and manual_correct and setup_state.get('configured') is True and setup_state.get('release') == 'customer-setup-20261111-v1' and state.get('success') is True and state.get('authenticated') is False:
+            # A safe method probe validates that the new intake route is live, without creating any lead.
+            try:
+                with urllib.request.urlopen(public_request('/api/leo-public-intake', 'application/json'), timeout=15):
+                    intake_ready = False
+            except urllib.error.HTTPError as probe:
+                intake_ready = probe.code == 405 and json.load(probe).get('error') == 'METHOD_NOT_ALLOWED'
+            if correct and setup_correct and manual_correct and intake_ready and setup_state.get('configured') is True and setup_state.get('release') == 'customer-setup-20261111-v1' and state.get('success') is True and state.get('authenticated') is False:
                 print('Verified production Leo, customer setup and user manual HTML match this commit; storage and session endpoints are ready')
                 return
-            reason = 'HTML differs from commit' if not correct or not setup_correct or not manual_correct else 'Owner session or customer setup readiness check failed'
+            reason = 'HTML differs from commit' if not correct or not setup_correct or not manual_correct else 'Owner session, intake route, or customer setup readiness check failed'
         except urllib.error.HTTPError as error:
             reason = f'Public verification returned HTTP {error.code}'
         except (urllib.error.URLError, ValueError):
