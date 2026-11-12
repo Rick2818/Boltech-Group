@@ -12,7 +12,7 @@
 <p id="lead-receipt" role="status"></p></details><details id="commercial-panel"><summary>Gestión comercial de Leo · Propietario</summary><p>Expedientes reales, sin mensajes automáticos ni cobros. Primero inicia sesión como propietario arriba.</p>
 <label>Empresa <input id="deal-company" maxlength="120"></label><label> Contacto <input id="deal-contact" maxlength="120"></label>
 <label> Necesidad <input id="deal-need" maxlength="800"></label><button type="button" id="deal-create">Crear oportunidad</button>
-<p>ID del expediente: <input id="deal-id" placeholder="ID de oportunidad" aria-label="ID del expediente"></p><button type="button" id="deal-load">Recuperar expediente</button> <button type="button" id="deal-execute">Ejecutar plan comercial interno</button>
+<p>ID del expediente: <input id="deal-id" placeholder="ID de oportunidad" aria-label="ID del expediente"></p><button type="button" id="deal-load">Recuperar expediente</button> <button type="button" id="deal-execute">Ejecutar plan comercial interno</button> <button type="button" id="deal-onboard">Preparar ficha posventa</button>
 <p><label>Acción <select id="deal-action"><option value="qualify">Calificar</option><option value="proposal">Preparar propuesta</option><option value="approve">Aprobar propuesta</option><option value="followup">Registrar seguimiento</option><option value="close">Cerrar oportunidad</option></select></label></p>
 <p id="deal-help">Para calificar: presupuesto, plazo y persona que decide, separados por |.</p>
 <textarea id="deal-details" rows="3" style="width:100%;box-sizing:border-box;background:#1a1c20;color:white" placeholder="Completa los datos indicados"></textarea>
@@ -238,6 +238,23 @@ deal('deal-create').onclick=async()=>{
  catch(e){deal('deal-output').textContent=e.message;}
 };
 deal('deal-load').onclick=async()=>{try{await commercialFetch(null,deal('deal-id').value.trim());}catch(e){deal('deal-output').textContent=e.message;}};
+
+
+deal('deal-onboard').onclick=async()=>{
+ try{
+  const id=deal('deal-id').value.trim();
+  if(!commercialVersion||!/^[a-f0-9-]{36}$/.test(id))throw Error('Recupera una oportunidad válida primero.');
+  if(!confirm('Preparar ficha privada para un cierre ya aprobado. Esto NO confirma pago, activa el agente ni envía el enlace. ¿Continuar?'))return;
+  const response=await ownerFetch('/api/leo-execute',{method:'POST',headers:{'Content-Type':'application/json'},signal:AbortSignal.timeout(15000),
+   body:JSON.stringify({action:'prepare_onboarding',id,expectedVersion:commercialVersion,confirmed:true})});
+  const result=await response.json().catch(()=>({error:'INVALID_RESPONSE'}));
+  if(!response.ok||!result.success)throw Error(result.error||'ONBOARDING_UNAVAILABLE');
+  commercialVersion=result.recordVersion;
+  deal('deal-output').textContent='Ficha creada para revisión. No se ha enviado el enlace ni se ha activado un agente. Pedido: '+result.afterSales.orderId;
+  const link=document.createElement('a');link.href=result.invitationUrl;link.textContent='Abrir ficha privada del cliente (solo propietario)';link.rel='noopener noreferrer';
+  deal('deal-output').appendChild(document.createTextNode('\n'));deal('deal-output').appendChild(link);
+ }catch(error){deal('deal-output').textContent=error.message;}
+};
 
 deal('deal-execute').onclick=async()=>{
  try{
