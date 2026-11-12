@@ -56,7 +56,7 @@ test('native model failures do not fall through to old backend or claim complete
  globalThis.fetch=async()=>{requests++;return new Response('quota',{status:429})};
  try{
   const response=await worker.fetch(chat({message:'Necesito un agente de soporte'}),env);
-  assert.equal(response.status,502);
+  assert.equal(response.status,429);
   assert.equal((await response.json()).error,'MODEL_RATE_LIMITED');
   assert.equal(requests,1);
  }finally{globalThis.fetch=saved;}
@@ -68,5 +68,17 @@ test('existing payment routes still reach immutable backend even with native cha
   const response=await worker.fetch(new Request(origin+'/api/payments?action=status'),env);
   assert.equal(response.status,200);
   assert.match(destination,/^https:\/\/e912df66\.boltech-group\.pages\.dev\/api\/payments\?action=status$/);
+ }finally{globalThis.fetch=saved;}
+});
+
+test('native timeout returns a specific 504 without leaking credentials or sending commercial actions',async()=>{
+ const saved=globalThis.fetch;
+ globalThis.fetch=async()=>{const error=new Error('secret-not-for-display');error.name='TimeoutError';throw error;};
+ try{
+  const response=await worker.fetch(chat({message:'Necesito saber el plazo del piloto',history:[]}),env);
+  assert.equal(response.status,504);
+  const body=await response.json();
+  assert.equal(body.error,'MODEL_TIMEOUT');
+  assert.equal(JSON.stringify(body).includes('secret-not-for-display'),false);
  }finally{globalThis.fetch=saved;}
 });
