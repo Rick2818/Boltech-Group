@@ -2,6 +2,7 @@ import {handleOwnerSession, ownerRequest, withoutOwnerCookie} from './leo-owner-
 import {handleCustomerSetup} from './customer-setup.mjs';
 import {handleLeoCommerce} from './leo-commerce.mjs';
 import {handleLeoPublicIntake} from './leo-public-intake.mjs';
+import {handleLeoNativeChat,leoChatReadiness} from './leo-native-chat.mjs';
 import {handleLeoExecution,commercialExecutionPlan} from './leo-commercial-executor.mjs';
 import {expleeAccountCheck} from './leo-provider-diagnostics.mjs';
 // Direct Upwork OAuth for the canonical Cloudflare Pages origin. No broker.
@@ -428,6 +429,7 @@ export default {
       const response=new Response(asset.body,asset);response.headers.set('Cache-Control','no-store');
       response.headers.set('X-Content-Type-Options','nosniff');return response;
     }
+    if(incoming.pathname === '/api/leo-chat-status' && request.method === 'GET')return Response.json(leoChatReadiness(env),{headers:{'Cache-Control':'no-store'}});
     if(incoming.pathname === '/api/leo-owner-session') return handleOwnerSession(request,env,integrationAuthorized);
     if(incoming.pathname === '/api/leo-integrations' || incoming.pathname === '/api/upwork/start') {
       const authorized = await ownerRequest(request,env);
@@ -437,6 +439,7 @@ export default {
     if(['/api/upwork/client-metadata','/api/upwork/start','/api/upwork/callback'].includes(incoming.pathname)) return handleUpworkOAuth(request,env,integrationAuthorized);
     if(incoming.pathname === '/api/leo-integrations') return handleLeoIntegrations(request,env);
     if(incoming.pathname === '/api' && incoming.searchParams.get('leo_sales') === '1' && request.method === 'POST') {
+      if(String(env.LEO_NATIVE_CHAT_ENABLED||'').toLowerCase()==='true')return handleLeoNativeChat(request,env);
       const greeting=await firstGreeting(request); if(greeting) return greeting;
     }
     if (incoming.pathname === '/api' && incoming.searchParams.get('leo_speech') === '1' && request.method === 'POST') return speech(request,env);
