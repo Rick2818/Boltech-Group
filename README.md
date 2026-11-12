@@ -4,6 +4,8 @@ Agentes preelaborados y agentes a medida para atender consultas y automatizar pr
 
 **Actualizado: 11 de noviembre de 2026.** El destino vigente es **Cloudflare Pages**. Vercel no es el destino de nuevos despliegues. La Fábrica de Agentes y Agente 1 están retirados por decisión del propietario; su código y documentos antiguos no autorizan reactivarlos.
 
+> **Estado técnico actualizado (12 de noviembre de 2026):** [continuidad de Leo, ejecutores comerciales, chat Gemini y bloqueos de producción](docs/ops/LEO_ESTADO_ACTUAL_2026-11-12.md). Esta nota prevalece para el estado de Leo sobre descripciones históricas de las integraciones, sin modificar las reglas de seguridad.
+
 ## Accesos
 
 | Recurso | Enlace |
