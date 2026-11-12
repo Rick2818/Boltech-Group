@@ -252,6 +252,9 @@ export async function upworkRead(env, action, query, fetchFn = fetch) {
 // Private, owner-initiated reads only. No bidding, messaging or campaigns.
 const integrationJSON = (data,status=200) => Response.json(data,{status,headers:{'Cache-Control':'no-store'}});
 const integrationText = value => typeof value==='string' ? value.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim().slice(0,500) : '';
+// Owner-selected markets. Geographic constraints are structured API filters,
+// never inferred from company descriptions or domains.
+export const EXPLEE_TARGET_COUNTRIES = Object.freeze(['SV','GT','PA','CO','MX','US']);
 function integrationAuthorized(request,env) {
   const expected=String(env.LEO_PLATFORM_TOKEN||'');
   const supplied=request.headers.get('Authorization')||'';
@@ -329,9 +332,9 @@ async function handleLeoIntegrations(request,env) {
       // Fixed first page, at most ten companies, no enrichment/dedup/paid pagination.
       // Provider docs: this request is within the free result zone; never retry 402/429.
       const data=await integrationProvider('https://api.explee.com/public/api/v1/search/companies',{
-        method:'POST',headers,body:JSON.stringify({filters:{definition:query},page:1,page_size:10})});
+        method:'POST',headers,body:JSON.stringify({filters:{definition:query,geo_include:[...EXPLEE_TARGET_COUNTRIES],geo_include_empty:false,location_hq:true,location_customer:false},page:1,page_size:10})});
       if(!Array.isArray(data.companies)||!data.meta) throw Error('PROVIDER_RESPONSE_INVALID');
-      meta={creditsCharged:data.meta.credits_charged};
+      meta={creditsCharged:data.meta.credits_charged,targetCountries:[...EXPLEE_TARGET_COUNTRIES],locationScope:'HEADQUARTERS',geographyVerification:'PROVIDER_FILTER_REQUESTED'};
       items=data.companies.slice(0,10).map(c=>({title:integrationText(c.name),domain:integrationText(c.domain),description:integrationText(c.description)}));
     }
     await env.COMMERCE.put(receiptKey,JSON.stringify({...receipt,status:'COMPLETED',completedAt:new Date().toISOString(),count:items.length,meta}),{expirationTtl:2592000});
@@ -474,3 +477,4 @@ export default {
     }
   }
 };
+

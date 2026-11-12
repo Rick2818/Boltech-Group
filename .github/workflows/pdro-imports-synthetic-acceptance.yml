@@ -9,6 +9,12 @@ on:
       - 'scripts/ops/pdro_business_acceptance.mjs'
       - 'lib/customer_support_sandbox.js'
       - 'scripts/ops/pdro_imports_sandbox.mjs'
+      - 'scripts/ops/pdro_commercial_rehearsal.mjs'
+      - 'tests/test_explee_target_geography.mjs'
+      - 'tests/test_leo_provider_diagnostics.mjs'
+      - 'cloudflare/pages-leo-audio-worker.mjs'
+      - 'lib/customer_onboarding.js'
+      - 'lib/sales_dot_pilot.js'
       - 'scripts/ops/build_pdro_delivery_preview.mjs'
       - 'tests/test_customer_support_sandbox.mjs'
       - '.github/workflows/pdro-imports-synthetic-acceptance.yml'
@@ -25,8 +31,8 @@ jobs:
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version: '22'
-      - name: Execute fictional paid order, signed local messages and delivery review
-        run: node scripts/ops/pdro_imports_sandbox.mjs
+      - name: Rehearse fictional discovery, intake, commercial fixtures and delivery
+        run: node scripts/ops/pdro_commercial_rehearsal.mjs
       - name: Build customer review preview
         run: node scripts/ops/build_pdro_delivery_preview.mjs
       - name: Publish explicitly synthetic acceptance evidence
@@ -35,3 +41,7 @@ jobs:
           if [ -f ops-output/pdro-imports/Entrega_Pdro_Imports.md ]; then
             cat ops-output/pdro-imports/Entrega_Pdro_Imports.md >> "$GITHUB_STEP_SUMMARY"
           fi
+          if [ -f ops-output/pdro-commercial/Recorrido_Comercial_Pdro_Imports.md ]; then
+            cat ops-output/pdro-commercial/Recorrido_Comercial_Pdro_Imports.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
