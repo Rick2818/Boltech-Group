@@ -2,7 +2,7 @@ import {handleOwnerSession, ownerRequest, withoutOwnerCookie} from './leo-owner-
 import {handleCustomerSetup} from './customer-setup.mjs';
 import {handleLeoCommerce} from './leo-commerce.mjs';
 import {handleLeoPublicIntake} from './leo-public-intake.mjs';
-import {handleLeoExecution} from './leo-commercial-executor.mjs';
+import {handleLeoExecution,commercialExecutionPlan} from './leo-commercial-executor.mjs';
 import {expleeAccountCheck} from './leo-provider-diagnostics.mjs';
 // Direct Upwork OAuth for the canonical Cloudflare Pages origin. No broker.
 const OAUTH_ORIGIN = 'https://boltech-group.pages.dev';
