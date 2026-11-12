@@ -36,3 +36,29 @@
 **Probado:** integración sintética, controles CI, despliegue de código funcional a Cloudflare y coincidencia de activos verificada por Actions.
 **No probado:** Gemini realmente habilitado con proveedor, historial entre sesiones, seguimientos externos 24/7, conciliación Supabase y pagos, agente del cliente activado, entrega final.
 **Acción siguiente:** certificación de runtime P1, sin tocar secretos ni proveedores externos; resolver los fallos demostrados en una rama independiente y con PR.
+
+
+## Actualización de tarde — punto de reanudación desde ChatGPT Work
+
+Verificaciones en vivo completadas desde conectores:
+- Supabase proyecto `uxwfqhromoicrwzyylbn`: estado `ACTIVE_HEALTHY`, PostgreSQL 17, región `us-east-1`.
+- Tablas CRM presentes con RLS habilitado. `crm_leads`, `crm_followups`, `crm_orders`, `crm_events` y `crm_jobs` reportaron **0 filas**. Esto no prueba conexión del flujo `COMMERCE` → CRM.
+- Existen registros en otras tablas heredadas `leads`, `opportunities` y `agent_work`; no confundirlos con el CRM nuevo ni con ventas de Leo.
+- GitHub Actions run `43268819847`: jobs `validate` y `deploy` correctos y `Verify actual production release` exitoso. Este paso verifica archivos desplegados y rutas seguras, **NO** `reason=READY` ni Gemini real.
+- Desde ChatGPT/web no fue posible obtener contenido de `https://boltech-group.pages.dev/api/leo-chat-status` o `/sales-agent`; se documenta como **sin comprobación**, no como servicio caído.
+- La rama de auditoría y este archivo son de documentación; **no contienen cambios de runtime**.
+
+### Instrucciones para Work, cuando esté disponible
+1. Abrir el proyecto GitHub `Rick2818/Boltech-Group` y este archivo; comprobar `main` y Actions.
+2. Usar navegador de Work, con la sesión autorizada del usuario, para leer `/api/leo-chat-status` y verificar `enabled=true, configured=true, traffic=NATIVE, reason=READY`; no pedir ni divulgar secretos.
+3. Si Gemini aún está deshabilitado, revisar costo/cuota gratis y la configuración existente de Cloudflare Pages; activar solo tras constatar permiso y ausencia de cargos no autorizados. Hacer consulta de chat real con fixture sin datos personales.
+4. Probar continuidad del historial; construir corrección acotada y pruebas solamente si se confirma la falla. Mantener interfaz ES/EN y no activar audio sin consentimiento.
+5. Comprobar ledger en KV y conexión con Supabase mediante caso aislado, idempotencia y RLS; no insertar clientes ficticios en CRM real.
+6. Comprobar eventos internos de seguimiento y trazas; **no** enviar mensajes sin canal/consentimiento ni obtener Connects.
+7. Comprobar setup, FAQ, estado de pago y aprovisionamiento. Wompi es intocable; utilizar sandbox si es necesario.
+8. Antes de fusionar cualquier código runtime, ejecutar regresión selectiva sobre rutas modificadas, luego publicar únicamente en Cloudflare Pages y verificar commit + humo de producción. No marcar como completada una prueba no ejecutada.
+
+### No bloquear / no afirmar
+- La confirmación de un workflow exitoso **sí** permite afirmar despliegue del código `bc258ed`; **no** permite afirmar Gemini activo, CRM sincronizado ni agente de cliente entregado.
+- Upwork sigue sujeto a OAuth/MCP externo; Explee requiere permiso válido; Freelancer no debe ejecutar acciones de pago.
+- Si algo exige permisos de Cloudflare ausentes en Chat, dejarlo como pendiente específico de Work; no inventar certificación.
