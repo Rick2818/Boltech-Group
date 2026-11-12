@@ -62,3 +62,21 @@ Verificaciones en vivo completadas desde conectores:
 - La confirmación de un workflow exitoso **sí** permite afirmar despliegue del código `bc258ed`; **no** permite afirmar Gemini activo, CRM sincronizado ni agente de cliente entregado.
 - Upwork sigue sujeto a OAuth/MCP externo; Explee requiere permiso válido; Freelancer no debe ejecutar acciones de pago.
 - Si algo exige permisos de Cloudflare ausentes en Chat, dejarlo como pendiente específico de Work; no inventar certificación.
+
+
+## Verificación adicional desde ChatGPT — tarde 12 noviembre 2026
+
+**Comprobaciones reales, de solo lectura, contra Supabase Boltech Group `uxwfqhromoicrwzyylbn`:**
+- Proyecto sano `ACTIVE_HEALTHY`, tablas de CRM existentes.
+- `crm_leads=0`, `crm_followups=0`, `crm_orders=0`, `crm_jobs=0`, `crm_events=0`, `leo_autonomy_queue=0` al momento de consulta. No hay evidencia de eventos comerciales actuales en esas tablas.
+- Índices únicos existentes: `crm_leads(source,source_id)`, `crm_followups(idempotency_key)`, `crm_events(idempotency_key)` y `crm_jobs(idempotency_key)`. **La unicidad estructural existe**; no certifica que un ejecutor procese correctamente reintentos ni remesas.
+- Las tablas CRM consultadas figuran con RLS habilitado en `list_tables`. `pg_policies` no devolvió políticas para `crm_leads`, `crm_events`, `crm_followups`, `crm_jobs`, `crm_orders`. Se debe comprobar el diseño de accesos por roles antes de conectar un cliente web; no conceder lectura pública ni deshabilitar RLS. Acceso de backend privilegiado podría ser intencional.
+- Los ocho jobs de `cron.job` (`boltech-buyer-candidate-discovery`, `boltech-buyer-evidence-review`, `boltech-evidence`, `boltech-explee`, `boltech-inbox`, `boltech-marketing`, `boltech-receipts`, `boltech-research`) están `active=false`. **No se activaron**.
+- GitHub `main` tras fusión PR #375: `8d41a73ea3b01362ba85f6f07f934f83418bd702`. El workflow de documentación `Boltech Governance Validation` estaba `in_progress` durante la consulta; revisar su conclusión después.
+- Intentos de lectura del dominio `/api/leo-chat-status` y `/sales-agent` no accesibles desde el navegador web de este chat. **No** concluir caída del servicio.
+
+**Qué está comprobado:** existencia y estructura del CRM; exclusión de duplicados respaldada por índices únicos; estado actual de las colas y del cron de Supabase; GitHub y despliegue funcional anterior.
+
+**Qué no se puede certificar desde aquí:** generación Gemini realmente activa, autenticación Cloudflare del propietario, sincronización del ledger COMMERCE con CRM, operación cron Cloudflare, envíos externos, configuración de clientes y entrega final. Retomar en Work con navegador de Cloudflare conectado.
+
+**No se hicieron INSERT/UPDATE/DELETE en Supabase ni cambios de runtime; no se tocaron pagos, Connects o Vercel.**
