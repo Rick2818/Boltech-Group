@@ -12,7 +12,7 @@
 <p id="lead-receipt" role="status"></p></details><details id="commercial-panel"><summary>Gestión comercial de Leo · Propietario</summary><p>Expedientes reales, sin mensajes automáticos ni cobros. Primero inicia sesión como propietario arriba.</p>
 <label>Empresa <input id="deal-company" maxlength="120"></label><label> Contacto <input id="deal-contact" maxlength="120"></label>
 <label> Necesidad <input id="deal-need" maxlength="800"></label><button type="button" id="deal-create">Crear oportunidad</button>
-<p>ID del expediente: <input id="deal-id" placeholder="ID de oportunidad" aria-label="ID del expediente"></p><button type="button" id="deal-load">Recuperar expediente</button>
+<p>ID del expediente: <input id="deal-id" placeholder="ID de oportunidad" aria-label="ID del expediente"></p><button type="button" id="deal-load">Recuperar expediente</button> <button type="button" id="deal-execute">Ejecutar plan comercial interno</button>
 <p><label>Acción <select id="deal-action"><option value="qualify">Calificar</option><option value="proposal">Preparar propuesta</option><option value="approve">Aprobar propuesta</option><option value="followup">Registrar seguimiento</option><option value="close">Cerrar oportunidad</option></select></label></p>
 <p id="deal-help">Para calificar: presupuesto, plazo y persona que decide, separados por |.</p>
 <textarea id="deal-details" rows="3" style="width:100%;box-sizing:border-box;background:#1a1c20;color:white" placeholder="Completa los datos indicados"></textarea>
@@ -238,6 +238,20 @@ deal('deal-create').onclick=async()=>{
  catch(e){deal('deal-output').textContent=e.message;}
 };
 deal('deal-load').onclick=async()=>{try{await commercialFetch(null,deal('deal-id').value.trim());}catch(e){deal('deal-output').textContent=e.message;}};
+
+deal('deal-execute').onclick=async()=>{
+ try{
+  const id=deal('deal-id').value.trim();
+  if(!commercialVersion||!/^[a-f0-9-]{36}$/.test(id))throw Error('Recupera primero una oportunidad válida.');
+  const response=await ownerFetch('/api/leo-execute',{method:'POST',headers:{'Content-Type':'application/json'},signal:AbortSignal.timeout(15000),
+   body:JSON.stringify({action:'prepare',id,expectedVersion:commercialVersion})});
+  const result=await response.json().catch(()=>({error:'INVALID_RESPONSE'}));
+  if(!response.ok||!result.success)throw Error(result.error||'EXECUTION_FAILED');
+  commercialVersion=result.recordVersion;
+  deal('deal-output').textContent=JSON.stringify({receiptId:result.receiptId,mode:result.mode,execution:result.execution},null,2);
+ }catch(e){deal('deal-output').textContent=e.message;}
+};
+
 deal('deal-submit').onclick=async()=>{
  try{
   if(!commercialVersion)throw Error('Primero recupera o crea un expediente.');
