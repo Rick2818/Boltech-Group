@@ -35,11 +35,11 @@ export async function handleLeoNativeChat(request,env,{fetchFn=fetch}={}){
    method:'POST',redirect:'manual',signal:AbortSignal.timeout(12000),
    headers:{'Content-Type':'application/json','x-goog-api-key':nativeKey(env)},
    body:JSON.stringify(payload)});
-  if(!upstream.ok||upstream.status>=300)return leoNativeJSON({success:false,error:upstream.status===429?'MODEL_RATE_LIMITED':'MODEL_UNAVAILABLE'},502);
+  if(!upstream.ok||upstream.status>=300)return leoNativeJSON({success:false,error:upstream.status===429?'MODEL_RATE_LIMITED':'MODEL_UNAVAILABLE'},upstream.status===429?429:502);
   const result=await upstream.json();
   const reply=(result.candidates?.[0]?.content?.parts||[]).map(p=>p.text||'').join('').trim();
   if(!reply||reply.length>4000)return leoNativeJSON({success:false,error:'MODEL_OUTPUT_INVALID'},502);
   return leoNativeJSON({success:true,mode:'AI_CONSULTATIVE',reply,provider:'gemini-cloudflare',
    authorizedActions:[],qualified:false,externalMessagesSent:0});
- }catch{return leoNativeJSON({success:false,error:'MODEL_UNAVAILABLE'},502);}
+ }catch(error){return error?.name==='TimeoutError'||error?.name==='AbortError'?leoNativeJSON({success:false,error:'MODEL_TIMEOUT'},504):leoNativeJSON({success:false,error:'MODEL_UNAVAILABLE'},502);}
 }
