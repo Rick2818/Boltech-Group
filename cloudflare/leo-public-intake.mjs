@@ -1,7 +1,7 @@
 // Public opt-in lead intake for Leo. Stores a real, unverified inquiry without executing outreach.
 const intakeJSON=(data,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff','X-Frame-Options':'DENY'}});
 const intakeText=(value,max)=>typeof value==='string'?value.trim().slice(0,max):'';
-export async function handleLeoPublicIntake(request,env,{seal}){
+export async function handleLeoPublicIntake(request,env,{seal,plan}={}){
  if(request.method!=='POST')return intakeJSON({success:false,error:'METHOD_NOT_ALLOWED'},405);
  const origin=new URL(request.url).origin;
  if(request.headers.get('Origin')!==origin || ['cross-site'].includes(request.headers.get('Sec-Fetch-Site')))
@@ -28,6 +28,7 @@ export async function handleLeoPublicIntake(request,env,{seal}){
   const record={id,version:1,company,contact,need,email,source:'LEO_PUBLIC_OPT_IN',status:'NEW_UNVERIFIED',qualification:null,proposal:null,followups:[],closure:null,
    createdAt:now,updatedAt:now,mode:'REAL_UNVERIFIED_INQUIRY',consent:{purpose:'QUOTE_REQUEST',recordedAt:now,channel:'WEB',externalFollowupAuthorized:false},
    externalMessagesSent:0,paymentVerified:false};
+  if(typeof plan==='function')record.commercialExecution={...plan(record),receiptId:crypto.randomUUID(),persisted:true};
   await env.COMMERCE.put('leo:commercial:v1:'+id,await seal(record,env,'commercial:'+id));
   await env.COMMERCE.put(limitKey,'1',{expirationTtl:600});
   // No email, contact name or internal access token is returned to an anonymous client.

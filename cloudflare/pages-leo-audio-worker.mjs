@@ -2,6 +2,7 @@ import {handleOwnerSession, ownerRequest, withoutOwnerCookie} from './leo-owner-
 import {handleCustomerSetup} from './customer-setup.mjs';
 import {handleLeoCommerce} from './leo-commerce.mjs';
 import {handleLeoPublicIntake} from './leo-public-intake.mjs';
+import {handleLeoExecution,commercialExecutionPlan} from './leo-commercial-executor.mjs';
 import {expleeAccountCheck} from './leo-provider-diagnostics.mjs';
 // Direct Upwork OAuth for the canonical Cloudflare Pages origin. No broker.
 const OAUTH_ORIGIN = 'https://boltech-group.pages.dev';
@@ -410,7 +411,8 @@ const LEO_PATHS = new Set(['/sales-agent', '/sales-agent.html', '/sales-agent/']
 export default {
   async fetch(request, env) {
     const incoming = new URL(request.url);
-    if(incoming.pathname==='/api/leo-public-intake')return handleLeoPublicIntake(request,env,{seal});
+    if(incoming.pathname==='/api/leo-public-intake')return handleLeoPublicIntake(request,env,{seal,plan:commercialExecutionPlan});
+    if(incoming.pathname==='/api/leo-execute')return handleLeoExecution(request,env,{ownerRequest,authorize:integrationAuthorized,seal,unseal,onboarding:handleCustomerSetup});
     if(incoming.pathname==='/api/leo-commerce')return handleLeoCommerce(request,env,{ownerRequest,authorize:integrationAuthorized,seal,unseal});
     if(incoming.pathname==='/api/customer-setup')return handleCustomerSetup(request,env,{ownerRequest,authorize:integrationAuthorized,seal,unseal});
     if(['GET','HEAD'].includes(request.method)&&['/customer-setup','/customer-setup/','/customer-setup.html'].includes(incoming.pathname)){
