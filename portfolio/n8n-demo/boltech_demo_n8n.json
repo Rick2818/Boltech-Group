@@ -1,0 +1,299 @@
+{
+  "name": "Boltech | DEMO Lead → Sheets + Telegram + Gmail (sin producción)",
+  "nodes": [
+    {
+      "name": "Formulario - nuevo lead",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -1040,
+        100
+      ],
+      "parameters": {
+        "formTitle": "Solicita una automatización",
+        "formDescription": "Demostración técnica Boltech. Solo datos de prueba.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Nombre",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Empresa",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Necesidad",
+              "fieldType": "textarea",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "buttonLabel": "Enviar solicitud",
+          "formPath": "boltech-demo-lead"
+        }
+      }
+    },
+    {
+      "name": "Normalizar lead",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -800,
+        100
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const v=$json;const nombre=String(v.Nombre??'').trim(),email=String(v.Email??'').trim().toLowerCase(),empresa=String(v.Empresa??'').trim(),necesidad=String(v.Necesidad??'').trim();if(!nombre||!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)||!empresa||!necesidad)throw new Error('Formulario incompleto o correo inválido');return {json:{lead_id:'DEMO-'+Date.now(),fecha:new Date().toISOString(),nombre,email,empresa,necesidad,estado:'Nuevo',origen:'Formulario n8n demo'}};"
+      }
+    },
+    {
+      "name": "Google Sheets - agregar lead",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -520,
+        100
+      ],
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "REEMPLAZAR_SPREADSHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "lead_id": "={{ $json.lead_id }}",
+            "fecha": "={{ $json.fecha }}",
+            "nombre": "={{ $json.nombre }}",
+            "email": "={{ $json.email }}",
+            "empresa": "={{ $json.empresa }}",
+            "necesidad": "={{ $json.necesidad }}",
+            "estado": "={{ $json.estado }}",
+            "origen": "={{ $json.origen }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "name": "Telegram - alerta dueño",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -240,
+        -60
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "REEMPLAZAR_CHAT_ID",
+        "text": "={{ \"📥 Nuevo lead DEMO Boltech\\n\" + $(\"Normalizar lead\").item.json.nombre + \" — \" + $(\"Normalizar lead\").item.json.empresa + \"\\nEmail: \" + $(\"Normalizar lead\").item.json.email + \"\\nNecesidad: \" + $(\"Normalizar lead\").item.json.necesidad }}",
+        "additionalFields": {}
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 3000
+    },
+    {
+      "name": "Gmail - seguimiento",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -240,
+        240
+      ],
+      "parameters": {
+        "sendTo": "={{ $(\"Normalizar lead\").item.json.email }}",
+        "subject": "Recibimos tu solicitud — Boltech Group [DEMO]",
+        "message": "={{ \"Hola \" + $(\"Normalizar lead\").item.json.nombre + \",\\n\\nGracias por escribir a Boltech Group. Recibimos tu solicitud de automatización. Esta es una demostración técnica; no constituye una oferta comercial ni implica un servicio contratado.\\n\\nSaludos,\\nBoltech Group\" }}",
+        "options": {}
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "name": "IF - fallo correo",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        20,
+        360
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "error_exists",
+              "leftValue": "={{ $json.error?.message || $json.message || \"\" }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "Telegram - avisar error correo",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        280,
+        300
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "REEMPLAZAR_CHAT_ID",
+        "text": "={{ \"⚠️ DEMO Boltech: correo de seguimiento FALLÓ tras los reintentos. Revisar ejecución de n8n. Detalle: \" + ($json.error?.message || $json.message || \"error no especificado\") }}",
+        "additionalFields": {}
+      }
+    },
+    {
+      "name": "Estado - correo enviado",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        20,
+        180
+      ],
+      "parameters": {}
+    },
+    {
+      "name": "Estado - revisar error",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        540,
+        300
+      ],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "Formulario - nuevo lead": {
+      "main": [
+        [
+          {
+            "node": "Normalizar lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar lead": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - agregar lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - agregar lead": {
+      "main": [
+        [
+          {
+            "node": "Telegram - alerta dueño",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Gmail - seguimiento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail - seguimiento": {
+      "main": [
+        [
+          {
+            "node": "Estado - correo enviado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF - fallo correo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - fallo correo": {
+      "main": [
+        [
+          {
+            "node": "Telegram - avisar error correo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Estado - revisar error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram - avisar error correo": {
+      "main": [
+        [
+          {
+            "node": "Estado - revisar error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/El_Salvador"
+  },
+  "active": false,
+  "pinData": {},
+  "tags": []
+}
