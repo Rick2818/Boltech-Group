@@ -123,9 +123,9 @@
         240
       ],
       "parameters": {
-        "sendTo": "={{ $(\"Normalizar lead\").item.json.email }}",
-        "subject": "Recibimos tu solicitud — Boltech Group [DEMO]",
-        "message": "={{ \"Hola \" + $(\"Normalizar lead\").item.json.nombre + \",\\n\\nGracias por escribir a Boltech Group. Recibimos tu solicitud de automatización. Esta es una demostración técnica; no constituye una oferta comercial ni implica un servicio contratado.\\n\\nSaludos,\\nBoltech Group\" }}",
+        "sendTo": "={{ $vars.BOLTECH_DEMO_TEST_INBOX || '' }}",
+        "subject": "Prueba interna n8n Boltech [DEMO]",
+        "message": "={{ \"Prueba interna del flujo DEMO Boltech. Lead sintético: \" + $(\"Normalizar lead\").item.json.lead_id + \". No es comunicación al cliente.\" }}",
         "options": {}
       },
       "retryOnFail": true,
