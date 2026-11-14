@@ -1,4 +1,7 @@
 # Boltech Group — Instrucciones operativas vigentes
+
+> **Objetivo rector de Dirección General (14-11-2026):** leer y aplicar [`docs/strategy/OBJETIVO-RECTOR-AUTONOMIA.md`](docs/strategy/OBJETIVO-RECTOR-AUTONOMIA.md) antes de cualquier tarea: construir un circuito verificable de captación → venta → cobro → entrega → retención que permita operar durante 14 días sin el dueño, respetando aprobaciones y controles.
+
 **Revisión: 12 de noviembre de 2026.** Las referencias antiguas a Agente 1, Fábrica de Agentes, Vercel y campañas RSI no autorizan su reactivación.
 
 ## Servicios permitidos
