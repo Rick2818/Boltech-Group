@@ -101,8 +101,11 @@ def activate():
     required = ['LEO_PLATFORM_TOKEN', 'SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']
     if any(name not in env_vars for name in required) or 'COMMERCE' not in kv:
         raise RuntimeError('Inbound activation blocked: required existing bindings are missing')
-    if (env_vars.get('SUPABASE_URL') or {}).get('value') != 'https://uxwfqhromoicrwzyylbn.supabase.co':
-        raise RuntimeError('Inbound activation blocked: Supabase project URL differs')
+    url_setting = env_vars.get('SUPABASE_URL') or {}
+    # Secret values are intentionally redacted by the management API. Runtime health
+    # verifies the actual destination after deployment; do not treat redaction as another project.
+    if url_setting.get('type') != 'secret_text' and str(url_setting.get('value', '')).strip().rstrip('/') != 'https://uxwfqhromoicrwzyylbn.supabase.co':
+        raise RuntimeError('Inbound activation blocked: visible Supabase project URL differs')
     token = os.environ.get('CLOUDFLARE_API_TOKEN', '').strip()
     payload = {'deployment_configs': {'production': {'env_vars': {
         'LEO_PIPELINE_ENABLED': {'type': 'plain_text', 'value': 'true'}}}}}
