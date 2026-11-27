@@ -68,6 +68,60 @@ def target():
     if data.get('success') is not True or result.get('name') != PROJECT or result.get('production_branch') != 'main':
         raise RuntimeError('Target project or production branch differs; deployment blocked')
     print('Verified existing corporate Pages project boltech-group, production branch main')
+    production = (result.get('deployment_configs') or {}).get('production') or {}
+    env_vars = production.get('env_vars') or {}
+    kv = production.get('kv_namespaces') or {}
+    print('Runtime binding presence: ' + json.dumps({
+        'COMMERCE': 'COMMERCE' in kv,
+        'LEO_PLATFORM_TOKEN': 'LEO_PLATFORM_TOKEN' in env_vars,
+        'SUPABASE_URL': 'SUPABASE_URL' in env_vars,
+        'SUPABASE_SERVICE_ROLE_KEY': 'SUPABASE_SERVICE_ROLE_KEY' in env_vars,
+        'LEO_PIPELINE_ENABLED': 'LEO_PIPELINE_ENABLED' in env_vars,
+    }, sort_keys=True))
+    cron_url = f'https://api.cloudflare.com/client/v4/accounts/{ACCOUNT}/workers/scripts/boltech-leo-autonomy-cron/schedules'
+    try:
+        cron_request = urllib.request.Request(cron_url, headers={'Authorization': 'Bearer ' + token, 'Accept': 'application/json'})
+        with urllib.request.build_opener(NoRedirect()).open(cron_request, timeout=15) as response:
+            cron_data = json.load(response)
+        print('Existing autonomy scheduler inspection: ' + json.dumps({'success': cron_data.get('success') is True, 'schedule_count': len(cron_data.get('result') or [])}))
+    except urllib.error.HTTPError as error:
+        print(f'Existing autonomy scheduler inspection blocked: HTTP {error.code}')
+    except (urllib.error.URLError, ValueError):
+        print('Existing autonomy scheduler inspection unavailable')
+    return result
+
+
+def activate():
+    # Cloudflare documents per-key PATCH: omitted environment keys remain intact.
+    # Only this non-secret feature flag is changed; bindings and payment settings are omitted.
+    result = target()
+    production = (result.get('deployment_configs') or {}).get('production') or {}
+    env_vars = production.get('env_vars') or {}
+    kv = production.get('kv_namespaces') or {}
+    required = ['LEO_PLATFORM_TOKEN', 'SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']
+    if any(name not in env_vars for name in required) or 'COMMERCE' not in kv:
+        raise RuntimeError('Inbound activation blocked: required existing bindings are missing')
+    if (env_vars.get('SUPABASE_URL') or {}).get('value') != 'https://uxwfqhromoicrwzyylbn.supabase.co':
+        raise RuntimeError('Inbound activation blocked: Supabase project URL differs')
+    token = os.environ.get('CLOUDFLARE_API_TOKEN', '').strip()
+    payload = {'deployment_configs': {'production': {'env_vars': {
+        'LEO_PIPELINE_ENABLED': {'type': 'plain_text', 'value': 'true'}}}}}
+    request = urllib.request.Request(
+        f'https://api.cloudflare.com/client/v4/accounts/{ACCOUNT}/pages/projects/{PROJECT}',
+        data=json.dumps(payload).encode(), method='PATCH',
+        headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json'})
+    class NoRedirect(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, *args, **kwargs):
+            return None
+    with urllib.request.build_opener(NoRedirect()).open(request, timeout=20) as response:
+        updated = json.load(response)
+    current = ((updated.get('result') or {}).get('deployment_configs') or {}).get('production') or {}
+    current_vars = current.get('env_vars') or {}
+    if updated.get('success') is not True or (current_vars.get('LEO_PIPELINE_ENABLED') or {}).get('value') != 'true':
+        raise RuntimeError('Inbound activation flag was not confirmed')
+    if any(current_vars.get(key) != value for key, value in env_vars.items() if key != 'LEO_PIPELINE_ENABLED') or current.get('kv_namespaces') != production.get('kv_namespaces'):
+        raise RuntimeError('Unexpected runtime binding change detected')
+    print('Enabled only LEO_PIPELINE_ENABLED; existing variable names and KV bindings preserved')
 
 
 def verify():
@@ -100,6 +154,11 @@ def verify():
                 intake_ready = probe.code == 405 and json.load(probe).get('error') == 'METHOD_NOT_ALLOWED'
             with urllib.request.urlopen(public_request('/api/leo-chat-status', 'application/json'), timeout=15) as response:
                 chat_state = json.load(response)
+            with urllib.request.urlopen(public_request('/api/leo-pipeline-status', 'application/json'), timeout=15) as response:
+                pipeline_state = json.load(response)
+            with urllib.request.urlopen(public_request('/api/leo-pipeline-health', 'application/json'), timeout=15) as response:
+                pipeline_health = json.load(response)
+            pipeline_release = pipeline_health.get('databaseConnected') is True and pipeline_state.get('ready') is True and pipeline_state.get('release') == 'leo-pipeline-20261127-v1' and pipeline_state.get('outboundEnabled') is False
             native_mode_safe = (chat_state.get('engine') == 'CLOUDFLARE_NATIVE_GEMINI_V1'
                 and chat_state.get('outgoingCommercialActions') is False
                 and (chat_state.get('enabled') is False or chat_state.get('configured') is True))
@@ -109,8 +168,9 @@ def verify():
                     executor_ready = False
             except urllib.error.HTTPError as probe:
                 executor_ready = probe.code == 405 and json.load(probe).get('error') == 'METHOD_NOT_ALLOWED'
-            if correct and setup_correct and manual_correct and intake_ready and native_mode_safe and executor_ready and setup_state.get('configured') is True and setup_state.get('release') == 'customer-setup-20261111-v1' and state.get('success') is True and state.get('authenticated') is False:
+            if pipeline_release and correct and setup_correct and manual_correct and intake_ready and native_mode_safe and executor_ready and setup_state.get('configured') is True and setup_state.get('release') == 'customer-setup-20261111-v1' and state.get('success') is True and state.get('authenticated') is False:
                 print('Verified production Leo, customer setup and user manual HTML match this commit; storage and session endpoints are ready')
+                print('Inbound pipeline runtime: ' + json.dumps(pipeline_state, sort_keys=True))
                 return
             reason = 'HTML differs from commit' if not correct or not setup_correct or not manual_correct else 'Owner session, native-chat readiness, executor or customer setup check failed'
         except urllib.error.HTTPError as error:
@@ -124,7 +184,8 @@ def verify():
 
 if __name__ == '__main__':
     try:
-        {'build': build, 'target': target, 'verify': verify}[sys.argv[1]]()
+        {'build': build, 'target': target, 'activate': activate, 'verify': verify}[sys.argv[1]]()
     except (RuntimeError, KeyError, IndexError) as error:
-        print(str(error) if isinstance(error, RuntimeError) else 'Use: pages_ci.py build|target|verify', file=sys.stderr)
+        print(str(error) if isinstance(error, RuntimeError) else 'Use: pages_ci.py build|target|activate|verify', file=sys.stderr)
         sys.exit(1)
+
