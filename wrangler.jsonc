@@ -19,5 +19,10 @@
     "head_sampling_rate": 0.1
   },
   "previews": {},
-  "workers_dev": true
+  "workers_dev": true,
+  "vars": {
+    "LEO_MODEL_NAME": "gemini-2.5-flash",
+    "LEO_NATIVE_CHAT_ENABLED": "true"
+  },
+  "keep_vars": true
 }
