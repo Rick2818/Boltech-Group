@@ -10,6 +10,8 @@ Las tablas históricas `leads/opportunities` no se importan, modifican ni incorp
 
 ## Configuración de activación
 
+El workflow de despliegue comprueba los bindings existentes y habilita únicamente la variable no secreta `LEO_PIPELINE_ENABLED` mediante PATCH por clave, conservando las demás variables y el binding KV. Después publica y verifica la conexión de lectura a Supabase mediante `/api/leo-pipeline-health`, sin crear datos de prueba.
+
 Primero aplicar la migración `20261127160000_leo_inbound_pipeline.sql`, desplegar y verificar el código. En **producción de Cloudflare Pages**, conservar los bindings existentes y configurar:
 
 - `SUPABASE_URL`: `https://uxwfqhromoicrwzyylbn.supabase.co`.

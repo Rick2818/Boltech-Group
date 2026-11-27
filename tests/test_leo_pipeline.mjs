@@ -103,3 +103,9 @@ test('existing scheduler calls the inbound tick only when enabled and surfaces f
   await cron.scheduled({}, {LEO_APP_URL:'https://boltech-group.pages.dev',LEO_PLATFORM_TOKEN:'isolated-token',LEO_PIPELINE_ENABLED:'true'},{waitUntil:p=>pending=p});await assert.rejects(pending,/LEO_SCHEDULED_TASK_FAILED/);
  }finally{globalThis.fetch=original;}
 });
+test('unknown critical answers remain pending and are asked again without inventing qualification',async()=>{
+ const f=fixture(),rec=complete();rec.answers.tools.value=null;f.records.set(rec.id,rec);
+ const updated=await applyPipelineIntent(f.store,{id:rec.id,messageId:id(),message:'Usamos Google Sheets',answerTo:'tools',createdAt:new Date().toISOString()});
+ assert.equal(updated.answers.tools.value,'Usamos Google Sheets');assert.equal(updated.qualification.status,'READY_FOR_REVIEW');
+ assert.equal(updated.proposal.amountCents,null);
+});

@@ -135,6 +135,10 @@ jobs:
         run: python3 scripts/pages_ci.py target
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Enable voluntary inbound pipeline with the existing server bindings
+        run: python3 scripts/pages_ci.py activate
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       - name: Build Pages assets
         run: python3 scripts/pages_ci.py build
       - name: Publish to the existing Pages project

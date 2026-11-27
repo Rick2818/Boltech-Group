@@ -1,4 +1,4 @@
-import {pipelineReadiness,handlePipelineChat,handlePipelineOwner,handlePipelineTick,handlePipelineSession,handlePipelineIntake} from './leo-pipeline.mjs';
+import {pipelineReadiness,handlePipelineChat,handlePipelineOwner,handlePipelineTick,handlePipelineSession,handlePipelineIntake,pipelineHealth} from './leo-pipeline.mjs';
 import {handleOwnerSession, ownerRequest, withoutOwnerCookie} from './leo-owner-session.mjs';
 import {handleCustomerSetup} from './customer-setup.mjs';
 import {handleLeoCommerce} from './leo-commerce.mjs';
@@ -413,6 +413,7 @@ const LEO_PATHS = new Set(['/sales-agent', '/sales-agent.html', '/sales-agent/']
 export default {
   async fetch(request, env) {
     const incoming = new URL(request.url);
+    if(incoming.pathname==='/api/leo-pipeline-health')return pipelineHealth(env);
     if(incoming.pathname==='/api/leo-pipeline-status')return Response.json(pipelineReadiness(env),{headers:{'Cache-Control':'no-store'}});
     if(incoming.pathname==='/api/leo-pipeline-session')return handlePipelineSession(request,env,{seal,unseal});
     if(incoming.pathname==='/api/leo-pipeline'){

@@ -27,6 +27,7 @@ export const pipelineQuestions=[
  ['decisionMaker','¿Quién decidiría la compra? Podés responder «no sé».','Who would decide on the purchase? You can reply “unknown”.']
 ];
 const pipelineUnknown=v=>/^(omitir|no s[eé]|no lo s[eé]|no definido|pendiente|skip|unknown|not sure|n\/a)[.!]?$/i.test(v);
+const nextPipelineQuestion=rec=>pipelineQuestions.find(([key])=>!rec.answers[key])||pipelineQuestions.slice(0,5).find(([key])=>!rec.answers[key]?.value);
 export function preparePipelineRecord(record){
  const rec=structuredClone(record),answers=rec.answers||{};
  rec.missing=pipelineQuestions.filter(([key])=>!answers[key]?.value).map(([key])=>key);
@@ -108,8 +109,15 @@ export function createPipelineStore(env,fetchFn=fetch){
   async read(id){if(!pipelineId(id))pipelineFail('INVALID_ID',400);const rows=await call('crm_leads?select=leo_record&id=eq.'+id+'&source=eq.LEO_INBOUND_V1');return rows[0]?.leo_record||null;},
   async list(){return (await call('crm_leads?select=leo_record&source=eq.LEO_INBOUND_V1&order=updated_at.desc&limit=50')).map(r=>r.leo_record);},
   save(record,expectedVersion,eventKey){return call('rpc/save_leo_inquiry',{p_record:record,p_expected_version:expectedVersion,p_event_key:eventKey});},
-  tick(){return call('rpc/tick_leo_followups',{});}
+  tick(){return call('rpc/tick_leo_followups',{});},
+  async probe(){await call('crm_leads?select=id&source=eq.LEO_INBOUND_V1&limit=0');return true;}
  };
+}
+export async function pipelineHealth(env){
+ const state=pipelineReadiness(env);
+ if(!state.ready)return pipelineJSON({...state,databaseConnected:false},503);
+ try{await createPipelineStore(env).probe();return pipelineJSON({...state,databaseConnected:true});}
+ catch{return pipelineJSON({...state,databaseConnected:false},503);}
 }
 async function pipelineInput(request,max=16000){
  if(Number(request.headers.get('Content-Length'))>max)pipelineFail('REQUEST_TOO_LARGE',413);
@@ -188,7 +196,7 @@ export async function handlePipelineChat(request,env,{seal,unseal,store,fetchFn=
    return pipelineJSON({success:true,reply:en?'Your request is safely queued. Please retry this message later. No message has been sent.':'Tu solicitud quedó guardada para reintento. Reintentá este mensaje más tarde. No se envió ningún mensaje.',
     reference:session.id,persistence:'QUEUED',externalMessagesSent:0},202,{'Set-Cookie':PIPELINE_COOKIE+'='+cookie+'; Path=/; Secure; HttpOnly; SameSite=Strict; Max-Age=86400'});
   }
-  const next=pipelineQuestions.find(([key])=>!record.answers[key]);
+  const next=nextPipelineQuestion(record);
   const reply=record.consent.withdrawn?(en?'Consent withdrawn. Follow-up stopped.':'Consentimiento retirado. Seguimiento detenido.'):
    record.closure?(en?'This inquiry is closed.':'Esta solicitud está cerrada.'):
    next?(en?'Saved. ':'Guardado. ')+next[en?2:1]:
@@ -208,7 +216,7 @@ export async function applyPipelineIntent(store,intent){
  else if(intent.stop){rec.consent.withdrawn=true;rec.followups=rec.followups.map(f=>({...f,status:'STOPPED',stopReason:'CONSENT_WITHDRAWN'}));}
  else{
   if(rec.consent.withdrawn||rec.closure)pipelineFail('INQUIRY_STOPPED',409);
-  const field=pipelineQuestions.find(([key])=>!rec.answers[key]);
+  const field=nextPipelineQuestion(rec);
   if(intent.answerTo!==(field?.[0]||'review'))pipelineFail('QUESTION_CHANGED_RELOAD',409);
   if(!field){rec.customerReplies=[...(rec.customerReplies||[]),{text:intent.message,recordedAt:intent.createdAt,source:'CUSTOMER_VERBATIM'}].slice(-20);rec.customerResponsePendingReview=true;rec.followups=rec.followups.map(f=>({...f,status:'STOPPED',stopReason:'CUSTOMER_RESPONSE'}));}
   else{rec.answers[field[0]]={value:pipelineUnknown(intent.message)?null:intent.message,source:'CUSTOMER_VERBATIM',recordedAt:intent.createdAt};
@@ -255,7 +263,7 @@ export async function handlePipelineSession(request,env,{unseal,store}={}){
   const session=await pipelineCookie(request,env,unseal);
   if(!session)return pipelineJSON({success:true,active:false,questionKey:'need'});
   store||=createPipelineStore(env);const rec=await store.read(session.id);
-  const next=rec?pipelineQuestions.find(([key])=>!rec.answers[key]):null;
+  const next=rec?nextPipelineQuestion(rec):null;
   return pipelineJSON({success:true,active:!!rec,questionKey:rec?(next?.[0]||'review'):'need',
    stopped:!!(rec?.closure||rec?.consent?.withdrawn),question:next?{es:next[1],en:next[2]}:null});
  }catch(error){return pipelineError(error);}
