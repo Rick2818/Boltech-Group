@@ -1,3 +1,4 @@
+import { handleLeoNativeChat, leoChatReadiness } from './leo-native-chat.mjs';
 // The production API was migrated to Cloudflare Pages independently of Git.
 // Preserve its deployed handlers and secret store; never fall back to Vercel.
 const API_ORIGIN = 'https://boltech-group.pages.dev';
@@ -15,6 +16,13 @@ export default {
     if (incoming.searchParams.get('rodrigo_speech') === '1') {
       incoming.searchParams.delete('rodrigo_speech');
       incoming.searchParams.set('leo_speech', '1');
+    }
+    // Public advisor is isolated from legacy commerce and payment routes.
+    if (incoming.pathname === '/api/leo-advisor-status' && request.method === 'GET') {
+      return Response.json(leoChatReadiness(env), {headers:{'Cache-Control':'no-store'}});
+    }
+    if (incoming.pathname === '/api/leo-advisor-chat') {
+      return handleLeoNativeChat(request, env);
     }
     // Set the origin after parsing: paths such as /api//host cannot change it.
     const target = new URL(incoming.pathname + incoming.search, API_ORIGIN);
