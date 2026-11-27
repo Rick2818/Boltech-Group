@@ -14,8 +14,8 @@ El workflow de despliegue comprueba los bindings existentes y habilita únicamen
 
 Primero aplicar la migración `20261127160000_leo_inbound_pipeline.sql`, desplegar y verificar el código. En **producción de Cloudflare Pages**, conservar los bindings existentes y configurar:
 
-- `SUPABASE_URL`: `https://uxwfqhromoicrwzyylbn.supabase.co`.
-- `SUPABASE_SERVICE_ROLE_KEY`: secreto de servidor; nunca una variable del frontend ni un valor en Git.
+- El endpoint del CRM está fijado en el módulo a `https://uxwfqhromoicrwzyylbn.supabase.co`; no se cambia ni utiliza la URL compartida de otros productos.
+- `LEO_PIPELINE_SUPABASE_SERVICE_ROLE_KEY`, o el `SUPABASE_SERVICE_ROLE_KEY` existente si pertenece a este proyecto: secreto de servidor; nunca una variable del frontend ni un valor en Git.
 - `COMMERCE`: binding KV existente con get/put/list/delete.
 - `LEO_PLATFORM_TOKEN`: secreto de propietario existente, sin cambiar su valor.
 - `LEO_PIPELINE_ENABLED`: `true`, solo después de comprobar las dependencias anteriores.
