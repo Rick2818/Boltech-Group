@@ -95,7 +95,7 @@
 <button id="boltech-advisor-btn" type="button" aria-label="Abrir asesor" aria-expanded="false" aria-controls="boltech-advisor-panel">💬</button>
 <div id="boltech-advisor-panel" role="dialog" aria-label="Asesor Boltech Group">
   <div id="advisor-header">
-    <div><strong>Asesor Boltech Group</strong><br><span>Evaluación por escrito, sin demo obligatoria</span></div>
+    <div><strong>Leo · Asesor Boltech Group</strong><br><span>Evaluación por escrito, sin demo obligatoria</span></div>
     <button id="advisor-close" type="button" aria-label="Cerrar">×</button>
   </div>
   <div id="advisor-messages" role="log" aria-live="polite"></div>
@@ -144,7 +144,7 @@
     panel.classList.toggle('open', open);
     btn.setAttribute('aria-expanded', String(open));
     if(open && msgs.childElementCount === 0){
-      addMsg('Hola, soy el asesor de Boltech Group. Evalúo qué tarea de tu operación se puede automatizar (pedidos, facturas, stock). ¿Qué proceso te quita más tiempo?', 'bot');
+      addMsg('Hola, soy Leo, asesor comercial de Boltech Group. ¿Qué proceso de tu empresa te gustaría mejorar?', 'bot');
     }
     if(open) input.focus();
   }
@@ -154,34 +154,29 @@
 
   async function ask(){
     var q = input.value.trim();
-    if(!q) return;
+    if(!q || send.disabled) return;
+    var en = (document.documentElement.lang || 'es').slice(0,2) === 'en';
+    if(q.length > 900){ addMsg(en?'Please use at most 900 characters.':'Escribe un máximo de 900 caracteres.', 'bot'); return; }
     input.value = '';
     lastQuestion = q;
     addMsg(q, 'user');
-    history.push({role: 'user', content: q});
-    var typing = addMsg('Escribiendo...', 'bot typing');
+    var typing = addMsg(en?'Writing...':'Escribiendo...', 'bot typing');
     send.disabled = true;
     try {
-      var r = await fetch('/api/lead', {
+      var r = await fetch('/api?leo_sales=1', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          message: q,
-          history: history.slice(-8),
-          language: (document.documentElement.lang || 'es').slice(0, 2),
-          pageUrl: location.href,
-          source: 'advisor_chat'
-        })
+        body: JSON.stringify({message:q,history:history.slice(-8),language:en?'en':'es'})
       });
       var data = await r.json().catch(function(){ return {}; });
-      typing.remove();
-      var reply = data.reply || ('No pude responder ahora. Escríbenos a ' + EMAIL + ' y te respondemos por escrito.');
-      addMsg(reply, 'bot');
-      history.push({role: 'assistant', content: reply});
+      if(!r.ok || data.success !== true || data.mode !== 'AI_CONSULTATIVE' || data.provider !== 'gemini-cloudflare' || typeof data.reply !== 'string' || !data.reply.trim()) throw new Error('AI_NOT_CONFIRMED');
+      addMsg(data.reply, 'bot');
+      history.push({role:'user',text:q},{role:'assistant',text:data.reply.slice(0,900)});
+      history = history.slice(-8);
     } catch(e){
-      typing.remove();
-      addMsg('No pude responder ahora. Escríbenos a ' + EMAIL, 'bot');
+      addMsg(en?'Leo’s AI is temporarily unavailable. You can still voluntarily submit your contact details.':'La IA de Leo no está disponible en este momento. Si deseas, puedes enviar tus datos voluntariamente.', 'bot');
     } finally {
+      typing.remove();
       send.disabled = false;
       input.focus();
     }
