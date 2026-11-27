@@ -1,13 +1,14 @@
 // Voluntary inbound only. Supabase is authoritative; KV is an encrypted retry outbox.
 const PIPELINE_COOKIE='__Host-leo_inquiry';
 const PIPELINE_ORIGIN='https://boltech-group.pages.dev';
+const pipelineBase=env=>String(env.SUPABASE_URL||'').trim().replace(/\/+$/,'');
 const pipelineId=v=>typeof v==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(v);
 const pipelineText=(v,n=900)=>typeof v==='string'?v.trim().slice(0,n):'';
 const pipelineFail=(code,status=503)=>{throw Object.assign(Error(code),{status});};
 const pipelineJSON=(body,status=200,headers={})=>Response.json(body,{status,headers:{'Cache-Control':'no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff',...headers}});
 export function pipelineReadiness(env){
  const enabled=env.LEO_PIPELINE_ENABLED==='true';
- const configured=env.SUPABASE_URL==='https://uxwfqhromoicrwzyylbn.supabase.co'&&
+ const configured=pipelineBase(env)==='https://uxwfqhromoicrwzyylbn.supabase.co'&&
   typeof env.SUPABASE_SERVICE_ROLE_KEY==='string'&&env.SUPABASE_SERVICE_ROLE_KEY.length>=24&&
   typeof env.LEO_PLATFORM_TOKEN==='string'&&env.LEO_PLATFORM_TOKEN.length>=24&&
   !!env.COMMERCE?.put&&!!env.COMMERCE?.get&&!!env.COMMERCE?.list&&!!env.COMMERCE?.delete;
@@ -99,7 +100,7 @@ export function createPipelineStore(env,fetchFn=fetch){
  if(!ready.ready)pipelineFail('PIPELINE_NOT_CONFIGURED');
  async function call(path,body){
   let response;
-  try{response=await fetchFn(env.SUPABASE_URL+'/rest/v1/'+path,{method:body?'POST':'GET',redirect:'error',signal:AbortSignal.timeout(10000),
+  try{response=await fetchFn(pipelineBase(env)+'/rest/v1/'+path,{method:body?'POST':'GET',redirect:'error',signal:AbortSignal.timeout(10000),
    headers:{apikey:env.SUPABASE_SERVICE_ROLE_KEY,Authorization:'Bearer '+env.SUPABASE_SERVICE_ROLE_KEY,'Content-Type':'application/json'},
    ...(body?{body:JSON.stringify(body)}:{})});}catch{pipelineFail('PIPELINE_DATABASE_UNAVAILABLE');}
   if(!response.ok){const data=await response.json().catch(()=>({}));if(data.message==='STALE_VERSION')pipelineFail('STALE_VERSION',409);pipelineFail('PIPELINE_DATABASE_UNAVAILABLE');}
