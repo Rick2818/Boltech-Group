@@ -20,7 +20,7 @@ const complete=()=>preparePipelineRecord({...seed(),answers:Object.fromEntries(p
 
 test('readiness fails closed for missing credentials and other project destinations',()=>{
  const f=fixture();assert.equal(pipelineReadiness(f.env).ready,true);
- assert.equal(pipelineReadiness({...f.env,SUPABASE_URL:'https://attacker.example'}).ready,false);
+ assert.equal(pipelineReadiness({...f.env,SUPABASE_URL:'https://attacker.example'}).ready,true); // shared URL is ignored; transport is pinned below
  assert.equal(pipelineReadiness({...f.env,SUPABASE_SERVICE_ROLE_KEY:''}).ready,false);
 });
 test('ordinary chat and greetings never create inquiries',async()=>{
@@ -84,7 +84,7 @@ test('anonymous access, cross-origin requests and malicious input cannot authori
 });
 test('provider transport rejects redirects and never exposes credentials in errors',async()=>{
  const f=fixture();let call;
- const store=createPipelineStore(f.env,async(url,options)=>{call={url,options};return new Response(JSON.stringify({message:'secret contents'}),{status:500});});
+ const store=createPipelineStore({...f.env,SUPABASE_URL:'https://attacker.example'},async(url,options)=>{call={url,options};return new Response(JSON.stringify({message:'secret contents'}),{status:500});});
  await assert.rejects(store.read(id()),/PIPELINE_DATABASE_UNAVAILABLE/);assert.equal(call.options.redirect,'error');assert.ok(call.url.startsWith(f.env.SUPABASE_URL+'/rest/v1/'));
 });
 test('voluntary proposal form uses the same canonical dossier and preserves optional contact fields',async()=>{

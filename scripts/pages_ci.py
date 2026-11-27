@@ -83,7 +83,7 @@ def target():
         cron_request = urllib.request.Request(cron_url, headers={'Authorization': 'Bearer ' + token, 'Accept': 'application/json'})
         with urllib.request.build_opener(NoRedirect()).open(cron_request, timeout=15) as response:
             cron_data = json.load(response)
-        print('Existing autonomy scheduler inspection: ' + json.dumps({'success': cron_data.get('success') is True, 'schedule_count': len(cron_data.get('result') or [])}))
+        print('Existing autonomy scheduler inspection: ' + json.dumps({'success': cron_data.get('success') is True, 'schedule_count': len((cron_data.get('result') or {}).get('schedules') or [])}))
     except urllib.error.HTTPError as error:
         print(f'Existing autonomy scheduler inspection blocked: HTTP {error.code}')
     except (urllib.error.URLError, ValueError):
@@ -101,11 +101,7 @@ def activate():
     required = ['LEO_PLATFORM_TOKEN', 'SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']
     if any(name not in env_vars for name in required) or 'COMMERCE' not in kv:
         raise RuntimeError('Inbound activation blocked: required existing bindings are missing')
-    url_setting = env_vars.get('SUPABASE_URL') or {}
-    # Secret values are intentionally redacted by the management API. Runtime health
-    # verifies the actual destination after deployment; do not treat redaction as another project.
-    if url_setting.get('type') != 'secret_text' and str(url_setting.get('value', '')).strip().rstrip('/') != 'https://uxwfqhromoicrwzyylbn.supabase.co':
-        raise RuntimeError('Inbound activation blocked: visible Supabase project URL differs')
+    # The pipeline pins the requested CRM endpoint; shared app URL values remain untouched.
     token = os.environ.get('CLOUDFLARE_API_TOKEN', '').strip()
     payload = {'deployment_configs': {'production': {'env_vars': {
         'LEO_PIPELINE_ENABLED': {'type': 'plain_text', 'value': 'true'}}}}}

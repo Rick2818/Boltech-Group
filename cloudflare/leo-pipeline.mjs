@@ -1,19 +1,22 @@
 // Voluntary inbound only. Supabase is authoritative; KV is an encrypted retry outbox.
 const PIPELINE_COOKIE='__Host-leo_inquiry';
 const PIPELINE_ORIGIN='https://boltech-group.pages.dev';
-const pipelineBase=env=>String(env.SUPABASE_URL||'').trim().replace(/\/+$/,'');
+// The requested CRM project is fixed; shared app URL settings may serve other products.
+const PIPELINE_DATABASE='https://uxwfqhromoicrwzyylbn.supabase.co';
+const pipelineBase=()=>PIPELINE_DATABASE;
+const pipelineServiceKey=env=>String(env.LEO_PIPELINE_SUPABASE_SERVICE_ROLE_KEY||env.SUPABASE_SERVICE_ROLE_KEY||'').trim();
 const pipelineId=v=>typeof v==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(v);
 const pipelineText=(v,n=900)=>typeof v==='string'?v.trim().slice(0,n):'';
 const pipelineFail=(code,status=503)=>{throw Object.assign(Error(code),{status});};
 const pipelineJSON=(body,status=200,headers={})=>Response.json(body,{status,headers:{'Cache-Control':'no-store','Referrer-Policy':'no-referrer','X-Content-Type-Options':'nosniff',...headers}});
 export function pipelineReadiness(env){
  const enabled=env.LEO_PIPELINE_ENABLED==='true';
- const configured=pipelineBase(env)==='https://uxwfqhromoicrwzyylbn.supabase.co'&&
-  typeof env.SUPABASE_SERVICE_ROLE_KEY==='string'&&env.SUPABASE_SERVICE_ROLE_KEY.length>=24&&
+ const configured=pipelineServiceKey(env).length>=24&&
   typeof env.LEO_PLATFORM_TOKEN==='string'&&env.LEO_PLATFORM_TOKEN.length>=24&&
   !!env.COMMERCE?.put&&!!env.COMMERCE?.get&&!!env.COMMERCE?.list&&!!env.COMMERCE?.delete;
  return {release:'leo-pipeline-20261127-v1',enabled,configured,ready:enabled&&configured,
-  storage:'SUPABASE',outboundEnabled:false,notificationChannel:'OWNER_PANEL'};
+  storage:'SUPABASE',outboundEnabled:false,notificationChannel:'OWNER_PANEL',
+  missing:[...(pipelineServiceKey(env).length>=24?[]:['SUPABASE_SERVICE_CREDENTIAL']),...(typeof env.LEO_PLATFORM_TOKEN==='string'&&env.LEO_PLATFORM_TOKEN.length>=24?[]:['LEO_PLATFORM_TOKEN']),...(env.COMMERCE?.get&&env.COMMERCE?.put&&env.COMMERCE?.list&&env.COMMERCE?.delete?[]:['COMMERCE_METHODS'])]};
 }
 export const pipelineQuestions=[
  ['currentProcess','¿Cómo realizás este proceso hoy, paso a paso?','How do you handle this process today, step by step?'],
@@ -101,9 +104,9 @@ export function createPipelineStore(env,fetchFn=fetch){
  async function call(path,body){
   let response;
   try{response=await fetchFn(pipelineBase(env)+'/rest/v1/'+path,{method:body?'POST':'GET',redirect:'error',signal:AbortSignal.timeout(10000),
-   headers:{apikey:env.SUPABASE_SERVICE_ROLE_KEY,Authorization:'Bearer '+env.SUPABASE_SERVICE_ROLE_KEY,'Content-Type':'application/json'},
+   headers:{apikey:pipelineServiceKey(env),Authorization:'Bearer '+pipelineServiceKey(env),'Content-Type':'application/json'},
    ...(body?{body:JSON.stringify(body)}:{})});}catch{pipelineFail('PIPELINE_DATABASE_UNAVAILABLE');}
-  if(!response.ok){const data=await response.json().catch(()=>({}));if(data.message==='STALE_VERSION')pipelineFail('STALE_VERSION',409);pipelineFail('PIPELINE_DATABASE_UNAVAILABLE');}
+  if(!response.ok){const data=await response.json().catch(()=>({}));if(data.message==='STALE_VERSION')pipelineFail('STALE_VERSION',409);if([401,403].includes(response.status))pipelineFail('PIPELINE_DATABASE_AUTH_REQUIRED');pipelineFail('PIPELINE_DATABASE_UNAVAILABLE');}
   try{return await response.json();}catch{pipelineFail('PIPELINE_DATABASE_UNAVAILABLE');}
  }
  return {
@@ -118,7 +121,7 @@ export async function pipelineHealth(env){
  const state=pipelineReadiness(env);
  if(!state.ready)return pipelineJSON({...state,databaseConnected:false},503);
  try{await createPipelineStore(env).probe();return pipelineJSON({...state,databaseConnected:true});}
- catch{return pipelineJSON({...state,databaseConnected:false},503);}
+ catch(error){return pipelineJSON({...state,databaseConnected:false,reason:error.message==='PIPELINE_DATABASE_AUTH_REQUIRED'?'DATABASE_AUTH_REQUIRED':'DATABASE_UNAVAILABLE'},503);}
 }
 async function pipelineInput(request,max=16000){
  if(Number(request.headers.get('Content-Length'))>max)pipelineFail('REQUEST_TOO_LARGE',413);
