@@ -163,7 +163,7 @@
     var typing = addMsg(en?'Writing...':'Escribiendo...', 'bot typing');
     send.disabled = true;
     try {
-      var r = await fetch('/api?leo_sales=1', {
+      var r = await fetch('/api/leo-advisor-chat', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({message:q,history:history.slice(-8),language:en?'en':'es'})
