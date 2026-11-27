@@ -9,6 +9,8 @@ root = Path(__file__).resolve().parent.parent
 output = root / '.cloudflare' / 'pages-leo-audio.zip'
 output.parent.mkdir(exist_ok=True)
 worker = (root / 'cloudflare/pages-leo-audio-worker.mjs').read_text()
+pipeline = (root / 'cloudflare/leo-pipeline.mjs').read_text().replace('export ', '')
+worker = worker.replace("import {pipelineReadiness,handlePipelineChat,handlePipelineOwner,handlePipelineTick,handlePipelineSession,handlePipelineIntake} from './leo-pipeline.mjs';", pipeline)
 owner = (root / 'cloudflare/leo-owner-session.mjs').read_text().replace('export ', '')
 worker = worker.replace("import {handleOwnerSession, ownerRequest, withoutOwnerCookie} from './leo-owner-session.mjs';", owner)
 validator = (root / 'lib/customer_onboarding.js').read_text().replace('export ', '')
@@ -42,3 +44,4 @@ with zipfile.ZipFile(output) as archive:
     assert archive.testzip() is None
 print(json.dumps({'archive': str(output), 'files': list(files),
                   'leo_sha256': hashlib.sha256(files['sales-agent.html']).hexdigest()}))
+

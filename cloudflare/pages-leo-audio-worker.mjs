@@ -1,3 +1,4 @@
+import {pipelineReadiness,handlePipelineChat,handlePipelineOwner,handlePipelineTick,handlePipelineSession,handlePipelineIntake} from './leo-pipeline.mjs';
 import {handleOwnerSession, ownerRequest, withoutOwnerCookie} from './leo-owner-session.mjs';
 import {handleCustomerSetup} from './customer-setup.mjs';
 import {handleLeoCommerce} from './leo-commerce.mjs';
@@ -412,6 +413,20 @@ const LEO_PATHS = new Set(['/sales-agent', '/sales-agent.html', '/sales-agent/']
 export default {
   async fetch(request, env) {
     const incoming = new URL(request.url);
+    if(incoming.pathname==='/api/leo-pipeline-status')return Response.json(pipelineReadiness(env),{headers:{'Cache-Control':'no-store'}});
+    if(incoming.pathname==='/api/leo-pipeline-session')return handlePipelineSession(request,env,{seal,unseal});
+    if(incoming.pathname==='/api/leo-pipeline'){
+      if(!pipelineReadiness(env).ready)return Response.json({success:false,error:'PIPELINE_NOT_CONFIGURED'},{status:503,headers:{'Cache-Control':'no-store'}});
+      return handlePipelineOwner(request,env,{ownerRequest,authorize:integrationAuthorized,unseal});
+    }
+    if(incoming.pathname==='/api/leo-pipeline-tick')return handlePipelineTick(request,env,{authorize:integrationAuthorized,seal,unseal});
+    if(incoming.pathname==='/api'&&incoming.searchParams.get('leo_sales')==='1'&&request.method==='POST'){
+      const captured=await handlePipelineChat(request,env,{seal,unseal});if(captured)return captured;
+    }
+
+    if(incoming.pathname==='/api/leo-public-intake'&&pipelineReadiness(env).ready)return handlePipelineIntake(request,env,{seal,unseal});
+    if(incoming.pathname==='/api/leo-commerce'&&pipelineReadiness(env).ready&&request.method==='POST')return Response.json({success:false,error:'LEGACY_LEDGER_READ_ONLY_USE_PIPELINE'},{status:409,headers:{'Cache-Control':'no-store'}});
+    if(incoming.pathname==='/api/leo-execute'&&pipelineReadiness(env).ready)return Response.json({success:false,error:'LEGACY_EXECUTOR_DISABLED_USE_PIPELINE'},{status:409,headers:{'Cache-Control':'no-store'}});
     if(incoming.pathname==='/api/leo-public-intake')return handleLeoPublicIntake(request,env,{seal,plan:commercialExecutionPlan});
     if(incoming.pathname==='/api/leo-execute')return handleLeoExecution(request,env,{ownerRequest,authorize:integrationAuthorized,seal,unseal,onboarding:handleCustomerSetup});
     if(incoming.pathname==='/api/leo-commerce')return handleLeoCommerce(request,env,{ownerRequest,authorize:integrationAuthorized,seal,unseal});
@@ -486,4 +501,5 @@ export default {
     }
   }
 };
+
 

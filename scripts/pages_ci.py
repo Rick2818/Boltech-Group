@@ -100,6 +100,9 @@ def verify():
                 intake_ready = probe.code == 405 and json.load(probe).get('error') == 'METHOD_NOT_ALLOWED'
             with urllib.request.urlopen(public_request('/api/leo-chat-status', 'application/json'), timeout=15) as response:
                 chat_state = json.load(response)
+            with urllib.request.urlopen(public_request('/api/leo-pipeline-status', 'application/json'), timeout=15) as response:
+                pipeline_state = json.load(response)
+            pipeline_release = pipeline_state.get('release') == 'leo-pipeline-20261127-v1' and pipeline_state.get('outboundEnabled') is False
             native_mode_safe = (chat_state.get('engine') == 'CLOUDFLARE_NATIVE_GEMINI_V1'
                 and chat_state.get('outgoingCommercialActions') is False
                 and (chat_state.get('enabled') is False or chat_state.get('configured') is True))
@@ -109,8 +112,9 @@ def verify():
                     executor_ready = False
             except urllib.error.HTTPError as probe:
                 executor_ready = probe.code == 405 and json.load(probe).get('error') == 'METHOD_NOT_ALLOWED'
-            if correct and setup_correct and manual_correct and intake_ready and native_mode_safe and executor_ready and setup_state.get('configured') is True and setup_state.get('release') == 'customer-setup-20261111-v1' and state.get('success') is True and state.get('authenticated') is False:
+            if pipeline_release and correct and setup_correct and manual_correct and intake_ready and native_mode_safe and executor_ready and setup_state.get('configured') is True and setup_state.get('release') == 'customer-setup-20261111-v1' and state.get('success') is True and state.get('authenticated') is False:
                 print('Verified production Leo, customer setup and user manual HTML match this commit; storage and session endpoints are ready')
+                print('Inbound pipeline runtime: ' + json.dumps(pipeline_state, sort_keys=True))
                 return
             reason = 'HTML differs from commit' if not correct or not setup_correct or not manual_correct else 'Owner session, native-chat readiness, executor or customer setup check failed'
         except urllib.error.HTTPError as error:
@@ -128,3 +132,4 @@ if __name__ == '__main__':
     except (RuntimeError, KeyError, IndexError) as error:
         print(str(error) if isinstance(error, RuntimeError) else 'Use: pages_ci.py build|target|verify', file=sys.stderr)
         sys.exit(1)
+
