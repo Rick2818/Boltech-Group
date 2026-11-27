@@ -68,6 +68,16 @@ def target():
     if data.get('success') is not True or result.get('name') != PROJECT or result.get('production_branch') != 'main':
         raise RuntimeError('Target project or production branch differs; deployment blocked')
     print('Verified existing corporate Pages project boltech-group, production branch main')
+    production = (result.get('deployment_configs') or {}).get('production') or {}
+    env_vars = production.get('env_vars') or {}
+    kv = production.get('kv_namespaces') or {}
+    print('Runtime binding presence: ' + json.dumps({
+        'COMMERCE': 'COMMERCE' in kv,
+        'LEO_PLATFORM_TOKEN': 'LEO_PLATFORM_TOKEN' in env_vars,
+        'SUPABASE_URL': 'SUPABASE_URL' in env_vars,
+        'SUPABASE_SERVICE_ROLE_KEY': 'SUPABASE_SERVICE_ROLE_KEY' in env_vars,
+        'LEO_PIPELINE_ENABLED': 'LEO_PIPELINE_ENABLED' in env_vars,
+    }, sort_keys=True))
 
 
 def verify():

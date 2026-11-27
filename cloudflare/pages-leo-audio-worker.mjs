@@ -473,6 +473,8 @@ export default {
     target.port = '';
     const headers = new Headers(request.headers);
     withoutOwnerCookie(headers);
+    const publicCookies=(headers.get('Cookie')||'').split(';').map(s=>s.trim()).filter(s=>s&&!s.startsWith('__Host-leo_inquiry=')).join('; ');
+    if(publicCookies)headers.set('Cookie',publicCookies);else headers.delete('Cookie');
     for (const name of ['host', 'connection', 'x-forwarded-host', 'x-forwarded-for']) headers.delete(name);
     const ip = request.headers.get('CF-Connecting-IP');
     if (ip) headers.set('x-forwarded-for', ip);

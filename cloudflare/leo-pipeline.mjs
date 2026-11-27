@@ -66,6 +66,7 @@ export function pipelineTransition(record,input,now=new Date().toISOString()){
   if(input.confirmed!==true||input.proposalRevision!==rec.proposal?.revision||rec.proposal?.status!=='DRAFT'||
     rec.qualification.status!=='READY_FOR_REVIEW'||rec.proposal.amountCents===null)pipelineFail('REVIEW_AND_PRICE_REQUIRED',409);
   rec.proposal.status='OWNER_APPROVED';rec.proposal.approvedAt=now;
+  rec.customerResponsePendingReview=false;
   rec.approval={id:crypto.randomUUID(),proposalRevision:rec.proposal.revision,action:'INTERNAL_PROPOSAL_APPROVAL',approvedAt:now,externalSendAuthorized:false};
   rec.followups.push({id:crypto.randomUUID(),note:'Borrador: confirmar requisitos pendientes de '+rec.need.slice(0,400)+'.',channel:'INTERNAL',
    scheduledAt:new Date(Date.parse(now)+86400000).toISOString(),proposalRevision:rec.proposal.revision,status:'PREPARED',externalSendAuthorized:false,providerReceipt:null});
@@ -225,7 +226,9 @@ export async function handlePipelineTick(request,env,{authorize,seal,unseal,stor
  if(!authorize(request,env))return pipelineJSON({success:false,error:'OWNER_ACCESS_REQUIRED'},401);
  if(!pipelineReadiness(env).ready)return pipelineJSON({success:false,error:'PIPELINE_NOT_CONFIGURED'},503);
  try{
-  store||=createPipelineStore(env);const listing=await env.COMMERCE.list({prefix:'leo:pipeline:outbox:',limit:20});
+  store||=createPipelineStore(env);
+  const cursor=await env.COMMERCE.get('leo:pipeline:recovery-cursor');
+  const listing=await env.COMMERCE.list({prefix:'leo:pipeline:outbox:',limit:20,...(cursor?{cursor}:{})});
   let recovered=0,blocked=0;
   for(const {name}of listing.keys){
    const raw=await env.COMMERCE.get(name);if(!raw)continue;
@@ -238,6 +241,8 @@ export async function handlePipelineTick(request,env,{authorize,seal,unseal,stor
     if(error.status===409)intent.attempts=5;
     await env.COMMERCE.put(name,await seal(intent,env,'pipeline-intent:'+name));blocked++;}
   }
+  if(listing.list_complete===false&&listing.cursor)await env.COMMERCE.put('leo:pipeline:recovery-cursor',listing.cursor);
+  else await env.COMMERCE.delete('leo:pipeline:recovery-cursor');
   const due=await store.tick();
   return pipelineJSON({success:true,recovered,blocked,due,externalMessagesSent:0});
  }catch(error){return pipelineError(error);}

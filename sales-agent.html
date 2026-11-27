@@ -16,7 +16,7 @@
 <p><label>Acción <select id="deal-action"><option value="qualify">Calificar</option><option value="proposal">Preparar propuesta</option><option value="approve">Aprobar propuesta</option><option value="followup">Registrar seguimiento</option><option value="close">Cerrar oportunidad</option></select></label></p>
 <p id="deal-help">Para calificar: presupuesto, plazo y persona que decide, separados por |.</p>
 <textarea id="deal-details" rows="3" style="width:100%;box-sizing:border-box;background:#1a1c20;color:white" placeholder="Completa los datos indicados"></textarea>
-<button type="button" id="deal-submit">Guardar etapa</button><pre id="deal-output" role="status" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre></details><section id="pipeline-owner" hidden><h2>Solicitudes recibidas por Leo</h2>
+<button type="button" id="deal-submit">Guardar etapa</button><pre id="deal-output" role="status" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre><section id="pipeline-owner" hidden><h2>Solicitudes recibidas por Leo</h2>
 <button type="button" id="pipeline-list">Actualizar pendientes</button><div id="pipeline-items"></div>
 <p id="pipeline-status" role="status"></p><pre id="pipeline-record" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre>
 <label>Alcance <textarea id="pipeline-scope" maxlength="3000"></textarea></label>
@@ -28,7 +28,7 @@
 <button type="button" data-pipeline="request_changes">Solicitar cambios</button>
 <button type="button" data-pipeline="reject">Rechazar y cerrar</button>
 <button type="button" data-pipeline="followup">Preparar seguimiento interno</button>
-<p>No se envían mensajes. La aprobación interna no autoriza contacto ni acredita pago.</p></section><div id="summary"></div><small id="note">Piloto conversacional: el resumen permanece en esta sesión. No envía correos, no toma pedidos ni cobra. Para continuar, solicita cotización al equipo de Boltech.</small></main>
+<p>No se envían mensajes. La aprobación interna no autoriza contacto ni acredita pago.</p></section></details><div id="summary"></div><small id="note">Piloto conversacional: el resumen permanece en esta sesión. No envía correos, no toma pedidos ni cobra. Para continuar, solicita cotización al equipo de Boltech.</small></main>
 <script type="module">
 let language='es',history=[],busy=false;
 let pipelineQuestion='need',pipelineConversation=crypto.randomUUID(),pipelinePending=null,pipelineCurrent=null,pipelineIntakePending=null;

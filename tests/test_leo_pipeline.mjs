@@ -1,6 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {preparePipelineRecord,pipelineTransition,applyPipelineIntent,handlePipelineChat,handlePipelineOwner,handlePipelineTick,createPipelineStore,pipelineReadiness,pipelineQuestions} from '../cloudflare/leo-pipeline.mjs';
+import {preparePipelineRecord,pipelineTransition,applyPipelineIntent,handlePipelineChat,handlePipelineOwner,handlePipelineTick,handlePipelineIntake,createPipelineStore,pipelineReadiness,pipelineQuestions} from '../cloudflare/leo-pipeline.mjs';
+import cron from '../cloudflare/leo-autonomy-cron.mjs';
 const id=()=>crypto.randomUUID();
 function fixture(){
  const records=new Map(),events=new Set(),kv=new Map();
@@ -85,4 +86,20 @@ test('provider transport rejects redirects and never exposes credentials in erro
  const f=fixture();let call;
  const store=createPipelineStore(f.env,async(url,options)=>{call={url,options};return new Response(JSON.stringify({message:'secret contents'}),{status:500});});
  await assert.rejects(store.read(id()),/PIPELINE_DATABASE_UNAVAILABLE/);assert.equal(call.options.redirect,'error');assert.ok(call.url.startsWith(f.env.SUPABASE_URL+'/rest/v1/'));
+});
+test('voluntary proposal form uses the same canonical dossier and preserves optional contact fields',async()=>{
+ const f=fixture(),requestId=id();
+ const form=()=>new Request('https://boltech-group.pages.dev/api/leo-public-intake',{method:'POST',headers:{Origin:'https://boltech-group.pages.dev','Content-Type':'application/json'},body:JSON.stringify({consent:true,website:'',requestId,company:'Empresa aislada',contact:'Nombre aislado',email:'fixture@example.test',need:'Automatizar las solicitudes voluntarias',action:'approve',amountCents:1})});
+ const first=await handlePipelineIntake(form(),f.env,f);assert.equal(first.status,200);assert.equal((await first.json()).status,'RECEIVED_UNVERIFIED');
+ await handlePipelineIntake(form(),f.env,f);assert.equal(f.records.size,1);
+ const rec=[...f.records.values()][0];assert.equal(rec.email,'fixture@example.test');assert.equal(rec.answers.company.source,'CUSTOMER_FORM');assert.equal(rec.proposal.status,'DRAFT');assert.equal(rec.proposal.amountCents,null);
+});
+test('existing scheduler calls the inbound tick only when enabled and surfaces failures',async()=>{
+ const original=globalThis.fetch,calls=[];globalThis.fetch=async(url)=>{calls.push(url);return Response.json({success:true});};
+ try{
+  let pending;await cron.scheduled({}, {LEO_APP_URL:'https://boltech-group.pages.dev',LEO_PLATFORM_TOKEN:'isolated-token'},{waitUntil:p=>pending=p});await pending;assert.equal(calls.length,1);
+  calls.length=0;await cron.scheduled({}, {LEO_APP_URL:'https://boltech-group.pages.dev',LEO_PLATFORM_TOKEN:'isolated-token',LEO_PIPELINE_ENABLED:'true'},{waitUntil:p=>pending=p});await pending;assert.equal(calls.length,2);assert.ok(calls.some(x=>x.endsWith('/api/leo-pipeline-tick')));
+  globalThis.fetch=async(url)=>url.endsWith('/api/leo-pipeline-tick')?Response.json({success:false},{status:503}):Response.json({success:true});
+  await cron.scheduled({}, {LEO_APP_URL:'https://boltech-group.pages.dev',LEO_PLATFORM_TOKEN:'isolated-token',LEO_PIPELINE_ENABLED:'true'},{waitUntil:p=>pending=p});await assert.rejects(pending,/LEO_SCHEDULED_TASK_FAILED/);
+ }finally{globalThis.fetch=original;}
 });
