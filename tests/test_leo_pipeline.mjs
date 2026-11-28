@@ -7,7 +7,7 @@ function fixture(){
  const records=new Map(),events=new Set(),kv=new Map();
  const env={LEO_PIPELINE_ENABLED:'true',SUPABASE_URL:'https://uxwfqhromoicrwzyylbn.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'isolated-test-key-not-a-real-secret',LEO_PLATFORM_TOKEN:'isolated-test-owner-key-not-real',
   COMMERCE:{get:async k=>kv.get(k)||null,put:async(k,v)=>kv.set(k,v),delete:async k=>kv.delete(k),list:async()=>({keys:[...kv.keys()].map(name=>({name}))})}};
- const store={read:async k=>structuredClone(records.get(k)||null),list:async()=>[...records.values()].map(structuredClone),
+ const store={read:async k=>structuredClone(records.get(k)||null),list:async()=>[...records.values()].map(record=>structuredClone(record)),
   async save(rec,expected,key){if(events.has(key))return structuredClone(records.get(rec.id));
    if((records.get(rec.id)?.version||0)!==expected)throw Object.assign(Error('STALE_VERSION'),{status:409});
    records.set(rec.id,structuredClone(rec));events.add(key);return structuredClone(rec);},tick:async()=>({due:0})};
