@@ -1,3 +1,4 @@
+import {leoOwnerSalesSummary} from '../lib/leo_commercial_skills.js';
 // Voluntary inbound only. Supabase is authoritative; KV is an encrypted retry outbox.
 const PIPELINE_COOKIE='__Host-leo_inquiry';
 const PIPELINE_ORIGIN='https://boltech-group.pages.dev';
@@ -146,6 +147,7 @@ export async function handlePipelineOwner(request,env,{ownerRequest,authorize,un
  try{
   const url=new URL(request.url);
   if(request.method==='GET'){
+   if(url.searchParams.get('view')==='sales-summary')return pipelineJSON({success:true,summary:leoOwnerSalesSummary(await store.list())});
    if(url.searchParams.has('id')){const record=await store.read(url.searchParams.get('id'));return pipelineJSON({success:!!record,record},record?200:404);}
    const outbox=[];
    if(unseal){const listing=await env.COMMERCE.list({prefix:'leo:pipeline:outbox:',limit:20});

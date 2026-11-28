@@ -7,7 +7,7 @@ function fixture(){
  const records=new Map(),events=new Set(),kv=new Map();
  const env={LEO_PIPELINE_ENABLED:'true',SUPABASE_URL:'https://uxwfqhromoicrwzyylbn.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'isolated-test-key-not-a-real-secret',LEO_PLATFORM_TOKEN:'isolated-test-owner-key-not-real',
   COMMERCE:{get:async k=>kv.get(k)||null,put:async(k,v)=>kv.set(k,v),delete:async k=>kv.delete(k),list:async()=>({keys:[...kv.keys()].map(name=>({name}))})}};
- const store={read:async k=>structuredClone(records.get(k)||null),list:async()=>[...records.values()].map(structuredClone),
+ const store={read:async k=>structuredClone(records.get(k)||null),list:async()=>[...records.values()].map(record=>structuredClone(record)),
   async save(rec,expected,key){if(events.has(key))return structuredClone(records.get(rec.id));
    if((records.get(rec.id)?.version||0)!==expected)throw Object.assign(Error('STALE_VERSION'),{status:409});
    records.set(rec.id,structuredClone(rec));events.add(key);return structuredClone(rec);},tick:async()=>({due:0})};
@@ -108,4 +108,15 @@ test('unknown critical answers remain pending and are asked again without invent
  const updated=await applyPipelineIntent(f.store,{id:rec.id,messageId:id(),message:'Usamos Google Sheets',answerTo:'tools',createdAt:new Date().toISOString()});
  assert.equal(updated.answers.tools.value,'Usamos Google Sheets');assert.equal(updated.qualification.status,'READY_FOR_REVIEW');
  assert.equal(updated.proposal.amountCents,null);
+});
+
+test('sales summary requires authenticated owner and is read-only',async()=>{
+ const f=fixture(),rec=complete();f.records.set(rec.id,rec);
+ const req=new Request('https://boltech-group.pages.dev/api/leo-pipeline?view=sales-summary');
+ const deny=await handlePipelineOwner(req,f.env,{...f,ownerRequest:async()=>req,authorize:()=>false});
+ assert.equal(deny.status,401);
+ const allow=await handlePipelineOwner(req,f.env,{...f,ownerRequest:async()=>req,authorize:()=>true});
+ assert.equal(allow.status,200);const body=await allow.json();
+ assert.equal(body.summary.sampleCount,1);assert.equal(body.summary.unpriced,1);assert.equal(body.summary.actualRevenueVerified,false);
+ assert.equal(f.records.size,1);assert.equal(f.events.size,0);
 });

@@ -166,14 +166,14 @@ def verify():
                 with urllib.request.urlopen(public_request('/api/leo-execute', 'application/json'), timeout=15):
                     executor_ready = False
             except urllib.error.HTTPError as probe:
-                executor_ready = probe.code == 405 and json.load(probe).get('error') == 'METHOD_NOT_ALLOWED'
+                executor_ready = probe.code == 409 and json.load(probe).get('error') == 'LEGACY_EXECUTOR_DISABLED_USE_PIPELINE'
             if pipeline_release and correct and setup_correct and manual_correct and intake_ready and native_mode_safe and executor_ready and setup_state.get('configured') is True and setup_state.get('release') == 'customer-setup-20261111-v1' and state.get('success') is True and state.get('authenticated') is False:
                 print('Verified production Leo, customer setup and user manual HTML match this commit; storage and session endpoints are ready')
                 print('Inbound pipeline runtime: ' + json.dumps(pipeline_state, sort_keys=True))
                 return
             reason = 'HTML differs from commit' if not correct or not setup_correct or not manual_correct else 'Owner session, native-chat readiness, executor or customer setup check failed'
         except urllib.error.HTTPError as error:
-            reason = f'Public verification returned HTTP {error.code}'
+            reason = f'Public verification returned HTTP {error.code} at {error.geturl()}'
         except (urllib.error.URLError, ValueError):
             reason = 'Public verification network or JSON response error'
         if attempt < 5:
