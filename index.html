@@ -114,6 +114,19 @@
     <span id="advisor-file-info" role="status"></span>
   </div>
   <p id="advisor-file-notice" hidden style="font-size:11px;color:#cbd5e1;padding:0 10px">El documento se enviará a Gemini para analizarlo. No incluyas secretos ni datos personales innecesarios. PDF, TXT o CSV, máximo 10 MB.</p>
+  <div id="advisor-form-actions" style="display:flex;gap:8px;padding:8px">
+    <button id="advisor-quick" type="button">Solicitud rápida</button>
+    <button id="advisor-detail" type="button">Solicitud detallada</button>
+  </div>
+  <form id="advisor-inquiry" hidden style="overflow-y:auto;max-height:70%;padding:12px;color:#e2e8f0;background:#0f172a">
+    <h3 id="advisor-inquiry-title" style="margin:0 0 8px"></h3>
+    <p style="font-size:12px">Completa los datos. No incluyas contraseñas ni información confidencial.</p>
+    <div id="advisor-inquiry-fields"></div>
+    <label style="display:block;font-size:12px;margin-top:10px"><input id="advisor-inquiry-consent" type="checkbox" required> Autorizo el registro de mi solicitud para recibir una evaluación comercial. No autoriza envíos automáticos.</label>
+    <button type="submit" id="advisor-inquiry-submit">Enviar solicitud</button>
+    <button type="button" id="advisor-inquiry-close">Cerrar</button>
+    <p id="advisor-inquiry-status" role="status" aria-live="polite"></p>
+  </form>
   <div id="advisor-input-row">
     <input id="advisor-input" type="text" placeholder="Escribe tu pregunta..." autocomplete="off" maxlength="1000" aria-label="Escribe tu pregunta">
     <button id="advisor-send" type="button">Enviar</button>
@@ -171,6 +184,48 @@
     var ext=f.name.split('.').pop().toLowerCase(),mime={pdf:'application/pdf',txt:'text/plain',csv:'text/csv'}[ext];
     if(!mime||!f.size||f.size>10*1024*1024){file.value='';addMsg('Selecciona un PDF, TXT o CSV de hasta 10 MB.','bot');return;}
     attachment={file:f,mime:mime};fileInfo.textContent=f.name;notice.hidden=false;
+  });
+  var inquiry=document.getElementById('advisor-inquiry'), fields=document.getElementById('advisor-inquiry-fields'), inquiryStatus=document.getElementById('advisor-inquiry-status'), inquirySubmit=document.getElementById('advisor-inquiry-submit');
+  var inquiryMode='', inquiryRequest=null, inquiryFingerprint='';
+  var basicFields=[['contact','Nombre completo','Full name',120,true],['company','Empresa','Company',120,true],['email','Correo de trabajo','Work email',254,true],['process','¿Qué proceso deseas automatizar?','Which process do you want to automate?',220,true],['problem','¿Cuál es el problema principal?','What is the main problem?',160,true],['goal','¿Qué resultado esperas?','What result do you expect?',130,true]];
+  var extraFields=[['area','Departamento y responsables','Department and owners',75,false],['tools','Herramientas e integraciones actuales','Current tools and integrations',80,false],['volume','Volumen y frecuencia','Volume and frequency',45,false],['budget','Presupuesto aproximado','Approximate budget',35,false],['timeline','Plazo deseado','Desired timeline',35,false],['limits','Restricciones y límites','Constraints and limits',65,false]];
+  function inquiryEnglish(){return language()==='en-US';}
+  function showInquiry(mode){
+    if(inquirySubmit.disabled)return;
+    if(inquiryMode!==mode||!fields.childElementCount){
+      inquiryMode=mode;fields.replaceChildren();inquiryRequest=null;inquiryFingerprint='';inquiry.reset();
+      var en=inquiryEnglish();
+      document.getElementById('advisor-inquiry-title').textContent=mode==='quick'?(en?'Quick request':'Solicitud rápida'):(en?'Detailed request':'Solicitud detallada');
+      (mode==='quick'?basicFields:basicFields.concat(extraFields)).forEach(function(spec){
+        var label=document.createElement('label');label.style.cssText='display:block;margin:7px 0;font-size:12px';label.textContent=spec[en?2:1]+(spec[4]?' *':'');
+        var el=document.createElement(['contact','company','email'].includes(spec[0])?'input':'textarea');el.name=spec[0];el.maxLength=spec[3];el.required=spec[4];if(spec[0]==='email')el.type='email';
+        el.style.cssText='display:block;width:100%;box-sizing:border-box;background:#05070e;color:#f8fafc;border:1px solid #334155;border-radius:6px;padding:7px;margin-top:3px';label.appendChild(el);fields.appendChild(label);
+      });
+    }
+    inquiry.hidden=false;capture.hidden=true;inquiryStatus.textContent='';fields.querySelector('input').focus();
+  }
+  document.getElementById('advisor-quick').addEventListener('click',function(){showInquiry('quick');});
+  document.getElementById('advisor-detail').addEventListener('click',function(){showInquiry('detail');});
+  document.getElementById('advisor-inquiry-close').addEventListener('click',function(){if(!inquirySubmit.disabled)inquiry.hidden=true;});
+  inquiry.addEventListener('submit',async function(event){
+    event.preventDefault();if(inquirySubmit.disabled)return;
+    var en=inquiryEnglish(), values=Object.fromEntries(new FormData(inquiry));
+    var need=(inquiryMode==='quick'?basicFields:basicFields.concat(extraFields)).slice(3).filter(function(f){return String(values[f[0]]||'').trim();}).map(function(f){return f[en?2:1]+': '+String(values[f[0]]).trim();}).join('\n');
+    if(need.length>900){inquiryStatus.textContent=en?'Please shorten the answers to 900 total characters.':'Acorta las respuestas a 900 caracteres en total.';return;}
+    var consent=document.getElementById('advisor-inquiry-consent').checked;
+    if(!consent)return;
+    var data={contact:values.contact.trim(),company:values.company.trim(),email:values.email.trim(),need:need,language:en?'en':'es',consent:true,website:''};
+    var fingerprint=JSON.stringify(data);
+    if(inquiryFingerprint!==fingerprint||!inquiryRequest){inquiryRequest=crypto.randomUUID();inquiryFingerprint=fingerprint;}
+    data.requestId=inquiryRequest;inquirySubmit.disabled=true;inquiryStatus.textContent=en?'Sending...':'Enviando...';
+    try{
+      var res=await fetch('/api/leo-advisor-intake',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+      var result=await res.json();
+      if(!res.ok||result.success!==true||result.persistence!=='SUPABASE_CONFIRMED'||!result.reference)throw Error('NOT_CONFIRMED');
+      inquiry.reset();inquiry.hidden=true;inquiryRequest=null;inquiryFingerprint='';
+      addMsg((en?'Request saved. Reference: ':'Solicitud registrada. Referencia: ')+result.reference,'bot');
+    }catch(e){inquiryStatus.textContent=en?'Registration not confirmed. Your answers are preserved; retry.':'Registro no confirmado. Tus respuestas se conservan; vuelve a intentar.';}
+    finally{inquirySubmit.disabled=false;}
   });
   function encodeFile(f){return new Promise(function(resolve,reject){var reader=new FileReader();reader.onload=function(){resolve(String(reader.result).split(',')[1]);};reader.onerror=reject;reader.readAsDataURL(f);});}
 
@@ -239,6 +294,7 @@
 
   leadBtn.addEventListener('click', function(){
     capture.hidden = !capture.hidden;
+    if(!capture.hidden)inquiry.hidden=true;
     if(!capture.hidden) document.getElementById('advisor-name').focus();
   });
 
