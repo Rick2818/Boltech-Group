@@ -1,0 +1,107 @@
+name: Leo bilingual browser regression
+on:
+  pull_request:
+    paths:
+      - 'sales-agent.html'
+      - '.github/workflows/leo-bilingual-browser.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated browser test runner
+        run: |
+          npm install --prefix "$RUNNER_TEMP/leo-ui" --no-save --no-package-lock playwright@1.51.1
+          "$RUNNER_TEMP/leo-ui/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Test ES EN ES without real customer data or external actions
+        shell: bash
+        run: |
+          node <<'NODE'
+          const assert = require('node:assert/strict');
+          const fs = require('node:fs');
+          const path = require('node:path');
+          const { chromium } = require(path.join(process.env.RUNNER_TEMP, 'leo-ui/node_modules/playwright'));
+          (async()=>{
+            const browser = await chromium.launch({headless:true});
+            try {
+              const page = await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+              const errors=[];
+              page.on('pageerror',e=>errors.push(e.message));
+              await page.route('**/*',async route=>{
+                const url=new URL(route.request().url());
+                if(url.origin!=='http://localhost:4173')return route.abort();
+                if(url.pathname==='/sales-agent.html')return route.fulfill({contentType:'text/html; charset=utf-8',body:fs.readFileSync('sales-agent.html','utf8')});
+                if(url.pathname==='/api/leo-owner-session')return route.fulfill({json:{success:true,authenticated:false}});
+                if(url.pathname==='/api/leo-pipeline-status')return route.fulfill({json:{ready:true}});
+                if(url.pathname==='/api/leo-pipeline-session')return route.fulfill({json:{success:true,active:false,questionKey:'need'}});
+                return route.fulfill({status:404,json:{success:false}});
+              });
+              await page.goto('http://localhost:4173/sales-agent.html');
+              const text=async(id,expected)=>assert.equal((await page.locator('#'+id).innerText()).trim(),expected,id);
+              await page.waitForFunction(()=>document.getElementById('owner-session-status').textContent.includes('Ingresa'));
+              await page.locator('#private-integrations summary').click();
+              await page.locator('#commercial-panel summary').click();
+              await page.locator('#lead-intake summary').click();
+              await page.locator('#lead-company').fill('Synthetic test');
+              await page.locator('#lead-consent').check();
+              await page.locator('#deal-action').selectOption('proposal');
+              await page.locator('#deal-details').fill('Scope | Exclusions | 600.00');
+              await page.locator('#leo-quick').click();
+              await page.locator('#leo-questionnaire [name=contact]').fill('Synthetic contact');
+              await page.locator('#leo-questionnaire [name=process]').fill('Synthetic process');
+              await page.locator('#leo-questionnaire-consent').check();
+              await page.locator('#leo-file').setInputFiles({name:'synthetic.txt',mimeType:'text/plain',buffer:Buffer.from('synthetic')});
+              await page.locator('#lang').click();
+              assert.equal(await page.locator('html').getAttribute('lang'),'en');
+              await text('heading','Talk to Leo');
+              await text('leo-quick','📋 Quick request');
+              await text('leo-detail','📋 Detailed request');
+              await text('leo-questionnaire-title','Quick request');
+              await text('leo-questionnaire-submit','Submit request');
+              await text('leo-questionnaire-close','Close');
+              await text('deal-help','Scope | exclusions | USD price (example: 600.00)');
+              await text('owner-login','Sign in');
+              await text('owner-session-status','Enter your private Leo key once to sign in.');
+              await text('lead-save','Register request');
+              assert.equal(await page.locator('#deal-action').inputValue(),'proposal');
+              assert.equal(await page.locator('#deal-details').inputValue(),'Scope | Exclusions | 600.00');
+              assert.equal(await page.locator('#lead-company').inputValue(),'Synthetic test');
+              assert.equal(await page.locator('#lead-consent').isChecked(),true);
+              assert.equal(await page.locator('#leo-questionnaire [name=contact]').inputValue(),'Synthetic contact');
+              assert.equal(await page.locator('#leo-questionnaire [name=process]').inputValue(),'Synthetic process');
+              assert.equal(await page.locator('#leo-questionnaire-consent').isChecked(),true);
+              assert.match(await page.locator('#leo-file-status').innerText(),/synthetic.txt.*Press Send/);
+              assert.equal(await page.locator('#leo-file').evaluate(el=>el.files[0].name),'synthetic.txt');
+              for(const item of await page.locator('[data-leo-en]').evaluateAll(els=>els.map(el=>({actual:el.textContent,expected:el.dataset.leoEn}))))assert.equal(item.actual,item.expected);
+              await page.screenshot({path:'leo-english.png',fullPage:true});
+              await page.locator('#lang').click();
+              await text('heading','Habla con Leo');
+              await text('leo-questionnaire-title','Solicitud rápida');
+              assert.equal(await page.locator('#leo-questionnaire [name=contact]').inputValue(),'Synthetic contact');
+              await page.locator('#leo-detail').click();
+              assert.equal(await page.locator('#leo-questionnaire-fields [name]').count(),12);
+              await page.locator('#leo-questionnaire [name=budget]').fill('600');
+              await page.locator('#lang').click();
+              await text('leo-questionnaire-title','Detailed request');
+              assert.equal(await page.locator('#leo-questionnaire [name=budget]').inputValue(),'600');
+              assert.equal(await page.locator('[data-question-label=budget]').innerText(),'Budget');
+              assert.deepEqual(errors,[]);
+              await page.screenshot({path:'leo-detailed-english.png',fullPage:true});
+              console.log('PASS: real Chromium, ES/EN/ES, quick/detail, file, consent, owner controls and draft preservation.');
+            } finally {await browser.close();}
+          })().catch(error=>{console.error(error);process.exitCode=1;});
+          NODE
+      - name: Save test screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: leo-bilingual-screenshots
+          path: leo-*.png
+          if-no-files-found: ignore
