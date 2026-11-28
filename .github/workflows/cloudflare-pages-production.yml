@@ -19,6 +19,7 @@ on:
       - 'cloudflare/leo-commercial-executor.mjs'
       - 'cloudflare/leo-native-chat.mjs'
       - 'tests/test_leo_native_cloudflare_chat.mjs'
+      - 'tests/test_leo_advisor_documents.mjs'
       - 'tests/test_leo_commercial_executor.mjs'
       - 'tests/test_leo_executor_onboarding.mjs'
       - 'cloudflare/leo-public-intake.mjs'
@@ -56,6 +57,7 @@ on:
       - 'cloudflare/leo-commercial-executor.mjs'
       - 'cloudflare/leo-native-chat.mjs'
       - 'tests/test_leo_native_cloudflare_chat.mjs'
+      - 'tests/test_leo_advisor_documents.mjs'
       - 'tests/test_leo_commercial_executor.mjs'
       - 'tests/test_leo_executor_onboarding.mjs'
       - 'cloudflare/leo-public-intake.mjs'
@@ -110,7 +112,7 @@ jobs:
       - name: Install isolated PostgreSQL test engine
         run: npm ci --prefix tests/db --ignore-scripts --no-audit --no-fund
       - name: Validate owner session and preserve payment gateway
-        run: node --test tests/test_leo_pipeline.mjs tests/test_leo_pipeline_database.mjs tests/test_leo_native_cloudflare_chat.mjs tests/test_leo_executor_onboarding.mjs tests/test_leo_commercial_executor.mjs tests/test_leo_public_intake.mjs tests/test_leo_commerce.mjs tests/test_leo_owner_session.mjs tests/test_pages_leo_audio_bridge.mjs tests/test_leo_upwork_registration.mjs tests/test_customer_onboarding.mjs tests/test_customer_setup_gateway.mjs tests/test_leo_provider_diagnostics.mjs tests/test_explee_target_geography.mjs
+        run: node --test tests/test_leo_advisor_documents.mjs tests/test_leo_pipeline.mjs tests/test_leo_pipeline_database.mjs tests/test_leo_native_cloudflare_chat.mjs tests/test_leo_executor_onboarding.mjs tests/test_leo_commercial_executor.mjs tests/test_leo_public_intake.mjs tests/test_leo_commerce.mjs tests/test_leo_owner_session.mjs tests/test_pages_leo_audio_bridge.mjs tests/test_leo_upwork_registration.mjs tests/test_customer_onboarding.mjs tests/test_customer_setup_gateway.mjs tests/test_leo_provider_diagnostics.mjs tests/test_explee_target_geography.mjs
       - name: Build only public Pages assets
         run: python3 scripts/pages_ci.py build
       - name: Check deployable Worker and browser JavaScript
