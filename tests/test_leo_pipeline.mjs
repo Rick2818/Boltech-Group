@@ -109,3 +109,14 @@ test('unknown critical answers remain pending and are asked again without invent
  assert.equal(updated.answers.tools.value,'Usamos Google Sheets');assert.equal(updated.qualification.status,'READY_FOR_REVIEW');
  assert.equal(updated.proposal.amountCents,null);
 });
+
+test('sales summary requires authenticated owner and is read-only',async()=>{
+ const f=fixture(),rec=complete();f.records.set(rec.id,rec);
+ const req=new Request('https://boltech-group.pages.dev/api/leo-pipeline?view=sales-summary');
+ const deny=await handlePipelineOwner(req,f.env,{...f,ownerRequest:async()=>req,authorize:()=>false});
+ assert.equal(deny.status,401);
+ const allow=await handlePipelineOwner(req,f.env,{...f,ownerRequest:async()=>req,authorize:()=>true});
+ assert.equal(allow.status,200);const body=await allow.json();
+ assert.equal(body.summary.sampleCount,1);assert.equal(body.summary.unpriced,1);assert.equal(body.summary.actualRevenueVerified,false);
+ assert.equal(f.records.size,1);assert.equal(f.events.size,0);
+});

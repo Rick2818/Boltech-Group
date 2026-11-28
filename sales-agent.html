@@ -20,7 +20,7 @@
 <p id="deal-help">Para calificar: presupuesto, plazo y persona que decide, separados por |.</p>
 <textarea id="deal-details" rows="3" style="width:100%;box-sizing:border-box;background:#1a1c20;color:white" placeholder="Completa los datos indicados"></textarea>
 <button type="button" id="deal-submit"><span data-leo-es="Guardar etapa" data-leo-en="Save stage">Guardar etapa</span></button><pre id="deal-output" role="status" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre><section id="pipeline-owner" hidden><h2><span data-leo-es="Solicitudes recibidas por Leo" data-leo-en="Requests received by Leo">Solicitudes recibidas por Leo</span></h2>
-<button type="button" id="pipeline-list"><span data-leo-es="Actualizar pendientes" data-leo-en="Refresh pending requests">Actualizar pendientes</span></button><div id="pipeline-items"></div>
+<button type="button" id="pipeline-list"><span data-leo-es="Actualizar pendientes" data-leo-en="Refresh pending requests">Actualizar pendientes</span></button><button type="button" id="pipeline-sales-summary"><span data-leo-es="Resumen comercial de Leo" data-leo-en="Leo sales summary">Resumen comercial de Leo</span></button><p id="pipeline-sales-result" role="status" style="white-space:pre-line"></p><div id="pipeline-items"></div>
 <p id="pipeline-status" role="status"></p><pre id="pipeline-record" style="white-space:pre-wrap;overflow-wrap:anywhere"></pre>
 <label><span data-leo-es="Alcance" data-leo-en="Scope">Alcance</span> <textarea id="pipeline-scope" maxlength="3000"></textarea></label>
 <label><span data-leo-es="Exclusiones" data-leo-en="Exclusions">Exclusiones</span> <textarea id="pipeline-exclusions" maxlength="1000"></textarea></label>
@@ -336,6 +336,16 @@ function pipelineDisplay(rec){
  pipelineElement('pipeline-exclusions').value=rec.proposal?.exclusions||'';
  pipelineElement('pipeline-price').value=rec.proposal?.amountCents==null?'':(rec.proposal.amountCents/100).toFixed(2);
 }
+pipelineElement('pipeline-sales-summary').onclick=async()=>{
+ const output=pipelineElement('pipeline-sales-result');
+ try{
+  const response=await ownerFetch('/api/leo-pipeline?view=sales-summary',{}),data=await response.json();
+  if(!response.ok||!data.success)throw Error('SALES_SUMMARY_UNAVAILABLE');
+  const s=data.summary,usd=n=>'USD '+(n/100).toFixed(2);
+  localizedText(output,'Últimos '+s.sampleCount+' expedientes (máximo 50)\nImporte cotizado abierto: '+usd(s.totals.openQuotedCents)+'\nAprobado internamente: '+usd(s.totals.approvedOpenQuotedCents)+'\nSin precio: '+s.unpriced+' · Requieren revisión: '+s.reviewRequired+'\nNo equivale a ingresos ni a una previsión certificada.',
+   'Latest '+s.sampleCount+' records (maximum 50)\nOpen quoted amount: '+usd(s.totals.openQuotedCents)+'\nInternally approved: '+usd(s.totals.approvedOpenQuotedCents)+'\nUnpriced: '+s.unpriced+' · Require review: '+s.reviewRequired+'\nNot verified revenue or a certified forecast.');
+ }catch{localizedText(output,'Resumen comercial no disponible. Verificá la conexión al CRM.','Sales summary unavailable. Check CRM connectivity.');}
+};
 pipelineElement('pipeline-list').onclick=async()=>{
  try{
   const result=await pipelineRequest();const container=pipelineElement('pipeline-items');container.replaceChildren();
