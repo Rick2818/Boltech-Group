@@ -1,0 +1,46 @@
+name: Leo production endpoint diagnostics
+on:
+  push:
+    branches: [diagnostics/leo-production-503]
+    paths: ['.github/workflows/leo-production-diagnostics.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - name: Probe public endpoints independently without writes
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import urllib.request, urllib.error, json, hashlib
+          from concurrent.futures import ThreadPoolExecutor
+          origin='https://boltech-group.pages.dev'
+          paths=['/sales-agent','/api/leo-owner-session','/customer-setup','/api/customer-setup','/manual-usuario','/api/leo-public-intake','/api/leo-chat-status','/api/leo-pipeline-status','/api/leo-pipeline-health','/api/leo-execute']
+          safe={'success','error','reason','release','enabled','configured','ready','databaseConnected','outboundEnabled','authenticated','engine','outgoingCommercialActions','missing'}
+          def probe(path):
+              try:
+                  req=urllib.request.Request(origin+path,headers={'User-Agent':'Boltech-Release-Verification/1.0','Accept':'application/json' if path.startswith('/api/') else 'text/html'})
+                  try:
+                      response=urllib.request.urlopen(req,timeout=20)
+                  except urllib.error.HTTPError as err:
+                      response=err
+                  with response:
+                      body=response.read(2000000)
+                      result={'path':path,'http':response.code}
+                      if path.startswith('/api/'):
+                          try:
+                              data=json.loads(body)
+                              result.update({k:v for k,v in data.items() if k in safe and isinstance(v,(str,bool,list)) and (not isinstance(v,str) or len(v)<100)})
+                          except (ValueError,AttributeError): result['json']=False
+                      else:
+                          result['sha256']=hashlib.sha256(body).hexdigest()
+                      return result
+              except Exception as err:
+                  return {'path':path,'network_error':type(err).__name__}
+          with ThreadPoolExecutor(max_workers=5) as pool:
+              results=list(pool.map(probe,paths))
+          for result in results: print(json.dumps(result,ensure_ascii=True))
+          PY
