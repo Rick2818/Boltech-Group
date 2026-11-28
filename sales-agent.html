@@ -2,13 +2,13 @@
 <style>:root{color-scheme:dark;font:16px system-ui}body{margin:0;background:#090b0e;color:#f5f1e9}main{max-width:700px;margin:30px auto;padding:24px}header{display:flex;justify-content:space-between;align-items:center}a{color:#d8b768}.title{color:#d8b768;letter-spacing:.13em;font-weight:800}.mascot{margin:22px auto 12px;width:210px;height:210px;position:relative;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 12px 24px #a7783455)}.mascot svg{width:100%;height:100%}.eyes{display:flex;gap:35px;position:absolute;top:58px;left:28px}.eye{width:15px;height:24px;background:#17130d;border-radius:50%;box-shadow:inset 4px 3px #fff8}.smile{position:absolute;top:103px;left:57px;width:23px;height:12px;border:3px solid #221908;border-top:none;border-radius:0 0 20px 20px}.mascot.speaking{animation:float .9s ease-in-out infinite;filter:drop-shadow(0 0 20px #e8bf6e99)}.mascot.speaking .smile{height:20px;animation:talk .28s ease-in-out infinite alternate}@keyframes talk{to{height:8px}}.foot{position:absolute;width:39px;height:18px;background:#9a6b23;bottom:-6px;border-radius:50%}.foot.a{left:13px}.foot.b{right:13px}@keyframes float{50%{transform:translateY(-9px) rotate(3deg)}}.chat{border:1px solid #39332a;border-radius:16px;background:#141719;padding:20px;min-height:220px}.line{margin:12px 0;padding:13px;border-radius:12px;line-height:1.5;background:#242423}.line.user{background:#3c3120;text-align:right}form{display:flex;gap:8px;margin-top:15px;flex-wrap:wrap}#message{flex:1 1 160px}#mic[aria-pressed="true"]{background:#b84747;color:white}#voice-status{font-size:13px;color:#e5c57d;width:100%;min-height:1em}input{flex:1;min-width:0;padding:13px;background:#1a1c20;border:1px solid #5b5140;color:white;border-radius:10px}.email-button{display:inline-flex;align-items:center;background:#252015;color:#f2d993;border:1px solid #a17a35;border-radius:10px;padding:12px;font-weight:700;text-decoration:none}.voice-hidden{display:none!important}button{background:#dfb85e;color:#1e1608;border:0;border-radius:10px;padding:12px;font-weight:700;cursor:pointer}small{color:#a8a49c;display:block;margin-top:20px;line-height:1.5}#summary{white-space:pre-wrap;color:#e5c57d;margin-top:18px}</style></head><body><main><header><a href="/">← Boltech</a><div class="title">LEO · SALES DOT</div><button id="lang">EN</button></header><div class="mascot" role="img" aria-label="Leo, asistente de leads de Boltech"><svg viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="leo-metal" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#7b756c"/><stop offset=".45" stop-color="#191b20"/><stop offset="1" stop-color="#07080a"/></linearGradient><linearGradient id="leo-gold"><stop stop-color="#fff0b3"/><stop offset=".5" stop-color="#b88739"/><stop offset="1" stop-color="#efd189"/></linearGradient><radialGradient id="leo-glow"><stop stop-color="#bd8c36" stop-opacity=".35"/><stop offset="1" stop-color="#0a0c0e" stop-opacity="0"/></radialGradient></defs><circle cx="130" cy="127" r="125" fill="url(#leo-glow)"/><path d="M79 167q51-36 102 0l18 61q-66 32-140 0z" fill="url(#leo-metal)" stroke="url(#leo-gold)" stroke-width="4"/><path d="M35 98q0-73 95-73t95 73v49q-94 40-190 0z" fill="url(#leo-metal)" stroke="url(#leo-gold)" stroke-width="5"/><rect x="47" y="79" width="166" height="82" rx="36" fill="#050609" stroke="#9e773c" stroke-width="2"/><path d="M82 116q14-19 29 0m39 0q15-19 29 0" fill="none" stroke="#f7d385" stroke-width="9" stroke-linecap="round"/><path d="M118 141q12 10 24 0" fill="none" stroke="#deaa58" stroke-width="4" stroke-linecap="round"/><rect x="24" y="103" width="26" height="49" rx="12" fill="#16181b" stroke="url(#leo-gold)" stroke-width="5"/><rect x="210" y="103" width="26" height="49" rx="12" fill="#16181b" stroke="url(#leo-gold)" stroke-width="5"/><path d="M28 150q5 31 56 31" fill="none" stroke="url(#leo-gold)" stroke-width="5"/><circle cx="85" cy="181" r="8" fill="#f0c978"/><circle cx="130" cy="200" r="14" fill="url(#leo-gold)"/><path d="M67 195l-18 20m145-20 18 20" stroke="url(#leo-gold)" stroke-width="14" stroke-linecap="round"/></svg></div><h1 id="heading">Habla con Leo</h1><div class="chat" id="chat" role="log" aria-live="polite"></div><p id="pipeline-optin" hidden><label><input type="checkbox" id="pipeline-consent"> <span data-leo-es="Autorizo guardar esta conversación para preparar una propuesta." data-leo-en="I consent to saving this conversation to prepare a proposal.">Autorizo guardar esta conversación para preparar una propuesta.</span></label> <span data-leo-es="Podés escribir «retirar consentimiento» para detener el seguimiento." data-leo-en="Type “withdraw consent” to stop follow-up.">Podés escribir «retirar consentimiento» para detener el seguimiento.</span></p><form id="form"><input id="message" autocomplete="off" maxlength="800" placeholder="Escribe tu respuesta" required><button type="button" id="mic" aria-label="Micrófono">🎙️ Micrófono</button><button type="button" id="leo-attach" aria-label="Adjuntar archivo">📎 Adjuntar</button><input id="leo-file" type="file" accept=".pdf,.txt,.csv" hidden><button id="send">Enviar</button><a class="email-button" href="mailto:ricardo.boltechgroup@gmail.com?subject=Consulta%20comercial%20Boltech%20Group"><span data-leo-es="✉ Enviar correo a Boltech Group" data-leo-en="✉ Email Boltech Group">✉ Enviar correo a Boltech Group</span></a><button type="button" id="sound">Voz</button><button type="button" id="voice-test">Probar voz de Leo</button><span id="voice-status" role="status"></span></form><p id="leo-file-status" role="status" style="color:#e5c57d"></p><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" id="leo-quick">📋 Solicitud rápida</button><button type="button" id="leo-detail">📋 Solicitud detallada</button></div>
 <form id="leo-questionnaire" hidden style="display:none;border:1px solid #5b5140;padding:16px;border-radius:12px">
 <h2 id="leo-questionnaire-title"></h2><div id="leo-questionnaire-fields" style="width:100%"></div><label><input type="checkbox" id="leo-questionnaire-consent" required> <span id="leo-questionnaire-consent-text">Autorizo guardar mi solicitud para preparar una propuesta.</span></label><div><button id="leo-questionnaire-submit" type="submit">Enviar solicitud</button> <button id="leo-questionnaire-close" type="button">Cerrar</button></div><p id="leo-questionnaire-status" role="status"></p></form>
-<p><a href="/customer-setup" class="email-button"><span data-leo-es="Catálogo y preguntas frecuentes" data-leo-en="Catalog &amp; FAQ">Catálogo y preguntas frecuentes</span></a> · <a href="/manual-usuario"><span data-leo-es="Manual de usuario" data-leo-en="User manual">Manual de usuario</span></a></p><details id="private-integrations"><summary><span data-leo-es="Integraciones privadas" data-leo-en="Private integrations">Integraciones privadas</span></summary><p><span data-leo-es="Inicia sesión una vez para recordar tu acceso durante 30 días en este navegador. No compartas tu clave en el chat." data-leo-en="Sign in once to remember your access for 30 days in this browser. Do not share your key in the chat.">Inicia sesión una vez para recordar tu acceso durante 30 días en este navegador. No compartas tu clave en el chat.</span></p><input id="platform-token" type="password" autocomplete="off" placeholder="Token privado de Leo (LEO_PLATFORM_TOKEN)"><button type="button" id="owner-login"><span data-leo-es="Iniciar sesión" data-leo-en="Sign in">Iniciar sesión</span></button><button type="button" id="owner-logout" hidden><span data-leo-es="Cerrar sesión" data-leo-en="Sign out">Cerrar sesión</span></button><p id="owner-session-status" role="status">Comprobando sesión…</p><button type="button" id="integration-check"><span data-leo-es="Verificar conexiones" data-leo-en="Check connections">Verificar conexiones</span></button><p><span data-leo-es="Consultas: /freelancer automatización · /upwork automatización · /explee clínicas en El Salvador. Lectura únicamente; sin postulaciones, mensajes ni campañas." data-leo-en="Queries: /freelancer automation · /upwork automation · /explee clinics in El Salvador. Read only; no applications, messages or campaigns.">Consultas: /freelancer automatización · /upwork automatización · /explee clínicas en El Salvador. Lectura únicamente; sin postulaciones, mensajes ni campañas.</span></p><button type="button" id="upwork-connect"><span data-leo-es="Conectar Upwork" data-leo-en="Connect Upwork">Conectar Upwork</span></button><span id="upwork-authorization"></span><pre id="integration-status" role="status" style="white-space:pre-wrap"></pre></details><details id="objective-access"><summary><span data-leo-es="Objetivos autorizados" data-leo-en="Authorized objectives">Objetivos autorizados</span></summary><p><span data-leo-es="Para guardar objetivos necesitás un token de acceso emitido por el administrador. Nunca compartas contraseñas ni códigos por chat." data-leo-en="Saving objectives requires an administrator-issued access token. Never share passwords or codes in the chat.">Para guardar objetivos necesitás un token de acceso emitido por el administrador. Nunca compartas contraseñas ni códigos por chat.</span></p><input id="objective-token" type="password" autocomplete="off" placeholder="Token de acceso / Access token"><p><span data-leo-es="Podés decir «Quiero automatizar las respuestas de WhatsApp»; Leo propondrá registrar un objetivo. El registro no ejecuta envíos." data-leo-en="You can say “I want to automate WhatsApp replies”; Leo will suggest recording an objective. Registration does not send messages.">Podés decir «Quiero automatizar las respuestas de WhatsApp»; Leo propondrá registrar un objetivo. El registro no ejecuta envíos.</span></p></details><details id="lead-intake"><summary><span data-leo-es="Solicitar propuesta a Leo" data-leo-en="Request a proposal from Leo">Solicitar propuesta a Leo</span></summary>
+<p><a href="/customer-setup" class="email-button"><span data-leo-es="Catálogo y preguntas frecuentes" data-leo-en="Catalog &amp; FAQ">Catálogo y preguntas frecuentes</span></a> · <a href="/manual-usuario"><span data-leo-es="Manual de usuario" data-leo-en="User manual">Manual de usuario</span></a></p><details id="private-integrations"><summary><span data-leo-es="Integraciones privadas" data-leo-en="Private integrations">Integraciones privadas</span></summary><p><span data-leo-es="Inicia sesión una vez para recordar tu acceso durante 30 días en este navegador. No compartas tu clave en el chat." data-leo-en="Sign in once to remember your access for 30 days in this browser. Do not share your key in the chat.">Inicia sesión una vez para recordar tu acceso durante 30 días en este navegador. No compartas tu clave en el chat.</span></p><input id="platform-token" type="password" autocomplete="off" placeholder="Token privado de Leo (LEO_PLATFORM_TOKEN)"><button type="button" id="owner-login"><span data-leo-es="Iniciar sesión" data-leo-en="Sign in">Iniciar sesión</span></button><button type="button" id="owner-logout" hidden><span data-leo-es="Cerrar sesión" data-leo-en="Sign out">Cerrar sesión</span></button><p id="owner-session-status" role="status"><span data-leo-es="Comprobando sesión…" data-leo-en="Checking session…">Comprobando sesión…</span></p><button type="button" id="integration-check"><span data-leo-es="Verificar conexiones" data-leo-en="Check connections">Verificar conexiones</span></button><p><span data-leo-es="Consultas: /freelancer automatización · /upwork automatización · /explee clínicas en El Salvador. Lectura únicamente; sin postulaciones, mensajes ni campañas." data-leo-en="Queries: /freelancer automation · /upwork automation · /explee clinics in El Salvador. Read only; no applications, messages or campaigns.">Consultas: /freelancer automatización · /upwork automatización · /explee clínicas en El Salvador. Lectura únicamente; sin postulaciones, mensajes ni campañas.</span></p><button type="button" id="upwork-connect"><span data-leo-es="Conectar Upwork" data-leo-en="Connect Upwork">Conectar Upwork</span></button><span id="upwork-authorization"></span><pre id="integration-status" role="status" style="white-space:pre-wrap"></pre></details><details id="objective-access"><summary><span data-leo-es="Objetivos autorizados" data-leo-en="Authorized objectives">Objetivos autorizados</span></summary><p><span data-leo-es="Para guardar objetivos necesitás un token de acceso emitido por el administrador. Nunca compartas contraseñas ni códigos por chat." data-leo-en="Saving objectives requires an administrator-issued access token. Never share passwords or codes in the chat.">Para guardar objetivos necesitás un token de acceso emitido por el administrador. Nunca compartas contraseñas ni códigos por chat.</span></p><input id="objective-token" type="password" autocomplete="off" placeholder="Token de acceso / Access token"><p><span data-leo-es="Podés decir «Quiero automatizar las respuestas de WhatsApp»; Leo propondrá registrar un objetivo. El registro no ejecuta envíos." data-leo-en="You can say “I want to automate WhatsApp replies”; Leo will suggest recording an objective. Registration does not send messages.">Podés decir «Quiero automatizar las respuestas de WhatsApp»; Leo propondrá registrar un objetivo. El registro no ejecuta envíos.</span></p></details><details id="lead-intake"><summary><span data-leo-es="Solicitar propuesta a Leo" data-leo-en="Request a proposal from Leo">Solicitar propuesta a Leo</span></summary>
 <p><span data-leo-es="Con tu autorización, Leo guardará tu solicitud para revisión comercial. No se envía ningún mensaje ni se realiza cobro automáticamente." data-leo-en="With your consent, Leo will save your request for commercial review. No messages or charges are made automatically.">Con tu autorización, Leo guardará tu solicitud para revisión comercial. No se envía ningún mensaje ni se realiza cobro automáticamente.</span></p>
 <form id="lead-intake-form" style="display:block">
-<label><span data-leo-es="Empresa" data-leo-en="Company"><span data-leo-es="Empresa" data-leo-en="Company">Empresa</span></span> <input id="lead-company" maxlength="120" required></label>
+<label><span data-leo-es="Empresa" data-leo-en="Company">Empresa</span> <input id="lead-company" maxlength="120" required></label>
 <label> <span data-leo-es="Nombre" data-leo-en="Name">Nombre</span> <input id="lead-contact" maxlength="120" required></label>
 <label> <span data-leo-es="Correo" data-leo-en="Email">Correo</span> <input id="lead-email" type="email" maxlength="254" required></label>
-<label> <span data-leo-es="Necesidad" data-leo-en="Need"><span data-leo-es="Necesidad" data-leo-en="Need">Necesidad</span></span> <textarea id="lead-need" rows="3" maxlength="1000" minlength="12" required style="display:block;width:100%;box-sizing:border-box;background:#1a1c20;color:white;border:1px solid #5b5140;border-radius:10px;padding:12px"></textarea></label>
+<label> <span data-leo-es="Necesidad" data-leo-en="Need">Necesidad</span> <textarea id="lead-need" rows="3" maxlength="1000" minlength="12" required style="display:block;width:100%;box-sizing:border-box;background:#1a1c20;color:white;border:1px solid #5b5140;border-radius:10px;padding:12px"></textarea></label>
 <input id="lead-website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px">
 <label><input type="checkbox" id="lead-consent" required> <span data-leo-es="Autorizo a Boltech a guardar estos datos para preparar una cotización. Los seguimientos por correo o WhatsApp requieren autorización y verificación aparte." data-leo-en="I authorize Boltech to store these details to prepare a quote. Email or WhatsApp follow-ups require separate authorization and verification.">Autorizo a Boltech a guardar estos datos para preparar una cotización. Los seguimientos por correo o WhatsApp requieren autorización y verificación aparte.</span></label>
 <button type="submit" id="lead-save"><span data-leo-es="Registrar solicitud" data-leo-en="Register request">Registrar solicitud</span></button></form>
@@ -45,11 +45,14 @@ const player=new Audio();
 let generation=0, objectUrl=null;
 let restartTimer=null, emptyEnds=0, heardSpeech=false, speechRequest=null;
 const message=(es,en)=>language==='es'?es:en;
+const localizedMessages=new Map();
+function localizedText(el,es,en){const rendered=message(es,en);el.textContent=rendered;localizedMessages.set(el,{es,en,rendered});}
+function refreshLocalizedMessages(){for(const [el,entry] of localizedMessages){if(!el.isConnected||el.textContent!==entry.rendered){localizedMessages.delete(el);continue;}localizedText(el,entry.es,entry.en);}}
 function clearRestart(){clearTimeout(restartTimer);restartTimer=null;}
 function disableListening(reason=''){
   autoListen=false;clearRestart();stopVoice();
   mic.setAttribute('aria-pressed','false');updateLanguageControls();
-  if(reason)voiceStatus.textContent=reason;
+  if(Array.isArray(reason))localizedText(voiceStatus,...reason);else if(reason)voiceStatus.textContent=reason;
 }
 function scheduleListening(delay=700){
   clearRestart();
@@ -75,7 +78,7 @@ function startAutoListening(){
   if(!autoListen||!recognition||listening||busy||playing||document.hidden)return;
   clearRestart();heardSpeech=false;
   recognition.lang=language==='es'?'es-SV':'en-US';
-  try{recognition.start();listening=true;}catch(e){disableListening(message('Toca Hablar para reintentar. ','Tap Speak to retry. ')+e.message);}
+  try{recognition.start();listening=true;}catch(e){disableListening(['Toca Hablar para reintentar. '+e.message,'Tap Speak to retry. '+e.message]);}
 }
 async function speak(text){
   if(!voiceEnabled)return;
@@ -94,7 +97,7 @@ async function speak(text){
     objectUrl=URL.createObjectURL(blob);
     player.src=objectUrl;
     player.onended=()=>{stopLeoSpeech();scheduleListening();};
-    player.onerror=()=>{stopLeoSpeech();disableListening(message('Error de audio. Toca Probar voz para reintentar.','Audio failed. Tap Test voice to retry.'));};
+    player.onerror=()=>{stopLeoSpeech();disableListening(['Error de audio. Toca Probar voz para reintentar.','Audio failed. Tap Test voice to retry.']);};
     await player.play();
     if(request!==generation)return;
     document.querySelector('.mascot').classList.add('speaking');
@@ -103,7 +106,7 @@ async function speak(text){
     if(request!==generation)return;
     stopLeoSpeech();
     voiceStatus.textContent=message('No se pudo reproducir la voz. ','Playback failed. ')+(e.message||'');
-    disableListening(message('Toca Probar voz para reintentar. ','Tap Test voice to retry. ')+(e.message||''));
+    disableListening(['Toca Probar voz para reintentar. '+(e.message||''),'Tap Test voice to retry. '+(e.message||'')]);
   }finally{clearTimeout(timeout);if(speechRequest===controller)speechRequest=null;}
 }
 sound.onclick=()=>{
@@ -127,13 +130,13 @@ if(SpeechRecognition){
   };
   recognition.onerror=e=>{
     if(e.error==='aborted'||e.error==='no-speech')return;
-    disableListening(message('No se pudo escuchar. Toca Hablar para reintentar. ','Could not listen. Tap Speak to retry. ')+e.error);
+    disableListening(['No se pudo escuchar. Toca Hablar para reintentar. '+e.error,'Could not listen. Tap Speak to retry. '+e.error]);
   };
   recognition.onend=()=>{
     listening=false;
     if(!autoListen||busy||playing||document.hidden)return;
     emptyEnds=heardSpeech?0:emptyEnds+1;
-    if(emptyEnds>=3){disableListening(message('La escucha se pausó al no recibir voz. Toca Hablar para continuar.','Listening paused without speech. Tap Speak to continue.'));return;}
+    if(emptyEnds>=3){disableListening(['La escucha se pausó al no recibir voz. Toca Hablar para continuar.','Listening paused without speech. Tap Speak to continue.']);return;}
     scheduleListening(heardSpeech?700:1500*2**(emptyEnds-1));
   };
   mic.onclick=()=>{
@@ -141,7 +144,7 @@ if(SpeechRecognition){
     mic.setAttribute('aria-pressed',String(autoListen));updateLanguageControls();
     if(autoListen){emptyEnds=0;voiceStatus.textContent='';stopLeoSpeech();startAutoListening();}else stopVoice();
   };
-}else{mic.disabled=true;voiceStatus.textContent=message('Dictado no disponible en este navegador.','Voice input unavailable in this browser.');}
+}else{mic.disabled=true;localizedText(voiceStatus,'Dictado no disponible en este navegador.','Voice input unavailable in this browser.');}
 document.addEventListener('visibilitychange',()=>{if(document.hidden){disableListening();stopLeoSpeech();}});
 const ownerToken=document.getElementById('platform-token');
 const ownerStatus=document.getElementById('owner-session-status');
@@ -150,9 +153,7 @@ let ownerAuthenticated=false,ownerLoginPending=null;
 function showOwnerSession(data){
  ownerAuthenticated=data.authenticated===true;
  ownerToken.hidden=ownerAuthenticated;ownerLogin.hidden=ownerAuthenticated;ownerLogout.hidden=!ownerAuthenticated;
- ownerStatus.textContent=ownerAuthenticated
-  ? message('Sesión de propietario activa. Se recuerda durante 30 días en este navegador.','Owner session active. Remembered for 30 days in this browser.')
-  : message('Ingresa tu clave privada de Leo una vez para iniciar sesión.','Enter your private Leo key once to sign in.');
+ localizedText(ownerStatus,...(ownerAuthenticated?['Sesión de propietario activa. Se recuerda durante 30 días en este navegador.','Owner session active. Remembered for 30 days in this browser.']:['Ingresa tu clave privada de Leo una vez para iniciar sesión.','Enter your private Leo key once to sign in.']));
  if(ownerAuthenticated)ownerToken.value='';
 }
 async function ownerSessionCall(method,token){
@@ -161,7 +162,7 @@ async function ownerSessionCall(method,token){
  const data=await response.json();if(!response.ok||!data.success)throw Error(data.error||'OWNER_SESSION_UNAVAILABLE');return data;
 }
 const ownerSessionReady=ownerSessionCall('GET').then(showOwnerSession).catch(()=>{
- showOwnerSession({authenticated:false});ownerStatus.textContent=message('No se pudo comprobar la sesión. Puedes intentar iniciar sesión.','Could not check the session. You can try signing in.');
+ showOwnerSession({authenticated:false});localizedText(ownerStatus,'No se pudo comprobar la sesión. Puedes intentar iniciar sesión.','Could not check the session. You can try signing in.');
 });
 async function ensureOwnerSession(){
  await ownerSessionReady;
@@ -200,13 +201,13 @@ async function integrationRequest(body){
 document.getElementById('upwork-connect').onclick=async()=>{
  const output=document.getElementById('integration-status'),target=document.getElementById('upwork-authorization');
  const button=document.getElementById('upwork-connect');button.disabled=true;
- target.replaceChildren();output.textContent=message('Comprobando el registro de Leo en Upwork…','Checking Leo’s Upwork registration…');
+ target.replaceChildren();localizedText(output,'Comprobando el registro de Leo en Upwork…','Checking Leo’s Upwork registration…');
  try{
   const response=await ownerFetch('/api/upwork/start',{method:'POST',signal:AbortSignal.timeout(15000)});
   const data=await response.json();if(!response.ok||!data.success)throw Error(data.error||'UPWORK_AUTHORIZATION_FAILED');
   const url=new URL(data.authorizationUrl);if(url.origin!=='https://www.upwork.com'||url.pathname!=='/ab/account-security/oauth2/authorize')throw Error('UPWORK_AUTHORIZATION_URL_INVALID');
-  const link=document.createElement('a');link.href=url.href;link.target='_blank';link.rel='noopener noreferrer';link.textContent='Autorizar en Upwork / Authorize on Upwork';target.appendChild(link);
-  output.textContent='Abre Autorizar en Upwork. Después vuelve aquí y pulsa Verificar conexiones. / Open Authorize on Upwork, then return and check connections.';
+  const link=document.createElement('a');link.href=url.href;link.target='_blank';link.rel='noopener noreferrer';localizedText(link,'Autorizar en Upwork','Authorize on Upwork');target.appendChild(link);
+  localizedText(output,'Abre Autorizar en Upwork. Después vuelve aquí y pulsa Verificar conexiones.','Open Authorize on Upwork, then return and check connections.');
  }catch(error){
   const reasons={
    UPWORK_CLIENT_REGISTRATION_DENIED:message('Upwork rechazó el registro de Leo con su dirección de Cloudflare. La conexión sigue pendiente; iniciar sesión otra vez no resuelve este bloqueo. Solicita a soporte de Upwork la aprobación de https://boltech-group.pages.dev/api/upwork/callback.','Upwork rejected Leo’s registration with its Cloudflare callback. The connection remains pending; signing in again will not resolve this block. Ask Upwork Support to approve https://boltech-group.pages.dev/api/upwork/callback.'),
@@ -217,7 +218,7 @@ document.getElementById('upwork-connect').onclick=async()=>{
  }finally{button.disabled=false;}
 };
 document.getElementById('integration-check').onclick=async()=>{
- const output=document.getElementById('integration-status');output.textContent='Verificando / Checking...';
+ const output=document.getElementById('integration-status');localizedText(output,'Verificando…','Checking…');
  try{
   const status=await integrationRequest({action:'status'});const lines=[];
   for(const platform of ['freelancer','upwork','explee']){
@@ -261,15 +262,15 @@ deal('deal-load').onclick=async()=>{try{await commercialFetch(null,deal('deal-id
 deal('deal-onboard').onclick=async()=>{
  try{
   const id=deal('deal-id').value.trim();
-  if(!commercialVersion||!/^[a-f0-9-]{36}$/.test(id))throw Error('Recupera una oportunidad válida primero.');
-  if(!confirm('Preparar ficha privada para un cierre ya aprobado. Esto NO confirma pago, activa el agente ni envía el enlace. ¿Continuar?'))return;
+  if(!commercialVersion||!/^[a-f0-9-]{36}$/.test(id))throw Error(message('Recupera una oportunidad válida primero.','Retrieve a valid opportunity first.'));
+  if(!confirm(message('Preparar ficha privada para un cierre ya aprobado. Esto NO confirma pago, activa el agente ni envía el enlace. ¿Continuar?','Prepare a private record for an approved closure. This does NOT confirm payment, activate the agent or send the link. Continue?')))return;
   const response=await ownerFetch('/api/leo-execute',{method:'POST',headers:{'Content-Type':'application/json'},signal:AbortSignal.timeout(15000),
    body:JSON.stringify({action:'prepare_onboarding',id,expectedVersion:commercialVersion,confirmed:true})});
   const result=await response.json().catch(()=>({error:'INVALID_RESPONSE'}));
   if(!response.ok||!result.success)throw Error(result.error||'ONBOARDING_UNAVAILABLE');
   commercialVersion=result.recordVersion;
-  deal('deal-output').textContent='Ficha creada para revisión. No se ha enviado el enlace ni se ha activado un agente. Pedido: '+result.afterSales.orderId;
-  const link=document.createElement('a');link.href=result.invitationUrl;link.textContent='Abrir ficha privada del cliente (solo propietario)';link.rel='noopener noreferrer';
+  const notice=document.createElement('span');localizedText(notice,'Ficha creada para revisión. No se ha enviado el enlace ni se ha activado un agente. Pedido: '+result.afterSales.orderId,'Record prepared for review. No link sent or agent activated. Order: '+result.afterSales.orderId);deal('deal-output').replaceChildren(notice);
+  const link=document.createElement('a');link.href=result.invitationUrl;localizedText(link,'Abrir ficha privada del cliente (solo propietario)','Open private customer record (owner only)');link.rel='noopener noreferrer';
   deal('deal-output').appendChild(document.createTextNode('\n'));deal('deal-output').appendChild(link);
  }catch(error){deal('deal-output').textContent=error.message;}
 };
@@ -277,7 +278,7 @@ deal('deal-onboard').onclick=async()=>{
 deal('deal-execute').onclick=async()=>{
  try{
   const id=deal('deal-id').value.trim();
-  if(!commercialVersion||!/^[a-f0-9-]{36}$/.test(id))throw Error('Recupera primero una oportunidad válida.');
+  if(!commercialVersion||!/^[a-f0-9-]{36}$/.test(id))throw Error(message('Recupera primero una oportunidad válida.','Retrieve a valid opportunity first.'));
   const response=await ownerFetch('/api/leo-execute',{method:'POST',headers:{'Content-Type':'application/json'},signal:AbortSignal.timeout(15000),
    body:JSON.stringify({action:'prepare',id,expectedVersion:commercialVersion})});
   const result=await response.json().catch(()=>({error:'INVALID_RESPONSE'}));
@@ -289,14 +290,14 @@ deal('deal-execute').onclick=async()=>{
 
 deal('deal-submit').onclick=async()=>{
  try{
-  if(!commercialVersion)throw Error('Primero recupera o crea un expediente.');
+  if(!commercialVersion)throw Error(message('Primero recupera o crea un expediente.','Retrieve or create a record first.'));
   const action=deal('deal-action').value,parts=deal('deal-details').value.split('|').map(s=>s.trim());
   let fields={};
-  if(action==='qualify'){if(parts.length!==3)throw Error(dealHelp.qualify);fields={budget:parts[0],timeline:parts[1],decisionMaker:parts[2]};}
-  if(action==='proposal'){if(parts.length!==3||!/^(?:\d+)(?:\.\d{1,2})?$/.test(parts[2]))throw Error(dealHelp.proposal);fields={scope:parts[0],exclusions:parts[1],amountCents:Math.round(Number(parts[2])*100)};}
-  if(action==='approve'){if(parts[0]!=='APROBAR')throw Error('Debes escribir APROBAR.');fields={confirmed:true};}
-  if(action==='followup'){if(parts.length!==3||parts[2]!=='DRAFT')throw Error(dealHelp.followup);fields={note:parts[0],channel:parts[1],sent:false};}
-  if(action==='close'){if(parts.length!==3||parts[2]!=='ACEPTADO'&&parts[0]==='WON')throw Error(dealHelp.close);fields={outcome:parts[0],evidence:parts[1],confirmed:true,customerAccepted:parts[0]==='WON'&&parts[2]==='ACEPTADO'};}
+  if(action==='qualify'){if(parts.length!==3)throw Error(message(...dealHelp.qualify));fields={budget:parts[0],timeline:parts[1],decisionMaker:parts[2]};}
+  if(action==='proposal'){if(parts.length!==3||!/^(?:\d+)(?:\.\d{1,2})?$/.test(parts[2]))throw Error(message(...dealHelp.proposal));fields={scope:parts[0],exclusions:parts[1],amountCents:Math.round(Number(parts[2])*100)};}
+  if(action==='approve'){if(parts[0]!=='APROBAR')throw Error(message('Debes escribir APROBAR.','You must type APROBAR.'));fields={confirmed:true};}
+  if(action==='followup'){if(parts.length!==3||parts[2]!=='DRAFT')throw Error(message(...dealHelp.followup));fields={note:parts[0],channel:parts[1],sent:false};}
+  if(action==='close'){if(parts.length!==3||parts[2]!=='ACEPTADO'&&parts[0]==='WON')throw Error(message(...dealHelp.close));fields={outcome:parts[0],evidence:parts[1],confirmed:true,customerAccepted:parts[0]==='WON'&&parts[2]==='ACEPTADO'};}
   await commercialFetch({action,id:deal('deal-id').value.trim(),expectedVersion:commercialVersion,...fields});
  }catch(e){deal('deal-output').textContent=e.message;}
 };
@@ -312,13 +313,13 @@ document.getElementById('lead-intake-form').onsubmit=async event=>{
   const response=await fetch('/api/leo-public-intake',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data),signal:AbortSignal.timeout(15000)});
   const result=await response.json().catch(()=>({error:'INTAKE_RESPONSE_INVALID'}));
   if(!response.ok||!result.success)throw Error(result.error||'INTAKE_FAILED');
-  output.textContent='Solicitud recibida. Referencia: '+result.reference+' / Request received. Reference: '+result.reference;
+  localizedText(output,'Solicitud recibida. Referencia: '+result.reference,'Request received. Reference: '+result.reference);
   if(result.questionKey)pipelineQuestion=result.questionKey;
   if(result.persistence==='SUPABASE_CONFIRMED'){pipelineIntakePending=null;document.getElementById('pipeline-consent').checked=true;}
   if(result.reply)add(result.reply,'agent');
-  if(result.persistence==='QUEUED')output.textContent+=' · Guardada para reintento; pendiente de confirmar en Supabase.';
+  if(result.persistence==='QUEUED')localizedText(output,'Solicitud recibida. Referencia: '+result.reference+' · Guardada para reintento; pendiente de confirmar en Supabase.','Request received. Reference: '+result.reference+' · Queued for retry; awaiting Supabase confirmation.');
   else document.getElementById('lead-intake-form').reset();
- }catch(error){output.textContent='No se pudo registrar la solicitud / Could not save request: '+error.message;}
+ }catch(error){localizedText(output,'No se pudo registrar la solicitud: '+error.message,'Could not save request: '+error.message);}
  finally{button.disabled=false;}
 };
 
@@ -338,25 +339,25 @@ function pipelineDisplay(rec){
 pipelineElement('pipeline-list').onclick=async()=>{
  try{
   const result=await pipelineRequest();const container=pipelineElement('pipeline-items');container.replaceChildren();
-  for(const rec of result.records){const button=document.createElement('button');button.type='button';button.textContent=(rec.company||'Empresa pendiente')+' · '+rec.status+' · '+rec.id;button.onclick=async()=>{try{pipelineDisplay((await pipelineRequest(null,rec.id)).record);}catch(error){pipelineElement('pipeline-status').textContent=error.message;}};container.append(button);}
-  pipelineElement('pipeline-status').textContent=JSON.stringify(result.outbox||[])+' · '+result.records.length+' expedientes (hasta 50 más recientes). Avisos y seguimientos pendientes se muestran al abrir cada expediente.';
+  for(const rec of result.records){const button=document.createElement('button');button.type='button';localizedText(button,(rec.company||'Empresa pendiente')+' · '+rec.status+' · '+rec.id,(rec.company||'Company pending')+' · '+rec.status+' · '+rec.id);button.onclick=async()=>{try{pipelineDisplay((await pipelineRequest(null,rec.id)).record);}catch(error){pipelineElement('pipeline-status').textContent=error.message;}};container.append(button);}
+  localizedText(pipelineElement('pipeline-status'),JSON.stringify(result.outbox||[])+' · '+result.records.length+' expedientes (hasta 50 más recientes). Avisos y seguimientos pendientes se muestran al abrir cada expediente.',JSON.stringify(result.outbox||[])+' · '+result.records.length+' records (up to the latest 50). Pending notices and follow-ups appear when opening each record.');
  }catch(error){pipelineElement('pipeline-status').textContent=error.message;}
 };
 for(const button of document.querySelectorAll('[data-pipeline]'))button.onclick=async()=>{
  try{
-  if(!pipelineCurrent)throw Error('Seleccioná un expediente primero.');
+  if(!pipelineCurrent)throw Error(message('Seleccioná un expediente primero.','Select a record first.'));
   const action=button.dataset.pipeline,price=pipelineElement('pipeline-price').value.trim();
   const data={action,id:pipelineCurrent.id,expectedVersion:pipelineCurrent.version,requestId:crypto.randomUUID(),note:pipelineElement('pipeline-note').value};
   if(action==='proposal'){
-   if(price&&!/^\d+(?:\.\d{1,2})?$/.test(price))throw Error('Precio inválido.');
+   if(price&&!/^\d+(?:\.\d{1,2})?$/.test(price))throw Error(message('Precio inválido.','Invalid price.'));
    Object.assign(data,{scope:pipelineElement('pipeline-scope').value,exclusions:pipelineElement('pipeline-exclusions').value,amountCents:price?Math.round(Number(price)*100):null});
   }
   if(action==='approve'){
-   if(!confirm('Aprobar esta versión e importe para uso interno. No se enviará al cliente. ¿Continuar?'))return;
+   if(!confirm(message('Aprobar esta versión e importe para uso interno. No se enviará al cliente. ¿Continuar?','Approve this version and amount for internal use. It will not be sent to the customer. Continue?')))return;
    data.confirmed=true;data.proposalRevision=pipelineCurrent.proposal.revision;
   }
   if(action==='followup')data.channel='INTERNAL';
-  pipelineDisplay((await pipelineRequest(data)).record);pipelineElement('pipeline-status').textContent='Guardado y confirmado en Supabase. Ningún mensaje enviado.';
+  pipelineDisplay((await pipelineRequest(data)).record);localizedText(pipelineElement('pipeline-status'),'Guardado y confirmado en Supabase. Ningún mensaje enviado.','Saved and confirmed in Supabase. No message sent.');
  }catch(error){pipelineElement('pipeline-status').textContent=error.message;}
 };
 (async()=>{
@@ -401,7 +402,10 @@ let qMode='',qId=null,qFingerprint='';
 const qBasic=[['contact','Nombre','Name',120,true],['company','Empresa','Company',120,true],['email','Correo','Email',254,true],['process','Proceso a automatizar','Process to automate',220,true],['problem','Problema principal','Main problem',160,true],['goal','Resultado esperado','Expected result',130,true]];
 const qExtra=[['area','Departamento y responsables','Department and owners',75,false],['tools','Herramientas actuales','Current tools',80,false],['volume','Volumen y frecuencia','Volume and frequency',45,false],['budget','Presupuesto','Budget',35,false],['timeline','Plazo','Timeline',35,false],['limits','Restricciones','Constraints',65,false]];
 function updateLeoToolsLanguage(){
+ refreshLocalizedMessages();
  updateDealHelp();
+ document.querySelector('.mascot').setAttribute('aria-label',message('Leo, asistente de leads de Boltech','Leo, Boltech lead assistant'));
+ document.getElementById('deal-id').setAttribute('aria-label',message('ID del expediente','Record ID'));
  for(const el of document.querySelectorAll('[data-leo-en]'))el.textContent=message(el.dataset.leoEs,el.dataset.leoEn);
  document.title=message('Leo · Ventas Boltech','Leo · Boltech Sales');
  const placeholders={'platform-token':['Token privado de Leo (LEO_PLATFORM_TOKEN)','Leo private token (LEO_PLATFORM_TOKEN)'],'objective-token':['Token de acceso','Access token'],'deal-id':['ID de oportunidad','Opportunity ID'],'deal-details':['Completa los datos indicados','Enter the requested details']};
