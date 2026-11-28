@@ -106,6 +106,27 @@
     <button type="submit">Enviar mis datos</button>
     <p id="advisor-capture-status" role="status" aria-live="polite"></p>
   </form>
+  <div style="padding:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;color:#cbd5e1;font-size:12px">
+    <button id="advisor-mic" type="button" aria-label="Dictar mensaje">🎙️ Hablar</button>
+    <button id="advisor-audio" type="button" aria-pressed="false">🔊 Voz</button>
+    <button id="advisor-attach" type="button">📎 Adjuntar</button>
+    <input id="advisor-file" type="file" accept=".pdf,.txt,.csv" hidden>
+    <span id="advisor-file-info" role="status"></span>
+  </div>
+  <p id="advisor-file-notice" hidden style="font-size:11px;color:#cbd5e1;padding:0 10px">El documento se enviará a Gemini para analizarlo. No incluyas secretos ni datos personales innecesarios. PDF, TXT o CSV, máximo 10 MB.</p>
+  <div id="advisor-form-actions" style="display:flex;gap:8px;padding:8px">
+    <button id="advisor-quick" type="button">Solicitud rápida</button>
+    <button id="advisor-detail" type="button">Solicitud detallada</button>
+  </div>
+  <form id="advisor-inquiry" hidden style="overflow-y:auto;max-height:70%;padding:12px;color:#e2e8f0;background:#0f172a">
+    <h3 id="advisor-inquiry-title" style="margin:0 0 8px"></h3>
+    <p style="font-size:12px">Completa los datos. No incluyas contraseñas ni información confidencial.</p>
+    <div id="advisor-inquiry-fields"></div>
+    <label style="display:block;font-size:12px;margin-top:10px"><input id="advisor-inquiry-consent" type="checkbox" required> Autorizo el registro de mi solicitud para recibir una evaluación comercial. No autoriza envíos automáticos.</label>
+    <button type="submit" id="advisor-inquiry-submit">Enviar solicitud</button>
+    <button type="button" id="advisor-inquiry-close">Cerrar</button>
+    <p id="advisor-inquiry-status" role="status" aria-live="polite"></p>
+  </form>
   <div id="advisor-input-row">
     <input id="advisor-input" type="text" placeholder="Escribe tu pregunta..." autocomplete="off" maxlength="1000" aria-label="Escribe tu pregunta">
     <button id="advisor-send" type="button">Enviar</button>
@@ -127,6 +148,87 @@
   var capture = document.getElementById('advisor-capture');
   var captureStatus = document.getElementById('advisor-capture-status');
   var history = [];
+  var attachment = null, voiceOn = false, lastReply = '', recognition;
+  var mic = document.getElementById('advisor-mic'), audio = document.getElementById('advisor-audio');
+  var file = document.getElementById('advisor-file'), fileInfo = document.getElementById('advisor-file-info');
+  var attach = document.getElementById('advisor-attach'), notice = document.getElementById('advisor-file-notice');
+  var language = function(){return (document.documentElement.lang || 'es').startsWith('en')?'en-US':'es-SV';};
+  function speak(text){
+    if(!window.speechSynthesis || !window.SpeechSynthesisUtterance)return;
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);u.lang=language();
+    var voices=window.speechSynthesis.getVoices();
+    var v=voices.find(function(v){return v.lang===u.lang;})||voices.find(function(v){return v.lang===(u.lang==='es-SV'?'es-MX':'en-US');})||voices.find(function(v){return v.lang.startsWith(u.lang.slice(0,2));});
+    if(v)u.voice=v;window.speechSynthesis.speak(u);
+  }
+  audio.addEventListener('click',function(){
+    if(!window.speechSynthesis){addMsg('La reproducción de voz no está disponible en este navegador.','bot');return;}
+    voiceOn=!voiceOn;audio.setAttribute('aria-pressed',String(voiceOn));audio.textContent=voiceOn?'🔊 Voz activa':'🔊 Voz';
+    if(voiceOn&&lastReply)speak(lastReply);else if(!voiceOn)window.speechSynthesis.cancel();
+  });
+  mic.addEventListener('click',function(){
+    if(send.disabled)return;
+    var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!SR){addMsg('El dictado no está disponible en este navegador. Puedes escribir o adjuntar un archivo.','bot');return;}
+    if(recognition){recognition.stop();return;}
+    recognition=new SR();recognition.lang=language();recognition.interimResults=false;
+    recognition.onresult=function(e){input.value=e.results[0][0].transcript;};
+    recognition.onerror=function(){addMsg('No pude captar tu voz. Revisa el permiso del micrófono.','bot');};
+    recognition.onend=function(){recognition=null;mic.textContent='🎙️ Hablar';};
+    try{if(window.speechSynthesis)window.speechSynthesis.cancel();recognition.start();mic.textContent='⏹ Detener';}catch(e){recognition=null;mic.textContent='🎙️ Hablar';}
+  });
+  attach.addEventListener('click',function(){if(!send.disabled)file.click();});
+  file.addEventListener('change',function(){
+    var f=file.files[0];attachment=null;fileInfo.textContent='';notice.hidden=true;
+    if(!f)return;
+    var ext=f.name.split('.').pop().toLowerCase(),mime={pdf:'application/pdf',txt:'text/plain',csv:'text/csv'}[ext];
+    if(!mime||!f.size||f.size>10*1024*1024){file.value='';addMsg('Selecciona un PDF, TXT o CSV de hasta 10 MB.','bot');return;}
+    attachment={file:f,mime:mime};fileInfo.textContent=f.name;notice.hidden=false;
+  });
+  var inquiry=document.getElementById('advisor-inquiry'), fields=document.getElementById('advisor-inquiry-fields'), inquiryStatus=document.getElementById('advisor-inquiry-status'), inquirySubmit=document.getElementById('advisor-inquiry-submit');
+  var inquiryMode='', inquiryRequest=null, inquiryFingerprint='';
+  var basicFields=[['contact','Nombre completo','Full name',120,true],['company','Empresa','Company',120,true],['email','Correo de trabajo','Work email',254,true],['process','¿Qué proceso deseas automatizar?','Which process do you want to automate?',220,true],['problem','¿Cuál es el problema principal?','What is the main problem?',160,true],['goal','¿Qué resultado esperas?','What result do you expect?',130,true]];
+  var extraFields=[['area','Departamento y responsables','Department and owners',75,false],['tools','Herramientas e integraciones actuales','Current tools and integrations',80,false],['volume','Volumen y frecuencia','Volume and frequency',45,false],['budget','Presupuesto aproximado','Approximate budget',35,false],['timeline','Plazo deseado','Desired timeline',35,false],['limits','Restricciones y límites','Constraints and limits',65,false]];
+  function inquiryEnglish(){return language()==='en-US';}
+  function showInquiry(mode){
+    if(inquirySubmit.disabled)return;
+    if(inquiryMode!==mode||!fields.childElementCount){
+      inquiryMode=mode;fields.replaceChildren();inquiryRequest=null;inquiryFingerprint='';inquiry.reset();
+      var en=inquiryEnglish();
+      document.getElementById('advisor-inquiry-title').textContent=mode==='quick'?(en?'Quick request':'Solicitud rápida'):(en?'Detailed request':'Solicitud detallada');
+      (mode==='quick'?basicFields:basicFields.concat(extraFields)).forEach(function(spec){
+        var label=document.createElement('label');label.style.cssText='display:block;margin:7px 0;font-size:12px';label.textContent=spec[en?2:1]+(spec[4]?' *':'');
+        var el=document.createElement(['contact','company','email'].includes(spec[0])?'input':'textarea');el.name=spec[0];el.maxLength=spec[3];el.required=spec[4];if(spec[0]==='email')el.type='email';
+        el.style.cssText='display:block;width:100%;box-sizing:border-box;background:#05070e;color:#f8fafc;border:1px solid #334155;border-radius:6px;padding:7px;margin-top:3px';label.appendChild(el);fields.appendChild(label);
+      });
+    }
+    inquiry.hidden=false;capture.hidden=true;inquiryStatus.textContent='';fields.querySelector('input').focus();
+  }
+  document.getElementById('advisor-quick').addEventListener('click',function(){showInquiry('quick');});
+  document.getElementById('advisor-detail').addEventListener('click',function(){showInquiry('detail');});
+  document.getElementById('advisor-inquiry-close').addEventListener('click',function(){if(!inquirySubmit.disabled)inquiry.hidden=true;});
+  inquiry.addEventListener('submit',async function(event){
+    event.preventDefault();if(inquirySubmit.disabled)return;
+    var en=inquiryEnglish(), values=Object.fromEntries(new FormData(inquiry));
+    var need=(inquiryMode==='quick'?basicFields:basicFields.concat(extraFields)).slice(3).filter(function(f){return String(values[f[0]]||'').trim();}).map(function(f){return f[en?2:1]+': '+String(values[f[0]]).trim();}).join('\n');
+    if(need.length>900){inquiryStatus.textContent=en?'Please shorten the answers to 900 total characters.':'Acorta las respuestas a 900 caracteres en total.';return;}
+    var consent=document.getElementById('advisor-inquiry-consent').checked;
+    if(!consent)return;
+    var data={contact:values.contact.trim(),company:values.company.trim(),email:values.email.trim(),need:need,language:en?'en':'es',consent:true,website:''};
+    var fingerprint=JSON.stringify(data);
+    if(inquiryFingerprint!==fingerprint||!inquiryRequest){inquiryRequest=crypto.randomUUID();inquiryFingerprint=fingerprint;}
+    data.requestId=inquiryRequest;inquirySubmit.disabled=true;inquiryStatus.textContent=en?'Sending...':'Enviando...';
+    try{
+      var res=await fetch('/api/leo-advisor-intake',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+      var result=await res.json();
+      if(!res.ok||result.success!==true||result.persistence!=='SUPABASE_CONFIRMED'||!result.reference)throw Error('NOT_CONFIRMED');
+      inquiry.reset();inquiry.hidden=true;inquiryRequest=null;inquiryFingerprint='';
+      addMsg((en?'Request saved. Reference: ':'Solicitud registrada. Referencia: ')+result.reference,'bot');
+    }catch(e){inquiryStatus.textContent=en?'Registration not confirmed. Your answers are preserved; retry.':'Registro no confirmado. Tus respuestas se conservan; vuelve a intentar.';}
+    finally{inquirySubmit.disabled=false;}
+  });
+  function encodeFile(f){return new Promise(function(resolve,reject){var reader=new FileReader();reader.onload=function(){resolve(String(reader.result).split(',')[1]);};reader.onerror=reject;reader.readAsDataURL(f);});}
+
   var open = false;
   var lastQuestion = '';
   var EMAIL = 'ricardo.boltechgroup@gmail.com';
@@ -154,23 +256,29 @@
 
   async function ask(){
     var q = input.value.trim();
-    if(!q || send.disabled) return;
+    if((!q && !attachment) || send.disabled) return;
     var en = (document.documentElement.lang || 'es').slice(0,2) === 'en';
     if(q.length > 900){ addMsg(en?'Please use at most 900 characters.':'Escribe un máximo de 900 caracteres.', 'bot'); return; }
+    var doc=attachment;
+    if(!q)q=en?'Analyze the attached process and recommend automation.':'Analiza el proceso adjunto y recomienda cómo automatizarlo.';
     input.value = '';
     lastQuestion = q;
-    addMsg(q, 'user');
+    addMsg(doc?'📎 '+doc.file.name+'\n'+q:q, 'user');
     var typing = addMsg(en?'Writing...':'Escribiendo...', 'bot typing');
     send.disabled = true;
     try {
+      var payload={message:q,history:history.slice(-8),language:en?'en':'es'};
+      if(doc)payload.document={mime:doc.mime,data:await encodeFile(doc.file)};
       var r = await fetch('/api/leo-advisor-chat', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({message:q,history:history.slice(-8),language:en?'en':'es'})
+        body: JSON.stringify(payload)
       });
       var data = await r.json().catch(function(){ return {}; });
       if(!r.ok || data.success !== true || data.mode !== 'AI_CONSULTATIVE' || data.provider !== 'gemini-cloudflare' || typeof data.reply !== 'string' || !data.reply.trim()) throw new Error('AI_NOT_CONFIRMED');
       addMsg(data.reply, 'bot');
+      lastReply=data.reply;if(voiceOn)speak(lastReply);
+      if(doc){attachment=null;file.value='';fileInfo.textContent='';notice.hidden=true;}
       history.push({role:'user',text:q},{role:'assistant',text:data.reply.slice(0,900)});
       history = history.slice(-8);
     } catch(e){
@@ -186,6 +294,7 @@
 
   leadBtn.addEventListener('click', function(){
     capture.hidden = !capture.hidden;
+    if(!capture.hidden)inquiry.hidden=true;
     if(!capture.hidden) document.getElementById('advisor-name').focus();
   });
 
