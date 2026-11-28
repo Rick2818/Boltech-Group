@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 
 const cfg = JSON.parse(readFileSync(new URL('../vercel.json',import.meta.url),'utf8'));
 const samples = [
-  ['/api/lead',{}],['/api/partners',{action:'metrics'}],['/api/crm',{}],
+  ['/api/partners',{action:'metrics'}],['/api/crm',{}],
   ['/api/a2a',{}],['/api/ai',{}],['/api/intel',{}],['/api/scan',{}],
   ['/api/telegram',{}],['/api/whatsapp',{}],['/api/cron/master-dispatcher',{}],
   ['/api/agent1-autonomous-inbox',{}],['/api/marketing-sales-cycle',{}],
@@ -15,7 +15,10 @@ const samples = [
   ['/api/index',{specialist_chat:'1'}],
   ['/api/index',{telegram:'1'}]
 ];
+// /api/lead was explicitly restored by 7864621 for voluntary web intake.
+// Keep this exception narrow: all other retired routes remain guarded.
 const safe = [
+  ['/api/lead',{}],
   ['/api/payments',{}],['/api/payments',{action:'wompi-webhook'}],
   ['/api/catalog',{}],['/api/index',{catalog:'1'}],
   ['/api/index',{leo_sales:'1'}],['/api',{leo_sales:'1'}],
@@ -41,7 +44,7 @@ test('all removed commercial and specialized routes are blocked by Vercel routin
   }
 });
 
-test('Leo and Wompi routes never match the retirement rules',()=>{
+test('Leo, Wompi and restored voluntary lead intake never match the retirement rules',()=>{
   for(const [path,query] of safe)assert.equal(matched(path,query).length,0,
     'critical route must remain reachable: '+path+' '+JSON.stringify(query));
   assert.equal(cfg.rewrites.some(r=>r.source==='/api/catalog'&&r.destination==='/api/index?catalog=1'),true);
