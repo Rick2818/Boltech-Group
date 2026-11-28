@@ -44,3 +44,42 @@ jobs:
               results=list(pool.map(probe,paths))
           for result in results: print(json.dumps(result,ensure_ascii=True))
           PY
+
+      - name: Verify existing credential configuration without exposing values
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CRM_KEY: ${{ secrets.LEO_PIPELINE_SUPABASE_SERVICE_ROLE_KEY }}
+          SHARED_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          python3 - <<'PY'
+          import urllib.request, urllib.error, os, json, base64
+          cf='https://api.cloudflare.com/client/v4/accounts/f8c7c411bffaade3f6f0af4384db42e0/pages/projects/boltech-group'
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self,*args,**kwargs): return None
+          opener=urllib.request.build_opener(NoRedirect())
+          def request(url,headers):
+              try:
+                  with opener.open(urllib.request.Request(url,headers=headers),timeout=15) as res:
+                      return res.code,json.load(res)
+              except urllib.error.HTTPError as err:
+                  try: data=json.load(err)
+                  except Exception: data={}
+                  return err.code,data
+              except Exception: return 0,{}
+          token=os.getenv('CLOUDFLARE_API_TOKEN','')
+          if token:
+              status,data=request(cf,{'Authorization':'Bearer '+token,'Accept':'application/json'})
+              cfg=((data.get('result') or {}).get('deployment_configs') or {}).get('production') or {}
+              variables=cfg.get('env_vars') or {}
+              print(json.dumps({'cloudflare_config_http':status,'dedicated_crm_key_present':'LEO_PIPELINE_SUPABASE_SERVICE_ROLE_KEY' in variables,'shared_key_present':'SUPABASE_SERVICE_ROLE_KEY' in variables,'shared_url_matches_crm':(variables.get('SUPABASE_URL') or {}).get('value')=='https://uxwfqhromoicrwzyylbn.supabase.co','shared_url_type':(variables.get('SUPABASE_URL') or {}).get('type')}))
+          target='https://uxwfqhromoicrwzyylbn.supabase.co/rest/v1/crm_leads?select=id&source=eq.LEO_INBOUND_V1&limit=0'
+          for name in ['CRM_KEY','SHARED_KEY']:
+              key=os.getenv(name,'').strip()
+              if not key:
+                  print(json.dumps({'github_secret':name,'present':False}))
+                  continue
+              # Fixed official project host; no redirect and no response data printed.
+              status,data=request(target,{'apikey':key,'Authorization':'Bearer '+key,'Accept':'application/json'})
+              code=data.get('code') if isinstance(data,dict) else None
+              print(json.dumps({'github_secret':name,'present':True,'rest_http':status,'error_code':code if isinstance(code,str) and len(code)<40 and code.isalnum() else None}))
+          PY
